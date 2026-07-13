@@ -15,6 +15,7 @@ from typing import Any, Iterable
 
 from connectors import (eurostat_resolve_indicator, ilo_resolve_indicator, osm_resolve_tag,
                         wb_resolve_indicator)
+from freeze import BANKS
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -194,7 +195,10 @@ def main() -> None:
     ap.add_argument("--include-breakers", action="store_true")
     ap.add_argument("--out", type=Path, default=ROOT / "coverage" / "matrix.json")
     args = ap.parse_args()
-    paths = args.paths or sorted((ROOT / "questions").glob("*.json"))
+    # The freeze registry is the active-bank authority. A filesystem glob also sees immutable
+    # holdouts, raw generators, and retired pressure releases, which makes the published matrix
+    # disagree with the wall and corpus even when every individual row is valid.
+    paths = args.paths or [ROOT / rel for rel in BANKS]
     if not args.include_breakers:
         paths = [p for p in paths if "breaker" not in p.name and "holdout" not in p.name]
     rows = load_rows(paths)

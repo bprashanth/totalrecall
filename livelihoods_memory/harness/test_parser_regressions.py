@@ -13,6 +13,7 @@ import ir_schema as I
 import scorer as SC
 import synthesize as SYN
 import synthesis_audit as SA
+import coverage as COV
 import run_bench as RB
 
 
@@ -1383,6 +1384,21 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual(P.mech_comparison_mode(spatial,
             "In Kigali, divide the metro-station count by the count of coworking spaces "
             "more than 5 km from a metro station."),spatial)
+
+        ranked={"op":"RANK","order":"desc","items":[
+            select("wage and salaried workers",{"op":"REGION","place":place})
+            for place in ("France","Germany","Spain","India")]}
+        self.assertEqual(P.mech_behavior_proxy(ranked,
+            "For choosing between countries for salaried work, rank France, Germany, Spain, "
+            "and India by wage and salaried workers in 2022."),ranked)
+
+    def test_coverage_registry_excludes_retired_pressure_banks(self):
+        from freeze import BANKS
+        names={path.name for path in [COV.ROOT / rel for rel in BANKS]
+               if "breaker" not in path.name}
+        self.assertIn("round2-h26-dev.json",names)
+        self.assertNotIn("round2-h23-pressure.json",names)
+        self.assertNotIn("round2-h24-pressure.json",names)
 
 
 if __name__ == "__main__":

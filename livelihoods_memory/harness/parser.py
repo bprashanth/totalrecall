@@ -2316,6 +2316,12 @@ def mech_transfer_relational_source(ir, question):
 def mech_behavior_proxy(ir, question):
     """Preference/motivation/usage-likelihood claims need a proxy, never facility arithmetic."""
     ql=question.lower()
+    # Decision-context preambles can contain words such as "choosing" while the actual request is
+    # a closed quantitative rank. Indicator labels like "salaried workers" are measures here,
+    # not evidence that the user asked for latent human preferences.
+    if isinstance(ir,dict) and ir.get("op")=="RANK" \
+            and re.search(r"\b(?:rank|sort|order)\b",ql):
+        return ir
     personal_goal=bool(re.search(r"\bwhere\b.+\bcould\s+i\b.+\b(?:sell|meet|withdraw|work)\b",ql) or
                        re.search(r"\bto\s+(?:start\s+earning|sell\s+things|learn\s+a\s+trade)\b"
                                  r".+\bwhere\s+should\s+i\s+go\b",ql))

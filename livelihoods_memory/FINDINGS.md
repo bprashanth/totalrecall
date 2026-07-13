@@ -583,3 +583,12 @@ interference. Final disclosed replay is ordinary, strict, and synthesis exact at
 discovery remains separately proposed as `BUG-008`; H26 further validates `BNCH-002` and `SAT-003`.
 Judge decision: H26 is now active development regression evidence but supplies zero untouched
 saturation passes. Epoch 019 requires a completely replayed and certified wall before new banks.
+
+## 2026-07-13 — Active coverage is a registry, not a directory glob [BENCHMARK/CORPUS]
+
+The post-H26 matrix initially counted 1,362 rows while the registered wall contained 1,282. The
+extra 80 were retired H23/H24 pressure rows admitted solely because their filenames remained in the
+questions directory. The matrix now shares the freeze bank registry and exactly matches the wall:
+1,282 rows, 29 banks, and 39 skeletons. Regression `BUG-009` makes cross-artifact bank-set equality
+reviewable by Fable/orchestrator. Judge decision: pressure and immutable artifacts remain valuable
+evidence but are never active merely because they remain on disk.
