@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CORE = [
     "harness/parser.py", "harness/ir_schema.py", "harness/executor.py",
     "harness/connectors.py", "harness/scorer.py", "harness/synthesize.py",
-    "harness/semantic_audit.py", "harness/multiturn.py",
+    "harness/semantic_audit.py", "harness/synthesis_audit.py", "harness/multiturn.py",
     "harness/test_parser_regressions.py", "harness/coverage.py",
     "harness/compile_corpus.py", "harness/release_holdout.py", "harness/freeze.py",
 ]
@@ -31,6 +31,7 @@ BANKS = [
     "questions/round2-h19-dev.json", "questions/round2-h20-dev.json",
     "questions/round2-h21-dev.json", "questions/round2-h22-dev.json",
     "questions/round2-h23-dev.json", "questions/round2-h24-dev.json",
+    "questions/round2-h25-dev.json",
     "questions/round2-breakers.json",
 ]
 EVIDENCE = ["coverage/matrix.json", "coverage/source-census.json",

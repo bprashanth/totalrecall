@@ -320,6 +320,11 @@ def bind_named_indicator(ir, question):
         if (C.ilo_resolve_indicator(entity)[0] or C.eurostat_resolve_indicator(entity)[0] or
                 C.wb_resolve_indicator(entity)[0]):
             named.append(entity)
+    # A singular hyphenated noun used attributively still names the published Eurostat
+    # aggregate.  Keep this narrow: bare "employed person" may describe an individual record,
+    # while "employed-person level/count/total" unambiguously denotes employed persons.
+    if re.search(r"\bemployed[- ]person(?:s)?\s+(?:level|count|total)\b", question, re.I):
+        named.append("employed persons")
     named=list(dict.fromkeys(named))
     if len(named) != 1:
         return ir
@@ -794,6 +799,7 @@ def mech_explicit_rank_semantics(ir, question):
     endpoint_rank = (len(years) == 2 and
                      re.search(r"\b(?:rank|order|ladder|put|winner\s+only|"
                                r"which\s+(?:one|two|three|four|five|had|saw)|"
+                               r"which\s+of|"
                                r"whose\b|top\s*[- ]?\s*(?:\d+|one|two|three|four|five))\b",
                                question, re.I) and
                      (re.search(r"\b(?:change|increas|decreas|rise|rose|gain|fell|fall|drop|"
@@ -803,6 +809,7 @@ def mech_explicit_rank_semantics(ir, question):
     if endpoint_rank and not (change_rank or which_change):
         places_text = None
         for pattern in (
+            r"\bwhich\s+of\s+(.+?)\s+(?:has|have|had|show|shows|saw)\b",
             r"\bwhich\s+(?:\d+|one|two|three|four|five)\s+of\s+(.+?)\s+"
             r"(?:has|have|had|show|shows)\b",
             r"\bamong\s+(.+?),\s*(?:which|whose|rank|order)\b",
@@ -857,15 +864,15 @@ def mech_explicit_rank_semantics(ir, question):
                          r"(?:increase|change|gain|rise)\b", question, re.I):
                 ascending = True
             out = {"op":"RANK", "items":items, "order":"asc" if ascending else "desc"}
-            if re.search(r"\bascending\b|\blowest\s+first\b",question,re.I): out["order"]="asc"
-            elif re.search(r"\bdescending\b|\bhighest\s+first\b",question,re.I): out["order"]="desc"
+            out["order"] = _requested_rank_order(question, out["order"])
             words = {"one":1,"two":2,"three":3,"four":4,"five":5}
             top = re.search(r"\btop\s*[- ]?\s*(\d+|one|two|three|four|five)\b", question, re.I)
             if top:
                 token=top.group(1).lower();out["k"]=int(token) if token.isdigit() else words[token]
             elif re.search(r"\bwhich\s+(?:\w+\s+){0,2}(?:had|has|saw)\s+(?:the\s+)?"
                            r"(?:largest|smallest|greatest|most|fewest)\b|\b(?:winner\s+only|"
-                           r"which\s+one|whose\b.+?\b(?:largest|steepest|most))", question, re.I):
+                           r"which\s+one|which\s+of\b.+?\b(?:largest|smallest|greatest|most|fewest)|"
+                           r"whose\b.+?\b(?:largest|steepest|most))", question, re.I):
                 out["k"] = 1
             return out
 
@@ -1120,6 +1127,31 @@ def mech_mixed_source_compare(ir, question):
     return ir
 
 
+def _requested_rank_order(question, default="desc"):
+    """Resolve explicit direction phrases before isolated superlative words.
+
+    "highest to lowest" contains the word ``lowest`` but is descending; checking single words
+    first inverted several otherwise-complete ranks.
+    """
+    ql = _phrase_norm(question)
+    if re.search(r"\b(?:highest|largest|most)\s+to\s+(?:lowest|smallest|fewest)\b"
+                 r"|\bdescending\b|\bhighest\s+first\b", ql):
+        return "desc"
+    if re.search(r"\b(?:lowest|smallest|fewest)\s+to\s+(?:highest|largest|most)\b"
+                 r"|\bascending\b|\blowest\s+first\b", ql):
+        return "asc"
+    # Preserve a caller's signed-change interpretation: the "largest drop" is normally the
+    # most-negative later-minus-earlier value, not the numerically largest scalar.
+    if re.search(r"\b(?:largest|greatest|steepest)\s+(?:drop|decrease|fall)\b"
+                 r"|\bmost\s+improvement\b", ql):
+        return default
+    if re.search(r"\b(?:lowest|smallest|fewest)\b", ql):
+        return "asc"
+    if re.search(r"\b(?:highest|largest|greatest|most)\b", ql):
+        return "desc"
+    return default
+
+
 def mech_rank_k(ir, question):
     """Bind an explicit first-N modifier independently of how the RANK tree was produced."""
     if not isinstance(ir,dict) or ir.get("op")!="RANK":return ir
@@ -1148,8 +1180,11 @@ def mech_rank_k(ir, question):
     if not m:
         # Singular winner questions denote argmax/argmin, not the complete ordering.
         if re.search(r"\bwhich\s+(?:(?:city|place|region|country)\s+)?(?:has|had|saw)\s+"
-                     r"(?:the\s+)?(?:most|fewest|largest|smallest|greatest|more|fewer)\b",
+                     r"(?:the\s+)?(?:most|fewest|highest|lowest|largest|smallest|greatest|more|fewer)\b",
                      question,re.I):
+            out=dict(ir);out["k"]=1;return out
+        if re.search(r"\bwhich\s+(?:recorded|reported|showed)\s+(?:the\s+)?"
+                     r"(?:highest|lowest|largest|smallest|most|fewest)\b", question, re.I):
             out=dict(ir);out["k"]=1;return out
         if re.search(r"\b(?:winner\s+only|pick\s+the\s+\w+\s+with\s+the\s+"
                      r"(?:highest|lowest|most|fewest)|which\s+one\b)",question,re.I):
@@ -1184,6 +1219,12 @@ def _rank_candidate_places(ir, question):
         r"(?:has|have|had|show|shows|return|returns)\b", question, re.I)
     if match:
         places = _literal_place_list(match.group(1))
+    if len(places) < 3:
+        suffix = re.search(
+            r"\bwhich\s+has\s+the\s+(?:most|fewest|highest|lowest|largest|smallest)\b"
+            r".+?:\s*(.+?)[?!.]*$", question, re.I)
+        if suffix:
+            places = _literal_place_list(suffix.group(1))
     return ["?place" if _phrase_norm(place) == "here" else place for place in places]
 
 
@@ -1231,7 +1272,7 @@ def mech_ranked_quantity(ir, question):
             items = [{"op":"COMPARE", "how":"ratio",
                       "left":point(place,later), "right":point(place,earlier)}
                      for place in places]
-            order = "asc" if re.search(r"\b(?:lowest|smallest|ascending)\b",ql) else "desc"
+            order = _requested_rank_order(question, "desc")
             return finish(items, order)
 
     # Ratio of two per-place counts.
@@ -1272,11 +1313,12 @@ def mech_ranked_quantity(ir, question):
                 return finish(items, "asc" if "shortest" in ql else "desc")
 
     # Relational count/density: the full predicate is cloned per place.
+    quantity_surface = question.split(":", 1)[0] if ":" in question else question
     relation_match = re.search(
         r"\b(?:highest|lowest|most|fewest|top\s*[- ]?\s*(?:\d+|one|two|three|four|five)\s+by)\s+"
         r"(?:the\s+)?(?:density\s+of\s+)?"
         r"(.+?)\s+(within|beyond)\s+(.+?)\s+(?:of|from)\s+(?:a\s+|an\s+|the\s+)?(.+?)[?.,]?$",
-        question, re.I)
+        quantity_surface, re.I)
     if relation_match:
         entity_text, relation, distance, anchor_text = relation_match.groups()
         entity_occ = _entity_occurrences(entity_text, osm_only=True)
@@ -1297,7 +1339,8 @@ def mech_ranked_quantity(ir, question):
                 if d is not None: rel["threshold_km"] = d
                 items.append({"op":"AGGREGATE", "by":"space", "metric":metric,
                               "source":rel})
-            order = "asc" if re.search(r"\b(?:lowest|fewest)\b", question,re.I) else "desc"
+            order = _requested_rank_order(question,
+                "asc" if re.search(r"\b(?:lowest|fewest)\b", question,re.I) else "desc")
             return finish(items, order)
     return ir
 
@@ -1620,7 +1663,7 @@ def mech_answer_form(ir, question):
     count=bool(re.search(r"\b(?:how many|count(?: the| of)?|what is the count)\b",ql))
     presence=bool(re.search(r"\bpresence\s+(?:check|answer|result)\b",ql) or
                   re.match(r"\s*(?:presence\s+check\s*(?:—|:|-)?\s*)?"
-                           r"(?:are\s+there\s+)?any\b",ql))
+                           r"(?:(?:are|is)\s+(?:there\s+)?any|any)\b",ql))
     listing=bool(re.match(r"\s*(?:list|which|identify|where)\b",ql) or
                  re.search(r"\b(?:just|only)\s+the ones\b|\bi (?:want|need) (?:them|the results?) listed\b",ql))
     if count and ir.get("op")=="RELATE":
@@ -2218,6 +2261,34 @@ def mech_negative_relation(ir, question):
 
 def mech_transfer_contract(ir, question):
     """Normalize inferred transfer to the frozen Records->ESTIMATE envelope contract."""
+    # This entire Records-typed source and REGION target are explicit even if the raw model
+    # merges them into ESTIMATE.target.  Rebuild before requiring a schema-valid source child.
+    related = re.match(
+        r"\s*using\s+(.+?)\s+(within|beyond)\s+(.+?)\s+(?:of|from)\s+"
+        r"(?:a|an|the)\s+(.+?),\s*estimate\s+(.+?)\s+(?:coverage|field)\s+in\s+"
+        r"(.+?)\s+by\s+(envelope|feature|interpolate)[.?!]*$", question, re.I)
+    if related:
+        donor_left, relation, distance, anchor_text, target_text, target_place, method = \
+            related.groups()
+        donor_occ = _entity_occurrences(donor_left, osm_only=True)
+        anchor_occ = _entity_occurrences(anchor_text, osm_only=True)
+        target_occ = _entity_occurrences(target_text, osm_only=True)
+        if donor_occ and anchor_occ:
+            start, _, donor_entity = donor_occ[-1]
+            donor_place = donor_left[:start].strip(" ,.;:—-")
+            target_entity = target_occ[-1][2] if target_occ else donor_entity
+            if donor_place:
+                region = {"op":"REGION", "place":donor_place}
+                source = {"op":"RELATE", "relation":relation.lower(),
+                          "left":{"op":"SELECT", "entity":donor_entity,
+                                  "region":region, "time":None},
+                          "right":{"op":"SELECT", "entity":anchor_occ[-1][2],
+                                   "region":region, "time":None}}
+                threshold = _parse_dist_km(distance)
+                if threshold is not None:
+                    source["threshold_km"] = threshold
+                return {"op":"ESTIMATE", "method":method.lower(), "source":source,
+                        "target":{"op":"REGION", "place":target_place.strip(" ,")}}
     if not isinstance(ir,dict) or '"ESTIMATE"' not in json.dumps(ir):return ir
     explicit=None
     for method in ("interpolate","feature","envelope"):
@@ -2605,9 +2676,14 @@ def mech_deictic_roles(ir, question):
     comparator_country = "country being used as its comparator" in ql
     focus_city = bool(re.search(r"\b(?:indian\s+)?focus\s+city\b",ql))
     anchor_under_review = bool(re.search(r"\banchor\s+(?:amenity|facility|entity)\s+under\s+review\b",ql))
+    named_osm = list(dict.fromkeys(key for _, _, key in
+                                   _entity_occurrences(question, osm_only=True)))
+    bare_anchor_anaphor = bool(re.search(
+        r"\b(?:within|beyond|near|beside)\b.+?\b(?:of|from)?\s*(?:them|those)\b", ql)) \
+        and len(named_osm) <= 1
     if not any((by_me, unresolved_city, unresolved_there, unresolved_here,
                 workshop_anaphor, generic_anchor, comparator_country, focus_city,
-                anchor_under_review)):
+                anchor_under_review, bare_anchor_anaphor)):
         return ir
 
     def walk(value, parent_op=None, side=None):
@@ -2633,6 +2709,8 @@ def mech_deictic_roles(ir, question):
         if generic_anchor and parent_op == "RELATE" and side == "right":
             out["entity"] = "?anchor_entity"
         if anchor_under_review and parent_op == "RELATE" and side == "right":
+            out["entity"] = "?anchor_entity"
+        if bare_anchor_anaphor and parent_op == "RELATE" and side == "right":
             out["entity"] = "?anchor_entity"
 
         region = out.get("region")
@@ -2865,6 +2943,18 @@ def _clean_anchor(a):
 
 
 def _parse_dist_km(text):
+    fractions = {
+        "quarter": 0.25, "one quarter": 0.25, "a quarter": 0.25,
+        "three quarters": 0.75, "three quarter": 0.75,
+        "one and a half": 1.5,
+    }
+    fraction = re.search(
+        r"\b(one\s+and\s+a\s+half|three\s+quarters?|one\s+quarter|a\s+quarter|quarter)"
+        r"(?:\s+of)?\s+(?:a\s+|one\s+)?"
+        r"(km|kilometers?|kilometres?|meters?|metres?)\b", text, re.I)
+    if fraction:
+        value = fractions[fraction.group(1).lower()]
+        return value if fraction.group(2).lower().startswith("k") else value / 1000.0
     half = re.search(r"\bhalf\s+(?:a\s+|one\s+)?"
                      r"(km|kilometers?|kilometres?|meters?|metres?)\b", text, re.I)
     if half:

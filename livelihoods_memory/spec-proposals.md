@@ -479,3 +479,42 @@ only through their own active bank identity. Publish a zero-leak audit at every 
 **Evidence:** pre-freeze epoch-017 corpus audit of `h10-042`; fixed implementation and deterministic
 guard in `harness/compile_corpus.py` and `harness/test_parser_regressions.py`. Governance record:
 `BUG-006`.
+
+## 2026-07-13 — Typed deterministic answer rendering
+
+**Failure that forced it:** H25 and a scan of the epoch-017 wall showed that correct typed results
+were routinely contradicted after execution: true became no/zero, observed became modelled,
+modelled outputs lost corroboration warnings, a sample distance became an invented mean, and an
+OSM row's arbitrary `attrs.source` became provenance for the whole answer.
+
+**Proposed contract:** common typed values and all failure reasons have deterministic renderers.
+Free-form generation is not a truth boundary. The renderer consumes only declared answer fields
+and provenance routes; it fails closed when requested answer form, candidate closure, direction,
+or threshold conflicts with executed IR. A mechanical audit verifies polarity, evidence label,
+numeric authorization, ordering, source attribution, partial-list disclosure, and failure taxonomy.
+
+**Evidence:** immutable H25 first contact, the epoch-017 wall scan, rejected epoch-018 walls v1/v2,
+and deterministic regressions. Governance record: `BUG-007`.
+
+## 2026-07-13 — Synthesis faithfulness is a saturation gate
+
+**Why compiler closure was insufficient:** epoch 017 was exact on all eligible strict IR rows but
+could not safely answer users because its prose layer was systematically unfaithful. A saturation
+claim about a general query solver must cover the delivered answer, not only the internal tree.
+
+**Proposed protocol:** every historical wall and every untouched bank must pass an all-row,
+model-free synthesis/evidence audit. Any valid synthesis, audit, executor, connector, scorer, or
+compiler repair retires the epoch and resets the three-bank sequence. Reports publish prose
+failure families alongside compiler discovery families. Governance record: `SAT-003`.
+
+## 2026-07-13 — Executable pre-contact gold and source warrant
+
+**Admission finding:** H25's raw generator emitted exact years as scalar strings, while connector
+boundedness requires `{start,end}` windows; sparse census summaries also could not prove every
+exact operand. Before parser contact, the main judge normalized only representation and directly
+executed candidate golds to verify route, table, unit, observation cardinality, flags, and outcome.
+
+**Proposed protocol:** make this an automatic admission stage. It may repair benchmark metadata or
+representation before first contact, but after the bank checksum all gold and expectations are
+immutable. Parser-under-test contact remains forbidden during admission. Governance record:
+`BNCH-002`.

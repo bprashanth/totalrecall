@@ -92,6 +92,16 @@ def _route_select(entity, region, time, prov):
                      "ambiguous": ambig, "note": out["note"]})
         return {"kind": "series", "rows": out["rows"], "label": "observed",
                 "source": out["source"], "ambiguous": ambig}
+    # The indicator is mapped, but this region is outside the connector's curated Eurostat
+    # geography.  Calling this `no_connector` falsely blames entity coverage (H24); preserve the
+    # distinction so the user knows that a regional source/geo mapping is what is missing.
+    if euro_spec and not euro_geo:
+        name=region.get("orig") or region.get("name")
+        prov.append({"op":"SELECT", "route":"eurostat", "resolved":euro_canon,
+                     "note":f"indicator mapped but region {name!r} is outside curated coverage"})
+        raise DataRequest("regional_scope_unavailable",
+                          {"entity":entity,"region":name,"source":"eurostat",
+                           "hint":"add a verified regional geography/source mapping"})
     # osm point entity?
     tag, ocanon, oambig = C.osm_resolve_tag(entity)
     if tag:
@@ -145,6 +155,7 @@ def _ev(node, prov, region_ctx):
             raise DataRequest("annotation_unavailable",
                               {"layer": node["layer"],
                                "hint": "the requested field is absent from every source record"})
+        src["annotation"]={"layer":node["layer"],"n_nonnull":nonnull}
         return src
 
     if op == "RELATE":
@@ -194,8 +205,9 @@ def _ev(node, prov, region_ctx):
         k = node.get("k")
         if isinstance(k, int) and k > 0:
             scored = scored[:k]
+        separator = " > " if rev else " < "
         prov.append({"op": "RANK", "order": node.get("order"),
-                     "note": " > ".join(f"{r['label']}={r['value']}" for r in scored)})
+                     "note": separator.join(f"{r['label']}={r['value']}" for r in scored)})
         return {"kind": "ranking", "rows": scored,
                 "label": _merge_label(*[v["label"] for v in vals]), "source": "rank"}
 
@@ -390,7 +402,10 @@ def _compare(left, right, how):
     if ya is not None and yb is not None and ya < yb:
         a, b = b, a
         oriented = " (oriented later-minus-earlier)"
-    val = (a - b) if how == "difference" else (a / b if b else None)
+    if how == "ratio" and b == 0:
+        return {"kind":"scalar", "value":"undefined (zero denominator)",
+                "note":f"{a} ratio {b} is undefined (zero denominator){oriented}"}
+    val = (a - b) if how == "difference" else (a / b)
     return {"kind": "scalar", "value": val, "note": f"{a} {how} {b} = {val}{oriented}"}
 
 

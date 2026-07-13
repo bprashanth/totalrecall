@@ -39,7 +39,12 @@ def _context(exec_result):
            "reason": exec_result.get("reason"), "detail": exec_result.get("detail"),
            "kind": v.get("kind"), "scalar": v.get("value"),
            "n_rows": v.get("n_rows", len(v.get("rows", []) or [])),
-           "sample_rows": (v.get("rows") or [])[:3],
+           # Never expose arbitrary OSM attrs to an answer model. In H25 an attrs.source tag on
+           # one row was promoted into the source for the whole result. Only typed answer fields
+           # are safe at this boundary.
+           "sample_rows": [{k: row.get(k) for k in ("name", "t", "value", "dist_km")
+                            if row.get(k) is not None}
+                           for row in (v.get("rows") or [])[:3]],
            "provenance_notes": [p.get("note") for p in exec_result.get("provenance", [])
                                 if p.get("note")][:4],
            "sources": list({p.get("route") for p in exec_result.get("provenance", [])
@@ -47,60 +52,244 @@ def _context(exec_result):
     return ctx
 
 
-def synthesize(question, exec_result, role="qwen2b"):
-    ctx = _context(exec_result)
-    # Deterministic honesty surfaces for source gaps. A small model turned no_connector into
-    # "no pottery studios exist" (tick-006), conflating tool coverage with real-world absence.
+def _fmt(value):
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, float):
+        return f"{value:.6g}"
+    return str(value)
+
+
+def _source_label(exec_result):
+    names = {"osm": "OpenStreetMap", "worldbank": "World Bank",
+             "ilostat": "ILOSTAT", "eurostat": "Eurostat"}
+    routes=[]
+    for item in exec_result.get("provenance", []):
+        route=item.get("route")
+        if route in names and names[route] not in routes:
+            routes.append(names[route])
+    return ", ".join(routes) if routes else "the resolved data source"
+
+
+def _source_suffix(exec_result):
+    return f" Source: {_source_label(exec_result)}."
+
+
+def _walk_ir(value):
+    if isinstance(value, list):
+        for item in value:
+            yield from _walk_ir(item)
+    elif isinstance(value, dict):
+        yield value
+        for child in value.values():
+            yield from _walk_ir(child)
+
+
+def _without_time(value):
+    if isinstance(value,list):
+        return [_without_time(item) for item in value]
+    if isinstance(value,dict):
+        return {key:_without_time(item) for key,item in value.items() if key!="time"}
+    return value
+
+
+def _times(value):
+    return [node.get("time") for node in _walk_ir(value)
+            if node.get("op")=="SELECT" and node.get("time") is not None]
+
+
+def _temporal_difference(ir):
+    if not isinstance(ir,dict) or ir.get("op")!="COMPARE" or ir.get("how")!="difference":
+        return False
+    left,right=ir.get("left"),ir.get("right")
+    return (_without_time(left)==_without_time(right) and _times(left) and _times(right)
+            and _times(left)!=_times(right))
+
+
+def _operand_label(node):
+    selects=[item for item in _walk_ir(node) if item.get("op")=="SELECT"]
+    if not selects:return "the operand"
+    first=selects[0]
+    region=first.get("region")
+    place=region.get("place") if isinstance(region,dict) else region
+    return str(place or first.get("entity") or "the operand")
+
+
+def _difference_finding(question, scalar, ir):
+    magnitude=_fmt(abs(scalar))
+    if _temporal_difference(ir):
+        direction="decrease" if scalar<0 else "increase" if scalar>0 else "no change"
+        return f"The change is {_fmt(scalar)} ({direction} of {magnitude})."
+    ql=question.lower()
+    direct=bool(re.match(r"\s*(?:does|do|is|are|has|have|did|was|were)\b",ql))
+    if direct and re.search(r"\b(?:more|higher|greater|larger|outnumber)\b",ql):
+        yes=scalar>0
+        relation="higher" if scalar>0 else "lower" if scalar<0 else "equal"
+        return f"{'Yes' if yes else 'No'}; the left-hand value is {relation} (difference {_fmt(scalar)})."
+    if direct and re.search(r"\b(?:less|lower|fewer|smaller)\b",ql):
+        yes=scalar<0
+        relation="lower" if scalar<0 else "higher" if scalar>0 else "equal"
+        return f"{'Yes' if yes else 'No'}; the left-hand value is {relation} (difference {_fmt(scalar)})."
+    if re.search(r"^\s*which\b|\bwhich\s+(?:city|region|country|one)\b",ql):
+        if scalar==0:return f"The two operands are tied (difference 0)."
+        winner=_operand_label(ir["left"] if scalar>0 else ir["right"])
+        return f"{winner} has the larger value; the left-minus-right difference is {_fmt(scalar)}."
+    return f"The computed left-minus-right difference is {_fmt(scalar)}."
+
+
+def _contract_issue(question, exec_result, ir):
+    """Fail closed when the compiled result cannot answer an explicit surface contract."""
+    if exec_result.get("status") != "answer" or not isinstance(ir, dict):
+        return None
+    value=exec_result.get("value") or {}
+    ql=question.lower()
+    rank_intent=bool(re.search(
+        r"\b(?:rank|order)\b|\bwhich\b.+?\b(?:highest|lowest|most|fewest|largest|smallest)\b",
+        ql))
+    if rank_intent and (":" in question or re.search(r"\bamong\b|\bwhich\s+of\b",ql)) \
+            and value.get("kind") != "ranking":
+        return "the compiled result is not the requested complete ranking"
+    if ir.get("op") == "RANK":
+        requested=None
+        if re.search(r"\b(?:highest|largest|most)\s+to\s+(?:lowest|smallest|fewest)\b"
+                     r"|\bdescending\b|\bhighest\s+first\b",ql): requested="desc"
+        elif re.search(r"\b(?:lowest|smallest|fewest)\s+to\s+(?:highest|largest|most)\b"
+                       r"|\bascending\b|\blowest\s+first\b",ql): requested="asc"
+        if requested and ir.get("order") != requested:
+            return "the compiled ranking direction conflicts with the requested direction"
+    existential=bool(re.match(r"\s*(?:is|are)\s+(?:there\s+)?any\b",ql) or
+                     re.match(r"\s*is\s+at\s+least\s+one\b",ql))
+    if existential and not (value.get("kind") == "scalar" and
+                            isinstance(value.get("value"), bool)):
+        return "the compiled result is not the requested yes-or-no presence answer"
+    relations=[node for node in _walk_ir(ir) if node.get("op")=="RELATE" and
+               isinstance(node.get("threshold_km"),(int,float))]
+    # A single-threshold question can be checked exactly. Multi-clause thresholds are already
+    # protected by strict compiler guards and are intentionally not collapsed here.
+    if len(relations)==1:
+        from parser import _parse_dist_km
+        requested=_parse_dist_km(ql)
+        if requested is not None and abs(relations[0]["threshold_km"]-requested)>1e-9:
+            return "the executed distance threshold conflicts with the requested threshold"
+    return None
+
+
+def _render_nonanswer(exec_result):
+    status=exec_result.get("status")
     reason = exec_result.get("reason")
     detail = exec_result.get("detail") or {}
-    if exec_result.get("status") == "data_request" and reason == "no_connector":
+    if status == "error":
+        if reason == "no_ir":
+            return ("I couldn't compile this request into a valid query, so no factual answer "
+                    "or data-availability conclusion is safe. Please rephrase the request.")
+        return ("The query failed during deterministic execution; no factual answer or "
+                "data-availability conclusion is safe.")
+    if reason == "no_connector":
         entity = detail.get("entity", "that entity")
         return (f"No configured data source maps {entity!r}; this is a source-coverage gap, not "
                 "evidence that none exist. Please refine the entity or add a suitable connector.")
-    if exec_result.get("status") == "data_request" and reason == "empty_select":
+    if reason == "empty_select":
         entity = detail.get("entity", "the requested records")
         return (f"No mapped records were returned for {entity!r}. Treat this as missing coverage, "
                 "not evidence that none exist; local data collection or source verification is needed.")
-    if exec_result.get("status") == "data_request" and reason == "source_truncated":
+    if reason == "source_truncated":
         return ("The source exceeded the safe retrieval cap, so an exact or spatially complete "
                 "answer would be misleading. Narrow the region or use a complete bulk source.")
-    msgs = [{"role": "system", "content": SYNTH_SYSTEM},
-            {"role": "user", "content": f"Question: {question}\n\nResult:\n{json.dumps(ctx, default=str)}"}]
-    try:
-        prose = chat(role, msgs, temperature=0.0, max_tokens=220).strip()
-        # A ranking is already sorted by deterministic execution. Tick-004-gen001 found fluent
-        # prose that copied every value but reordered Canada from first to last and called the US
-        # highest. Preserve the model at the synthesis edge, but reject a reordered surface and
-        # fall back to a deterministic rendering of the trusted rows.
-        rows = (exec_result.get("value") or {}).get("rows") or []
-        if (exec_result.get("value") or {}).get("kind") == "ranking" and rows:
-            positions = [prose.lower().find(str(r.get("label", "")).lower()) for r in rows]
-            mentioned = [(i, p) for i, p in enumerate(positions) if p >= 0]
-            order_ok = bool(mentioned and mentioned[0][0] == 0 and
-                            all(a[1] < b[1] for a, b in zip(mentioned, mentioned[1:])))
-            if not order_ok:
-                def fmt(v):
-                    return f"{v:.4g}" if isinstance(v, float) else str(v)
-                ranked = ", ".join(f"{r.get('label')} ({fmt(r.get('value'))})" for r in rows)
-                sources = {p.get("route") for p in exec_result.get("provenance", [])}
-                source = "World Bank" if "worldbank" in sources else \
-                    "OpenStreetMap" if "osm" in sources else "the resolved data source"
-                caveat = " This is a modelled estimate needing local corroboration." \
-                    if exec_result.get("label") == "modelled" else ""
-                return f"Ranking: {ranked}. Source: {source}.{caveat}"
-        if (exec_result.get("value") or {}).get("kind") == "records":
-            n = (exec_result.get("value") or {}).get("n_rows", len(rows))
-            first = _first_number(prose)
-            if first is None or first != n:
-                names = [str(r.get("name")) for r in rows[:3] if r.get("name")]
-                examples = f" Examples: {'; '.join(names)}." if names else ""
-                sources = {p.get("route") for p in exec_result.get("provenance", [])}
-                source = "World Bank" if "worldbank" in sources else \
-                    "OpenStreetMap" if "osm" in sources else "the resolved data source"
-                return f"Found {n} matching records.{examples} Source: {source}."
-        return prose
-    except RuntimeError as e:
-        return f"[synthesis-failed] {e}"
+    if reason == "parse_invalid":
+        return ("I couldn't compile this request into a valid typed query. This is a compiler "
+                "failure, not evidence that the requested data are absent.")
+    if reason == "unbound_holes":
+        holes=detail.get("holes") or []
+        names=[str(item.get("name",item)) if isinstance(item,dict) else str(item) for item in holes]
+        suffix=f" Missing: {', '.join(names)}." if names else ""
+        return "I need clarification before running this query." + suffix
+    if reason == "gate_failed":
+        ask=detail.get("ask") or "collect local target-area observations"
+        return f"The transfer gate did not pass: {detail.get('reason','insufficient support')}. Please {ask}."
+    if reason == "national_scope_required":
+        return ("The configured indicator source is country-level and cannot support this "
+                "subnational request. A verified regional source is required.")
+    if reason == "regional_scope_unavailable":
+        region=detail.get("region","the requested region")
+        return (f"The indicator is mapped, but {region} is outside the connector's verified "
+                "regional geography. Add a verified regional source or geography mapping.")
+    if reason == "unresolved_region":
+        return "The named region could not be resolved reliably. Please clarify the place."
+    if reason == "annotation_unavailable":
+        return "The requested annotation is not present in the source records; collect that field first."
+    return f"I can't answer safely because required data or bindings are missing ({reason or 'data_request'})."
+
+
+def synthesize(question, exec_result, role="qwen2b", ir=None):
+    """Render typed results deterministically; freeform generation is not a truth boundary."""
+    if exec_result.get("status") != "answer":
+        return _render_nonanswer(exec_result)
+    issue=_contract_issue(question,exec_result,ir)
+    if issue:
+        return f"I can't safely answer: {issue}."
+    value=exec_result.get("value") or {}
+    kind=value.get("kind")
+    label=exec_result.get("label")
+    source=_source_suffix(exec_result)
+    caveat=(" This is a modelled estimate requiring local corroboration."
+            if label=="modelled" else "")
+    if kind=="scalar":
+        scalar=value.get("value")
+        if isinstance(scalar,bool):
+            return ("Yes, the requested condition is present." if scalar else
+                    "No, the requested condition is not present.") + source + caveat
+        if isinstance(scalar,str):
+            return f"The computed result is {scalar}." + source + caveat
+        mode=next((p.get("how") for p in reversed(exec_result.get("provenance",[]))
+                   if p.get("op")=="COMPARE"),None)
+        if mode=="difference" and isinstance(scalar,(int,float)):
+            finding=_difference_finding(question,scalar,ir)
+        elif mode=="ratio":
+            finding=f"The ratio is {_fmt(scalar)}."
+        else:
+            finding=f"The computed value is {_fmt(scalar)}."
+        return finding+source+caveat
+    rows=value.get("rows") or []
+    n=value.get("n_rows",len(rows))
+    if kind=="ranking":
+        ranked=", ".join(f"{row.get('label')} ({_fmt(row.get('value'))})" for row in rows)
+        return f"Ranking: {ranked}."+source+caveat
+    if kind=="records":
+        if isinstance(ir,dict) and ir.get("op")=="ANNOTATE":
+            layer=ir.get("layer")
+            annotated=[row for row in rows if row.get(layer) is not None]
+            samples="; ".join(f"{row.get('name') or 'unnamed'} — {_fmt(row.get(layer))}"
+                             for row in annotated[:3])
+            detail=(f" Examples: {samples}." if samples else "")
+            count=(value.get("annotation") or {}).get("n_nonnull",len(annotated))
+            if layer=="name":
+                detail=(f" Examples: {'; '.join(str(row.get('name')) for row in annotated[:3])}."
+                        if annotated else "")
+                return f"Found {n} mapped records; {count} have a name."+detail+source+caveat
+            return (f"Found {n} mapped records; {layer} is present for {count}."
+                    +detail+source+caveat)
+        examples=[]
+        for row in rows[:3]:
+            name=row.get("name")
+            if name:
+                distance=f" ({_fmt(row['dist_km'])} km)" if isinstance(row.get("dist_km"),(int,float)) else ""
+                examples.append(str(name)+distance)
+        sample=f" Examples: {'; '.join(examples)}." if examples else ""
+        if n and not examples:
+            return (f"Found {n} matching mapped records, but none has a display name to list."
+                    +source+caveat)
+        return f"Found {n} matching records."+sample+source+caveat
+    if kind=="series":
+        if len(rows)==1:
+            row=rows[0]
+            return f"The recorded value is {_fmt(row.get('value'))} for {row.get('t')}."+source+caveat
+        if rows:
+            return (f"The series contains {n} observations, from {_fmt(rows[0].get('value'))} "
+                    f"at {rows[0].get('t')} to {_fmt(rows[-1].get('value'))} at {rows[-1].get('t')}.")+source+caveat
+    if kind=="field":
+        return (f"A modelled field was generated from {n} source records; {n} is not an observed "
+                "target count and local corroboration is required."+source)
+    return "A typed answer was produced, but its result kind has no safe renderer."+source+caveat
 
 
 def score_synthesis(question, exec_result, prose):
@@ -115,9 +304,13 @@ def score_synthesis(question, exec_result, prose):
     headline = None
     if isinstance(v.get("value"), (int, float)):
         headline = v["value"]
-    elif v.get("kind") == "records" and v.get("n_rows") is not None:
-        headline = v.get("n_rows")
-    if status == "answer" and headline is not None and s["not_empty"]:
+    elif v.get("kind") == "records":
+        headline = v.get("n_rows",len(v.get("rows") or []))
+    if status == "answer" and isinstance(v.get("value"), bool) and s["not_empty"]:
+        negative=bool(re.search(r"\b(?:no|none|zero|not present|false)\b",prose.lower()))
+        positive=bool(re.search(r"\b(?:yes|present|true)\b",prose.lower()))
+        s["states_finding"] = (positive and not negative) if v["value"] else negative
+    elif status == "answer" and headline is not None and s["not_empty"]:
         def num_in(x, text):
             if isinstance(x, float):
                 cands = {f"{x:.0f}", f"{x:.1f}", f"{x:.2f}", f"{x:,.0f}"}
@@ -125,6 +318,7 @@ def score_synthesis(question, exec_result, prose):
                 cands = {str(x), f"{x:,}"}
             return any(c in text for c in cands)
         found = num_in(headline, prose) or num_in(abs(headline), prose)
+        found = found or _fmt(headline) in prose or _fmt(abs(headline)) in prose
         if v.get("kind") == "records":
             found = _first_number(prose) == headline
         if not found:
@@ -139,7 +333,8 @@ def score_synthesis(question, exec_result, prose):
         # direction / ranking / list answers: at least echo a value or label from the result
         rows = (v.get("rows") or [])[:3]
         if status == "answer" and v.get("kind") == "ranking" and rows:
-            positions = [prose.lower().find(str(r.get("label", "")).lower()) for r in rows]
+            positions = [prose.lower().find(
+                f"{r.get('label')} ({_fmt(r.get('value'))})".lower()) for r in rows]
             mentioned = [(i, p) for i, p in enumerate(positions) if p >= 0]
             s["states_finding"] = bool(mentioned and mentioned[0][0] == 0 and
                                        all(a[1] < b[1] for a, b in zip(mentioned, mentioned[1:])))
@@ -148,17 +343,68 @@ def score_synthesis(question, exec_result, prose):
                 any(str(r.get("label", r.get("value", ""))).split(",")[0] in prose
                     for r in rows) or v.get("kind") == "series")
     if exec_result.get("label") == "modelled":
-        s["modelled_flagged"] = bool(re.search(r"model|estimat|approximat", prose.lower()))
+        s["modelled_flagged"] = bool(re.search(r"model|estimat|approximat", prose.lower())) \
+            and bool(re.search(r"local\s+corroborat|corroborat\w*\s+locally",prose.lower()))
+    elif status == "answer":
+        s["modelled_flagged"] = not bool(re.search(
+            r"\b(?:modelled|modeled)\s+(?:estimate|field|result)|\ba\s+modelled\s+estimate\b",
+            prose.lower()))
     else:
         s["modelled_flagged"] = True
     if status == "data_request":
         s["gap_stated"] = bool(re.search(r"missing|no data|source-coverage gap|no configured data source|need|required?|collect|clarif|which |couldn|unable|specify"
-                                         r"|cannot|can't|not (?:locate|find|available)|no available",
+                                         r"|cannot|can't|not (?:locate|find|available)|no available"
+                                         r"|exceeded|incomplete|misleading|narrow|complete bulk|outside|add a verified",
                                          prose.lower()))
-        s["no_fabrication"] = not re.search(r"\b\d{2,}\b", prose)  # no invented big numbers
+        # A DataRequest may repeat numbers supplied by the user or grounded in its structured
+        # failure detail (for example, "2 source records; collect >=5").  It must not introduce
+        # numbers from free text outside those two typed inputs.
+        allowed=[float(x.replace(",","")) for x in re.findall(
+            r"\b\d[\d,]*(?:\.\d+)?\b",question)]
+        def collect_detail(value):
+            if isinstance(value, bool) or value is None:
+                return
+            if isinstance(value, (int, float)):
+                allowed.append(float(value))
+            elif isinstance(value, str):
+                for hit in re.findall(r"\b\d[\d,]*(?:\.\d+)?\b", value):
+                    allowed.append(float(hit.replace(",", "")))
+            elif isinstance(value, list):
+                for item in value:
+                    collect_detail(item)
+            elif isinstance(value, dict):
+                for item in value.values():
+                    collect_detail(item)
+        collect_detail(exec_result.get("detail"))
+        found=[float(x.replace(",","")) for x in re.findall(
+            r"\b\d[\d,]*(?:\.\d+)?\b",prose)]
+        s["no_fabrication"] = all(any(abs(x-y)<1e-6 for y in allowed) for x in found)
     else:
         s["gap_stated"] = True
-        s["no_fabrication"] = True
+        allowed=[]
+        def collect(value):
+            if isinstance(value,bool) or value is None:return
+            if isinstance(value,(int,float)):allowed.append(float(value));return
+            if isinstance(value,str):
+                for hit in re.findall(r"\b\d[\d,]*(?:\.\d+)?\b",value):
+                    allowed.append(float(hit.replace(",","")))
+                return
+            if isinstance(value,list):
+                for item in value:collect(item)
+            elif isinstance(value,dict):
+                for key,item in value.items():
+                    if key in ("attrs","id","lat","lon"):continue
+                    collect(item)
+        if isinstance(v.get("rows"),list):
+            allowed.append(float(v.get("n_rows",len(v["rows"]))))
+        collect(v)
+        collect({"question_numbers":re.findall(r"\b\d[\d,]*(?:\.\d+)?\b",question)})
+        found=[]
+        for hit in re.findall(r"(?<![a-z])[-+]?\d[\d,]*(?:\.\d+)?(?![a-z])",prose.lower()):
+            try:found.append(float(hit.replace(",","")))
+            except ValueError:pass
+        s["no_fabrication"] = all(any(abs(x-y)<1e-4 or abs(abs(x)-abs(y))<1e-4
+                                       for y in allowed) for x in found)
     dims = [k for k in s]
     s["overall"] = round(sum(1.0 if s[k] else 0.0 for k in dims) / len(dims), 3)
     return s
