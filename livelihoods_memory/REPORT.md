@@ -262,6 +262,9 @@ semantic lints for cardinality, candidate coverage, operands, source gaps, and o
 SCR-001 proposes output-form-sensitive coarse diagnostics while retaining strict audit as the
 release gate. These are durable proposals for Fable review, not silent bootstrap changes.
 
-Epoch 014 is retired and the saturation counter is still zero. Epoch 015 must first recertify the
-entire enlarged wall, then H21 and later cross-family banks must independently test whether these
-families actually remain closed.
+Epoch 014 is retired and the saturation counter is still zero. Epoch 015 now certifies exactly
+1,000 questions across 23 banks and 31 skeletons: ordinary 1,000/1,000, strict 998/1,000 overall
+and 998/998 eligible, dialogue 5/5, and 69/69 deterministic regressions. Corpus compilation yields
+1,012 unique parse rows plus five clarification rows with composite defect identity preserved.
+H21 and later cross-family banks must independently test whether the H20 families actually remain
+closed; none of the disclosed H20 evidence counts toward the required three passes.

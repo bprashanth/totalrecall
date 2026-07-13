@@ -38,38 +38,51 @@ def active_questions():
     return active
 
 
-def declared_gold_defect_questions():
-    """Resolve composite bank/id defect keys to text; IDs alone are not globally unique."""
+def declared_gold_defects():
+    """Return composite bank/id keys; neither IDs nor question text are globally unique.
+
+    A corrected disclosed-development copy can intentionally reuse the exact question text from
+    an immutable defective holdout.  Excluding by text would discard the repaired evidence too.
+    """
     try:
-        data = json.load(open(GOLD_DEFECTS))
+        with open(GOLD_DEFECTS) as handle:
+            data = json.load(handle)
     except (json.JSONDecodeError, OSError):
         return set()
-    questions = set()
-    root = os.path.join(HERE, "..")
-    for defect in data.get("rows", []):
-        try:
-            bank = json.load(open(os.path.join(root, defect["bank"])))
-        except (KeyError, json.JSONDecodeError, OSError):
-            continue
-        questions.update(row.get("q") for row in bank.get("questions", [])
-                         if row.get("id") == defect.get("id") and row.get("q"))
-    return questions
+    return {(defect.get("bank"), defect.get("id")) for defect in data.get("rows", [])
+            if defect.get("bank") and defect.get("id")}
+
+
+def normalize_bank_path(value):
+    """Canonicalize historical `../questions/X` and absolute paths to `questions/X`."""
+    if not value:
+        return None
+    parts = str(value).replace("\\", "/").split("/")
+    if "questions" in parts:
+        index = len(parts) - 1 - parts[::-1].index("questions")
+        return "/".join(parts[index:])
+    return str(value)
 
 
 def collect_parse_rows():
     best = {}  # question -> (mtime, row)
     active = active_questions()
-    defects = declared_gold_defect_questions()
+    defects = declared_gold_defects()
     for path in sorted(glob.glob(os.path.join(RUNS, "*", "traces.jsonl"))):
         mtime = os.path.getmtime(path)
+        summary_path = os.path.join(os.path.dirname(path), "summary.json")
+        try:
+            source_bank = normalize_bank_path(json.load(open(summary_path)).get("questions"))
+        except (json.JSONDecodeError, OSError):
+            source_bank = None
         for line in open(path):
             r = json.loads(line)
             if "question" not in r or "scores" not in r:
                 continue
             if r.get("model") != "qwen2b":
                 continue  # frontier controls are evaluation, not parser-under-test self-training
-            if r.get("question") in defects:
-                continue  # an executable/schema-valid tree can still be a declared bad gold
+            if (source_bank, r.get("id")) in defects:
+                continue  # executable/schema-valid trees can still have bank-local bad gold
             s = r["scores"]
             ir = None
             if s.get("overall", 0) >= 0.999 and r.get("ir"):
