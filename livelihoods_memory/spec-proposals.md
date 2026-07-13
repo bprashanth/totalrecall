@@ -212,3 +212,26 @@ missing connector capability and required evidence. Use holes only for unresolve
 references. Benchmark metadata must therefore allow `expect:data_request` with `must_hole:false`.
 
 **Evidence:** admitted rows `h18-045` and `h18-046` in `questions/holdout-018.json`.
+
+## 2026-07-13 — Connector-declared temporal admissibility
+
+**Questions that forced it:** “Is the number of coworking spaces near a bank increasing in
+Berlin?” and “Did the number of craft workshops not near a park in Accra increase between 2015
+and 2020?”
+
+**Why v2.1 cannot handle them honestly:** the OSM connector supplies a current snapshot with no
+historical observation time, but the symbolic executor accepts `SELECT.time` on those records.
+It can therefore return an apparent answer for a trend or two-endpoint change even though both
+operands came from the same present-day snapshot. Allowing `answer_or_data_request` would conceal
+the evidence defect rather than characterize source variability.
+
+**Proposed change:** every connector declares temporal capability (`snapshot`, `historical`, or
+`timeless`), supported valid-time range/frequency where applicable, and the distinction between
+record valid time and retrieval time. The executor must fail closed with a typed source-gap
+`DataRequest` whenever a trend, historical endpoint, or time filter requires evidence the source
+cannot supply. Provenance must record the capability decision. This is a connector/executor
+contract, not a new parser operation.
+
+**Evidence:** rejected pre-contact candidates `h19-057` and `h19-062` in
+`questions/holdout-h19-generated.json`; admission record
+`chronology/20260713_round2_epoch_013_h19_admission.md`.

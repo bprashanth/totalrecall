@@ -161,6 +161,15 @@
       "source": "livelihoods_memory/spec-proposals.md",
       "resolution_candidate": "Preserve explicitly requested unsupported literals and return a source-gap DataRequest; reserve holes for unresolved user meaning or references.",
       "required_tests": ["unsupported explicit entity remains literal", "data request without holes", "ambiguous entity still holes", "missing reference still holes", "source capability named in provenance"]
+    },
+    {
+      "id": "SRC-001",
+      "title": "Connector-declared temporal admissibility",
+      "scope": "connector-contract",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "note": "H19 showed that a current-snapshot record connector can silently accept historical time constraints and manufacture a trend or endpoint comparison. Connectors must declare time semantics and the executor must fail closed when the requested temporal evidence is unavailable.",
+      "required_tests": ["snapshot source rejects historical endpoints", "trend requires time-indexed evidence", "valid-time versus retrieval-time provenance", "historical connector accepts supported range", "missing temporal coverage returns DataRequest"]
     }
   ]
 }

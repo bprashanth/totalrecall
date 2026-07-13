@@ -1,0 +1,2002 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-h19-generated.json",
+  "pre_run_exclusions": [
+    "h19-001",
+    "h19-003",
+    "h19-004",
+    "h19-021",
+    "h19-022",
+    "h19-023",
+    "h19-024",
+    "h19-025",
+    "h19-026",
+    "h19-030",
+    "h19-033",
+    "h19-039",
+    "h19-042",
+    "h19-043",
+    "h19-045",
+    "h19-048",
+    "h19-051",
+    "h19-053",
+    "h19-055",
+    "h19-057",
+    "h19-059",
+    "h19-060",
+    "h19-062",
+    "h19-063"
+  ],
+  "questions": [
+    {
+      "id": "h19-002",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "What is the density of coworking spaces in Berlin?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "density",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-005",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How many freelance writers are in Kampala?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "freelance writers",
+          "region": {
+            "op": "REGION",
+            "place": "Kampala"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-006",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many coworking spaces are near a bus stop in Madrid region?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bus stop",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-007",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many artisan workshops are not near a bank in Lombardy?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "left": {
+            "op": "SELECT",
+            "entity": "artisan workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-008",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many craft workshops are within 2km of a market but beyond 1km of a school in Warsaw capital region?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region"
+              },
+              "time": null
+            },
+            "threshold_km": 2
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "school",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region"
+            },
+            "time": null
+          },
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-009",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "q": "What is the distance to the closest water point from a coworking space in Nairobi?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "distance",
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "water point",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-010",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Do craft workshops co-occur with markets in Accra?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "cooccur",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Accra"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Accra"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-011",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "Did youth unemployment in Kenya increase or decrease between 2018 and 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2018",
+            "end": "2018"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-012",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What was the ratio of labor force participation in France in 2023 compared to 2019?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "labor force participation",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labor force participation",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-013",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How much did employment in agriculture change here?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment in agriculture",
+          "region": "?place",
+          "time": "?time2"
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment in agriculture",
+          "region": "?place",
+          "time": "?time1"
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-014",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Is the female informal employment rate in Spain rising or falling?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "female informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-015",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What is the difference in employment rate between Catalonia and Madrid region in 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid region"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-016",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What is the ratio of average weekly hours worked in Germany versus France in 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-017",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How much higher is the male employment rate than the female employment rate in Ile de France in 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "male employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-018",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Which has the highest youth unemployment: Kenya, Ghana, or Spain in 2021?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "youth unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "youth unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "youth unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          }
+        ],
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-019",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Rank Berlin, Lombardy, Catalonia, and Ile de France by unemployment rate in 2023.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Catalonia"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-020",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Rank Kenya, France, Germany, Spain, and Italy by average weekly hours worked in 2020.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Italy"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-027",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "What is the female average weekly hours worked in my area?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "female average weekly hours worked",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-028",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many coworking spaces are near the park?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "park",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-029",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many of those are near a park in Nairobi?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "?entity",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "park",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-031",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Rank Madrid region, Catalonia, and Lombardy by the density of coworking spaces.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid region"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Catalonia"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-032",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "Which region had the largest increase in employed persons between 2020 and 2023: Berlin, Ile de France, or Warsaw capital region?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "SELECT",
+              "entity": "employed persons",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employed persons",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin"
+              },
+              "time": {
+                "start": "2020",
+                "end": "2020"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "SELECT",
+              "entity": "employed persons",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employed persons",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2020",
+                "end": "2020"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "SELECT",
+              "entity": "employed persons",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employed persons",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region"
+              },
+              "time": {
+                "start": "2020",
+                "end": "2020"
+              }
+            }
+          }
+        ],
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-034",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Annotate craft workshops in Accra with distance to the nearest bank.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "distance",
+        "left": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Accra"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Accra"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-035",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many coworking spaces near a bus stop are also near a cafe in Berlin?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "left": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bus stop",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin"
+              },
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "cafe",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-036",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Are there more craft workshops near a market or near a bank in Accra?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Accra"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Accra"
+              },
+              "time": null
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Accra"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Accra"
+              },
+              "time": null
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-037",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What is the difference between the youth unemployment rate and the labor underutilization rate in Spain in 2021?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labor underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-038",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What is the ratio of craft workshops to coworking spaces in Nairobi?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-040",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How many post offices are in Ile de France?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "post office",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-041",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Is electricity access improving in Kenya?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "electricity access",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-044",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Rank Kenya, Ghana, Spain, Germany, France, and Italy by labor force participation in 2021.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "labor force participation",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "labor force participation",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "labor force participation",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "labor force participation",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "labor force participation",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "labor force participation",
+            "region": {
+              "op": "REGION",
+              "place": "Italy"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-046",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Show me the statistics for Berlin.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?entity",
+        "region": {
+          "op": "REGION",
+          "place": "Berlin"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-047",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "How does the employment rate compare?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": "?place1",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": "?place2",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-049",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many community centres are not within 5km of a police station in Warsaw capital region?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "left": {
+            "op": "SELECT",
+            "entity": "community centre",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "police",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region"
+            },
+            "time": null
+          },
+          "threshold_km": 5
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-050",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many craft workshops are within 2km of a school in Lombardy?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "school",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy"
+            },
+            "time": null
+          },
+          "threshold_km": 2
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-052",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What was the ratio of internet users in Ghana in 2022 vs 2018?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "internet users",
+          "region": {
+            "op": "REGION",
+            "place": "Ghana"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "internet users",
+          "region": {
+            "op": "REGION",
+            "place": "Ghana"
+          },
+          "time": {
+            "start": "2018",
+            "end": "2018"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-054",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Rank Lombardy, Ile de France, and Berlin by female employment rate in 2023.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-056",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "Rank Spain, Italy, and France by the difference in labor force participation between 2019 and 2022.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "Italy"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "Italy"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-058",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How many street vendors are in Accra?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "street vendors",
+          "region": {
+            "op": "REGION",
+            "place": "Accra"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-061",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "q": "What is the distance to the nearest metro station from coworking spaces in Nairobi?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "distance",
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h19-064",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Rank Berlin, Paris, and Madrid region by the number of coworking spaces near a cafe.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "relation": "within",
+              "left": {
+                "op": "SELECT",
+                "entity": "coworking space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Berlin"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "cafe",
+                "region": {
+                  "op": "REGION",
+                  "place": "Berlin"
+                },
+                "time": null
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "relation": "within",
+              "left": {
+                "op": "SELECT",
+                "entity": "coworking space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Paris"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "cafe",
+                "region": {
+                  "op": "REGION",
+                  "place": "Paris"
+                },
+                "time": null
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "relation": "within",
+              "left": {
+                "op": "SELECT",
+                "entity": "coworking space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Madrid region"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "cafe",
+                "region": {
+                  "op": "REGION",
+                  "place": "Madrid region"
+                },
+                "time": null
+              }
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    }
+  ]
+}
