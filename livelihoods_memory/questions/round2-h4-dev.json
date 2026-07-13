@@ -359,28 +359,35 @@
       "expect": "answer",
       "gold_ir": {
         "op": "COMPARE",
-        "how": "trend_direction",
+        "how": "difference",
         "left": {
-          "op": "AGGREGATE",
-          "by": "time",
-          "metric": "mean",
-          "source": {
-            "op": "SELECT",
-            "entity": "labor force participation",
-            "region": {
-              "op": "REGION",
-              "place": "Mexico"
-            },
-            "time": {
-              "start": "2020",
-              "end": "2022"
-            }
+          "op": "SELECT",
+          "entity": "labor force participation",
+          "region": {
+            "op": "REGION",
+            "place": "Mexico"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labor force participation",
+          "region": {
+            "op": "REGION",
+            "place": "Mexico"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
           }
         }
       },
       "gold_shape": [
         "COMPARE",
-        "AGGREGATE",
+        "SELECT",
         "SELECT"
       ]
     },
@@ -1319,6 +1326,7 @@
       "gold_ir": {
         "op": "RANK",
         "order": "desc",
+        "k": 1,
         "items": [
           {
             "op": "AGGREGATE",

@@ -6,6 +6,7 @@ import unittest
 
 import parser as P
 import semantic_audit as S
+import compile_corpus as CC
 
 
 def select(entity, region="?place"):
@@ -13,6 +14,13 @@ def select(entity, region="?place"):
 
 
 class ParserRegressionTests(unittest.TestCase):
+    def test_gold_defect_registry_preserves_composite_bank_identity(self):
+        defects=CC.declared_gold_defects()
+        self.assertIn(("questions/holdout-020.json","h20-019"),defects)
+        self.assertNotIn(("questions/round2-h20-dev.json","h20-019"),defects)
+        self.assertEqual(CC.normalize_bank_path("../questions/gen-001.json"),
+                         "questions/gen-001.json")
+
     def test_clause_scoped_nested_relation_preserves_output_and_distances(self):
         question = ("List the named coworking spaces in Nairobi, Kenya that are within 1 km "
                     "of a bus stop and not within 0.4 km of a bank; names are requested.")

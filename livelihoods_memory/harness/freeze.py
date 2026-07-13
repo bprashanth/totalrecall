@@ -13,7 +13,8 @@ CORE = [
     "harness/parser.py", "harness/ir_schema.py", "harness/executor.py",
     "harness/connectors.py", "harness/scorer.py", "harness/synthesize.py",
     "harness/semantic_audit.py", "harness/multiturn.py",
-    "harness/test_parser_regressions.py",
+    "harness/test_parser_regressions.py", "harness/coverage.py",
+    "harness/compile_corpus.py", "harness/release_holdout.py", "harness/freeze.py",
 ]
 BANKS = [
     "questions/seed.json", "questions/gen-001.json", "questions/gen-002-indirect.json",
@@ -27,13 +28,14 @@ BANKS = [
     "questions/round2-h13-dev.json", "questions/round2-h14-dev.json",
     "questions/round2-h15-dev.json", "questions/round2-h16-dev.json",
     "questions/round2-h17-dev.json", "questions/round2-h18-dev.json",
-    "questions/round2-h19-dev.json",
+    "questions/round2-h19-dev.json", "questions/round2-h20-dev.json",
     "questions/round2-breakers.json",
 ]
 EVIDENCE = ["coverage/matrix.json", "coverage/source-census.json",
             "coverage/gold-defects.json",
             "coverage/epoch-011-certification.json", "coverage/epoch-012-certification.json",
             "coverage/epoch-013-certification.json", "coverage/epoch-014-certification.json"]
+EVIDENCE.append("coverage/epoch-015-certification.json")
 
 
 def digest(path):
