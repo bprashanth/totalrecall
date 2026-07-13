@@ -19,3 +19,11 @@ Before a new freeze, the disclosed H28 development copy must reach ordinary, str
 100/100, followed by the complete expanded historical wall, source census, dialogue suites,
 coverage/corpus rebuild, freeze manifest, and post-commit confirmation. Only a newly authored bank
 after that boundary can attempt practical saturation.
+
+## Disclosed development replay
+
+Fix 1 is exact: ordinary 100/100, strict canonical 100/100, and synthesis/evidence 100/100. Every
+fresh qwen parse passed schema, shape, recursive-hole, ESTIMATE, execution-class, and grounding
+checks. This confirms the composite closure works through the complete parse pipeline rather than
+only as an offline transformation of the immutable traces. H28 is ready to enter the active
+historical registry; the expanded wall remains the next rejection gate.
