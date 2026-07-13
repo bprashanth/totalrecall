@@ -1181,6 +1181,18 @@ class ParserRegressionTests(unittest.TestCase):
         prose=SYN.synthesize("What was the 2019 to 2023 change?",result,ir=temporal)
         self.assertIn("change",prose.lower())
         self.assertIn("decrease",prose.lower())
+        choice={"op":"COMPARE","how":"difference",
+                "left":{"op":"AGGREGATE","by":"space","metric":"count",
+                        "source":{"op":"RELATE","relation":"within",
+                                  "left":select("workshop",{"op":"REGION","place":"Accra"}),
+                                  "right":select("market",{"op":"REGION","place":"Accra"})}},
+                "right":{"op":"AGGREGATE","by":"space","metric":"count",
+                         "source":{"op":"RELATE","relation":"within",
+                                   "left":select("workshop",{"op":"REGION","place":"Accra"}),
+                                   "right":select("bank",{"op":"REGION","place":"Accra"})}}}
+        prose=SYN.synthesize("Are there more workshops near a market or near a bank?",result,ir=choice)
+        self.assertIn("bank-based side",prose)
+        self.assertNotIn("No;",prose)
 
     def test_zero_denominator_is_a_typed_undefined_answer(self):
         got=E._compare({"kind":"scalar","value":4},{"kind":"scalar","value":0},"ratio")
@@ -1208,6 +1220,26 @@ class ParserRegressionTests(unittest.TestCase):
             E._route_select("employment rate",{"name":"Bavaria","orig":"Bavaria"},
                             {"start":"2023","end":"2023"},[])
         self.assertEqual(ctx.exception.reason,"regional_scope_unavailable")
+
+    def test_record_renderer_uses_full_rows_and_coordinates_for_unnamed_examples(self):
+        rows=[{"lat":1.1,"lon":2.2},{"lat":3.3,"lon":4.4},{"lat":5.5,"lon":6.6},
+              {"name":"Late Name","lat":7.7,"lon":8.8}]
+        result={"status":"answer","label":"observed","value":{"kind":"records","rows":rows},
+                "provenance":[{"route":"osm"}]}
+        prose=SYN.synthesize("Which points are mapped?",result,ir=select("point"))
+        self.assertIn("Examples:",prose)
+        self.assertIn("(1.1, 2.2)",prose)
+        self.assertNotIn("none has",prose.lower())
+
+    def test_insufficient_series_renderer_states_evidence_and_ask(self):
+        result={"status":"data_request","reason":"insufficient_series",
+                "detail":{"points":1,"hint":"trend requires at least two observations"}}
+        prose=SYN.synthesize("Is the series rising?",result)
+        self.assertIn("Only 1 dated observation",prose)
+        self.assertIn("at least two",prose)
+        trace={"synthesis_scores":{"overall":1.0},"question":"Is the series rising?",
+               "synthesis":prose,"execution":result}
+        self.assertEqual(SA.audit_trace(trace),[])
         gated={"status":"data_request","reason":"gate_failed",
                "detail":{"reason":"only 2 source records",
                          "ask":"collect >=5 analog records before transferring"}}

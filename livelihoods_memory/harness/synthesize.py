@@ -115,6 +115,25 @@ def _operand_label(node):
     return str(place or first.get("entity") or "the operand")
 
 
+def _contrast_label(left,right,choose_left):
+    """Name the distinguishing side of a two-operand choice, preferring geography."""
+    def parts(node):
+        selected=[item for item in _walk_ir(node) if item.get("op")=="SELECT"]
+        places=[];entities=[]
+        for item in selected:
+            region=item.get("region")
+            place=region.get("place") if isinstance(region,dict) else region
+            if place is not None:places.append(str(place))
+            if item.get("entity") is not None:entities.append(str(item.get("entity")))
+        return places,entities
+    lp,le=parts(left);rp,re_=parts(right)
+    for a,b in zip(lp,rp):
+        if a.lower()!=b.lower():return a if choose_left else b
+    for a,b in zip(le,re_):
+        if a.lower()!=b.lower():return f"the {a if choose_left else b}-based side"
+    return "the left-hand side" if choose_left else "the right-hand side"
+
+
 def _difference_finding(question, scalar, ir):
     magnitude=_fmt(abs(scalar))
     if _temporal_difference(ir):
@@ -122,6 +141,13 @@ def _difference_finding(question, scalar, ir):
         return f"The change is {_fmt(scalar)} ({direction} of {magnitude})."
     ql=question.lower()
     direct=bool(re.match(r"\s*(?:does|do|is|are|has|have|did|was|were)\b",ql))
+    choice=bool(re.search(r"\bwhich\b.+?\b(?:more|higher|greater|larger|fewer|lower)\b",ql)
+                or re.search(r"\bmore\b.+?\bor\b",ql))
+    if choice:
+        if scalar==0:return "The two operands are tied (difference 0)."
+        winner=_contrast_label(ir.get("left"),ir.get("right"),scalar>0)
+        winner=winner[:1].upper()+winner[1:]
+        return f"{winner} has the larger value; the left-minus-right difference is {_fmt(scalar)}."
     if direct and re.search(r"\b(?:more|higher|greater|larger|outnumber)\b",ql):
         yes=scalar>0
         relation="higher" if scalar>0 else "lower" if scalar<0 else "equal"
@@ -217,6 +243,11 @@ def _render_nonanswer(exec_result):
         return "The named region could not be resolved reliably. Please clarify the place."
     if reason == "annotation_unavailable":
         return "The requested annotation is not present in the source records; collect that field first."
+    if reason == "insufficient_series":
+        points=detail.get("points",0)
+        word="observation" if points==1 else "observations"
+        return (f"Only {points} dated {word} is available; at least two are needed to determine "
+                "whether the series is rising or falling.")
     return f"I can't answer safely because required data or bindings are missing ({reason or 'data_request'})."
 
 
@@ -265,20 +296,27 @@ def synthesize(question, exec_result, role="qwen2b", ir=None):
             if layer=="name":
                 detail=(f" Examples: {'; '.join(str(row.get('name')) for row in annotated[:3])}."
                         if annotated else "")
-                return f"Found {n} mapped records; {count} have a name."+detail+source+caveat
+                noun="record" if n==1 else "records";verb="has" if count==1 else "have"
+                return f"Found {n} mapped {noun}; {count} {verb} a name."+detail+source+caveat
             return (f"Found {n} mapped records; {layer} is present for {count}."
                     +detail+source+caveat)
         examples=[]
-        for row in rows[:3]:
+        for row in rows:
             name=row.get("name")
             if name:
                 distance=f" ({_fmt(row['dist_km'])} km)" if isinstance(row.get("dist_km"),(int,float)) else ""
                 examples.append(str(name)+distance)
+            elif isinstance(row.get("lat"),(int,float)) and isinstance(row.get("lon"),(int,float)):
+                examples.append(f"({_fmt(row['lat'])}, {_fmt(row['lon'])})")
+            if len(examples)==3:break
         sample=f" Examples: {'; '.join(examples)}." if examples else ""
         if n and not examples:
-            return (f"Found {n} matching mapped records, but none has a display name to list."
+            noun="record" if n==1 else "records"
+            return (f"Found {n} matching mapped {noun}, but no displayable identifier is available."
                     +source+caveat)
-        return f"Found {n} matching records."+sample+source+caveat
+        noun="record" if n==1 else "records"
+        qualifier="mapped matching" if n==0 else "matching"
+        return f"Found {n} {qualifier} {noun}."+sample+source+caveat
     if kind=="series":
         if len(rows)==1:
             row=rows[0]
@@ -393,7 +431,7 @@ def score_synthesis(question, exec_result, prose):
                 for item in value:collect(item)
             elif isinstance(value,dict):
                 for key,item in value.items():
-                    if key in ("attrs","id","lat","lon"):continue
+                    if key in ("attrs","id"):continue
                     collect(item)
         if isinstance(v.get("rows"),list):
             allowed.append(float(v.get("n_rows",len(v["rows"]))))

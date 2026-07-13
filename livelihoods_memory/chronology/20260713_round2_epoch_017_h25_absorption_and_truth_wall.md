@@ -36,3 +36,12 @@ geographies report a scope gap; and partial record surfaces explicitly mark exam
 display names. Any further change retires the candidate boundary and forces the entire wall again.
 The saturation counter remains zero until a new certified checksum freeze and three later untouched
 banks pass all compiler, execution, prose, evidence, corpus, and source gates.
+
+A later independent audit rejected candidate v3 and its literal v4 replay despite 1,196/1,196
+mechanical synthesis scores. Two comparison surfaces still failed to name the requested winner;
+seven record-list surfaces inferred universal name absence from only the three rows retained in the
+trace; and an insufficient-series DataRequest omitted its exact one-observation/two-observation
+requirement. General repairs now distinguish either/or choices from yes/no comparisons, search the
+full typed record result and use declared coordinates for unnamed examples, disclose partial lists,
+and render the observation requirement specifically. The audit itself now gates these classes.
+Neither v3 nor v4 is certification evidence.
