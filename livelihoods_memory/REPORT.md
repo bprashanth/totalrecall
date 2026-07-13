@@ -424,3 +424,21 @@ No new algebra operation was needed. `BNCH-002` and `SAT-003` gained additional 
 while `BUG-008` remains the only new framework proposal from this cycle. The saturation counter is
 zero. Epoch 019 cannot freeze until the complete historical wall, source census, dialogue suite,
 corpus audit, coverage matrix, and answer-faithfulness audit pass with H26 included.
+
+### Round 2 checkpoint 13 — epoch 019 certified at 1,282 active questions
+
+The expanded wall now contains 1,282 questions across 29 runnable banks and 39 skeletons. All
+1,279 eligible rows pass ordinary and strict canonical scoring, and synthesis/evidence audit passes
+1,282/1,282. Regressions pass 152/152, source census 14/14, and both dialogue binders 5/5. The corpus
+contains 1,273 unique parse rows plus five clarification rows, including all 86 disclosed H26 rows.
+
+The first wall correctly caught one historical regression: a behavioural heuristic erased an
+explicit statistical rank because its decision preamble contained “choosing.” A general precedence
+guard closed it and the complete v2 and post-certification-artifact v3 walls are clean. Coverage
+also now shares the freeze bank registry after a directory glob admitted 80 retired pressure rows;
+`BUG-009` exposes that framework invariant for Fable review.
+
+Epoch 019 is a fresh start line, not a saturation result. H26 and every repair/replay contribute
+zero untouched passes. The checksum manifest is `freezes/epoch-019.json`; three entirely new,
+independently generated post-freeze banks must pass every compiler, execution, evidence, source,
+corpus, and audit gate without causing a change.

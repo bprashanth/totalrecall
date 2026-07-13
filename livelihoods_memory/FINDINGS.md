@@ -592,3 +592,11 @@ questions directory. The matrix now shares the freeze bank registry and exactly 
 1,282 rows, 29 banks, and 39 skeletons. Regression `BUG-009` makes cross-artifact bank-set equality
 reviewable by Fable/orchestrator. Judge decision: pressure and immutable artifacts remain valuable
 evidence but are never active merely because they remain on disk.
+
+## 2026-07-13 — Epoch 019 certified after H26 and active-bank closure [BENCHMARK/EVIDENCE]
+
+The v2 and post-certification-artifact v3 walls are exact on all 1,279 eligible rows; synthesis is
+exact on all 1,282. The wall spans 29 banks and 39 skeletons. Regressions are 152/152, source census
+14/14, dialogue 5/5 on both binders, and corpus 1,273 parse plus five clarification rows. Judge
+decision: epoch 019 is a valid freeze boundary, but its saturation counter is zero. Only new banks
+authored after the exact freeze commit may advance the required three-bank sequence.
