@@ -13,6 +13,9 @@ semantic lint gate for gold; SCR-001 makes coarse diagnostics sensitive to reque
 They are proposals only and do not change the released bootstrap until Codex/Fable reconciliation,
 decision, implementation, and validation are recorded.
 
+The later cost-aware stopping proposal `SAT-004` has its own self-contained review entry point at
+`governance/review-packet-sat004.md`. Review it independently of H28's eventual score.
+
 H21 pre-contact admission adds SRC-002 (annotation-layer capability), BUG-003 (fail-closed resolver
 morphology), and ASK-004 (bounded endpoint-direction versus trend wording). These were discovered
 without parser contact and are likewise unreleased pending independent review and conformance tests.
