@@ -614,3 +614,11 @@ regression found during replay was fixed and guarded. H27 also found that coarse
 used a punctuation equivalence inconsistent with strict audit; `BUG-010` unifies that contract.
 Judge decision: epoch 019 and every H27 replay contribute zero saturation passes. The disclosed H27
 bank becomes active regression pressure only after its final exact replay and full-wall absorption.
+
+## 2026-07-13 — Epoch 020 candidate wall closes H27 at 1,379 eligible rows [BENCHMARK/EVIDENCE]
+
+Wall v1 was rejected on seven strict regressions caused by two over-broad H27 closure rules. Wall
+v2 is exact on every one of 1,379 eligible ordinary and strict rows; synthesis is 1,382/1,382.
+Source, dialogue, regression, coverage, and corpus gates all pass, with 100 H27 parses admitted.
+Judge decision: this is a candidate freeze boundary, not saturation. The certification artifact
+and freeze-registry update require a full confirmation wall before checksumming epoch 020.
