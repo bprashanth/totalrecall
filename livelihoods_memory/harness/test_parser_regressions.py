@@ -7,6 +7,8 @@ import unittest
 import parser as P
 import semantic_audit as S
 import compile_corpus as CC
+import connectors as C
+import executor as E
 
 
 def select(entity, region="?place"):
@@ -518,6 +520,180 @@ class ParserRegressionTests(unittest.TestCase):
         got=P.mech_source_gap_select(select("?proxy"),q)
         self.assertEqual((got["op"],got["entity"]),
                          ("SELECT","informal apprenticeship completion rate"))
+
+    def test_endpoint_winner_rank_closes_candidate_list(self):
+        q=("Audit winner only: among India, Kenya, and Ghana, whose self-employment "
+           "percentage rose the most from 2019 to 2023?")
+        got=P.mech_explicit_rank_semantics(select("self employment"),q)
+        self.assertEqual((got["order"],got["k"],len(got["items"])),("desc",1,3))
+        self.assertEqual([x["left"]["region"]["place"] for x in got["items"]],
+                         ["India","Kenya","Ghana"])
+        self.assertEqual((got["items"][0]["left"]["time"]["start"],
+                          got["items"][0]["right"]["time"]["start"]),("2023","2019"))
+
+    def test_steepest_fall_rank_is_ascending_argmin(self):
+        q=("Which one logged the steepest fall in average weekly hours between 2019 and 2023: "
+           "France, Germany, or Spain?")
+        got=P.mech_explicit_rank_semantics(select("average weekly hours worked"),q)
+        self.assertEqual((got["order"],got["k"],len(got["items"])),("asc",1,3))
+
+    def test_top_word_endpoint_rank_binds_exact_cardinality(self):
+        q=("Dashboard: top three 2019-2023 increases in youth unemployment, candidates "
+           "India, Kenya, Ghana, France, Germany, Spain, Italy, and Poland.")
+        got=P.mech_explicit_rank_semantics(select("youth unemployment"),q)
+        self.assertEqual((got["k"],len(got["items"])),(3,8))
+
+    def test_smallest_endpoint_increase_uses_prefix_candidates(self):
+        q=("Of Berlin, Catalonia, Lombardy, and Warsaw capital region, which had the smallest "
+           "employment-rate increase from 2022 to 2024?")
+        got=P.mech_explicit_rank_semantics(select("employment rate"),q)
+        self.assertEqual((got["order"],got["k"],len(got["items"])),("asc",1,4))
+
+    def test_endpoint_ratio_rank_preserves_ratio_blueprint(self):
+        q=("Winner only: whose 2023-to-2019 wage-and-salaried-worker ratio is largest, "
+           "India, Kenya, Ghana, or South Africa?")
+        got=P.mech_explicit_rank_semantics(select("wage and salaried workers"),q)
+        self.assertEqual((got["k"],len(got["items"]),got["items"][0]["how"]),(1,4,"ratio"))
+
+    def test_full_order_rank_has_no_winner_cardinality(self):
+        seed={"op":"RANK","items":[select("market"),select("market"),select("market")],
+              "order":"desc"}
+        got=P.mech_rank_k(seed,"Order Accra, Nairobi, and Kumasi by market count, highest first.")
+        self.assertNotIn("k",got)
+
+    def test_pick_winner_and_show_two_bind_rank_cardinality(self):
+        seed={"op":"RANK","items":[select("x"),select("x"),select("x")],"order":"desc"}
+        self.assertEqual(P.mech_rank_k(seed,"Pick the country with the highest rate.")["k"],1)
+        self.assertEqual(P.mech_rank_k(seed,"Show the two regions with the most workers.")["k"],2)
+
+    def test_heterogeneous_rank_binds_every_operand_locally(self):
+        q=("Which is numerically highest in 2023: India's self-employment percentage, "
+           "Kenya's informal-employment percentage, or Lombardy's employment percentage?")
+        got=P.mech_explicit_rank_semantics(select("self employment"),q)
+        self.assertEqual((got["k"],len(got["items"])),(1,3))
+        self.assertEqual([(x["entity"],x["region"]["place"]) for x in got["items"]],
+                         [("self employment","india"),("informal employment rate","kenya"),
+                          ("employment rate","lombardy")])
+
+    def test_unsupported_median_and_share_phrases_remain_literal_selects(self):
+        median=P.mech_source_gap_select(select("street vendor"),
+            "What was the median monthly earnings of street vendors in India in 2023?")
+        share=P.mech_source_gap_select(select("worker"),
+            "Report the share of home-based women workers in Ghana for 2022.")
+        self.assertEqual(median["entity"],"median monthly earnings of street vendors")
+        self.assertEqual(share["entity"],"share of home-based women workers")
+
+    def test_supported_what_was_indicator_is_not_rewritten_as_source_gap(self):
+        seed=select("self employment",{"op":"REGION","place":"India"})
+        q="What was the self employment rate in India in 2023?"
+        self.assertIs(P.mech_source_gap_select(seed,q),seed)
+
+    def test_subtract_from_binds_mixed_source_operands_and_orientation(self):
+        q=("In percentage points, subtract France's 2024 labour-force-participation rate "
+           "from Ile de France's 2024 employment rate.")
+        got=P.mech_mixed_source_compare(select("employment rate"),q)
+        self.assertEqual([(got[s]["entity"],got[s]["region"]["place"]) for s in ("left","right")],
+                         [("employment rate","ile de france"),("labour force participation","france")])
+
+    def test_difference_requested_keeps_source_and_facet_local(self):
+        q=("Difference requested: Berlin region's female employment rate minus Germany's "
+           "female informal-employment rate in 2023.")
+        got=P.mech_mixed_source_compare(select("female informal employment rate"),q)
+        self.assertEqual([(got[s]["entity"],got[s]["region"]["place"]) for s in ("left","right")],
+                         [("female employment rate","berlin region"),
+                          ("female informal employment rate","germany")])
+
+    def test_divide_by_inherits_region_but_not_sex_facet(self):
+        q="Divide Germany's 2023 male average weekly hours by its female average weekly hours."
+        got=P.mech_mixed_source_compare(select("average weekly hours worked"),q)
+        self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
+                         ("male average weekly hours worked","female average weekly hours worked"))
+        self.assertEqual((got["left"]["region"]["place"],got["right"]["region"]["place"]),
+                         ("germany","germany"))
+
+    def test_scoped_subtract_inherits_place_and_preserves_orientation(self):
+        q=("For Germany in 2023, subtract female average weekly hours worked from male average "
+           "weekly hours worked.")
+        got=P.mech_mixed_source_compare(select("average weekly hours worked"),q)
+        self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
+                         ("male average weekly hours worked","female average weekly hours worked"))
+
+    def test_user_relative_anchor_does_not_inherit_named_query_region(self):
+        region={"op":"REGION","place":"Accra, Ghana"}
+        seed={"op":"RELATE","relation":"within","left":select("coworking space",region),
+              "right":select("market",region)}
+        got=P.mech_deictic_roles(seed,"In Accra, list coworking spaces within 1 km of the market by me.")
+        self.assertEqual(got["left"]["region"],region)
+        self.assertEqual(got["right"]["region"]["place"],"?anchor_place")
+
+    def test_unresolved_workshop_anaphor_is_shared_entity_hole(self):
+        seed={"op":"COMPARE","how":"difference",
+              "left":{"op":"AGGREGATE","by":"space","metric":"count","source":select("craft workshop")},
+              "right":{"op":"AGGREGATE","by":"space","metric":"count","source":select("craft workshop")}}
+        got=P.mech_deictic_roles(seed,"Between Accra and Nairobi, which has more of those workshops?")
+        self.assertEqual((got["left"]["source"]["entity"],got["right"]["source"]["entity"]),
+                         ("?workshop_type","?workshop_type"))
+
+    def test_generic_relation_anchor_is_entity_hole(self):
+        seed={"op":"RELATE","relation":"within","left":select("craft workshop"),
+              "right":select("facility")}
+        got=P.mech_deictic_roles(seed,"List craft workshops near the facility in Kumasi.")
+        self.assertEqual(got["right"]["entity"],"?anchor_entity")
+
+    def test_each_here_distance_is_distance_relation_with_shared_place_hole(self):
+        got=P.mech_nearest_distance(select("bus station"),
+            "Give each coworking space here its distance to the nearest bus station.")
+        self.assertEqual((got["relation"],got["left"]["entity"],got["right"]["entity"]),
+                         ("distance","coworking_space","bus_station"))
+        self.assertEqual(got["left"]["region"]["place"],"?place")
+
+    def test_corresponding_relational_count_ratio_preserves_both_predicates(self):
+        q=("What is the ratio of Nairobi's count of markets beyond 2 km from banks to Accra's "
+           "corresponding count?")
+        got=P.mech_relation_comparisons(select("market"),q)
+        self.assertEqual((got["how"],got["left"]["source"]["relation"],
+                          got["right"]["source"]["relation"]),("ratio","beyond","beyond"))
+        self.assertEqual((got["left"]["source"]["threshold_km"],
+                          got["right"]["source"]["threshold_km"]),(2.0,2.0))
+        self.assertEqual((got["left"]["source"]["left"]["region"]["place"],
+                          got["right"]["source"]["left"]["region"]["place"]),("Nairobi","Accra"))
+
+    def test_national_indicator_scope_does_not_coarsen_subnational_region(self):
+        countries=[{},[{"name":"France","id":"FRA","region":{"id":"ECS"}},
+                       {"name":"Germany","id":"DEU","region":{"id":"ECS"}}]]
+        original=C._wb_country_list
+        C._wb_country_list=lambda: countries
+        try:
+            self.assertIsNone(C.wb_resolve_iso(
+                {"orig":"Ile de France","name":"Île-de-France, France"}))
+            self.assertEqual(C.wb_resolve_iso(
+                {"orig":"France","name":"France"}),"FRA")
+        finally:
+            C._wb_country_list=original
+
+    def test_curated_region_alias_is_country_qualified_before_geocoding(self):
+        row={"boundingbox":["52.3","52.7","13.0","13.8"],"lat":"52.5","lon":"13.4",
+             "class":"boundary","type":"administrative","importance":0.9,
+             "display_name":"Berlin, Germany"}
+        called=[];original=C._get
+        C._get=lambda url,*args,**kwargs: called.append(url) or [row]
+        try:
+            got=C.resolve_region("Berlin region")
+        finally:
+            C._get=original
+        self.assertIn("Berlin%2C+Germany",called[0])
+        self.assertEqual((got["orig"],got["name"]),("Berlin region","Berlin, Germany"))
+
+    def test_geocoder_failure_is_a_data_request_not_executor_error(self):
+        tree=select("market",{"op":"REGION","place":"that city"})
+        original=C.resolve_region
+        def fail(_): raise RuntimeError("region not found")
+        C.resolve_region=fail
+        try:
+            got=E.execute(tree)
+        finally:
+            C.resolve_region=original
+        self.assertEqual((got["status"],got["reason"]),("data_request","unresolved_region"))
 
 
 if __name__ == "__main__":

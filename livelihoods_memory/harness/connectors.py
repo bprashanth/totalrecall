@@ -86,7 +86,21 @@ def resolve_region(place, min_span_deg=0.03):
             segs.append(p)
             seen.add(p.lower())
     place = ", ".join(segs)
-    q = urllib.parse.urlencode({"q": place, "format": "json", "limit": 10})
+    # Curated statistical-region names are not safe free-text geocoder queries: Nominatim has
+    # returned "Berlin Region" in Ontario for the exact Eurostat alias.  Qualify these known
+    # boundaries while retaining the original surface for downstream source resolvers.
+    curated_queries = {
+        "ile de france": "Ile-de-France, France",
+        "paris region": "Ile-de-France, France",
+        "berlin region": "Berlin, Germany",
+        "comunidad de madrid": "Community of Madrid, Spain",
+        "madrid region": "Community of Madrid, Spain",
+        "catalonia": "Catalonia, Spain",
+        "lombardy": "Lombardy, Italy",
+        "warsaw capital region": "Warsaw metropolitan area, Poland",
+    }
+    query_place = curated_queries.get(_ascii_norm(place), place)
+    q = urllib.parse.urlencode({"q": query_place, "format": "json", "limit": 10})
     url = f"https://nominatim.openstreetmap.org/search?{q}"
     d = _get(url)
     if not d:
@@ -290,7 +304,8 @@ def wb_resolve_iso(region):
     for key in ("orig", "country", "iso2"):
         if region.get(key):
             candidates.append(region[key])
-    if region.get("name"):
+    explicit_scope = bool(candidates)
+    if not explicit_scope and region.get("name"):
         parts = [p.strip() for p in region["name"].split(",")]
         candidates += [parts[-1], parts[0]]
     cc = _wb_country_list()
@@ -304,9 +319,9 @@ def wb_resolve_iso(region):
                 return norm_ids[cn]
             if cn in norm_names:
                 return norm_names[cn]
-            for nm, iso in norm_names.items():
-                if cn and (cn == nm or (len(cn) > 3 and cn in nm)):
-                    return iso
+        # Never infer a national statistical scope from the country suffix of a geocoded city or
+        # region.  `orig="Ile de France"` resolving to a display name ending in France must not
+        # silently become a World Bank France observation.
     return None
 
 

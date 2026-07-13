@@ -268,3 +268,26 @@ and 998/998 eligible, dialogue 5/5, and 69/69 deterministic regressions. Corpus 
 1,012 unique parse rows plus five clarification rows with composite defect identity preserved.
 H21 and later cross-family banks must independently test whether the H20 families actually remain
 closed; none of the disclosed H20 evidence counts toward the required three passes.
+
+### Round 2 checkpoint 6 — H21 proves the family gate was necessary
+
+H21 first contact against epoch 015 scored 0.902 under the ordinary diagnostic and only 17/40
+under strict canonical audit. Independent adjudication classified all 23 mismatches as genuine
+compiler-bearing rows and found no gold or audit defects. The failures again reduce to six broad
+families, but they are new variants: ranked endpoint ratios and candidate closure, heterogeneous
+source/facet operands, literal median/share source gaps, user-relative and anaphoric holes,
+distance/corresponding relational counts, and written subtract/divide orientation.
+
+This rejects saturation and resets the counter to zero. It also empirically validates SAT-002's
+stronger rule: a family is not closed merely because disclosed examples and guards pass; a later
+untouched contact must fail to find a valid new variant. H21 found new variants in every family.
+
+The disclosed fix2 replay is 40/40 under both ordinary and strict scoring, with 91/91 deterministic
+regressions. All 40 independently adjudicated rows join development. Connector hardening prevents
+national World Bank/ILO data from silently satisfying a subnational SELECT, qualifies curated
+statistical regions before geocoding, and converts region-resolution failures to DataRequests.
+SRC-003 proposes general native-grain scope certificates for Fable review.
+
+Epoch 015 remains permanently failed. A complete epoch-016 wall/corpus/dialogue certification and
+new checksum freeze are required before H22; no H21 replay contributes to the three-bank stopping
+sequence.
