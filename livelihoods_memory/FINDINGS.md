@@ -568,3 +568,18 @@ V7 passes independent all-row replay. Final v8 confirms the exact certification 
 14/14 source probes, dialogue 5/5 through both binders, and 1,188 unique parse plus five clarification
 corpus rows. `freezes/epoch-018.json` hashes 54 inputs with zero replay mismatch. Counter remains
 zero pending three new post-freeze untouched banks.
+
+## 2026-07-13 — H26 broad pressure absorbed without widening frozen algebra [PARSER/CONNECTOR/AUDIT]
+
+The 86-row H26 bank widened pressure across 55 declared capability families. Retired-epoch first
+contact was ordinary 0.902 and strict 53/86; independent read-only adjudication assigned 32 of 33
+non-exact rows to general compiler/binder gaps and the remaining row to a harmless country alias.
+No admitted gold was defective.
+
+General repairs close answer heads, nested and cross-place spatial composition, terse statistical
+operands, derived ranks, typed unresolved roles, transfer source composition, and late-pass
+interference. Final disclosed replay is ordinary, strict, and synthesis exact at 86/86, with
+151/151 regressions. No new v2.1 operation or field was required. The precontact connector-outage
+discovery remains separately proposed as `BUG-008`; H26 further validates `BNCH-002` and `SAT-003`.
+Judge decision: H26 is now active development regression evidence but supplies zero untouched
+saturation passes. Epoch 019 requires a completely replayed and certified wall before new banks.

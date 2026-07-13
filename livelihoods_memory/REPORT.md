@@ -405,3 +405,22 @@ Fable-review proposals for deterministic answer truth, prose/evidence saturation
 executable pre-contact gold/source warrants. The untouched counter is zero; only fresh H26–H28
 banks generated after the epoch-018 checksum may advance it, and any valid repair at any layer
 resets the sequence.
+
+### Round 2 checkpoint 12 — H26 absorbed, epoch 019 wall pending
+
+H26 invalidated the epoch-018 line before parser contact when its executable-gold audit exposed an
+untyped connector outage (`BUG-008`), then supplied a much broader 86-row disclosed pressure bank.
+Immutable first contact was ordinary 0.902 and strict 53/86. Independent GPT-5.6 Sol High
+adjudication found 32 compiler/binder gaps, one canonical country-label equivalence, and no gold
+defects among the 33 non-exact rows.
+
+General v2.1 repairs now close clause-scoped statistical and spatial arithmetic, nested relations,
+rank candidate/quantity semantics, typed anaphora, behaviour boundaries, transfer composition, and
+late-pass stability. The disclosed final replay is ordinary 86/86, strict 86/86, and synthesis
+86/86; 151 deterministic tests pass. `questions/round2-h26-dev.json` permanently adds these rows to
+the regression wall.
+
+No new algebra operation was needed. `BNCH-002` and `SAT-003` gained additional supporting evidence,
+while `BUG-008` remains the only new framework proposal from this cycle. The saturation counter is
+zero. Epoch 019 cannot freeze until the complete historical wall, source census, dialogue suite,
+corpus audit, coverage matrix, and answer-faithfulness audit pass with H26 included.

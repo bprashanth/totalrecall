@@ -96,7 +96,8 @@ def audit_trace(trace):
     if scores.get("overall") != 1.0:
         issues.append("mechanical_score_not_perfect")
     if status == "answer":
-        if lower.startswith("i can't safely answer"):
+        failed_closed=lower.startswith("i can't safely answer")
+        if failed_closed:
             issues.append("answer_contract_failed_closed")
         scalar=value.get("value")
         if isinstance(scalar,bool):
@@ -122,7 +123,7 @@ def audit_trace(trace):
             if route in SOURCE_NAMES and route not in routes:
                 routes.append(route)
         for route in routes:
-            if SOURCE_NAMES[route].lower() not in lower:
+            if not failed_closed and SOURCE_NAMES[route].lower() not in lower:
                 issues.append(f"source_label_missing:{route}")
         attrs=[]
         for row in value.get("rows") or []:

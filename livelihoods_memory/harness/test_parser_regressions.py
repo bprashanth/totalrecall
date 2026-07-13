@@ -1284,6 +1284,106 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertTrue(scores["gap_stated"])
         self.assertTrue(scores["no_fabrication"])
 
+    def test_grouped_distance_and_elliptical_indicator_aliases(self):
+        self.assertEqual(P._parse_dist_km("more than 3,500 metres away"),3.5)
+        self.assertEqual(C.wb_resolve_indicator("Gini")[0],"SI.POV.GINI")
+        self.assertEqual(C.ilo_resolve_indicator("weekly hours")[0]["code"],
+                         "HOW_TEMP_SEX_NB_A")
+
+    def test_clause_scoped_statistic_surfaces_do_not_bleed_operands(self):
+        got=P.mech_statistical_surfaces(None,
+            "2020 snapshot: Ghana's self-employment rate minus Lombardy's employment rate.")
+        self.assertEqual((got["op"],got["how"]),("COMPARE","difference"))
+        self.assertEqual(got["left"]["region"]["place"],"ghana")
+        self.assertEqual(got["right"]["region"]["place"],"lombardy")
+        self.assertEqual(got["left"]["time"],{"start":"2020","end":"2020"})
+        terse=P.mech_statistical_surfaces(None,"Ghana weekly-hours brief: 2021 minus 2019.")
+        self.assertEqual(terse["left"]["entity"],"average weekly hours worked")
+        self.assertEqual((terse["left"]["time"]["start"],terse["right"]["time"]["start"]),
+                         ("2021","2019"))
+
+    def test_spatial_cross_place_clones_complete_quantity(self):
+        q="How many more clinics within 1 km of a bank does Accra have than Nairobi?"
+        got=P.mech_spatial_cross_place(None,q)
+        self.assertEqual((got["op"],got["how"]),("COMPARE","difference"))
+        for side,place in ((got["left"],"Accra"),(got["right"],"Nairobi")):
+            rel=side["source"]
+            self.assertEqual((rel["relation"],rel["threshold_km"]),("within",1.0))
+            self.assertEqual(rel["left"]["region"]["place"],place)
+            self.assertEqual(rel["right"]["region"]["place"],place)
+        ratio=P.mech_spatial_cross_place(None,
+            "In Porto, divide the coworking-space count by the count of markets more than 2 km from a bank.")
+        self.assertEqual((ratio["op"],ratio["how"]),("COMPARE","ratio"))
+        self.assertEqual(ratio["right"]["source"]["relation"],"beyond")
+
+    def test_rank_rebuilds_derived_quantity_and_candidate_closure(self):
+        changed=P.mech_explicit_rank_semantics(None,
+            "From 2019 to 2023, which employment rate rose the most: Berlin, Lombardy, or Madrid region?")
+        self.assertEqual((changed["op"],len(changed["items"]),changed["k"]),("RANK",3,1))
+        self.assertTrue(all(item["op"]=="COMPARE" for item in changed["items"]))
+        related=P.mech_ranked_quantity(None,
+            "Top two cities by density of clinics within 0.8 km of banks: Accra, Nairobi, Kampala.")
+        self.assertEqual((len(related["items"]),related["k"],related["order"]),(3,2,"desc"))
+        self.assertTrue(all(item["source"]["op"]=="RELATE" for item in related["items"]))
+
+    def test_transfer_composition_and_anaphoric_role_are_typed(self):
+        transfer=P.mech_transfer_contract(None,
+            "Feature-transfer wheelchair-annotated metro-station records from Paris to estimate access in Lyon.")
+        self.assertEqual((transfer["op"],transfer["method"],transfer["source"]["op"]),
+                         ("ESTIMATE","feature","ANNOTATE"))
+        self.assertEqual(transfer["source"]["layer"],"wheelchair")
+        generic=P.mech_transfer_contract(None,
+            "From Porto, transfer the relevant facility records by interpolation to Lisbon.")
+        self.assertEqual((generic["source"]["entity"],generic["method"]),
+                         ("?facility_type","interpolate"))
+        anaphor=P.mech_terse_and_anaphoric(select("metro station"),
+            "In Jakarta, how many metro stations are within 500 metres of it?")
+        self.assertEqual(anaphor["source"]["right"]["entity"],"?anchor_entity")
+        self.assertEqual(anaphor["source"]["threshold_km"],0.5)
+
+    def test_fail_closed_audit_does_not_call_compiler_failure_a_data_gap(self):
+        invalid={"status":"data_request","reason":"parse_invalid","detail":{}}
+        prose=SYN.synthesize("Either A or B?",invalid)
+        trace={"question":"Either A or B?","synthesis":prose,
+               "synthesis_scores":{"overall":1.0},"execution":invalid}
+        self.assertEqual(SA.audit_trace(trace),[])
+        result={"status":"answer","label":"observed","value":{"kind":"scalar","value":2},
+                "provenance":[{"op":"COMPARE","how":"difference"},{"route":"worldbank"}]}
+        tree={"op":"COMPARE","how":"difference",
+              "left":select("rate",{"op":"REGION","place":"France"}),
+              "right":select("rate",{"op":"REGION","place":"Germany"})}
+        prose=SYN.synthesize("What is France minus Germany?",result,ir=tree)
+        self.assertIn("France minus Germany",prose)
+
+    def test_completed_clause_plans_survive_late_fallback_passes(self):
+        nested=P.mech_three_entity_relations(select("market"),
+            "From Bogotá's markets that co-occur with metro stations, retain those "
+            "beyond 1.25 km from a police station.")
+        self.assertEqual(nested["left"]["relation"],"cooccur")
+        self.assertEqual(P.mech_terse_and_anaphoric(nested,
+            "From Bogotá's markets that co-occur with metro stations, retain those "
+            "beyond 1.25 km from a police station."),nested)
+
+        level=P.mech_statistical_surfaces(None,
+            "Pull the 2022 unemployment rate for the Madrid region, Spain.")
+        self.assertEqual(P.mech_source_gap_select(level,
+            "Pull the 2022 unemployment rate for the Madrid region, Spain."),level)
+
+        temporal=P.mech_statistical_surfaces(None,
+            "India's 2022 Gini divided by its 1977 Gini: what is the ratio?")
+        self.assertEqual(temporal["right"]["region"]["place"],"india")
+        self.assertEqual(P.mech_ratio(temporal,
+            "India's 2022 Gini divided by its 1977 Gini: what is the ratio?"),temporal)
+        self.assertEqual(P.mech_mixed_source_compare(temporal,
+            "India's 2022 Gini divided by its 1977 Gini: what is the ratio?"),temporal)
+
+        spatial=P.mech_spatial_cross_place(None,
+            "In Kigali, divide the metro-station count by the count of coworking spaces "
+            "more than 5 km from a metro station.")
+        self.assertEqual(P.mech_comparison_mode(spatial,
+            "In Kigali, divide the metro-station count by the count of coworking spaces "
+            "more than 5 km from a metro station."),spatial)
+
 
 if __name__ == "__main__":
     unittest.main()

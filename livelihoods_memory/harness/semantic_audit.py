@@ -61,7 +61,8 @@ def region_key(region, entity=None):
     known_regions = {fold(alias) for alias in C.EUROSTAT_GEOS}
     if value in known_regions:
         return value
-    for suffix in ("south africa", "new zealand", "united kingdom"):
+    for suffix in ("south africa", "south korea", "new zealand", "united kingdom",
+                   "united arab emirates"):
         if value.endswith(" " + suffix): value = value[:-(len(suffix)+1)]
     if value.startswith("the "): value = value[4:]
     parts = value.split()
@@ -70,7 +71,8 @@ def region_key(region, entity=None):
                  "california", "florida", "belgium", "colombia", "morocco", "uganda",
                  "estonia", "czechia", "austria", "netherlands", "mongolia", "japan",
                  "thailand", "ecuador", "romania", "croatia", "greece", "senegal",
-                 "peru", "philippines", "namibia", "nigeria", "latvia", "slovenia"}
+                 "peru", "philippines", "namibia", "nigeria", "latvia", "slovenia", "uae",
+                 "sweden", "indonesia", "bulgaria", "chile"}
     countries.update({"rwanda", "tanzania"})
     if len(parts) > 1 and parts[-1] in countries: parts.pop()
     return " ".join(parts)
