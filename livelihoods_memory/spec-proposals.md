@@ -176,3 +176,39 @@ ESTIMATE or observational COMPARE.
 
 **Evidence:** six `causal_counterfactual` probes in `questions/round2-breakers.json` and the Round 1
 behavior questions.
+
+## 2026-07-13 — Exact series-point selection
+
+**Question that forced it:** “What's Ghana's self-employment share sitting at right now?”
+
+**Why v2.1 cannot express it honestly:** `SELECT(time:null)` retrieves the available series. The
+executor may choose endpoints internally for a comparison, but a standalone request for one latest
+value has no explicit scalarizing operation. Treating null time as “latest” would break existing
+series and trend semantics, while inventing a calendar year changes the user's request.
+
+**Proposed change:** introduce a typed series-point selector, provisionally
+`PICK {source, which:latest|earliest|as_of, as_of?, fallback:exact|previous|nearest}`. It returns one
+time-stamped scalar and records the selected observation, source update/vintage, and fallback in
+provenance. `as_of` requires an explicit instant; no silent nearest-year policy is permitted. This
+may ultimately be a restricted REDUCE operation, but must not overload `SELECT.time` until the
+type distinction between interval filtering and point selection is explicit.
+
+**Evidence:** pre-run exclusion `h18-030` in `questions/holdout-h18-generated.json` and admission
+record `chronology/20260713_round2_epoch_012_h18_admission.md`.
+
+## 2026-07-13 — Explicit source gaps are not semantic holes
+
+**Question that forced it:** “For Ghana I need the actual headcount of informal-sector workers —
+the number of people, not the percentage rate.”
+
+**Why v2.1 needs a protocol clarification:** the requested measure and region are fully specified,
+but no connector supports that measure. Replacing the literal entity with a `?measure` hole asks
+the user to repeat information already supplied and can falsely improve ambiguity scoring. The
+correct result is a `DataRequest(reason:no_connector)` grounded in the literal requested measure.
+
+**Proposed change:** make source availability orthogonal to semantic binding. Preserve explicit
+unsupported entities, fields, and regions as literals; emit a source-gap DataRequest with the
+missing connector capability and required evidence. Use holes only for unresolved user meaning or
+references. Benchmark metadata must therefore allow `expect:data_request` with `must_hole:false`.
+
+**Evidence:** admitted rows `h18-045` and `h18-046` in `questions/holdout-018.json`.
