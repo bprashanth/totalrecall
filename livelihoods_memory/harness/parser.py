@@ -913,26 +913,6 @@ def mech_series_rank(ir, question):
 def _literal_place_list(text):
     """Split an explicit comma/and/or place list without inventing geographic hierarchy."""
     import connectors as C
-    # Prefer complete curated statistical-region aliases before comma splitting.  A surface such
-    # as ``Ile de France, Lombardy, Italy, and Warsaw capital region, Poland`` contains country
-    # qualifiers that are not additional candidates.  Longest non-overlapping alias matching
-    # keeps the three regions intact and candidate-local.
-    normalized = _phrase_norm(text)
-    matches = []
-    for alias in sorted(C.EUROSTAT_GEOS, key=lambda item: len(_phrase_norm(item)), reverse=True):
-        an = _phrase_norm(alias)
-        for found in re.finditer(r"(?<![a-z0-9])" + re.escape(an) + r"(?![a-z0-9])",
-                                 normalized):
-            if not any(found.start() < end and found.end() > start for start, end, _ in matches):
-                matches.append((found.start(), found.end(), alias))
-    if len(matches) >= 2:
-        chars=list(normalized)
-        for start,end,_ in matches:
-            chars[start:end]=" "*(end-start)
-        residual=" ".join("".join(chars).split())
-        residual=re.sub(r"\b(?:and|or|italy|poland|germany|france|spain)\b","",residual)
-        if not residual.strip():
-            return [alias for _, _, alias in sorted(matches)]
     parts = [re.sub(r"^(?:the\s+)", "", part.strip(" ,—.;:?"), flags=re.I)
              for part in re.split(r",|\b(?:and|or)\b", text, flags=re.I)
              if part.strip(" ,—.;:?")]
@@ -943,13 +923,20 @@ def _literal_place_list(text):
 
 def _qualified_place_list(text):
     """Keep comma-qualified city/country candidates together in explicit rank registers."""
+    import connectors as C
+    normalized=_phrase_norm(text);matches=[]
+    for alias in sorted(C.EUROSTAT_GEOS,key=lambda item:len(_phrase_norm(item)),reverse=True):
+        an=_phrase_norm(alias)
+        for found in re.finditer(r"(?<![a-z0-9])"+re.escape(an)+r"(?![a-z0-9])",normalized):
+            if not any(found.start()<end and found.end()>start for start,end,_ in matches):
+                matches.append((found.start(),found.end(),alias))
+    if len(matches)>=2:
+        chars=list(normalized)
+        for start,end,_ in matches:chars[start:end]=" "*(end-start)
+        residual=" ".join("".join(chars).split())
+        residual=re.sub(r"\b(?:and|or|italy|poland|germany|france|spain)\b","",residual)
+        if not residual.strip():return [alias for _,_,alias in sorted(matches)]
     curated = _literal_place_list(text)
-    if len(curated) >= 2 and any("," not in str(item) for item in curated):
-        # Curated statistical aliases deliberately omit their country suffix.
-        import connectors as C
-        if all(_phrase_norm(item) in {_phrase_norm(k) for k in C.EUROSTAT_GEOS}
-               for item in curated):
-            return curated
     parts=[part.strip(" ,.;:?") for part in re.split(r",|\b(?:and|or)\b",text,flags=re.I)
            if part.strip(" ,.;:?")]
     # This helper is called only for syntax that explicitly says cities/places.  Alternating
@@ -2804,9 +2791,12 @@ def mech_role_complete_surface(ir, question):
         return {"op":"SELECT","entity":"?unsupported_claim","region":region,"time":time}
 
     # Literal modifier-bearing facility phrases are evidence, not disposable resolver hints.
-    simple_relation=re.match(r"\s*(?:give\s+the\s+distances?\s+from|which)\s+(.+?)\s+"
-                             r"(?:to|and)\s+(.+?)\s+(?:in|co-?occur\s+in\s+the\s+same\s+"
-                             r"mapped\s+area\s+of)\s+(.+?)[.?!]*$",question,re.I)
+    simple_relation=re.match(r"\s*give\s+the\s+distances?\s+from\s+(.+?)\s+to\s+(.+?)\s+"
+                             r"in\s+(.+?)[.?!]*$",question,re.I)
+    if not simple_relation:
+        simple_relation=re.match(r"\s*which\s+(.+?)\s+and\s+(.+?)\s+co-?occur\s+in\s+"
+                                 r"(?:the\s+same\s+mapped\s+area\s+of\s+)?(.+?)[.?!]*$",
+                                 question,re.I)
     if simple_relation:
         left,right,place=simple_relation.groups();region=reg(place)
         relation="distance" if re.search(r"\bdistances?\b",question,re.I) else "cooccur"
@@ -2894,6 +2884,24 @@ def mech_role_complete_surface(ir, question):
                              r"(?=\s+(?:but|and)\b|,|[.?!]|$)",clause,re.I):
             predicates.append((m.start(),"cooccur",m.group(1),None))
         if predicates:
+            def op_count(value,op):
+                if isinstance(value,list):return sum(op_count(item,op) for item in value)
+                if not isinstance(value,dict):return 0
+                return (1 if value.get("op")==op else 0)+sum(
+                    op_count(child,op) for child in value.values())
+            def relation_count(value,relation):
+                if isinstance(value,list):return sum(relation_count(item,relation) for item in value)
+                if not isinstance(value,dict):return 0
+                return (1 if value.get("op")=="RELATE" and value.get("relation")==relation else 0)+sum(
+                    relation_count(child,relation) for child in value.values())
+            needed_beyond=sum(1 for _,relation,_,_ in predicates if relation=="beyond")
+            # A complete existing chain is authoritative. Rebuild only lossy chains, except the
+            # explicit shared-subject ``both`` surface whose right-association is semantically
+            # observable even when the raw tree happens to contain the same node count.
+            if isinstance(ir,dict) and op_count(ir,"RELATE")>=len(predicates) and \
+                    relation_count(ir,"beyond")>=needed_beyond and \
+                    not re.search(r"\bof\s+both\b",clause,re.I):
+                return ir
             source=sel(subject,region)
             km_values=[float(x) for x in re.findall(r"(\d+(?:\.\d+)?)\s*(?:km|kilomet)",
                                                      clause,re.I)]
@@ -2929,10 +2937,24 @@ def mech_role_complete_surface(ir, question):
         if m:rank_text=m.group(1);break
     if rank_text:
         places=_qualified_place_list(rank_text)
+        rank_items=ir.get("items",[]) if isinstance(ir,dict) and ir.get("op")=="RANK" else []
+        rank_complete=len(rank_items)==len(places) and len(places)>=3
+        qualifier_pressure=bool(re.search(r"\b(?:lombardy|warsaw\s+capital\s+region)\s*,\s*"
+                                          r"(?:italy|poland)\b",question,re.I))
+        def has_self_relation(value):
+            if isinstance(value,list):return any(has_self_relation(item) for item in value)
+            if not isinstance(value,dict):return False
+            if value.get("op")=="RELATE":
+                left=_first_select(value.get("left"));right=_first_select(value.get("right"))
+                if left and right and _phrase_norm(str(left.get("entity")))==_phrase_norm(str(right.get("entity"))):
+                    return True
+            return any(has_self_relation(child) for child in value.values())
         year_match=re.search(r"\b(?:19|20)\d{2}\b",question)
         # Candidate-local employment-rate levels, including a locally spoken female modifier.
         if len(places)>=3 and re.search(r"\bemployment[- ]rate\b",question,re.I) and \
-                not re.search(r"\b(?:change|ratio)\b",question,re.I):
+                not re.search(r"\b(?:change|ratio)\b",question,re.I) and \
+                ((not rank_complete and qualifier_pressure) or
+                 (re.search(r"['’]s",question) and "female employment rate" in ql)):
             time={"start":year_match.group(),"end":year_match.group()} if year_match else None
             items=[]
             for place in places:
@@ -2944,7 +2966,8 @@ def mech_role_complete_surface(ir, question):
             return mech_rank_k({"op":"RANK","items":items,
                                 "order":_requested_rank_order(question,"desc")},question)
         years=sorted(set(re.findall(r"\b(?:19|20)\d{2}\b",question)))
-        if len(places)>=3 and len(years)==2 and re.search(r"\b(?:change|increase)\b",question,re.I):
+        if len(places)>=3 and len(years)==2 and re.search(r"\b(?:change|increase)\b",question,re.I) and \
+                not rank_complete and qualifier_pressure:
             items=[]
             for place in places:
                 later=sel("employment rate",reg(place),{"start":years[1],"end":years[1]})
@@ -2962,7 +2985,7 @@ def mech_role_complete_surface(ir, question):
                             r"(.+?)(?:,|\s+most\s+to\s+least|[.?!]|$)",question,re.I)
         if no_within:
             subject,anchor,distance=no_within.groups();relation=(subject,"beyond",distance,anchor)
-        if len(places)>=3 and relation:
+        if len(places)>=3 and relation and (not rank_complete or has_self_relation(ir)):
             subject,mode,distance,anchor=(relation.groups() if hasattr(relation,"groups") else relation)
             mode="beyond" if "no" in mode else mode
             anchor=re.sub(r"\s+(?:lowest|highest)\s+to\s+(?:highest|lowest)\s*$","",anchor,flags=re.I)
