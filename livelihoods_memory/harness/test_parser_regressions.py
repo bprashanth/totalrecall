@@ -1447,6 +1447,22 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual((deictic["metric"],deictic["source"]["right"]["entity"]),
                          ("presence","?anchor_entity"))
 
+    def test_unchanged_mixed_geography_tree_is_not_rebound_by_late_closure(self):
+        raw='{"op":"COMPARE","how":"difference","left":{"op":"SELECT","entity":' \
+            '"labour force participation","region":{"op":"REGION","place":"France"},' \
+            '"time":{"start":"2022","end":"2022"}},"right":{"op":"SELECT",' \
+            '"entity":"unemployment rate","region":{"op":"REGION","place":' \
+            '"Ile de France"},"time":{"start":"2022","end":"2022"}}}'
+        old_chat=P.chat
+        try:
+            P.chat=lambda *args,**kwargs: raw
+            got=P.parse("At 2022, France labour-force participation minus Ile de France "
+                        "unemployment rate; keep each source's own indicator.",repair=False)["ir"]
+        finally:
+            P.chat=old_chat
+        self.assertEqual(got["left"]["region"]["place"].lower(),"france")
+        self.assertEqual(got["right"]["region"]["place"].lower(),"ile de france")
+
 
 if __name__ == "__main__":
     unittest.main()
