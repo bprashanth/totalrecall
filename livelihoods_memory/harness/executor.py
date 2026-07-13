@@ -446,7 +446,15 @@ def execute(ir):
     except DataRequest as dr:
         return {"status": "data_request", "reason": dr.reason, "detail": dr.detail,
                 "provenance": prov}
-    except (RuntimeError, KeyError, TypeError, ValueError) as e:
+    except RuntimeError as e:
+        # Connector transports deliberately raise RuntimeError only after bounded retries.  An
+        # exhausted upstream request is an evidence-availability gap, not a deterministic query
+        # failure and certainly not evidence that the requested records do not exist.
+        return {"status": "data_request", "reason": "source_unavailable",
+                "detail": {"error": str(e)[:200],
+                           "hint": "retry the verified source or provide an alternate connector"},
+                "provenance": prov}
+    except (KeyError, TypeError, ValueError) as e:
         return {"status": "error", "reason": type(e).__name__, "detail": {"msg": str(e)[:200]},
                 "provenance": prov}
     return {"status": "answer", "value": val, "label": val.get("label", "observed"),

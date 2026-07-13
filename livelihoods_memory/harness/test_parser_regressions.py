@@ -712,6 +712,27 @@ class ParserRegressionTests(unittest.TestCase):
             C.resolve_region=original
         self.assertEqual((got["status"],got["reason"]),("data_request","unresolved_region"))
 
+    def test_exhausted_connector_is_source_gap_not_executor_error(self):
+        tree=select("market",{"op":"REGION","place":"Porto, Portugal"})
+        original_region,original_select=C.resolve_region,C.osm_select
+        C.resolve_region=lambda _: {"name":"Porto","orig":"Porto, Portugal",
+                                    "bbox":[41.0,41.3,-8.8,-8.4],"lat":41.15,"lon":-8.6}
+        C.osm_select=lambda *args,**kwargs: (_ for _ in ()).throw(
+            RuntimeError("GET failed after retries: timed out"))
+        try:
+            got=E.execute(tree)
+        finally:
+            C.resolve_region,C.osm_select=original_region,original_select
+        self.assertEqual((got["status"],got["reason"]),
+                         ("data_request","source_unavailable"))
+        self.assertIn("retry",got["detail"]["hint"])
+        prose=SYN.synthesize("List markets in Porto.",got,ir=tree)
+        self.assertIn("temporarily unavailable",prose)
+        self.assertIn("not evidence",prose)
+        trace={"question":"List markets in Porto.","synthesis":prose,
+               "synthesis_scores":{"overall":1.0},"ir":tree,"execution":got}
+        self.assertEqual(SA.audit_trace(trace),[])
+
     def test_computed_relational_rank_recovers_without_model_tree(self):
         q=("Which two of Bengaluru, Nairobi, and Accra have the most craft workshops "
            "within 1 km of a market?")

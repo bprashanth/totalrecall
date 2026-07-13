@@ -518,3 +518,25 @@ executed candidate golds to verify route, table, unit, observation cardinality, 
 representation before first contact, but after the bank checksum all gold and expectations are
 immutable. Parser-under-test contact remains forbidden during admission. Governance record:
 `BNCH-002`.
+
+## 2026-07-13 — Upstream outages are typed evidence gaps
+
+**Failure that forced it:** H26's qwen-free direct-gold audit exhausted the bounded retries of a
+verified spatial source. The connector raised a transport `RuntimeError`, and the executor exposed
+it as a generic query error even though the IR was valid and the only missing ingredient was
+temporarily available source evidence.
+
+**Proposed contract:** after bounded retries, a verified connector transport failure becomes a
+`source_unavailable` DataRequest. It is distinct from `no_connector` (no configured coverage),
+`empty_select` (no mapped records returned), and `source_truncated` (incomplete retrieval). The
+answer must say that the source is temporarily unavailable, explicitly avoid treating the outage
+as evidence of absence, and ask for retry or a verified alternate connector. Schema, type, and
+programming faults remain executor errors; the classification is not a blanket error suppression.
+
+**Saturation consequence:** this executor/answer-boundary discovery occurred before H26 parser
+contact, so no contaminated first-contact score exists. It nevertheless retires epoch 018 under
+`SAT-003`; H26 becomes disclosed development pressure, and countable banks must be generated only
+after the next exact checksum freeze.
+
+**Evidence:** H26 pre-contact execution of source-heavy spatial candidates, deterministic executor
+and synthesis regressions, and the subsequent all-row wall. Governance record: `BUG-008`.

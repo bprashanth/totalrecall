@@ -192,6 +192,9 @@ def audit_trace(trace):
             issues.append("compiler_failure_called_data_gap")
         if reason == "no_connector" and "coverage gap" not in lower:
             issues.append("connector_gap_not_distinguished")
+        if reason == "source_unavailable" and not (
+                "temporarily unavailable" in lower and "not evidence" in lower):
+            issues.append("source_outage_not_distinguished")
         if reason == "insufficient_series":
             points=(execution.get("detail") or {}).get("points")
             if str(points) not in lower or "at least two" not in lower:
