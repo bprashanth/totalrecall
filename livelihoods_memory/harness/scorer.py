@@ -66,7 +66,12 @@ def _answer_contract(ir):
         elif op == "RANK":
             contract.append(("rank",node.get("order"),node.get("k"),len(node.get("items",[]))))
         elif op == "ANNOTATE":
-            contract.append(("annotate",str(node.get("layer","")).lower().replace("_"," ")))
+            # Layer labels are literals. Separator punctuation and underscores do not change
+            # their denotation (``population-density`` == ``population density``), matching the
+            # strict semantic audit rather than manufacturing a coarse-score disagreement.
+            import re
+            layer=" ".join(re.findall(r"[a-z0-9]+",str(node.get("layer","")).lower()))
+            contract.append(("annotate",layer))
         elif op == "AGGREGATE":
             by,metric=node.get("by"),node.get("metric")
             required = metric in ("density","presence") or (metric == "mean" and by == "space")
