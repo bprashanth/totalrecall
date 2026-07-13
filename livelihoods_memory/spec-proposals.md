@@ -255,3 +255,48 @@ unchanged.
 
 **Evidence:** declared bad gold `h19-013` in `questions/holdout-019.json` and independent H19
 adjudication in `chronology/20260713_round2_epoch_013_h19_first_contact.md`.
+
+## 2026-07-13 — Family-level discovery accounting and adversarial variants
+
+**Failure that forced it:** H20 produced six failures in the same endpoint-ranking family. Counting
+them as six independent algebra gaps would exaggerate novelty; counting the bank as one issue would
+hide the breadth of surface forms that broke the compiler.
+
+**Proposed protocol change:** saturation accounting has two axes: discovery families and failing
+rows. A family is absorbed only after one generalized repair, multiple positive surface variants,
+negative guards against adjacent semantics, a complete-wall regression, and a new untouched-bank
+contact. The plateau must be flat on both axes. Reports publish family definitions and row counts;
+they may not relabel paraphrases as distinct discoveries or collapse heterogeneous failures into one.
+
+**Evidence:** `h20-019`, `020`, `022`, `023`, `024`, and `026` all require
+`RANK(COMPARE(endpoint,endpoint) × candidates)` but use distinct prefix/suffix lists, arrow years,
+fall/improvement polarity, top-N, and regional wording.
+
+## 2026-07-13 — Pre-contact semantic gold lints
+
+**Failure that forced it:** the immutable H20 golds for `h20-019` and `h20-027` model a complete
+ranking even though each question asks for one winner; `h20-075` does not disambiguate a named
+statistical density from density over membership records.
+
+**Proposed protocol change:** before checksum freeze, admission must lint rank cardinality (singular
+winner → `k:1`, top-N → `k:N`, explicit full order → no `k`), candidate coverage, distinct named
+operands, complete unsupported noun phrases, source-gap versus semantic-hole status, and
+record/count/presence/density output form. Lint findings require human adjudication and are recorded
+before contact. The linter does not auto-rewrite semantic gold.
+
+**Evidence:** declared H20 defects in `coverage/gold-defects.json` and the immutable first-contact
+record in `chronology/20260713_round2_epoch_014_h20_first_contact.md`.
+
+## 2026-07-13 — Output-form-sensitive coarse scoring
+
+**Failure that forced it:** H20 coarse scoring gave compositionally wrong record queries substantial
+credit after an invented count wrapper, while strict canonical audit correctly rejected them.
+`h20-070` asked for related records but the first parse returned their count.
+
+**Proposed change:** add a separate output-type/form dimension to the coarse diagnostic: Records,
+presence, count, density, Series, Scalar, and Ranking (including `k`). Keep strict canonical audit as
+the release gate. Do not merely increase the weight of op multisets, which cannot distinguish a
+wrapper from the requested root contract.
+
+**Evidence:** H20 ordinary score 0.917 versus strict 18/40 at first contact; `h20-070` is the minimal
+record-versus-count counterexample.

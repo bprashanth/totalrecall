@@ -41,6 +41,21 @@ Round 2 may claim operational saturation only when all of these hold:
 This is still empirical saturation, not a mathematical proof. The report must state the tested
 distribution and residual blind spots.
 
+## H20 refinement: two-axis novelty and admission quality
+
+H20 rejected epoch 014 with 22 strict mismatches, including six surfaces from one endpoint-rank
+family and three defective/ambiguous golds. Round 2 therefore tracks both failing rows and semantic
+discovery families. A family is absorbed only by a generalized repair, positive surface variants,
+adjacent negative guards, the complete frozen-wall regression, and a later untouched-bank contact.
+Neither six paraphrastic failures nor one broad label may distort the discovery curve.
+
+Pre-contact admission now includes explicit human-reviewed lints for rank cardinality, candidate
+coverage, distinct named operands, complete unsupported phrases, source gaps versus holes, and
+requested output form. A lint may reject or repair gold only before its checksum boundary. After
+contact, defects are registered against `(bank,id)` and excluded from strict eligibility; the
+immutable bank remains unchanged. These local protocol refinements are proposed to framework
+governance as SAT-002 and BNCH-001 and do not silently alter the released bootstrap.
+
 ## Round 2 workstreams
 
 ### A. Source and evidence expansion

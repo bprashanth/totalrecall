@@ -400,6 +400,117 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual(S.region_key({"op":"REGION","place":"Ile de France"}),
                          S.region_key({"op":"REGION","place":"Ile de France, France"}))
 
+    def test_endpoint_rank_prefix_list_instantiates_one_difference_per_place(self):
+        q=("Rank Brazil, Indonesia, and South Africa by how much youth unemployment fell "
+           "from 2015 to 2020 (most improvement first).")
+        got=P.mech_explicit_rank_semantics(select("youth unemployment"),q)
+        self.assertEqual((got["order"],len(got["items"])),("asc",3))
+        self.assertTrue(all(item["op"]=="COMPARE" for item in got["items"]))
+        self.assertEqual((got["items"][0]["left"]["time"]["start"],
+                          got["items"][0]["right"]["time"]["start"]),("2020","2015"))
+
+    def test_endpoint_rank_suffix_list_preserves_top_k(self):
+        q="Top-2 by endpoint rise in vulnerable employment 2010→2018: Nigeria, Kenya, Ghana, India."
+        got=P.mech_explicit_rank_semantics(select("vulnerable employment"),q)
+        self.assertEqual((got["order"],got["k"],len(got["items"])),("desc",2,4))
+
+    def test_singular_endpoint_winner_binds_k_one(self):
+        q="Among India, Kenya, and Ghana, which saw the largest rise in self employment from 2010 to 2020?"
+        got=P.mech_explicit_rank_semantics(select("self employment"),q)
+        self.assertEqual((got["k"],len(got["items"])),(1,3))
+
+    def test_singular_relational_city_winner_binds_k_one(self):
+        seed={"op":"RANK","order":"desc","items":[select("marketplace")]*3}
+        got=P.mech_rank_k(seed,"Which city has more markets nearby — Bengaluru, Nairobi, or Accra?")
+        self.assertEqual(got["k"],1)
+
+    def test_endpoint_rank_does_not_rewrite_single_year_level_rank(self):
+        seed={"op":"RANK","order":"desc","items":[select("employment rate")]*3}
+        self.assertIs(P.mech_explicit_rank_semantics(
+            seed,"Rank France, Germany, and Spain by employment rate in 2022."),seed)
+
+    def test_eight_country_ladder_preserves_all_items(self):
+        q=("Eight-country vulnerable employment ladder for 2018, highest first: India, Kenya, "
+           "Ghana, Vietnam, Nigeria, Brazil, Indonesia, South Africa.")
+        got=P.mech_explicit_rank_semantics(select("vulnerable employment"),q)
+        self.assertEqual((got["order"],len(got["items"])),("desc",8))
+
+    def test_go_up_or_down_with_explicit_endpoints_is_change_not_window_trend(self):
+        q="From 2010 to 2019, did vulnerable employment in Ghana go up or down?"
+        seed={"op":"COMPARE","how":"trend_direction","left":
+              select("vulnerable employment",{"op":"REGION","place":"Ghana"})}
+        got=P.mech_explicit_change(seed,q)
+        self.assertEqual((got["how"],got["left"]["time"]["start"],got["right"]["time"]["start"]),
+                         ("difference","2019","2010"))
+
+    def test_spatial_market_before_relation_cue_is_an_entity(self):
+        q="Which markets co-occur with banks in the same area of Bengaluru?"
+        self.assertEqual([x[2] for x in P._entity_occurrences(q,osm_only=True)],
+                         ["marketplace","bank"])
+
+    def test_distance_between_keeps_unsupported_anchor_literal(self):
+        q="What is the distance between coworking spaces and metro stations in Bengaluru?"
+        region={"op":"REGION","place":"Bengaluru"}
+        got=P.mech_nearest_distance(select("coworking space",region),q)
+        self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
+                         ("coworking_space","metro station"))
+
+    def test_deictic_neighbourhood_is_place_hole_not_self_relation(self):
+        q="Any coworking spaces near this neighborhood?"
+        region="?place"
+        seed={"op":"RELATE","relation":"within","left":select("coworking space",region),
+              "right":select("coworking space",region)}
+        got=P.mech_dormant_ops(seed,q)
+        self.assertEqual((got["metric"],got["source"]["op"],got["source"]["region"]),
+                         ("presence","SELECT","?place"))
+
+    def test_uncounted_relation_drops_invented_count_wrapper(self):
+        q="Field note: craft workshops within 1 km of a water point in this district."
+        rel={"op":"RELATE","relation":"within","left":select("craft workshop"),
+             "right":select("water point")}
+        seed={"op":"AGGREGATE","by":"space","metric":"count","source":rel}
+        self.assertEqual(P.mech_answer_form(seed,q),rel)
+
+    def test_mixed_source_ratio_keeps_clause_local_regions(self):
+        q="Ile de France employment rate against France labor force participation in 2023, as a ratio."
+        got=P.mech_mixed_source_compare(select("employment rate"),q)
+        self.assertEqual((got["left"]["entity"],got["left"]["region"]["place"]),
+                         ("employment rate","ile de france"))
+        self.assertEqual((got["right"]["entity"],got["right"]["region"]["place"]),
+                         ("labor force participation","france"))
+
+    def test_mixed_source_difference_keeps_distinct_entities(self):
+        q="Berlin female employment rate vs Germany female informal employment rate, 2022 difference."
+        got=P.mech_mixed_source_compare(select("female informal employment rate"),q)
+        self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
+                         ("female employment rate","female informal employment rate"))
+        self.assertEqual((got["left"]["region"]["place"],got["right"]["region"]["place"]),
+                         ("berlin","germany"))
+
+    def test_world_bank_label_does_not_become_spatial_bank_entity(self):
+        q="Dashboard: Madrid region unemployment rate over World Bank unemployment for Spain, 2023 ratio."
+        got=P.mech_mixed_source_compare(select("unemployment rate"),q)
+        self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
+                         ("unemployment rate","unemployment"))
+        self.assertEqual(got["right"]["region"]["place"],"spain")
+
+    def test_full_unsupported_microdata_phrase_is_preserved(self):
+        q="Pull household income survey microdata for Accra."
+        got=P.mech_source_gap_select(select("household income"),q)
+        self.assertEqual((got["op"],got["entity"]),("SELECT","household income survey microdata"))
+
+    def test_full_unsupported_permit_phrase_keeps_explicit_count(self):
+        q="Procurement: count of licensed street vendor permits in Lagos."
+        got=P.mech_source_gap_select(select("vendor permit"),q)
+        self.assertEqual((got["op"],got["source"]["entity"]),
+                         ("AGGREGATE","licensed street vendor permit"))
+
+    def test_full_unsupported_rate_is_not_replaced_by_proxy_hole(self):
+        q="Audit ask — informal apprenticeship completion rate in Ghana."
+        got=P.mech_source_gap_select(select("?proxy"),q)
+        self.assertEqual((got["op"],got["entity"]),
+                         ("SELECT","informal apprenticeship completion rate"))
+
 
 if __name__ == "__main__":
     unittest.main()

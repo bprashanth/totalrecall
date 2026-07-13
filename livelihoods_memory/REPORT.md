@@ -232,3 +232,36 @@ strict 961/963 overall and 961/961 eligible, dialogue 5/5, and 51/51 determinist
 The corpus contains 975 parse and 5 clarification rows with all six declared bad-gold questions
 excluded. This is still not saturation. H19 is disclosed development, so the consecutive untouched
 counter is zero and three new post-epoch-014 cross-family banks remain required.
+
+### Round 2 checkpoint 5 — H20 adds family-level stopping evidence
+
+H20 was authored after the epoch-014 freeze by Cursor Agent using xAI Grok 4.5 High. Eighty blind
+candidates were independently audited down to a 40-row bank spanning endpoint-change ranks,
+relational ranks, nested polarity, mixed-source comparisons, deictic ambiguity, long lists, and
+explicit source gaps. Its checksum and exclusions were committed before qwen contact.
+
+First contact scored 0.917 under the ordinary diagnostic but only 18/40 under strict canonical
+audit. Independent adjudication found 19 clean compiler discoveries, two compiler discoveries with
+orthogonal rank-cardinality gold defects, one ambiguous density gold, and no audit-equivalence
+defects. The valid discoveries reduce to six semantic families rather than 21 unrelated defects:
+endpoint quantity construction, candidate/item/cardinality separation, distinct relation roles,
+clause-local mixed-source binding, deictic-place semantics, and full unsupported phrase/output-form
+preservation.
+
+Sixty-eight deterministic regressions now exercise positive variants and adjacent negative guards.
+The final disclosed H20 replay is strict 37/37 over eligible rows; the two immutable mismatches are
+the registered missing-`k:1` golds, and the matching but ambiguous density row remains excluded.
+Thirty-seven rows join development. The first replay's misleading 40/40—before the compiler began
+enforcing singular-winner cardinality—is direct evidence that matching defective gold is not
+closure.
+
+H20 also refines the stopping philosophy. SAT-002 proposes publishing both discovery-family and
+failing-row curves and requires generalized repair plus variants, negative guards, full-wall
+regression, and a later untouched contact before a family closes. BNCH-001 proposes pre-contact
+semantic lints for cardinality, candidate coverage, operands, source gaps, and output form.
+SCR-001 proposes output-form-sensitive coarse diagnostics while retaining strict audit as the
+release gate. These are durable proposals for Fable review, not silent bootstrap changes.
+
+Epoch 014 is retired and the saturation counter is still zero. Epoch 015 must first recertify the
+entire enlarged wall, then H21 and later cross-family banks must independently test whether these
+families actually remain closed.

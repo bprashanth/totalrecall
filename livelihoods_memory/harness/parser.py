@@ -354,6 +354,7 @@ def _entity_occurrences(question, osm_only=False):
     # only in unambiguously spatial/facility syntax; this also covers the common plural "markets".
     if osm_only or any(mapping is osm_phrases for mapping in mappings):
         spatial_market = re.search(r"\b(?:within|near|beyond|from|of|co occur)\b.+?\bmarkets?\b", qn) or \
+            re.search(r"\bmarkets?\b.+?\b(?:within|near|beyond|co occur)\b", qn) or \
             re.search(r"\b(?:a|the|any)\s+markets?\b", qn)
         if spatial_market:
             for match in re.finditer(r"\bmarkets?\b", qn):
@@ -679,6 +680,67 @@ def mech_explicit_rank_semantics(ir, question):
         r"(?:largest|greatest|smallest)\s+(?:increase|decrease|change)\s+in\s+(.+?)\s+"
         r"between\s+((?:19|20)\d{2})\s+and\s+((?:19|20)\d{2})\s*:\s*(.+?)[?!.]*$",
         question, re.I)
+    # Broad endpoint-rank surfaces discovered by H20.  Candidate extraction and the quantity
+    # blueprint are deliberately independent: one endpoint COMPARE is instantiated per place.
+    # This covers prefix lists, suffix lists, arrow years, "largest rise", "fell", and top-N
+    # without weakening ordinary one-year ranks or unbounded unary trends.
+    years = re.findall(r"\b(?:19|20)\d{2}\b", question)
+    endpoint_rank = (len(years) == 2 and
+                     re.search(r"\b(?:rank|order|ladder|top\s*[- ]?\s*\d+|which\s+saw)\b",
+                               question, re.I) and
+                     (re.search(r"\b(?:change|rise|rose|gain|fell|fall|drop|deteriorat|improvement)\w*\b",
+                                question, re.I) or
+                      re.search(r"\bendpoint\b", question, re.I)))
+    if endpoint_rank and not (change_rank or which_change):
+        places_text = None
+        for pattern in (
+            r"\bamong\s+(.+?),\s*(?:which|rank|order)\b",
+            r"\b(?:rank|order)\s+(.+?)\s+(?:by|on)\b",
+            r":\s*([^:.?!]+?)[.?!]*$",
+        ):
+            match = re.search(pattern, question, re.I)
+            if match:
+                places_text = match.group(1)
+                break
+        places = _literal_place_list(places_text) if places_text else []
+        # A model-produced RANK is useful only as a candidate inventory; never inherit its
+        # incorrectly flattened SELECT/series item semantics.
+        if len(places) < 2 and isinstance(ir, dict) and ir.get("op") == "RANK":
+            places = []
+            for item in ir.get("items", []):
+                selected = _first_select(item)
+                region = selected.get("region") if selected else None
+                place = region.get("place") if isinstance(region, dict) else region
+                if place: places.append(place)
+        occurrences = _entity_occurrences(question)
+        # Statistical measures win over incidental OSM/source-label tokens (e.g. "World Bank").
+        import connectors as C
+        measures = [item for item in occurrences if
+                    C.ilo_resolve_indicator(item[2])[0] or
+                    C.eurostat_resolve_indicator(item[2])[0] or
+                    C.wb_resolve_indicator(item[2])[0]]
+        if len(places) >= 2 and measures:
+            entity = max(measures, key=lambda item: item[1] - item[0])[2]
+            earlier, later = sorted(set(years), key=int)
+            def point(place, year):
+                return {"op":"SELECT", "entity":entity,
+                        "region":{"op":"REGION", "place":place},
+                        "time":{"start":year, "end":year}}
+            items = [{"op":"COMPARE", "how":"difference",
+                      "left":point(place, later), "right":point(place, earlier)}
+                     for place in places]
+            # Signed later-minus-earlier: the greatest fall/improvement is the smallest value.
+            ascending = bool(re.search(
+                r"\b(?:fell|fall|largest\s+drop|greatest\s+drop|most\s+improvement)\b",
+                question, re.I)) and not bool(re.search(r"\bworst\s+deterioration\b", question, re.I))
+            out = {"op":"RANK", "items":items, "order":"asc" if ascending else "desc"}
+            top = re.search(r"\btop\s*[- ]?\s*(\d+)\b", question, re.I)
+            if top: out["k"] = int(top.group(1))
+            elif re.search(r"\bwhich\s+(?:\w+\s+){0,2}(?:had|has|saw)\s+(?:the\s+)?"
+                           r"(?:largest|smallest|greatest|most|fewest)\b", question, re.I):
+                out["k"] = 1
+            return out
+
     if change_rank or which_change:
         if change_rank:
             places_text, entity_text, y1, y2 = change_rank.groups(); top_one = False
@@ -700,6 +762,29 @@ def mech_explicit_rank_semantics(ir, question):
                "order":"asc" if re.search(r"\bsmallest\b", question, re.I) else "desc"}
         if top_one: out["k"] = 1
         return out
+
+    # Explicit full-order/list surfaces need not use the verb "rank".  Keep the complete
+    # colon-delimited candidate inventory rather than accepting a single model-selected winner.
+    ladder = re.search(
+        r"\b(?:ladder|ranking|ordering)\s+for\s+((?:19|20)\d{2}).*?"
+        r"\b(highest|lowest)\s+first\s*:\s*(.+?)[.?!]*$", question, re.I)
+    if ladder:
+        year, direction, places_text = ladder.groups()
+        places = _literal_place_list(places_text)
+        before = question[:ladder.start()]
+        occurrences = _entity_occurrences(before)
+        import connectors as C
+        measures = [item for item in occurrences if
+                    C.ilo_resolve_indicator(item[2])[0] or
+                    C.eurostat_resolve_indicator(item[2])[0] or
+                    C.wb_resolve_indicator(item[2])[0]]
+        if len(places) >= 2 and measures:
+            entity = max(measures, key=lambda item:item[1]-item[0])[2]
+            time = {"start":year,"end":year}
+            return {"op":"RANK", "order":"desc" if direction.lower()=="highest" else "asc",
+                    "items":[{"op":"SELECT","entity":entity,
+                              "region":{"op":"REGION","place":place},"time":time}
+                             for place in places]}
 
     superlative = re.search(
         r"\bwhich\s+has\s+the\s+(highest|lowest)\s+(.+?)\s*:\s*"
@@ -761,12 +846,69 @@ def mech_ratio(ir, question):
             "right": {"op": "SELECT", "entity": right, "region": region, "time": time}}
 
 
+def mech_mixed_source_compare(ir, question):
+    """Bind each explicit statistical comparison clause independently.
+
+    Mixed Eurostat/ILO/World-Bank questions are especially vulnerable to operand bleed: the model
+    copies the first region to both leaves or the longer second measure to both entities.  An
+    explicit `X against/vs/over Y, YEAR ratio|difference` surface determines both leaves without
+    any transfer inference, so reconstruct it clause-locally.
+    """
+    patterns = (
+        (r"^\s*(.+?)\s+against\s+(.+?)\s+in\s+((?:19|20)\d{2})\s*,?\s*as\s+a\s+ratio[.?!]*$", "ratio"),
+        (r"^\s*(.+?)\s+vs\.?\s+(.+?)\s*,\s*((?:19|20)\d{2})\s+difference[.?!]*$", "difference"),
+        (r"^\s*(?:dashboard\s*:\s*)?(.+?)\s+over\s+(.+?)\s*,\s*((?:19|20)\d{2})\s+ratio[.?!]*$", "ratio"),
+    )
+    match = mode = None
+    for pattern, candidate_mode in patterns:
+        match = re.match(pattern, question, re.I)
+        if match:
+            mode = candidate_mode
+            break
+    if not match: return ir
+
+    import connectors as C
+    def operand(text, fallback):
+        normalized = _phrase_norm(text)
+        occurrences = _entity_occurrences(normalized)
+        measures = [item for item in occurrences if
+                    C.ilo_resolve_indicator(item[2])[0] or
+                    C.eurostat_resolve_indicator(item[2])[0] or
+                    C.wb_resolve_indicator(item[2])[0]]
+        if not measures: return None
+        chosen = max(measures, key=lambda item:item[1]-item[0])
+        entity = chosen[2]
+        remainder = (normalized[:chosen[0]] + " " + normalized[chosen[1]:]).strip()
+        remainder = re.sub(r"\b(?:world bank|eurostat|ilostat|ilo)\b", " ", remainder)
+        remainder = " ".join(remainder.split())
+        remainder = re.sub(r"^(?:the\s+)?(?:for|in)\s+|\s+(?:for|in)$", "", remainder).strip()
+        if not remainder and fallback:
+            region = fallback.get("region")
+        else:
+            region = {"op":"REGION", "place":remainder}
+        return {"op":"SELECT", "entity":entity, "region":region,
+                "time":{"start":match.group(3),"end":match.group(3)}}
+
+    left_fallback = ir.get("left") if isinstance(ir,dict) and ir.get("op") == "COMPARE" else _first_select(ir)
+    right_fallback = ir.get("right") if isinstance(ir,dict) and ir.get("op") == "COMPARE" else None
+    left = operand(match.group(1), left_fallback)
+    right = operand(match.group(2), right_fallback)
+    if not left or not right or not left.get("region") or not right.get("region"): return ir
+    return {"op":"COMPARE", "how":mode, "left":left, "right":right}
+
+
 def mech_rank_k(ir, question):
     """Bind an explicit first-N modifier independently of how the RANK tree was produced."""
     if not isinstance(ir,dict) or ir.get("op")!="RANK":return ir
     words={"one":1,"two":2,"three":3,"four":4,"five":5}
     m=re.search(r"\b(?:top|bottom)\s+(\d+|one|two|three|four|five)\b",question,re.I)
-    if not m:return ir
+    if not m:
+        # Singular winner questions denote argmax/argmin, not the complete ordering.
+        if re.search(r"\bwhich\s+(?:(?:city|place|region|country)\s+)?(?:has|had|saw)\s+"
+                     r"(?:the\s+)?(?:most|fewest|largest|smallest|greatest|more|fewer)\b",
+                     question,re.I):
+            out=dict(ir);out["k"]=1;return out
+        return ir
     token=m.group(1).lower();out=dict(ir);out["k"]=int(token) if token.isdigit() else words[token]
     if re.search(r"\bbottom\b",m.group(0),re.I):out["order"]="asc"
     elif re.search(r"\btop\b",m.group(0),re.I):out["order"]="desc"
@@ -796,6 +938,13 @@ def mech_dormant_ops(ir, question):
     first = _first_select(ir)
     if not first: return ir
     ql = question.lower()
+    # Here "near this neighbourhood" locates the entity in an unresolved place; the
+    # neighbourhood is not a second record entity to self-join against.
+    if re.match(r"\s*(?:are\s+there\s+)?any\b", ql) and re.search(
+            r"\bnear\s+(?:this|my|the)\s+(?:neighbou?rhood|area|district|town)\b", ql):
+        return {"op":"AGGREGATE", "by":"space", "metric":"presence",
+                "source":{"op":"SELECT", "entity":first.get("entity"),
+                          "region":"?place", "time":first.get("time")}}
     if re.search(r"\b(?:are|is)\s+there\s+(?:any\s+)?(?!more\b)", ql) or re.match(r"\s*(?:are\s+(?:there\s+)?any|any)", ql):
       if isinstance(ir, dict):
         if ir.get("op") == "SELECT":
@@ -1023,6 +1172,11 @@ def mech_answer_form(ir, question):
             and isinstance(ir.get("source"),dict) and ir["source"].get("op")=="RELATE":
         if re.search(r"\byes\s*/\s*no\b|\ba yes-or-no\b|\ba yes/no\b", ql): return ir
         return ir["source"]
+    if (not count and ir.get("op") == "AGGREGATE" and ir.get("metric") == "count" and
+            isinstance(ir.get("source"), dict) and ir["source"].get("op") == "RELATE" and
+            not re.search(r"\b(?:are\s+there\s+any|is\s+there\s+any|yes\s*/\s*no|presence|"
+                          r"rank|order|which\s+(?:city|place|region|country)\s+has\s+more)\b", ql)):
+        return ir["source"]
     return ir
 
 
@@ -1060,6 +1214,8 @@ def mech_nearest_distance(ir, question):
         found = _entity_occurrences(text)
         if found: return max(found, key=lambda item: item[1] - item[0])[2]
         value = re.sub(r"^(?:a|an|the)\s+", "", text.strip(" ,.;:?"), flags=re.I)
+        if value.lower().endswith("ies"): value = value[:-3] + "y"
+        elif value.lower().endswith("s"): value = value[:-1]
         return value
 
     annotate = re.search(
@@ -1068,10 +1224,19 @@ def mech_nearest_distance(ir, question):
     reverse = re.search(
         r"\bdistance\s+to\s+(?:the\s+)?(?:nearest|closest)\s+(.+?)\s+from\s+(.+?)\s+in\s+.+?[.?!]*$",
         question, re.I)
+    between = re.search(
+        r"\bdistance\s+between\s+(.+?)\s+and\s+(.+?)\s+in\s+.+?[.?!]*$", question, re.I)
+    from_to = re.search(
+        r"\bdistance\s+from\s+(.+?)\s+to\s+(.+?)(?:\s+nearby)?\s*(?:—|;|,|[.?!]|$)",
+        question, re.I)
     if annotate:
         left_entity, right_entity = entity(annotate.group(1)), entity(annotate.group(2))
     elif reverse:
         right_entity, left_entity = entity(reverse.group(1)), entity(reverse.group(2))
+    elif between:
+        left_entity, right_entity = entity(between.group(1)), entity(between.group(2))
+    elif from_to:
+        left_entity, right_entity = entity(from_to.group(1)), entity(from_to.group(2))
     elif re.search(r"\bfor each\b.+?\bhow far\b.+?\bnearest\b", question, re.I):
         entities = list(dict.fromkeys(key for _, _, key in
                                       _entity_occurrences(question, osm_only=True)))
@@ -1565,24 +1730,44 @@ def mech_source_gap_select(ir, question):
                 "region":{"op":"REGION","place":place.strip(" ,.;:—-")},"time":None}
     match = re.match(r"\s*show\s+(.+?)\s+for\s+(.+?)\s+in\s+((?:19|20)\d{2})[.?!]?\s*$",
                      question, re.I)
-    if not match: return ir
-    entity, place, year = match.groups()
+    if match:
+        entity, place, year = match.groups()
+        aggregate = False
+    else:
+        surfaces = (
+            (r"\s*pull\s+(.+?)\s+for\s+(.+?)[.?!]*$", False),
+            (r"\s*(?:procurement\s*:\s*)?count\s+of\s+(.+?)\s+in\s+(.+?)[.?!]*$", True),
+            (r"\s*(?:audit\s+ask\s*(?:—|:|-)?\s*)(.+?)\s+in\s+(.+?)[.?!]*$", False),
+            (r"\s*(?:dashboard\s+)?wants?\s+(.+?)\s+for\s+(.+?)[.?!]*$", False),
+        )
+        found = None
+        for pattern, aggregate in surfaces:
+            found = re.match(pattern, question, re.I)
+            if found: break
+        if not found: return ir
+        entity, place = found.groups(); year = None
     # Only apply when the phrase is not already a supported connector measure.
     import connectors as C
     if (C.ilo_resolve_indicator(entity)[0] or C.eurostat_resolve_indicator(entity)[0]
             or C.wb_resolve_indicator(entity)[0] or C.osm_resolve_tag(entity)[0]):
         return ir
     if entity.lower().endswith("surveys"): entity = entity[:-3] + "ey"
-    elif entity.lower().endswith("s"): entity = entity[:-1]
-    return {"op":"SELECT","entity":entity,"region":{"op":"REGION","place":place},
-            "time":{"start":year,"end":year}}
+    elif entity.lower().endswith("s") and not re.search(r"\b(?:microdata|statistics)\b", entity, re.I):
+        entity = entity[:-1]
+    selected = {"op":"SELECT","entity":entity.strip(),
+                "region":{"op":"REGION","place":place.strip()},
+                "time":{"start":year,"end":year} if year else None}
+    if aggregate:
+        return {"op":"AGGREGATE","by":"space","metric":"count","source":selected}
+    return selected
 
 
 def mech_explicit_change(ir, question):
     """Explicit 'changed ... YEAR ... YEAR' means endpoint difference, not unary trend.
     The two snapshots are fully determined by the question and the parsed SELECT."""
-    explicit_change = re.search(r"\b(?:chang(?:e|ed|ing)|increas(?:e|ed)|decreas(?:e|ed))\b",
-                                question.lower())
+    explicit_change = (re.search(r"\b(?:chang(?:e|ed|ing)|increas(?:e|ed)|decreas(?:e|ed))\b",
+                                 question.lower()) or
+                       re.search(r"\b(?:go|went)\s+up\s+or\s+down\b", question, re.I))
     endpoint_difference = re.search(
         r"\b(?:19|20)\d{2}\s*(?:(?:-|–|—)\s*|(?:-|–|—)?\s*to\s*(?:-|–|—)?\s*)"
         r"(?:19|20)\d{2}\s+difference\b", question, re.I)
@@ -1975,6 +2160,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
         events.append("mech_synthesis:explicit_series_rank")
     before = json.dumps(ir)
     ir = mech_ratio(ir, question)
+    ir = mech_mixed_source_compare(ir, question)
     if json.dumps(ir) != before:
         events.append("mech_synthesis:explicit_ratio")
     before = json.dumps(ir)
@@ -2097,7 +2283,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
                    bind_prefixed_region,
                    mech_explicit_change,
                    mech_series_rank, mech_rank_k, mech_explicit_rank_semantics,
-                   mech_ratio, mech_mixed_gap,
+                   mech_ratio, mech_mixed_source_compare, mech_mixed_gap,
                    mech_same_time_measure_difference, mech_subtract_orientation, mech_dormant_ops,
                    mech_annulus_relation, mech_both_relations, mech_three_entity_relations,
                    mech_negative_relation,
