@@ -269,6 +269,125 @@ class ParserRegressionTests(unittest.TestCase):
         seed=select("employment rate",{"op":"REGION","place":"Madrid"})
         self.assertIs(P.mech_unresolved_point_time(seed,"Show Madrid employment rate."),seed)
 
+    def test_explicit_subnational_scope_survives_city_expansion(self):
+        q="How many coworking spaces are near a bus stop in Madrid region?"
+        city={"op":"REGION","place":"Madrid, Spain"}
+        seed={"op":"RELATE","relation":"within",
+              "left":select("coworking space",city),"right":select("bus stop",city)}
+        got=P.restore_named_region_scope(seed,q)
+        self.assertEqual(got["left"]["region"]["place"],"madrid region")
+        self.assertEqual(got["right"]["region"]["place"],"madrid region")
+
+    def test_city_scope_does_not_expand_to_region(self):
+        city={"op":"REGION","place":"Madrid, Spain"}
+        got=P.restore_named_region_scope(select("bank",city),"How many banks are in Madrid?")
+        self.assertEqual(got["region"]["place"],"madrid")
+
+    def test_yes_no_cooccur_is_presence_over_both_entities(self):
+        q="Do craft workshops co-occur with markets in Accra?"
+        region={"op":"REGION","place":"Accra"}
+        got=P.mech_dormant_ops(select("craft workshop",region),q)
+        self.assertEqual((got["op"],got["metric"],got["source"]["relation"]),
+                         ("AGGREGATE","presence","cooccur"))
+        self.assertEqual(got["source"]["right"]["entity"],"marketplace")
+
+    def test_increase_or_decrease_between_years_builds_endpoints(self):
+        q="Did youth unemployment in Kenya increase or decrease between 2018 and 2022?"
+        seed={"op":"COMPARE","how":"trend_direction",
+              "left":select("youth unemployment",{"op":"REGION","place":"Kenya"})}
+        got=P.mech_explicit_change(seed,q)
+        self.assertEqual((got["how"],got["left"]["time"]["start"],got["right"]["time"]["start"]),
+                         ("difference","2022","2018"))
+
+    def test_highest_colon_list_preserves_all_candidates_and_top_one(self):
+        q="Which has the highest youth unemployment: Kenya, Ghana, or Spain in 2021?"
+        got=P.mech_explicit_rank_semantics(select("youth unemployment"),q)
+        self.assertEqual((got["order"],got["k"],len(got["items"])),("desc",1,3))
+        self.assertEqual([x["region"]["place"] for x in got["items"]],
+                         ["Kenya","Ghana","Spain"])
+        self.assertTrue(all(x["time"]["start"]=="2021" for x in got["items"]))
+
+    def test_anaphoric_entity_keeps_explicit_region(self):
+        q="How many of those are near a park in Nairobi?"
+        region={"op":"REGION","place":"Nairobi"}
+        seed={"op":"AGGREGATE","by":"space","metric":"count",
+              "source":select("park",region)}
+        got=P.mech_terse_and_anaphoric(seed,q)
+        self.assertEqual(got["source"]["left"]["entity"],"?facility_type")
+        self.assertEqual(got["source"]["left"]["region"],region)
+
+    def test_osm_rank_density_cue_is_not_count(self):
+        q="Rank Madrid region, Catalonia, and Lombardy by the density of coworking spaces."
+        got=P.mech_series_rank(select("coworking space"),q)
+        self.assertTrue(all(item["metric"]=="density" for item in got["items"]))
+
+    def test_rank_by_difference_instantiates_compare_per_place(self):
+        q="Rank Spain, Italy, and France by the difference in labor force participation between 2019 and 2022."
+        got=P.mech_explicit_rank_semantics(select("labor force participation"),q)
+        self.assertEqual(len(got["items"]),3)
+        self.assertTrue(all(item["op"]=="COMPARE" for item in got["items"]))
+        self.assertEqual((got["items"][0]["left"]["time"]["start"],
+                          got["items"][0]["right"]["time"]["start"]),("2022","2019"))
+
+    def test_largest_increase_colon_list_is_descending_top_one(self):
+        q=("Which region had the largest increase in employed persons between 2020 and 2023: "
+           "Berlin, Ile de France, or Warsaw capital region?")
+        got=P.mech_explicit_rank_semantics(select("employed persons"),q)
+        self.assertEqual((got["order"],got["k"],len(got["items"])),("desc",1,3))
+        self.assertTrue(all(item["op"]=="COMPARE" for item in got["items"]))
+
+    def test_nearest_distance_annotation_keeps_explicit_anchor(self):
+        q="Annotate craft workshops in Accra with distance to the nearest bank."
+        region={"op":"REGION","place":"Accra"}
+        got=P.mech_nearest_distance(select("craft workshop",region),q)
+        self.assertEqual((got["op"],got["left"]["entity"],got["right"]["entity"]),
+                         ("RELATE","craft_workshop","bank"))
+
+    def test_nearest_distance_keeps_unsupported_anchor_literal(self):
+        q="What is the distance to the nearest metro station from coworking spaces in Nairobi?"
+        region={"op":"REGION","place":"Nairobi"}
+        got=P.mech_nearest_distance(select("coworking space",region),q)
+        self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
+                         ("coworking_space","metro station"))
+
+    def test_near_also_near_builds_chained_relation(self):
+        q="How many coworking spaces near a bus stop are also near a cafe in Berlin?"
+        got=P.mech_three_entity_relations(
+            select("coworking space",{"op":"REGION","place":"Berlin"}),q)
+        self.assertEqual((got["op"],got["source"]["op"],got["source"]["left"]["op"]),
+                         ("AGGREGATE","RELATE","RELATE"))
+
+    def test_more_near_a_or_near_b_compares_related_counts(self):
+        q="Are there more craft workshops near a market or near a bank in Accra?"
+        got=P.mech_relation_comparisons(
+            select("craft workshop",{"op":"REGION","place":"Accra"}),q)
+        self.assertEqual((got["op"],got["how"]),("COMPARE","difference"))
+        self.assertEqual((got["left"]["source"]["right"]["entity"],
+                          got["right"]["source"]["right"]["entity"]),
+                         ("marketplace","bank"))
+
+    def test_six_country_rank_is_not_paired_as_city_country(self):
+        q=("Rank Kenya, Ghana, Spain, Germany, France, and Italy by labor force participation "
+           "in 2021.")
+        got=P.mech_series_rank(select("labor force participation"),q)
+        self.assertEqual(len(got["items"]),6)
+
+    def test_compare_record_scalarization_matches_explicit_count(self):
+        region={"op":"REGION","place":"Nairobi"}
+        direct={"op":"COMPARE","how":"ratio",
+                "left":select("craft workshop",region),
+                "right":select("coworking space",region)}
+        counted={"op":"COMPARE","how":"ratio",
+                 "left":{"op":"AGGREGATE","by":"space","metric":"count",
+                         "source":select("craft workshop",region)},
+                 "right":{"op":"AGGREGATE","by":"space","metric":"count",
+                          "source":select("coworking space",region)}}
+        self.assertEqual(S.canonical(direct),S.canonical(counted))
+
+    def test_ile_de_france_name_is_not_truncated_as_country_suffix(self):
+        self.assertEqual(S.region_key({"op":"REGION","place":"Ile de France"}),
+                         S.region_key({"op":"REGION","place":"Ile de France, France"}))
+
 
 if __name__ == "__main__":
     unittest.main()

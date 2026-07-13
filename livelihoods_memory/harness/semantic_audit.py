@@ -56,6 +56,11 @@ def region_key(region, entity=None):
         code = C.eurostat_resolve_geo({"orig": place, "name": place})
         if code: return "nuts2:" + code
     value = fold(place)
+    # NUTS region names can end in a country word as part of the name itself (most notably
+    # "Ile de France").  Do not mistake that final token for a redundant country qualifier.
+    known_regions = {fold(alias) for alias in C.EUROSTAT_GEOS}
+    if value in known_regions:
+        return value
     for suffix in ("south africa", "new zealand", "united kingdom"):
         if value.endswith(" " + suffix): value = value[:-(len(suffix)+1)]
     if value.startswith("the "): value = value[4:]
@@ -112,8 +117,19 @@ def canonical(node):
         # v2.1 canonical later-minus/over-earlier orientation.
         if right is not None and anchor(left) and anchor(right) and anchor(left) < anchor(right):
             left, right = right, left
-        out = {"op": op, "how": node.get("how"), "left": canonical(left)}
-        if right is not None: out["right"] = canonical(right)
+        # COMPARE scalarizes Records by row count in the frozen executor.  Within this
+        # scalarizing context, an explicit count wrapper and a direct Records operand are the
+        # same denotation; keep that equivalence local so density/mean and standalone counts
+        # remain distinguishable.
+        def scalar_operand(value):
+            if isinstance(value, dict) and value.get("op") == "AGGREGATE" \
+                    and value.get("by") == "space" and value.get("metric") == "count" \
+                    and isinstance(value.get("source"), dict) \
+                    and value["source"].get("op") in ("SELECT", "RELATE", "ANNOTATE"):
+                value = value["source"]
+            return canonical(value)
+        out = {"op": op, "how": node.get("how"), "left": scalar_operand(left)}
+        if right is not None: out["right"] = scalar_operand(right)
         return out
     if op == "ESTIMATE":
         return {"op": op, "method": node.get("method"), "source": canonical(node.get("source")),

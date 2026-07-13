@@ -170,6 +170,15 @@
       "source": "livelihoods_memory/spec-proposals.md",
       "note": "H19 showed that a current-snapshot record connector can silently accept historical time constraints and manufacture a trend or endpoint comparison. Connectors must declare time semantics and the executor must fail closed when the requested temporal evidence is unavailable.",
       "required_tests": ["snapshot source rejects historical endpoints", "trend requires time-indexed evidence", "valid-time versus retrieval-time provenance", "historical connector accepts supported range", "missing temporal coverage returns DataRequest"]
+    },
+    {
+      "id": "ASK-003",
+      "title": "Unbounded scalar change needs an interval policy",
+      "scope": "protocol",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "note": "H19 exposed a conflict between absent-time-null series retrieval and a scalar 'how much did X change' request, which requires two endpoints. The framework must choose an explicit available-range convention or a typed interval clarification; benchmark golds must not invent two time holes ad hoc.",
+      "required_tests": ["unbounded scalar change", "explicit endpoint change", "unary trend without dates", "available-range provenance", "interval clarification binding"]
     }
   ]
 }
