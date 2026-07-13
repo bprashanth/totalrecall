@@ -148,7 +148,9 @@ def canonical(node):
         # Input item order has no denotational effect; output order/k do.
         items = [canonical(x) for x in node.get("items", [])]
         items.sort(key=lambda x: json.dumps(x, sort_keys=True))
-        return {"op": op, "order": node.get("order"), "k": node.get("k"), "items": items}
+        k=node.get("k")
+        if k == len(items): k=None
+        return {"op": op, "order": node.get("order"), "k": k, "items": items}
     if op is None:
         return {key: canonical(value) for key, value in sorted(node.items())}
     return {key: canonical(value) for key, value in sorted(node.items())}
