@@ -1463,6 +1463,15 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual(got["left"]["region"]["place"].lower(),"france")
         self.assertEqual(got["right"]["region"]["place"].lower(),"ile de france")
 
+    def test_annotation_contract_normalizes_separator_punctuation(self):
+        got={"op":"ANNOTATE","source":select("bank"),"layer":"population-density"}
+        gold={"gold_ir":{"op":"ANNOTATE","source":select("bank"),
+                         "layer":"population density"},
+              "gold_shape":["ANNOTATE","SELECT"],"must_hole":False,
+              "must_estimate":False,"expect":"data_request"}
+        result={"status":"data_request","reason":"annotation_unavailable","detail":{}}
+        self.assertTrue(SC.score(gold,got,result)["shape_match"])
+
 
 if __name__ == "__main__":
     unittest.main()

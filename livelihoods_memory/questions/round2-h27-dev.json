@@ -1,0 +1,4962 @@
+{
+  "spec_version": "v2.1",
+  "epoch": "epoch-020-dev",
+  "note": "H27 development bank; four post-contact ambiguities disclosed in question text; immutable H27 retained",
+  "source": "questions/holdout-027.json",
+  "source_sha256": "5218c6510726cfbb26715e65589c2a27b472d31639bfff4a6c8e6fddd452f4dd",
+  "disclosed_repairs": [
+    "h27-010",
+    "h27-017",
+    "h27-024",
+    "h27-059"
+  ],
+  "questions": [
+    {
+      "id": "h27-001",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_select",
+      "adversarial": false,
+      "q": "Need the metro-station records for Bengaluru.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; directly census-warranted metro route"
+    },
+    {
+      "id": "h27-002",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_count",
+      "adversarial": false,
+      "q": "Delhi metro stations — total count?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "count",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Delhi, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; count rather than records"
+    },
+    {
+      "id": "h27-003",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_presence",
+      "adversarial": false,
+      "q": "Any coworking spaces in Tunis? Just yes or no.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "yes_no",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Tunis, Tunisia"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; presence answer form"
+    },
+    {
+      "id": "h27-004",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_density",
+      "adversarial": false,
+      "q": "Bank density, Surabaya.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "density",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "density",
+        "source": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Surabaya, Indonesia"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; spreadsheet-label register"
+    },
+    {
+      "id": "h27-005",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_examples",
+      "adversarial": false,
+      "q": "Give me examples of markets in Puebla, not a count.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "market",
+        "region": {
+          "op": "REGION",
+          "place": "Puebla, Mexico"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; examples means records"
+    },
+    {
+      "id": "h27-006",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "annotate",
+      "adversarial": false,
+      "q": "For Dakar's marketplaces, attach population density.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated_records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Dakar, Senegal"
+          },
+          "time": null
+        },
+        "layer": "population density"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; annotation source remains records"
+    },
+    {
+      "id": "h27-007",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "annotate",
+      "adversarial": false,
+      "q": "Night-light values beside each craft workshop in Jaipur, please.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated_records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Jaipur, India"
+          },
+          "time": null
+        },
+        "layer": "nighttime lights"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; possessive-free concise annotation"
+    },
+    {
+      "id": "h27-008",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "within_relation",
+      "adversarial": false,
+      "q": "Which food vendors in Rabat sit within 750 metres of a bus station?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "food vendor",
+          "region": {
+            "op": "REGION",
+            "place": "Rabat, Morocco"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bus station",
+          "region": {
+            "op": "REGION",
+            "place": "Rabat, Morocco"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.75
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; metres normalized to kilometres"
+    },
+    {
+      "id": "h27-009",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "beyond_relation",
+      "adversarial": false,
+      "q": "List Maputo ATMs farther than 1,250 metres from any bank.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "ATM",
+          "region": {
+            "op": "REGION",
+            "place": "Maputo, Mozambique"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Maputo, Mozambique"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 1.25
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; comma-grouped metres and negative polarity"
+    },
+    {
+      "id": "h27-010",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "cooccurrence_relation",
+      "adversarial": false,
+      "q": "In Córdoba, Argentina, show coworking offices co-located with cafés.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking office",
+          "region": {
+            "op": "REGION",
+            "place": "Córdoba, Argentina"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "cafe",
+          "region": {
+            "op": "REGION",
+            "place": "Córdoba, Argentina"
+          },
+          "time": null
+        },
+        "relation": "cooccur"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; cooccurrence records Post-contact dev repair discloses the gold's formerly implicit place or station subtype.",
+      "dev_repair": {
+        "original_question": "In Córdoba, show coworking offices co-located with cafés.",
+        "reason": "declared gold ambiguity"
+      }
+    },
+    {
+      "id": "h27-011",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "distance_relation",
+      "adversarial": false,
+      "q": "For each market in Tbilisi, what's its distance to the metro stations?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "distance_records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Tbilisi, Georgia"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Tbilisi, Georgia"
+          },
+          "time": null
+        },
+        "relation": "distance"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; possessive distance surface"
+    },
+    {
+      "id": "h27-012",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "related_count",
+      "adversarial": false,
+      "q": "How many pharmacies in Amman are within 0.6 km of hospitals?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "count",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "pharmacy",
+            "region": {
+              "op": "REGION",
+              "place": "Amman, Jordan"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "hospital",
+            "region": {
+              "op": "REGION",
+              "place": "Amman, Jordan"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.6
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; related count"
+    },
+    {
+      "id": "h27-013",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "related_presence",
+      "adversarial": false,
+      "q": "Does Valparaíso have a marketplace within a quarter kilometre of a bus station?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "yes_no",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Valparaíso, Chile"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bus station",
+            "region": {
+              "op": "REGION",
+              "place": "Valparaíso, Chile"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.25
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; written quarter converted"
+    },
+    {
+      "id": "h27-014",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "related_density",
+      "adversarial": false,
+      "q": "Density of Kampala's banks more than one and a half kilometres from markets.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "density",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "density",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Kampala, Uganda"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Kampala, Uganda"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1.5
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; written half and possessive"
+    },
+    {
+      "id": "h27-015",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "two_anchor_conjunction",
+      "adversarial": true,
+      "q": "Medellín workshops: within 0.8 km of a market, but beyond 0.3 km from police.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Medellín, Colombia"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Medellín, Colombia"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.8
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "police",
+          "region": {
+            "op": "REGION",
+            "place": "Medellín, Colombia"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 0.3
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; nested relation with ordered premises"
+    },
+    {
+      "id": "h27-016",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "cooccur_beyond_composition",
+      "adversarial": true,
+      "q": "In Hanoi, find markets sharing a site with a bank and farther than 2.4 km from a metro station.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Hanoi, Vietnam"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Hanoi, Vietnam"
+            },
+            "time": null
+          },
+          "relation": "cooccur"
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Hanoi, Vietnam"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 2.4
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; nested cooccur then beyond"
+    },
+    {
+      "id": "h27-017",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "shared_threshold_two_anchor",
+      "adversarial": true,
+      "q": "Use 0.5 km for both: which Cebu City, Philippines food vendors are near a bank and a bus stop?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "food vendor",
+            "region": {
+              "op": "REGION",
+              "place": "Cebu City, Philippines"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Cebu City, Philippines"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.5
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bus stop",
+          "region": {
+            "op": "REGION",
+            "place": "Cebu City, Philippines"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.5
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; shared threshold stated once Post-contact dev repair discloses the gold's formerly implicit place or station subtype.",
+      "dev_repair": {
+        "original_question": "Use 0.5 km for both: which Cebu food vendors are near a bank and a bus stop?",
+        "reason": "declared gold ambiguity"
+      }
+    },
+    {
+      "id": "h27-018",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "within_relation",
+      "adversarial": true,
+      "q": "Spreadsheet row: cafés ≤ 1.75 km from coworking spaces; Thessaloniki.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "cafe",
+          "region": {
+            "op": "REGION",
+            "place": "Thessaloniki, Greece"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Thessaloniki, Greece"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 1.75
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging surface; decimal kilometres and compact punctuation"
+    },
+    {
+      "id": "h27-019",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "beyond_relation",
+      "adversarial": true,
+      "q": "Arequipa marketplaces, except those inside half a kilometre of a hospital — list the rest.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Arequipa, Peru"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "hospital",
+          "region": {
+            "op": "REGION",
+            "place": "Arequipa, Peru"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 0.5
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging surface; ellipsis and written half"
+    },
+    {
+      "id": "h27-020",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "related_count",
+      "adversarial": true,
+      "q": "Count Lusaka's workshops within 2,000 metres of any marketplace.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "count",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Lusaka, Zambia"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Lusaka, Zambia"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 2
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging surface; comma grouping and possessive"
+    },
+    {
+      "id": "h27-021",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_select",
+      "adversarial": false,
+      "q": "Raw ATM rows — Rotterdam.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "ATM",
+        "region": {
+          "op": "REGION",
+          "place": "Rotterdam, Netherlands"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; raw records"
+    },
+    {
+      "id": "h27-022",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_count",
+      "adversarial": false,
+      "q": "Antananarivo pharmacies / number only.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "count",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "pharmacy",
+          "region": {
+            "op": "REGION",
+            "place": "Antananarivo, Madagascar"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; answer-form contrast"
+    },
+    {
+      "id": "h27-023",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "partial_annotation_coverage",
+      "adversarial": true,
+      "q": "Append flood-risk values to every Mombasa market record; keep rows even where that layer is missing.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated_records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Mombasa, Kenya"
+          },
+          "time": null
+        },
+        "layer": "flood risk"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; partial annotation may require data"
+    },
+    {
+      "id": "h27-024",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "spatial_place_compare",
+      "adversarial": true,
+      "q": "Bremen minus Hanover: difference in counts of banks within 900 m of a train station.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Bremen, Germany"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "train station",
+              "region": {
+                "op": "REGION",
+                "place": "Bremen, Germany"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.9
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Hanover, Germany"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "train station",
+              "region": {
+                "op": "REGION",
+                "place": "Hanover, Germany"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.9
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; independently scoped operands Post-contact dev repair discloses the gold's formerly implicit place or station subtype.",
+      "dev_repair": {
+        "original_question": "Bremen minus Hanover: difference in counts of banks within 900 m of a station.",
+        "reason": "declared gold ambiguity"
+      }
+    },
+    {
+      "id": "h27-025",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "ilostat_level",
+      "adversarial": false,
+      "q": "France informal-employment rate, 2022.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "informal employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "France"
+        },
+        "time": {
+          "start": "2022",
+          "end": "2022"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; one-year statistical level"
+    },
+    {
+      "id": "h27-026",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "ilostat_level",
+      "adversarial": false,
+      "q": "2021 | Germany | female average weekly hours worked",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "female average weekly hours worked",
+        "region": {
+          "op": "REGION",
+          "place": "Germany"
+        },
+        "time": {
+          "start": "2021",
+          "end": "2021"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; spreadsheet ordering"
+    },
+    {
+      "id": "h27-027",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "ilostat_level",
+      "adversarial": false,
+      "q": "What was Spain's labour underutilization rate in 2020?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "labour underutilization rate",
+        "region": {
+          "op": "REGION",
+          "place": "Spain"
+        },
+        "time": {
+          "start": "2020",
+          "end": "2020"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; possessive level"
+    },
+    {
+      "id": "h27-028",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "ilostat_level",
+      "adversarial": false,
+      "q": "Kenya, average weekly hours worked (2021 level).",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "average weekly hours worked",
+        "region": {
+          "op": "REGION",
+          "place": "Kenya"
+        },
+        "time": {
+          "start": "2021",
+          "end": "2021"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; exact observed year"
+    },
+    {
+      "id": "h27-029",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "Ile de France employment rate — 2024 only.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Ile de France"
+        },
+        "time": {
+          "start": "2024",
+          "end": "2024"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; one-year level is SELECT"
+    },
+    {
+      "id": "h27-030",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "Female employment rate, Berlin Germany, 2023.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "female employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Berlin, Germany"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; Eurostat route"
+    },
+    {
+      "id": "h27-031",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "Madrid region's unemployment rate for 2022.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "unemployment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Madrid region, Spain"
+        },
+        "time": {
+          "start": "2022",
+          "end": "2022"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; Eurostat route"
+    },
+    {
+      "id": "h27-032",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "Catalonia employed persons, 2024 level.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employed persons",
+        "region": {
+          "op": "REGION",
+          "place": "Catalonia, Spain"
+        },
+        "time": {
+          "start": "2024",
+          "end": "2024"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; thousand-person route retained literally"
+    },
+    {
+      "id": "h27-033",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "2024 employment rate — Lombardy.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Lombardy, Italy"
+        },
+        "time": {
+          "start": "2024",
+          "end": "2024"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; premise reordered"
+    },
+    {
+      "id": "h27-034",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "Warsaw capital region / employment rate / 2023.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Warsaw capital region"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; compact procurement label"
+    },
+    {
+      "id": "h27-035",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "gini_level",
+      "adversarial": false,
+      "q": "Brazil's Gini coefficient in 1981.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "gini coefficient",
+        "region": {
+          "op": "REGION",
+          "place": "Brazil"
+        },
+        "time": {
+          "start": "1981",
+          "end": "1981"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; verified World Bank Gini sample year"
+    },
+    {
+      "id": "h27-036",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "gini_level",
+      "adversarial": false,
+      "q": "India Gini, 1977 — just the level.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "gini coefficient",
+        "region": {
+          "op": "REGION",
+          "place": "India"
+        },
+        "time": {
+          "start": "1977",
+          "end": "1977"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; verified Gini route"
+    },
+    {
+      "id": "h27-037",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "gini_level",
+      "adversarial": false,
+      "q": "For 1992, Kenya's Gini coefficient?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "gini coefficient",
+        "region": {
+          "op": "REGION",
+          "place": "Kenya"
+        },
+        "time": {
+          "start": "1992",
+          "end": "1992"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; exact Gini level"
+    },
+    {
+      "id": "h27-038",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "worldbank_level",
+      "adversarial": false,
+      "q": "Self-employment level for India, 2018.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "self employment",
+        "region": {
+          "op": "REGION",
+          "place": "India"
+        },
+        "time": {
+          "start": "2018",
+          "end": "2018"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; verified World Bank route"
+    },
+    {
+      "id": "h27-039",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "ilostat_bounded_trend",
+      "adversarial": false,
+      "q": "From 2019 through 2023, was France's informal-employment rate rising or falling?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend_direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; bounded ILOSTAT trend"
+    },
+    {
+      "id": "h27-040",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "eurostat_bounded_trend",
+      "adversarial": false,
+      "q": "Direction only: Madrid unemployment, 2022–2024.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend_direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region, Spain"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2024"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; bounded Eurostat trend"
+    },
+    {
+      "id": "h27-041",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "gini_bounded_trend",
+      "adversarial": false,
+      "q": "Brazil Gini trend direction across 1981–1982.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend_direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "gini coefficient",
+            "region": {
+              "op": "REGION",
+              "place": "Brazil"
+            },
+            "time": {
+              "start": "1981",
+              "end": "1982"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; bounded Gini trend"
+    },
+    {
+      "id": "h27-042",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "worldbank_bounded_trend",
+      "adversarial": true,
+      "q": "Monitoring note, 2016–2021: direction of Ghana's self employment, not endpoint change.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend_direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2016",
+              "end": "2021"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "challenging contrast; point trend not endpoint difference"
+    },
+    {
+      "id": "h27-043",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "endpoint_change",
+      "adversarial": true,
+      "q": "Spain labour-underutilization: 2023 minus 2019, percentage-point difference.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; later-minus-earlier literal"
+    },
+    {
+      "id": "h27-044",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "endpoint_change",
+      "adversarial": true,
+      "q": "Employed persons in Catalonia — subtract 2022 from 2023.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "employed persons",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia, Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employed persons",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia, Spain"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; endpoint subtraction orientation"
+    },
+    {
+      "id": "h27-045",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "endpoint_change",
+      "adversarial": true,
+      "q": "Germany female weekly hours, difference = 2022 less 2019.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; later-minus-earlier"
+    },
+    {
+      "id": "h27-046",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "same_unit_ratio",
+      "adversarial": true,
+      "q": "Germany's female weekly-hours ratio: 2023 over 2020.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; numerator and denominator explicit"
+    },
+    {
+      "id": "h27-047",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "gini_same_unit_ratio",
+      "adversarial": true,
+      "q": "For India's Gini, report 2022 divided by 1983.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "1983",
+            "end": "1983"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; long-span temporal ratio"
+    },
+    {
+      "id": "h27-048",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "mixed_source_compare",
+      "adversarial": true,
+      "q": "At 2022, France labour-force participation minus Ile de France unemployment rate; keep each source's own indicator.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "labor force participation",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; cross-source same-unit operands independently scoped"
+    },
+    {
+      "id": "h27-049",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_winner",
+      "adversarial": true,
+      "q": "For 2020 self employment, who is highest: Ghana, India, Kenya, or Brazil?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Brazil"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; four named level candidates"
+    },
+    {
+      "id": "h27-050",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_full",
+      "adversarial": true,
+      "q": "Put France, Germany, Spain and Italy in low-to-high order by 2021 informal-employment rate.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full_ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Italy"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; full ascending level list"
+    },
+    {
+      "id": "h27-051",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_intermediate_k",
+      "adversarial": true,
+      "q": "Top three 2022 female employment rates among Berlin, Catalonia, Ile de France, Lombardy, Madrid region and Warsaw capital region.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top_k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin, Germany"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Catalonia, Spain"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region, Spain"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 3
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; six candidates and middle k"
+    },
+    {
+      "id": "h27-052",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_change_winner",
+      "adversarial": true,
+      "q": "Biggest 2017→2022 rise in youth unemployment: France, Germany or Spain?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2017",
+                "end": "2017"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "Germany"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "Germany"
+              },
+              "time": {
+                "start": "2017",
+                "end": "2017"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2017",
+                "end": "2017"
+              }
+            },
+            "how": "difference"
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; ranked later-minus-earlier changes"
+    },
+    {
+      "id": "h27-053",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_change_full",
+      "adversarial": true,
+      "q": "Order Catalonia, Ile de France and Lombardy from smallest to largest 2023-minus-2022 employment-rate change.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full_ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Catalonia, Spain"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Catalonia, Spain"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy, Italy"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy, Italy"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; ascending endpoint changes"
+    },
+    {
+      "id": "h27-054",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_ratio_full",
+      "adversarial": true,
+      "q": "Rank France, Germany and Spain high-to-low by their 2023/2019 informal-employment-rate ratio.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full_ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Germany"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Germany"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; ratios preserve numerator order Direct evidence found an empty exact leaf, so either grounded data or a typed data request is admitted."
+    },
+    {
+      "id": "h27-055",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_ratio_winner",
+      "adversarial": true,
+      "q": "Whose self-employment 2022-over-2019 ratio is lowest: Brazil, India or Kenya?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "self employment",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "self employment",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "self employment",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "self employment",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "self employment",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "self employment",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          }
+        ],
+        "order": "asc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; winner by endpoint ratio"
+    },
+    {
+      "id": "h27-056",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_point_count_full",
+      "adversarial": true,
+      "q": "List these by metro-station count, most first: Kolkata, Kochi, Lucknow, Pune.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full_ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Kolkata, India"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Kochi, India"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Lucknow, India"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Pune, India"
+              },
+              "time": null
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "challenging composition; point-count full list"
+    },
+    {
+      "id": "h27-057",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_point_count_winner",
+      "adversarial": true,
+      "q": "Fewest marketplaces — winner only — among Fes, Tangier and Casablanca.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Fes, Morocco"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Tangier, Morocco"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Casablanca, Morocco"
+              },
+              "time": null
+            }
+          }
+        ],
+        "order": "asc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "challenging composition; point-count argmin"
+    },
+    {
+      "id": "h27-058",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_count_winner",
+      "adversarial": true,
+      "q": "At 0.7 km, which has most banks near metro stations: Algiers, Cairo or Istanbul?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Algiers, Algeria"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Algiers, Algeria"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.7
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Cairo, Egypt"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Cairo, Egypt"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.7
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Istanbul, Türkiye"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Istanbul, Türkiye"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.7
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; shared threshold and related counts"
+    },
+    {
+      "id": "h27-059",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_count_full",
+      "adversarial": true,
+      "q": "Order Durban, Gqeberha and Johannesburg by count of markets beyond 1.2 km from a train station; low to high.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full_ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Durban, South Africa"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "train station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Durban, South Africa"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 1.2
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Gqeberha, South Africa"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "train station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Gqeberha, South Africa"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 1.2
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Johannesburg, South Africa"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "train station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Johannesburg, South Africa"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 1.2
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; related-count full ascending list Post-contact dev repair discloses the gold's formerly implicit place or station subtype.",
+      "dev_repair": {
+        "original_question": "Order Durban, Gqeberha and Johannesburg by count of markets beyond 1.2 km from a station; low to high.",
+        "reason": "declared gold ambiguity"
+      }
+    },
+    {
+      "id": "h27-060",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_count_top_k",
+      "adversarial": true,
+      "q": "Top two counts of cafés co-occurring with coworking spaces: Austin, Denver, Portland, Seattle.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top_k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "cafe",
+                "region": {
+                  "op": "REGION",
+                  "place": "Austin, United States"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "coworking space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Austin, United States"
+                },
+                "time": null
+              },
+              "relation": "cooccur"
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "cafe",
+                "region": {
+                  "op": "REGION",
+                  "place": "Denver, United States"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "coworking space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Denver, United States"
+                },
+                "time": null
+              },
+              "relation": "cooccur"
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "cafe",
+                "region": {
+                  "op": "REGION",
+                  "place": "Portland, United States"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "coworking space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Portland, United States"
+                },
+                "time": null
+              },
+              "relation": "cooccur"
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "cafe",
+                "region": {
+                  "op": "REGION",
+                  "place": "Seattle, United States"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "coworking space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Seattle, United States"
+                },
+                "time": null
+              },
+              "relation": "cooccur"
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; related-count middle k"
+    },
+    {
+      "id": "h27-061",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_density_top_k",
+      "adversarial": true,
+      "q": "Two densest, by pharmacies within 0.4 km of hospitals: Bologna, Florence, Naples, Turin.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top_k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "pharmacy",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bologna, Italy"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bologna, Italy"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.4
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "pharmacy",
+                "region": {
+                  "op": "REGION",
+                  "place": "Florence, Italy"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Florence, Italy"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.4
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "pharmacy",
+                "region": {
+                  "op": "REGION",
+                  "place": "Naples, Italy"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Naples, Italy"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.4
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "pharmacy",
+                "region": {
+                  "op": "REGION",
+                  "place": "Turin, Italy"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Turin, Italy"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.4
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; related-density top k"
+    },
+    {
+      "id": "h27-062",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_density_full",
+      "adversarial": true,
+      "q": "Full low-to-high list: density of markets farther than 2 km from banks in Bratislava, Ljubljana and Zagreb.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full_ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bratislava, Slovakia"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bratislava, Slovakia"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 2
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Ljubljana, Slovenia"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Ljubljana, Slovenia"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 2
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "density",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Zagreb, Croatia"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Zagreb, Croatia"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 2
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; related-density full list"
+    },
+    {
+      "id": "h27-063",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_winner",
+      "adversarial": true,
+      "q": "Lowest 2023 unemployment rate, one name: Berlin, Catalonia, Madrid region, Lombardy or Ile de France.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin, Germany"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Catalonia, Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region, Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        ],
+        "order": "asc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; five-candidate argmin"
+    },
+    {
+      "id": "h27-064",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_change_top_k",
+      "adversarial": true,
+      "q": "Top two increases in 2024 versus 2022 employment rate: Madrid region, Warsaw capital region, Berlin.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top_k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid region, Spain"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid region, Spain"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin, Germany"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin, Germany"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; endpoint-change top k"
+    },
+    {
+      "id": "h27-065",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_envelope",
+      "adversarial": true,
+      "q": "Use Accra's marketplace records to draw an envelope estimate for Kumasi.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kumasi, Ghana"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; source and target explicit"
+    },
+    {
+      "id": "h27-066",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_interpolate",
+      "adversarial": true,
+      "q": "Interpolate a coworking-space field for Malindi from Mombasa's records.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Mombasa, Kenya"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Malindi, Kenya"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; donor possessive"
+    },
+    {
+      "id": "h27-067",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_feature",
+      "adversarial": true,
+      "q": "Potsdam bank estimate, feature method; donor data = Berlin.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Potsdam, Germany"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; premise reordering"
+    },
+    {
+      "id": "h27-068",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_envelope",
+      "adversarial": true,
+      "q": "Envelope the pharmacies observed in Quito onto Cuenca.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "pharmacy",
+          "region": {
+            "op": "REGION",
+            "place": "Quito, Ecuador"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Cuenca, Ecuador"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; concise verb surface"
+    },
+    {
+      "id": "h27-069",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_interpolate",
+      "adversarial": true,
+      "q": "From Porto's craft-workshop rows, interpolate to Braga.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Porto, Portugal"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Braga, Portugal"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; source and target exact"
+    },
+    {
+      "id": "h27-070",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_feature",
+      "adversarial": true,
+      "q": "Feature-transfer Tunis market records to Sfax; don't swap donor and target.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Tunis, Tunisia"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Sfax, Tunisia"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; role-order pressure"
+    },
+    {
+      "id": "h27-071",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_related_source",
+      "adversarial": true,
+      "q": "Using Casablanca food vendors within 0.6 km of banks, envelope an estimate for Mohammedia.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "food vendor",
+            "region": {
+              "op": "REGION",
+              "place": "Casablanca, Morocco"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Casablanca, Morocco"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.6
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Mohammedia, Morocco"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; related-record source"
+    },
+    {
+      "id": "h27-072",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_related_source",
+      "adversarial": true,
+      "q": "Interpolate into Agra from Jaipur ATMs beyond 1 km of banks.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "ATM",
+            "region": {
+              "op": "REGION",
+              "place": "Jaipur, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Jaipur, India"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Agra, India"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; negative related source"
+    },
+    {
+      "id": "h27-073",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_related_source",
+      "adversarial": true,
+      "q": "Feature estimate for Kisumu, trained on Nairobi markets co-located with bus stations.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bus station",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "relation": "cooccur"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kisumu, Kenya"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; cooccurrence source"
+    },
+    {
+      "id": "h27-074",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_annotated_source",
+      "adversarial": true,
+      "q": "Take Dakar's population-density-annotated banks and envelope them onto Thiès.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Dakar, Senegal"
+            },
+            "time": null
+          },
+          "layer": "population density"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Thiès, Senegal"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; annotated-record source"
+    },
+    {
+      "id": "h27-075",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_annotated_source",
+      "adversarial": true,
+      "q": "For Nizwa, interpolate Muscat marketplace records after adding elevation.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Muscat, Oman"
+            },
+            "time": null
+          },
+          "layer": "elevation"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Nizwa, Oman"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; annotate then estimate"
+    },
+    {
+      "id": "h27-076",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_annotated_source",
+      "adversarial": true,
+      "q": "Night-lights attached to Puebla workshops → feature estimate in Cholula.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Puebla, Mexico"
+            },
+            "time": null
+          },
+          "layer": "nighttime lights"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Cholula, Mexico"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; compact arrow register"
+    },
+    {
+      "id": "h27-077",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "deictic_place",
+      "adversarial": true,
+      "q": "How many marketplaces are around here?",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "count",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "?place"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; unresolved deictic place"
+    },
+    {
+      "id": "h27-078",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "unnamed_spatial_records",
+      "adversarial": true,
+      "q": "List those businesses in Recife.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?business_entity",
+        "region": {
+          "op": "REGION",
+          "place": "Recife, Brazil"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; unresolved deictic entity"
+    },
+    {
+      "id": "h27-079",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "anaphoric_relation_anchor",
+      "adversarial": true,
+      "q": "In Accra, are any banks within 500 m of those?",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "yes_no",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "?anchor_entity",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.5
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; precise relation-anchor hole"
+    },
+    {
+      "id": "h27-080",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "anaphoric_estimate_source",
+      "adversarial": true,
+      "q": "Use that city's pharmacies to interpolate a field for Tamale.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "pharmacy",
+          "region": {
+            "op": "REGION",
+            "place": "?donor_place"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Tamale, Ghana"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; donor hole only"
+    },
+    {
+      "id": "h27-081",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "source_gap",
+      "adversarial": true,
+      "q": "Current job vacancies posted by firms in Kigali.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "current firm-posted job vacancies",
+        "region": {
+          "op": "REGION",
+          "place": "Kigali, Rwanda"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; literal unsupported entity, no hole Preserved every fixed modifier in the unsupported literal leaf."
+    },
+    {
+      "id": "h27-082",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "source_gap",
+      "adversarial": true,
+      "q": "Street vendors' monthly income records for Dhaka, 2024.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "street vendor monthly income",
+        "region": {
+          "op": "REGION",
+          "place": "Dhaka, Bangladesh"
+        },
+        "time": {
+          "start": "2024",
+          "end": "2024"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; facilities cannot prove income"
+    },
+    {
+      "id": "h27-083",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "noncurated_region_source_gap",
+      "adversarial": true,
+      "q": "Gini coefficient for Bavaria in 2020.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "gini coefficient",
+        "region": {
+          "op": "REGION",
+          "place": "Bavaria, Germany"
+        },
+        "time": {
+          "start": "2020",
+          "end": "2020"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; non-curated regional route, no hole"
+    },
+    {
+      "id": "h27-084",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "capability_family": "preference_proxy_hole",
+      "adversarial": true,
+      "q": "Do Nairobi traders prefer markets near bus stations? Use an explicit proxy, don't infer preference from facilities.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy_for_trader_preference_for_markets_near_bus_stations",
+        "region": {
+          "op": "REGION",
+          "place": "Nairobi, Kenya"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; explicit preference proxy ask Proxy hole retains the fixed object and direction of the behaviour claim."
+    },
+    {
+      "id": "h27-085",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "capability_family": "motive_proxy_hole",
+      "adversarial": true,
+      "q": "Why do Lagos workers choose coworking spaces? Ask me for the motive proxy.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy_for_worker_motive_for_coworking_space_choice",
+        "region": {
+          "op": "REGION",
+          "place": "Lagos, Nigeria"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; motive reduced only to proxy hole Proxy hole retains the fixed object and direction of the behaviour claim."
+    },
+    {
+      "id": "h27-086",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "capability_family": "causal_proxy_hole",
+      "adversarial": true,
+      "q": "Did new metro stations cause shop incomes to rise in Chennai? First request the causal proxy.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy_for_new_metro_station_shop_income_rise_causality",
+        "region": {
+          "op": "REGION",
+          "place": "Chennai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; no causal claim from facilities Proxy hole retains the fixed object and direction of the behaviour claim."
+    },
+    {
+      "id": "h27-087",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "zero_denominator_ratio",
+      "adversarial": true,
+      "q": "In Guayaquil, what is the ratio of coworking spaces near metro stations to metro stations near coworking spaces, using 1 km for both relations?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Guayaquil, Ecuador"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Guayaquil, Ecuador"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Guayaquil, Ecuador"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Guayaquil, Ecuador"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; explicit zero-denominator pressure Removed a prose instruction that conflicted with the frozen typed undefined-ratio answer and made the shared threshold explicit."
+    },
+    {
+      "id": "h27-088",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "annotation_source_gap",
+      "adversarial": true,
+      "q": "Attach verified monthly shop rents to every market in Bujumbura.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated_records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Bujumbura, Burundi"
+          },
+          "time": null
+        },
+        "layer": "verified monthly shop rent"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "challenging honesty boundary; unavailable annotation layer, no invented hole"
+    },
+    {
+      "id": "h27-089",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "2024 female employment rate in Berlin — one value.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "female employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Berlin, Germany"
+        },
+        "time": {
+          "start": "2024",
+          "end": "2024"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; level versus trend"
+    },
+    {
+      "id": "h27-090",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "ilostat_bounded_trend",
+      "adversarial": false,
+      "q": "Kenya's average weekly hours, 2019–2021: rising or falling?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend_direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2021"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; trend versus level"
+    },
+    {
+      "id": "h27-091",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "place_compare",
+      "adversarial": false,
+      "q": "2021 employment-rate difference: Warsaw capital region minus Berlin.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Warsaw capital region"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; first-named place remains left"
+    },
+    {
+      "id": "h27-092",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "place_ratio",
+      "adversarial": false,
+      "q": "At 2024, Madrid-region unemployment rate divided by Ile de France's.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid region, Spain"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "ordinary control; numerator place stated first"
+    },
+    {
+      "id": "h27-093",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_select",
+      "adversarial": false,
+      "q": "Not the total — list the pharmacies in Montevideo.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+          "op": "REGION",
+          "place": "Montevideo, Uruguay"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; records versus count"
+    },
+    {
+      "id": "h27-094",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_presence",
+      "adversarial": false,
+      "q": "Yes/no: any craft workshop in Vientiane?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "yes_no",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Vientiane, Laos"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "ordinary control; presence not count"
+    },
+    {
+      "id": "h27-095",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_examples",
+      "adversarial": false,
+      "q": "A few bank entries from Tirana; return records, no ranking.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "bank",
+        "region": {
+          "op": "REGION",
+          "place": "Tirana, Albania"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "ordinary control; examples/list contrast"
+    },
+    {
+      "id": "h27-096",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "same_left_two_anchor",
+      "adversarial": true,
+      "q": "Find Sofia markets that are within 0.5 km of a bank and within 1 km of a bus station.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Sofia, Bulgaria"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Sofia, Bulgaria"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.5
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bus station",
+          "region": {
+            "op": "REGION",
+            "place": "Sofia, Bulgaria"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 1
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; same-left conjunction"
+    },
+    {
+      "id": "h27-097",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "independent_relation_operands",
+      "adversarial": true,
+      "q": "Bucharest: difference between market count near banks and pharmacy count near hospitals, each within 0.8 km.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bucharest, Romania"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Bucharest, Romania"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.8
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "pharmacy",
+              "region": {
+                "op": "REGION",
+                "place": "Bucharest, Romania"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "hospital",
+              "region": {
+                "op": "REGION",
+                "place": "Bucharest, Romania"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.8
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; independently scoped relation operands"
+    },
+    {
+      "id": "h27-098",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "spatial_place_ratio",
+      "adversarial": true,
+      "q": "Ratio, not winner: count of bus stops within 300 m of markets in Vilnius over the same count in Riga.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "bus stop",
+              "region": {
+                "op": "REGION",
+                "place": "Vilnius, Lithuania"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Vilnius, Lithuania"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.3
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "bus stop",
+              "region": {
+                "op": "REGION",
+                "place": "Riga, Latvia"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Riga, Latvia"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.3
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "challenging composition; ratio versus winner and metres conversion"
+    },
+    {
+      "id": "h27-099",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "annotate",
+      "adversarial": true,
+      "q": "Procurement sheet: each Sarajevo coworking space, plus elevation.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated_records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Sarajevo, Bosnia and Herzegovina"
+          },
+          "time": null
+        },
+        "layer": "elevation"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "challenging natural register; concise annotation"
+    },
+    {
+      "id": "h27-100",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_gate_pressure",
+      "adversarial": true,
+      "q": "Can Conakry's market records support an envelope estimate for Freetown? Return a data request if the gate cannot justify transfer.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated_field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Conakry, Guinea"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Freetown, Sierra Leone"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "challenging transfer; explicit gate pressure"
+    }
+  ]
+}
