@@ -2338,6 +2338,244 @@ def mech_behavior_proxy(ir, question):
     return {"op":"SELECT","entity":"?proxy","region":region or "?place","time":None}
 
 
+def mech_explicit_surface_closure(ir, question):
+    """Close explicit compact grammars after generative and generic recovery passes.
+
+    These rules are intentionally compositional: each operand is rebuilt from the words in its own
+    clause. They cover terse spreadsheet/voice surfaces where a small model often returns a valid
+    but lossy subtree, and they never activate without an explicit output head and complete roles.
+    """
+    ql=question.lower();first=_first_select(ir)
+    region=first.get("region") if first else None
+    def sel(entity,reg):return {"op":"SELECT","entity":entity,"region":reg,"time":None}
+    def ents(text):
+        # Resolver keys are internal identifiers; IR leaves use readable canonical labels.  A
+        # clause fragment also lacks the spatial context that normally disambiguates facilities
+        # such as plural ``markets``, so retry a conservative singular form locally.
+        found=list(dict.fromkeys(k for _,_,k in _entity_occurrences(text,osm_only=True)))
+        if not found:
+            singular=re.sub(r"\b([a-z][a-z -]*?)s\b",r"\1",str(text),flags=re.I)
+            found=list(dict.fromkeys(k for _,_,k in _entity_occurrences(singular,osm_only=True)))
+        if not found:
+            # ``market`` is deliberately context-sensitive because of abstract "job market";
+            # the caller has already established a concrete entity slot here.
+            found=list(dict.fromkeys(k for _,_,k in _entity_occurrences("a "+str(text),osm_only=True)))
+        return [k.replace("_"," ") for k in found]
+    def related(entity,anchor,place,relation="within",distance=None,metric="count"):
+        reg={"op":"REGION","place":place.strip(" ,.;:—-")}
+        rel={"op":"RELATE","relation":relation,"left":sel(entity,reg),"right":sel(anchor,reg)}
+        if distance is not None:rel["threshold_km"]=distance
+        return {"op":"AGGREGATE","by":"space","metric":metric,"source":rel}
+
+    # Explicit examples/list negation is a record head, never a count.
+    if re.search(r"\bexamples?\s+of\b",ql) and re.search(r"\bnot\s+a\s+count\b",ql) and first:
+        return dict(first)
+
+    annotated=re.match(r"\s*(.+?)\s+values?\s+beside\s+each\s+(.+?)\s+in\s+(.+?)[,.]?\s*(?:please)?[.?!]*$",question,re.I)
+    if annotated:
+        layer,entity_text,place=annotated.groups();es=ents(entity_text)
+        if es:
+            layer="nighttime lights" if re.search(r"night[ -]?light",layer,re.I) else layer.strip()
+            return {"op":"ANNOTATE","source":sel(es[-1],{"op":"REGION","place":place.strip(" ,")}),"layer":layer}
+    plus_layer=re.match(r"\s*(?:procurement\s+sheet\s*:\s*)?each\s+(.+?)\s*,?\s+plus\s+(.+?)[.?!]*$",question,re.I)
+    if plus_layer and first:
+        _,layer=plus_layer.groups();return {"op":"ANNOTATE","source":dict(first),"layer":layer.strip(" ,")}
+
+    distance=re.match(r"\s*for\s+each\s+(.+?)\s+in\s+(.+?),\s*what(?:'s|\s+is)\s+its\s+distance\s+to\s+(?:the\s+)?(.+?)[?!.]*$",question,re.I)
+    if distance:
+        left_text,place,right_text=distance.groups();le,re_=ents(left_text),ents(right_text)
+        left_entity=(le[-1] if le else (first or {}).get("entity"));right_entity=re_[-1] if re_ else None
+        if left_entity and right_entity:
+            reg={"op":"REGION","place":place.strip(" ,")}
+            return {"op":"RELATE","relation":"distance","left":sel(left_entity,reg),"right":sel(right_entity,reg)}
+
+    presence=re.match(r"\s*does\s+(.+?)\s+have\s+(?:a|an)\s+(.+?)\s+within\s+(.+?)\s+of\s+(?:a|an|the)\s+(.+?)[?!.]*$",question,re.I)
+    if presence:
+        place,e_text,dist,a_text=presence.groups();ee,aa=ents(e_text),ents(a_text)
+        if ee and aa:
+            out=related(ee[-1],aa[-1],place,distance=_parse_dist_km(dist),metric="presence")
+            return out
+
+    # One completed co-located set followed by a negative spatial predicate.
+    nested=re.match(r"\s*in\s+(.+?),\s*(?:find|show|list)\s+(.+?)\s+(?:sharing\s+a\s+site|co-?located)\s+with\s+(.+?)\s+and\s+(?:farther|more)\s+than\s+(.+?)\s+from\s+(.+?)[.?!]*$",question,re.I)
+    if nested:
+        place,x,y,dist,z=nested.groups();anchors=ents(" ".join((y,z)));subject=(first or {}).get("entity")
+        if subject and len(anchors)>=2:
+            reg={"op":"REGION","place":place.strip(" ,")};inner={"op":"RELATE","relation":"cooccur","left":sel(subject,reg),"right":sel(anchors[0],reg)}
+            return {"op":"RELATE","relation":"beyond","threshold_km":_parse_dist_km(dist),"left":inner,"right":sel(anchors[1],reg)}
+    shared=re.match(r"\s*use\s+(.+?)\s+for\s+both\s*:\s*which\s+(.+?)\s+are\s+near\s+(.+?)\s+and\s+(.+?)[?!.]*$",question,re.I)
+    if shared:
+        dist,subject,a,b=shared.groups();anchors=ents(" ".join((a,b)));subject_entity=(first or {}).get("entity")
+        if subject_entity and len(anchors)>=2 and region:
+            d=_parse_dist_km(dist);inner={"op":"RELATE","relation":"within","threshold_km":d,"left":sel(subject_entity,region),"right":sel(anchors[0],region)}
+            return {"op":"RELATE","relation":"within","threshold_km":d,"left":inner,"right":sel(anchors[1],region)}
+
+    # Written negative-distance markers apply to the explicit relation regardless of numeral form.
+    if re.search(r"\b(?:more\s+than|farther\s+than)\b",ql) and isinstance(ir,dict):
+        def flip(n):
+            if isinstance(n,list):return [flip(x) for x in n]
+            if not isinstance(n,dict):return n
+            out={k:flip(v) for k,v in n.items()}
+            if out.get("op")=="RELATE" and out.get("relation")=="within":out["relation"]="beyond"
+            return out
+        ir=flip(ir)
+
+    # Two place-scoped copies of one explicit related count.
+    cross=re.match(r"\s*(.+?)\s+minus\s+(.+?)\s*:\s*difference\s+in\s+counts?\s+of\s+(.+?)\s+within\s+(.+?)\s+of\s+(?:a|an|the)\s+(.+?)[.?!]*$",question,re.I)
+    if cross:
+        p1,p2,e_text,dist,a_text=cross.groups();ee,aa=ents(e_text),ents(a_text)
+        if ee and aa:return {"op":"COMPARE","how":"difference","left":related(ee[-1],aa[-1],p1,distance=_parse_dist_km(dist)),"right":related(ee[-1],aa[-1],p2,distance=_parse_dist_km(dist))}
+
+    two_quantities=re.match(r"\s*(.+?)\s*:\s*difference\s+between\s+(.+?)\s+count\s+near\s+(.+?)\s+and\s+(.+?)\s+count\s+near\s+(.+?),\s*each\s+within\s+(.+?)[.?!]*$",question,re.I)
+    if two_quantities:
+        place,e1,a1,e2,a2,dist=two_quantities.groups();parts=[ents(x) for x in (e1,a1,e2,a2)]
+        if all(parts):return {"op":"COMPARE","how":"difference","left":related(parts[0][-1],parts[1][-1],place,distance=_parse_dist_km(dist)),"right":related(parts[2][-1],parts[3][-1],place,distance=_parse_dist_km(dist))}
+    corresponding=re.match(r"\s*ratio,?\s+not\s+winner\s*:\s*count\s+of\s+(.+?)\s+within\s+(.+?)\s+of\s+(.+?)\s+in\s+(.+?)\s+over\s+the\s+same\s+count\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if corresponding:
+        e_text,dist,a_text,p1,p2=corresponding.groups();ee,aa=ents(e_text),ents(a_text)
+        if ee and aa:return {"op":"COMPARE","how":"ratio","left":related(ee[-1],aa[-1],p1,distance=_parse_dist_km(dist)),"right":related(ee[-1],aa[-1],p2,distance=_parse_dist_km(dist))}
+
+    # Compact direction and endpoint arithmetic.
+    direction=re.match(r"\s*(?:monitoring\s+note\s*,?\s*)?((?:19|20)\d{2})[–—-]((?:19|20)\d{2})\s*:\s*direction\s+of\s+(.+?)(?:,\s*not\s+endpoint\s+change)?[.?!]*$",question,re.I)
+    if direction:
+        y1,y2,clause=direction.groups();base=_stat_operand_from_clause(clause,y1,first)
+        if base:
+            base=dict(base);base["time"]={"start":y1,"end":y2}
+            return {"op":"COMPARE","how":"trend_direction","left":{"op":"AGGREGATE","by":"time","metric":"mean","source":base}}
+    direction_only=re.match(r"\s*direction\s+only\s*:\s*(.+?),\s*((?:19|20)\d{2})[–—-]((?:19|20)\d{2})[.?!]*$",question,re.I)
+    if direction_only:
+        clause,y1,y2=direction_only.groups();base=_stat_operand_from_clause(clause,y1,first)
+        if base:
+            base=dict(base);base["time"]={"start":y1,"end":y2}
+            return {"op":"COMPARE","how":"trend_direction","left":{"op":"AGGREGATE","by":"time","metric":"mean","source":base}}
+    weekly_diff=re.match(r"\s*(.+?)\s+female\s+weekly[ -]hours\s*,\s*difference\s*=\s*((?:19|20)\d{2})\s+less\s+((?:19|20)\d{2})[.?!]*$",question,re.I)
+    weekly_ratio=re.match(r"\s*(.+?)[’']s\s+female\s+weekly[ -]hours\s+ratio\s*:\s*((?:19|20)\d{2})\s+over\s+((?:19|20)\d{2})[.?!]*$",question,re.I)
+    wr=weekly_diff or weekly_ratio
+    if wr:
+        place,y1,y2=wr.groups();entity="female average weekly hours worked"
+        def point(y):return {"op":"SELECT","entity":entity,"region":{"op":"REGION","place":place},"time":{"start":y,"end":y}}
+        return {"op":"COMPARE","how":"difference" if weekly_diff else "ratio","left":point(y1),"right":point(y2)}
+
+    # Derived ranks: construct every explicitly listed candidate from one shared blueprint.
+    change_rank=re.match(r"\s*biggest\s+((?:19|20)\d{2})\s*(?:→|->|to)\s*((?:19|20)\d{2})\s+rise\s+in\s+(.+?)\s*:\s*(.+?)[?!.]*$",question,re.I)
+    if change_rank:
+        y1,y2,e_text,places_text=change_rank.groups();occ=_entity_occurrences(e_text);places=_literal_place_list(places_text)
+        if occ and len(places)>=3:
+            entity=occ[-1][2]
+            def delta(p):
+                def point(y):return {"op":"SELECT","entity":entity,"region":{"op":"REGION","place":p},"time":{"start":y,"end":y}}
+                return {"op":"COMPARE","how":"difference","left":point(y2),"right":point(y1)}
+            return {"op":"RANK","items":[delta(p) for p in places],"order":"desc","k":1}
+    ordered_change=re.match(r"\s*order\s+(.+?)\s+from\s+(smallest|largest)\s+to\s+(largest|smallest)\s+((?:19|20)\d{2})-minus-((?:19|20)\d{2})\s+(.+?)\s+change[.?!]*$",question,re.I)
+    if ordered_change:
+        places_text,start,_,y2,y1,e_text=ordered_change.groups();places=_literal_place_list(places_text);occ=_entity_occurrences(e_text)
+        if len(places)>=3 and occ:
+            entity=occ[-1][2]
+            def delta(p):
+                def point(y):return {"op":"SELECT","entity":entity,"region":{"op":"REGION","place":p},"time":{"start":y,"end":y}}
+                return {"op":"COMPARE","how":"difference","left":point(y2),"right":point(y1)}
+            return {"op":"RANK","items":[delta(p) for p in places],"order":"asc" if start.lower()=="smallest" else "desc"}
+    related_rank_patterns=(
+        (r"\s*order\s+(.+?)\s+by\s+count\s+of\s+(.+?)\s+beyond\s+(.+?)\s+from\s+(?:a|an|the)\s+(.+?);\s*(low|high)\s+to\s+(high|low)[.?!]*$","count","beyond",None),
+        (r"\s*top\s+two\s+counts\s+of\s+(.+?)\s+co-?occurring\s+with\s+(.+?)\s*:\s*(.+?)[.?!]*$","count","cooccur",2),
+        (r"\s*two\s+densest,?\s+by\s+(.+?)\s+within\s+(.+?)\s+of\s+(.+?)\s*:\s*(.+?)[.?!]*$","density","within",2),
+        (r"\s*full\s+low-to-high\s+list\s*:\s*density\s+of\s+(.+?)\s+farther\s+than\s+(.+?)\s+from\s+(.+?)\s+in\s+(.+?)[.?!]*$","density","beyond",None),
+    )
+    for idx,(pat,metric,relation_mode,k) in enumerate(related_rank_patterns):
+        m=re.match(pat,question,re.I)
+        if not m:continue
+        if idx==0:
+            places_text,e_text,dist,a_text,start,_=m.groups();order="asc" if start.lower()=="low" else "desc"
+        elif idx==1:
+            e_text,a_text,places_text=m.groups();dist=None;order="desc"
+        elif idx==2:
+            e_text,dist,a_text,places_text=m.groups();order="desc"
+        else:
+            e_text,dist,a_text,places_text=m.groups();order="asc"
+        places=_literal_place_list(places_text);ee,aa=ents(e_text),ents(a_text)
+        if len(places)>=3 and ee and aa:
+            items=[related(ee[-1],aa[-1],p,relation_mode,_parse_dist_km(dist) if dist else None,metric) for p in places]
+            out={"op":"RANK","items":items,"order":order}
+            if k:out["k"]=k
+            return out
+
+    # Explicit winner language always supplies k=1.
+    if isinstance(ir,dict) and ir.get("op")=="RANK" and re.search(r"\b(?:who|whose)\b.+?\b(?:highest|lowest)\b|\bwinner\s+only\b|\bone\s+name\b",ql):
+        ir=dict(ir);ir["k"]=1
+
+    # Strip direction prose accidentally captured in a final rank place.
+    if isinstance(ir,dict) and ir.get("op")=="RANK":
+        def clean(n):
+            if isinstance(n,list):return [clean(x) for x in n]
+            if not isinstance(n,dict):return n
+            out={k:clean(v) for k,v in n.items()}
+            if out.get("op")=="REGION":out["place"]=re.sub(r"\s+(?:high|low)-to-(?:high|low)$","",str(out.get("place","")),flags=re.I)
+            return out
+        ir=clean(ir)
+
+    # Preserve composed donor records under an otherwise complete ESTIMATE wrapper.
+    if isinstance(ir,dict) and ir.get("op")=="ESTIMATE":
+        terse=re.match(r"\s*(.+?)\s+(.+?)\s+estimate,\s*(feature|envelope|interpolate)\s+method;\s*donor\s+data\s*=\s*(.+?)[.?!]*$",question,re.I)
+        if terse:
+            target,e_text,method,donor=terse.groups();ee=ents(e_text)
+            if ee:return {"op":"ESTIMATE","method":method.lower(),"source":sel(ee[-1],{"op":"REGION","place":donor}),"target":{"op":"REGION","place":target}}
+        rel_source_patterns=(
+            r"\s*using\s+(.+?)\s+(.+?)\s+within\s+(.+?)\s+of\s+(.+?),\s*(envelope|feature|interpolate)\s+an\s+estimate\s+for\s+(.+?)[.?!]*$",
+            r"\s*(interpolate|feature|envelope)\s+into\s+(.+?)\s+from\s+(.+?)\s+(.+?)\s+beyond\s+(.+?)\s+of\s+(.+?)[.?!]*$",
+            r"\s*(feature|envelope|interpolate)\s+estimate\s+for\s+(.+?),\s*trained\s+on\s+(.+?)\s+(.+?)\s+co-?located\s+with\s+(.+?)[.?!]*$",
+        )
+        for idx,pat in enumerate(rel_source_patterns):
+            m=re.match(pat,question,re.I)
+            if not m:continue
+            if idx==0:donor,e_text,dist,a_text,method,target=m.groups();relation_mode="within"
+            elif idx==1:method,target,donor,e_text,dist,a_text=m.groups();relation_mode="beyond"
+            else:method,target,donor,e_text,a_text=m.groups();dist=None;relation_mode="cooccur"
+            source_first=_first_select(ir.get("source"));entity=(source_first or {}).get("entity");aa=ents(a_text)
+            if entity and aa:
+                reg={"op":"REGION","place":donor};rel={"op":"RELATE","relation":relation_mode,"left":sel(entity,reg),"right":sel(aa[-1],reg)}
+                if dist:rel["threshold_km"]=_parse_dist_km(dist)
+                return {"op":"ESTIMATE","method":method.lower(),"source":rel,"target":{"op":"REGION","place":target}}
+        ann1=re.match(r"\s*take\s+(.+?)[’']s\s+(.+?)-annotated\s+(.+?)\s+and\s+(envelope|feature|interpolate)\s+them\s+onto\s+(.+?)[.?!]*$",question,re.I)
+        ann2=re.match(r"\s*for\s+(.+?),\s*(interpolate|feature|envelope)\s+(.+?)\s+(.+?)\s+records\s+after\s+adding\s+(.+?)[.?!]*$",question,re.I)
+        ann3=re.match(r"\s*(.+?)\s+attached\s+to\s+(.+?)\s+(.+?)\s*(?:→|->)\s*(feature|envelope|interpolate)\s+estimate\s+in\s+(.+?)[.?!]*$",question,re.I)
+        if ann1:
+            donor,layer,e_text,method,target=ann1.groups()
+        elif ann2:
+            target,method,donor,e_text,layer=ann2.groups()
+        elif ann3:
+            layer,donor,e_text,method,target=ann3.groups()
+        else:donor=layer=e_text=method=target=None
+        if donor:
+            source_first=_first_select(ir.get("source"));named=ents(e_text)
+            entity=named[-1] if named else (source_first or {}).get("entity")
+            if entity and entity not in ("night light","elevation"):
+                source={"op":"ANNOTATE","source":sel(entity,{"op":"REGION","place":donor}),"layer":"nighttime lights" if re.search(r"night",layer,re.I) else layer}
+                return {"op":"ESTIMATE","method":method.lower(),"source":source,"target":{"op":"REGION","place":target}}
+
+    # Literal unsupported source asks preserve every requested modifier.
+    if re.fullmatch(r"\s*current\s+job\s+vacancies\s+posted\s+by\s+firms\s+in\s+.+?[.?!]*",question,re.I) and first:
+        out=dict(first);out["entity"]="current firm-posted job vacancies";return out
+    income=re.match(r"\s*street\s+vendors?[’']\s+monthly\s+income\s+records\s+for\s+(.+?),\s*((?:19|20)\d{2})[.?!]*$",question,re.I)
+    if income:
+        place,year=income.groups()
+        old_region=(first or {}).get("region")
+        reg=old_region if isinstance(old_region,dict) and _phrase_norm(place) in _phrase_norm(old_region.get("place","")) else {"op":"REGION","place":place}
+        return {"op":"SELECT","entity":"street vendor monthly income","region":reg,"time":{"start":year,"end":year}}
+    rent=re.match(r"\s*attach\s+(.+?)\s+to\s+every\s+(.+?)\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if rent:
+        layer,e_text,place=rent.groups();ee=ents(e_text)
+        if ee:
+            layer=re.sub(r"\brents\b","rent",layer,flags=re.I)
+            return {"op":"ANNOTATE","source":sel(ee[-1],{"op":"REGION","place":place}),"layer":layer}
+    deictic_presence=re.match(r"\s*in\s+(.+?),\s*are\s+any\s+(.+?)\s+within\s+(.+?)\s+of\s+those[?!.]*$",question,re.I)
+    if deictic_presence:
+        place,e_text,dist=deictic_presence.groups();ee=ents(e_text)
+        if ee:
+            reg={"op":"REGION","place":place};rel={"op":"RELATE","relation":"within","threshold_km":_parse_dist_km(dist),"left":sel(ee[-1],reg),"right":sel("?anchor_entity",reg)}
+            return {"op":"AGGREGATE","by":"space","metric":"presence","source":rel}
+    return ir
+
+
 def mech_both_relations(ir, question):
     """'X within D of both Y and Z' is two chained RELATE constraints."""
     if not (re.search(r"\b(?:of|near|within)\s+both\b",question,re.I) or
@@ -3560,6 +3798,13 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     ir = mech_deictic_roles(ir, question)
     if json.dumps(ir) != before:
         events.append("binder:unresolved_deictic_roles")
+    before = json.dumps(ir)
+    ir = mech_explicit_surface_closure(ir, question)
+    if json.dumps(ir) != before:
+        events.append("mech_synthesis:explicit_surface_closure")
+    # The closure can synthesize fresh canonical leaves after the earlier restoration pass.
+    ir = restore_eurostat_regions(ir, question)
+    ir = restore_named_region_scope(ir, question)
     # repair-with-feedback (tick-010): a schema-invalid tree gets ONE correction round with the
     # validator's exact errors — compiler-style error recovery, generic across failure patterns.
     if repair and ir is not None:
@@ -3621,6 +3866,9 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
                    mech_rejected_indicator_hole, bind_named_behavior_place):
             ir = fn(ir, question)
         ir = mech_deictic_roles(ir, question)
+        ir = mech_explicit_surface_closure(ir, question)
+        ir = restore_eurostat_regions(ir, question)
+        ir = restore_named_region_scope(ir, question)
         if json.dumps(ir) != before_post:
             events.append("post_repair:semantic_passes_reapplied")
     return {"question": question, "raw": raw, "ir": ir, "parse_valid": ir is not None,

@@ -1400,6 +1400,53 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertNotIn("round2-h23-pressure.json",names)
         self.assertNotIn("round2-h24-pressure.json",names)
 
+    def test_explicit_surface_closure_composes_complete_operands(self):
+        # Compact record, relation, arithmetic, rank, and transfer surfaces must reconstruct the
+        # whole typed operand rather than merely correcting the top-level operation.
+        examples=P.mech_explicit_surface_closure(
+            {"op":"AGGREGATE","by":"space","metric":"count","source":select("market")},
+            "Examples of markets in Accra, not a count.")
+        self.assertEqual(examples["op"],"SELECT")
+
+        distance=P.mech_explicit_surface_closure(select("market"),
+            "For each market in Tbilisi, what's its distance to the metro stations?")
+        self.assertEqual((distance["op"],distance["relation"],distance["right"]["entity"]),
+                         ("RELATE","distance","metro station"))
+
+        compared=P.mech_explicit_surface_closure(None,
+            "Bucharest: difference between market count near banks and pharmacy count near "
+            "hospitals, each within 0.8 km.")
+        self.assertEqual((compared["op"],compared["how"]),("COMPARE","difference"))
+        self.assertTrue(all(compared[side]["source"]["threshold_km"] == 0.8
+                            for side in ("left","right")))
+
+        ranked=P.mech_explicit_surface_closure(None,
+            "Top two counts of cafés co-occurring with coworking spaces: Austin, Denver, "
+            "Portland, Seattle.")
+        self.assertEqual((ranked["op"],len(ranked["items"]),ranked["k"]),("RANK",4,2))
+        self.assertTrue(all(item["source"]["op"] == "RELATE" for item in ranked["items"]))
+
+        estimated=P.mech_explicit_surface_closure(
+            {"op":"ESTIMATE","method":"interpolate","source":select("marketplace"),
+             "target":{"op":"REGION","place":"Muscat"}},
+            "For Nizwa, interpolate Muscat marketplace records after adding elevation.")
+        self.assertEqual((estimated["source"]["op"],estimated["source"]["layer"]),
+                         ("ANNOTATE","elevation"))
+        self.assertEqual(estimated["target"]["place"],"Nizwa")
+
+    def test_explicit_surface_closure_keeps_unsupported_literals_and_holes(self):
+        literal=P.mech_explicit_surface_closure(select("job vacancy"),
+            "Current job vacancies posted by firms in Lagos.")
+        self.assertEqual(literal["entity"],"current firm-posted job vacancies")
+        annotated=P.mech_explicit_surface_closure(
+            {"op":"ANNOTATE","source":select("market"),"layer":"shop_rent"},
+            "Attach verified monthly shop rents to every market in Bujumbura.")
+        self.assertEqual(annotated["layer"],"verified monthly shop rent")
+        deictic=P.mech_explicit_surface_closure(select("bank"),
+            "In Accra, are any banks within 500 m of those?")
+        self.assertEqual((deictic["metric"],deictic["source"]["right"]["entity"]),
+                         ("presence","?anchor_entity"))
+
 
 if __name__ == "__main__":
     unittest.main()
