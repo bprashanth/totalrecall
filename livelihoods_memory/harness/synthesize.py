@@ -60,6 +60,10 @@ def _fmt(value):
     return str(value)
 
 
+def _fmt_coord(value):
+    return f"{value:.6f}".rstrip("0").rstrip(".")
+
+
 def _source_label(exec_result):
     names = {"osm": "OpenStreetMap", "worldbank": "World Bank",
              "ilostat": "ILOSTAT", "eurostat": "Eurostat"}
@@ -307,7 +311,7 @@ def synthesize(question, exec_result, role="qwen2b", ir=None):
                 distance=f" ({_fmt(row['dist_km'])} km)" if isinstance(row.get("dist_km"),(int,float)) else ""
                 examples.append(str(name)+distance)
             elif isinstance(row.get("lat"),(int,float)) and isinstance(row.get("lon"),(int,float)):
-                examples.append(f"({_fmt(row['lat'])}, {_fmt(row['lon'])})")
+                examples.append(f"({_fmt_coord(row['lat'])}, {_fmt_coord(row['lon'])})")
             if len(examples)==3:break
         sample=f" Examples: {'; '.join(examples)}." if examples else ""
         if n and not examples:
