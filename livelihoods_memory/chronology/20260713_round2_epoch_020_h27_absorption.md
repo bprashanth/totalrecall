@@ -61,3 +61,7 @@ Wall v4 is again exact on 1,379/1,379 eligible ordinary and strict rows and 1,38
 rows. `freezes/epoch-020.json` hashes 58 active inputs with zero mismatch. This establishes a new
 start line only: the untouched saturation counter is zero, and H28 must be generated after the
 freeze commit to be eligible.
+
+The post-commit wall v5 also repeats 1,379/1,379 eligible ordinary rows and strict rows, with
+synthesis 1,382/1,382. No tracked freeze input changed after the manifest. Epoch 020 is therefore
+the exact committed boundary from which H28 may be generated.
