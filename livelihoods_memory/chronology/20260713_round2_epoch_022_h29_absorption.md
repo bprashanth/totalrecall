@@ -55,3 +55,20 @@ Post-artifact wall v3 repeats the exact candidate result: eligible ordinary and 
 1,573/1,573 and synthesis is 1,576/1,576. The certification artifact is now part of the tested
 freeze input set. Epoch 022 is ready for checksum generation, but the manifest itself still needs
 an independent hash verification and a complete post-freeze confirmation wall.
+
+## Exact freeze and post-freeze confirmation
+
+Commit `65924a8` created `freezes/epoch-022.json`, hashing 62 active inputs. Independent
+verification matched every file before the manifest commit. Post-freeze wall v4 repeated eligible
+ordinary 1,573/1,573, eligible strict 1,573/1,573, and synthesis 1,576/1,576. A second manifest
+verification found no drift.
+
+Epoch 022 is a new start line, not a saturation result. H29, its repairs, and all confirmation
+walls are disclosed development evidence, so both the practical and hard untouched counters remain
+zero. Only a wholly new qualifying bank authored after commit `65924a8` can establish practical
+saturation.
+
+H29 registers `ALG-012`, a proposed compiler construction invariant for role-complete operand
+frames before composition. Fable's durable entry point is
+`../governance/review-packet-h29.md`. This is local supporting evidence only: it does not alter
+bootstrap policy until review, reconciliation, kit integration, and promotion are complete.

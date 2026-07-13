@@ -656,3 +656,30 @@ self-relation invention.
 **Evidence:** H28 failure families, epoch-021 wall v1/v2 rejections, 168 deterministic regressions.
 This further supports recursive hole safety in `BUG-004` but adds the compiler-repair preservation
 contract not covered by executor-only hole traversal. Governance record: `BUG-012`.
+
+## 2026-07-13 — Role-complete operand frames precede composition
+
+**Failure that forced it:** H29's independently authored natural prose produced 43 strict
+divergences after H28 was fully absorbed. Valid-looking trees repeatedly lost one predicate from a
+spatial conjunction, propagated one candidate's subgroup across a rank, flattened RELATE/ANNOTATE
+donors inside ESTIMATE, consumed comparative prose as one entity, or answered an unsupported proof
+claim from an available indicator. The problem was not a missing operation; it was composing outer
+operations before each operand's roles were locally complete.
+
+**Proposed compiler contract:** construct typed role frames before tree composition. A spatial
+predicate frame owns subject, anchor, polarity, threshold, and clause order. A rank candidate owns
+place, measure, subgroup, time, relation blueprint, and cardinality. A transfer owns method, an
+arbitrary Records-producing donor expression, and target REGION. A binary comparison receives two
+complete quantities. Explicit epistemic predicates and unresolved roles become typed holes before
+source resolution. Later passes may wrap these frames but cannot propagate attributes across
+siblings or replace a complete frame without question-licensed evidence.
+
+**Compatibility:** this adds no frozen IR op or denotation. It is a compiler construction and
+repair invariant compatible with v2.1, extending `BUG-012` from child preservation to the order in
+which sibling-local roles are built. Implementations may use intermediate frames, a chart parser,
+or equivalent declarative constraints; the observable requirement is candidate/clause-local
+binding plus fail-closed holes.
+
+**Evidence:** H29 immutable 51/94 strict result, `coverage/h29-failure-map.md`, the exact 94/94
+disclosed replay, epoch-022 wall v1 rejection, and the clean 1,573-row eligible v2/v3/v4 walls.
+Governance record: `ALG-012`.

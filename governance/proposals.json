@@ -403,6 +403,16 @@
       "dependencies": ["BUG-004", "BUG-005"],
       "note": "H28 and epoch-021 walls showed late repairs deleting valid RELATE or ANNOTATE sources, replacing proximity with distance, and preserving invented self-relations despite explicit unresolved-role language. Repairs must declare writable slots, preserve valid typed children, and give explicit holes precedence over structural completeness.",
       "required_tests": ["typed child preservation", "explicit hole overrides invented literal", "no self-relation invention", "candidate-local rank closure", "operand-local compare closure", "estimate source composition", "post-repair invariant audit"]
+    },
+    {
+      "id": "ALG-012",
+      "title": "Role-complete operand frames precede composition",
+      "scope": "compiler-algebra-construction-contract",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "dependencies": ["BUG-004", "BUG-005", "BUG-012"],
+      "note": "H29 produced 43 strict divergences when outer operations were composed before clause- and candidate-local roles were complete. Compiler implementations must first bind spatial predicate, rank candidate, transfer donor/target, binary quantity, and epistemic-hole frames independently, then compose them without sibling attribute leakage or subtree loss. This adds no v2.1 operation or denotation.",
+      "required_tests": ["ordered spatial predicate frames", "candidate-local rank qualifiers", "country qualifier is not a candidate", "arbitrary Records transfer donor", "two complete binary operands", "epistemic claim dominates available indicator", "bound siblings survive a hole", "complete existing frame is not rebuilt"]
     }
   ]
 }

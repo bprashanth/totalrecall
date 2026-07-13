@@ -545,3 +545,24 @@ of failures. It is permanently disclosed, epoch 021 is retired, and the untouche
 counter remains zero. The required path is generalized failure absorption, a full expanded wall,
 another exact freeze, and a wholly new qualifying exam. Hard three-bank saturation is still
 pending as before.
+
+### Round 2 checkpoint 21 — H29 absorbed; epoch 022 frozen at 1,576 active questions
+
+H29's 43 strict first-contact failures reduce to six reusable mechanisms: typed-hole safety,
+ordered spatial composition, candidate-local rank planning, recursive transfer closure, lexical
+role faithfulness, and binary quantity planning. Generalized algebra-v2.1 compiler repairs close
+all 43 immutable traces. The disclosed H29 development bank is exact at 94/94 ordinary, strict,
+and synthesis. The first expanded wall was deliberately rejected after it exposed 38 historical
+regressions from over-broad closure; narrowed guards then preserved every previously exact row.
+
+The final active wall contains 1,576 questions across 32 banks and 42 skeletons. All 1,573 eligible
+rows pass ordinary and strict canonical scoring, synthesis passes 1,576/1,576, regressions pass
+175/175, source probes pass 14/14, and both dialogue binders pass 5/5. `freezes/epoch-022.json`
+hashes 62 active inputs, and a complete post-freeze wall plus a second hash verification confirm
+the boundary without drift.
+
+This is an exact new start line, not practical saturation: H29 caused valid changes, so it and all
+repair walls count as disclosed development and the untouched counter remains zero. The next
+countable evidence must be a wholly new qualifying exam authored after commit `65924a8`.
+`../governance/review-packet-h29.md` is Fable's review entry point for `ALG-012` and the associated
+supporting evidence; no bootstrap policy changes until governance promotion completes.
