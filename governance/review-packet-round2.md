@@ -7,6 +7,12 @@ Fable should independently review every ID in `proposals.json` and return one of
 safe adoption. In particular, review whether SAT-001 should become the canonical bootstrap
 protocol and whether ALG-002/003/005/006/007 form one typed-data roadmap rather than unrelated ops.
 
+The H20 livelihoods round adds three explicit review items: SAT-002 separates discovery-family
+novelty from failing-row volume and defines absorption evidence; BNCH-001 adds a pre-contact
+semantic lint gate for gold; SCR-001 makes coarse diagnostics sensitive to requested output form.
+They are proposals only and do not change the released bootstrap until Codex/Fable reconciliation,
+decision, implementation, and validation are recorded.
+
 ## Evidence
 
 - Livelihoods proposals: `livelihoods_memory/spec-proposals.md`

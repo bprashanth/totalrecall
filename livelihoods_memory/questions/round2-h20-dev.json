@@ -1,0 +1,2048 @@
+{
+  "spec_version": "v2.1",
+  "note": "Disclosed development release from questions/holdout-020.json: 37 independently adjudicated valid rows; immutable defects h20-019, h20-027, h20-075 excluded",
+  "source_holdout": "questions/holdout-020.json",
+  "excluded_gold_defects": [
+    "h20-019",
+    "h20-027",
+    "h20-075"
+  ],
+  "questions": [
+    {
+      "id": "h20-002",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Are there any coworking spaces in Bengaluru?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking_space",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "presence"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-003",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Is self employment in India rising or falling?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": null
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-004",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "What is the informal employment rate in France?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "informal employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "France"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-005",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Employment rate for Ile de France.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Ile de France"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-006",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Which craft workshops sit within 1 km of a water point in Nairobi?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "craft_workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "water_point",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 1.0
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-007",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did youth unemployment in Kenya change from 2015 to 2020?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2015",
+            "end": "2015"
+          }
+        },
+        "how": "difference",
+        "right": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-011",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "From 2010 to 2019, did vulnerable employment in Ghana go up or down?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "vulnerable employment",
+          "region": {
+            "op": "REGION",
+            "place": "Ghana"
+          },
+          "time": {
+            "start": "2010",
+            "end": "2010"
+          }
+        },
+        "how": "difference",
+        "right": {
+          "op": "SELECT",
+          "entity": "vulnerable employment",
+          "region": {
+            "op": "REGION",
+            "place": "Ghana"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-020",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank Brazil, Indonesia, and South Africa by how much youth unemployment fell from 2015 to 2020 (most improvement first).",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2015",
+                "end": "2015"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2020",
+                "end": "2020"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "Indonesia"
+              },
+              "time": {
+                "start": "2015",
+                "end": "2015"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "Indonesia"
+              },
+              "time": {
+                "start": "2020",
+                "end": "2020"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "South Africa"
+              },
+              "time": {
+                "start": "2015",
+                "end": "2015"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "youth unemployment",
+              "region": {
+                "op": "REGION",
+                "place": "South Africa"
+              },
+              "time": {
+                "start": "2020",
+                "end": "2020"
+              }
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-022",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Order Ile de France, Berlin, and Lombardy by the 2022→2024 change in employment rate, largest gain first.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-023",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Among Vietnam, Kenya, Ghana, and India, rank the 2005-to-2015 change in employment in services, highest increase first.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment in services",
+              "region": {
+                "op": "REGION",
+                "place": "Vietnam"
+              },
+              "time": {
+                "start": "2005",
+                "end": "2005"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "employment in services",
+              "region": {
+                "op": "REGION",
+                "place": "Vietnam"
+              },
+              "time": {
+                "start": "2015",
+                "end": "2015"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment in services",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2005",
+                "end": "2005"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "employment in services",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2015",
+                "end": "2015"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment in services",
+              "region": {
+                "op": "REGION",
+                "place": "Ghana"
+              },
+              "time": {
+                "start": "2005",
+                "end": "2005"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "employment in services",
+              "region": {
+                "op": "REGION",
+                "place": "Ghana"
+              },
+              "time": {
+                "start": "2015",
+                "end": "2015"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment in services",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2005",
+                "end": "2005"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "employment in services",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2015",
+                "end": "2015"
+              }
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-024",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Top-2 by endpoint rise in vulnerable employment 2010→2018: Nigeria, Kenya, Ghana, India.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "vulnerable employment",
+              "region": {
+                "op": "REGION",
+                "place": "Nigeria"
+              },
+              "time": {
+                "start": "2010",
+                "end": "2010"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "vulnerable employment",
+              "region": {
+                "op": "REGION",
+                "place": "Nigeria"
+              },
+              "time": {
+                "start": "2018",
+                "end": "2018"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "vulnerable employment",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2010",
+                "end": "2010"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "vulnerable employment",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2018",
+                "end": "2018"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "vulnerable employment",
+              "region": {
+                "op": "REGION",
+                "place": "Ghana"
+              },
+              "time": {
+                "start": "2010",
+                "end": "2010"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "vulnerable employment",
+              "region": {
+                "op": "REGION",
+                "place": "Ghana"
+              },
+              "time": {
+                "start": "2018",
+                "end": "2018"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "vulnerable employment",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2010",
+                "end": "2010"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "vulnerable employment",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2018",
+                "end": "2018"
+              }
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-026",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Audit: rank Madrid region, Catalonia, and Warsaw capital region on unemployment-rate endpoint change 2022 to 2024 (worst deterioration first).",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid region"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid region"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Catalonia"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Catalonia"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference",
+            "right": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-030",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Field notes: rank Accra, Kisumu, and Cape Town by density of markets within 1 km of an ATM.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "atm",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1.0
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Kisumu"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "atm",
+                "region": {
+                  "op": "REGION",
+                  "place": "Kisumu"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1.0
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Cape Town"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "atm",
+                "region": {
+                  "op": "REGION",
+                  "place": "Cape Town"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1.0
+            },
+            "by": "space",
+            "metric": "density"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-031",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Procurement: which of Bengaluru, Nairobi, Accra, and Lagos has the most banks within 2 km of a coworking space?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "coworking_space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 2.0
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "coworking_space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 2.0
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "coworking_space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 2.0
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "bank",
+                "region": {
+                  "op": "REGION",
+                  "place": "Lagos"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "coworking_space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Lagos"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 2.0
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-035",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How far are coworking spaces from the nearest water point in Nairobi?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking_space",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "water_point",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        },
+        "relation": "distance"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-036",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Distance from craft workshops to banks in Accra.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "craft_workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Accra"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Accra"
+          },
+          "time": null
+        },
+        "relation": "distance"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-038",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "What is the distance between coworking spaces and metro stations in Bengaluru?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking_space",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": null
+        },
+        "relation": "distance"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-042",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Markets in Nairobi that are within 1 km of a park but not within 1 km of a bank.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "park",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1.0
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 1.0
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-050",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Which markets co-occur with banks in the same area of Bengaluru?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": null
+        },
+        "relation": "cooccur"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-052",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "How many craft workshops co-occur with water points in Accra?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft_workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Accra"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "water_point",
+            "region": {
+              "op": "REGION",
+              "place": "Accra"
+            },
+            "time": null
+          },
+          "relation": "cooccur"
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-058",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "For Kenya in 2020, how does the informal employment rate compare to self employment (difference)?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        },
+        "how": "difference",
+        "right": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-059",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Ratio of France informal employment rate to self employment in 2019.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "how": "ratio",
+        "right": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-061",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Ile de France employment rate against France labor force participation in 2023, as a ratio.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "ratio",
+        "right": {
+          "op": "SELECT",
+          "entity": "labor force participation",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-062",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Berlin female employment rate vs Germany female informal employment rate, 2022 difference.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "difference",
+        "right": {
+          "op": "SELECT",
+          "entity": "female informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-063",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Dashboard: Madrid region unemployment rate over World Bank unemployment for Spain, 2023 ratio.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid region"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "ratio",
+        "right": {
+          "op": "SELECT",
+          "entity": "unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-066",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "How many markets are around here?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": "?place",
+          "time": null
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-067",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Any coworking spaces near this neighborhood?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking_space",
+          "region": "?place",
+          "time": null
+        },
+        "by": "space",
+        "metric": "presence"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-068",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Distance from banks to ATMs nearby — which place do you mean is unclear.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": "?place",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "atm",
+          "region": "?place",
+          "time": null
+        },
+        "relation": "distance"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-069",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Explicit place control: how many markets in Nairobi?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-070",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Field note: craft workshops within 1 km of a water point in this district — place unspecified.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "craft_workshop",
+          "region": "?place",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "water_point",
+          "region": "?place",
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 1.0
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-071",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "What is the gig platform earnings series for Kenya?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "gig platform earnings",
+        "region": {
+          "op": "REGION",
+          "place": "Kenya"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-072",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Pull household income survey microdata for Accra.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "household income survey microdata",
+        "region": {
+          "op": "REGION",
+          "place": "Accra"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-073",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Procurement: count of licensed street vendor permits in Lagos.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "licensed street vendor permits",
+          "region": {
+            "op": "REGION",
+            "place": "Lagos"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-074",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Audit ask — informal apprenticeship completion rate in Ghana.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "informal apprenticeship completion rate",
+        "region": {
+          "op": "REGION",
+          "place": "Ghana"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-078",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank these seven countries by unemployment in 2020, lowest first: India, Kenya, Ghana, Vietnam, Nigeria, Brazil, Indonesia.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Vietnam"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Nigeria"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Brazil"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Indonesia"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-079",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Eight-country vulnerable employment ladder for 2018, highest first: India, Kenya, Ghana, Vietnam, Nigeria, Brazil, Indonesia, South Africa.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2018"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2018"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2018"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "Vietnam"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2018"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "Nigeria"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2018"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "Brazil"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2018"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "Indonesia"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2018"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "South Africa"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2018"
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h20-080",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "Transfer the coworking-space pattern from Bengaluru onto Accra.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking_space",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Accra"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": true
+    }
+  ]
+}
