@@ -133,13 +133,22 @@ def audit_trace(trace):
                 issues.append("cross_section_called_temporal_change")
             ql=(trace.get("question") or "").lower()
             direct=bool(re.match(r"\s*(?:does|do|is|are|has|have|did|was|were)\b",ql))
-            if direct and re.search(r"\b(?:more|higher|greater|larger|outnumber|less|lower|fewer|smaller)\b",ql) \
+            choice=bool(re.search(r"\bwhich\b.+?\b(?:more|higher|greater|larger|fewer|lower)\b",ql)
+                        or re.search(r"\bmore\b.+?\bor\b",ql))
+            if direct and not choice and re.search(r"\b(?:more|higher|greater|larger|outnumber|less|lower|fewer|smaller)\b",ql) \
                     and not re.match(r"\s*(?:yes|no)\b",lower):
                 issues.append("direct_compare_not_answered")
-            if re.match(r"\s*which\b",ql) and scalar!=0:
+            if choice and scalar!=0:
                 expected=_operand_label(ir.get("left") if scalar>0 else ir.get("right"))
                 if expected and expected.lower() not in lower:
-                    issues.append("compare_winner_not_named")
+                    # Same-place choices are distinguished by a differing entity rather than place.
+                    chosen=ir.get("left") if scalar>0 else ir.get("right")
+                    other=ir.get("right") if scalar>0 else ir.get("left")
+                    ce=[x.get("entity") for x in _walk(chosen) if x.get("op")=="SELECT"]
+                    oe=[x.get("entity") for x in _walk(other) if x.get("op")=="SELECT"]
+                    differing=next((str(a) for a,b in zip(ce,oe) if str(a).lower()!=str(b).lower()),"")
+                    if not differing or differing.lower() not in lower:
+                        issues.append("compare_winner_not_named")
         if value.get("kind")=="scalar" and scalar is None:
             issues.append("null_scalar_answer")
         if ir.get("op")=="ANNOTATE" and str(ir.get("layer","")).lower() not in lower:
@@ -163,6 +172,10 @@ def audit_trace(trace):
             issues.append("compiler_failure_called_data_gap")
         if reason == "no_connector" and "coverage gap" not in lower:
             issues.append("connector_gap_not_distinguished")
+        if reason == "insufficient_series":
+            points=(execution.get("detail") or {}).get("points")
+            if str(points) not in lower or "at least two" not in lower:
+                issues.append("insufficient_series_ask_not_specific")
     else:
         issues.append("unknown_execution_status")
     return sorted(set(issues))
