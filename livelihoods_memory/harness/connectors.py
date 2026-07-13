@@ -281,6 +281,7 @@ WB_INDICATORS = {
     "employment in agriculture": "SL.AGR.EMPL.ZS", "agricultural employment": "SL.AGR.EMPL.ZS",
     # Verified through the World Bank v2 API for Brazil, India, and Kenya (40/8/8 rows).
     "gini coefficient": "SI.POV.GINI", "gini index": "SI.POV.GINI",
+    "gini": "SI.POV.GINI",
 }
 
 
@@ -415,6 +416,7 @@ for alias, canonical in {
     "informal employment": "informal employment rate",
     "informal employment in agriculture": "informal employment rate in agriculture",
     "average weekly hours": "average weekly hours worked",
+    "weekly hours": "average weekly hours worked",
     "female average weekly hours": "female average weekly hours worked",
     "male average weekly hours": "male average weekly hours worked",
     "labour underutilization": "labour underutilization rate",

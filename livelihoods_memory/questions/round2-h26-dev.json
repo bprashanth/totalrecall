@@ -1,0 +1,4383 @@
+{
+  "spec_version": "v2.1",
+  "epoch": "epoch-019-development",
+  "note": "Disclosed development release from questions/holdout-026.json: 86 independently adjudicated valid rows absorbed after retired-epoch first contact; never untouched saturation evidence",
+  "source_holdout": "questions/holdout-026.json",
+  "source_generated": "questions/holdout-h26-generated.json",
+  "generator": "Cursor Agent / GPT-5.6 Sol High",
+  "generated_after": "3661348",
+  "raw_sha256": "942247b2b7f1327b0a38e3b4526ae2740a3fbd153406dfb8590a0f4e60fc2a01",
+  "precontact_repairs": [
+    "removed invalid mean-by-space wrappers from one-year statistical SELECT levels",
+    "normalized the Warsaw capital region connector alias without changing question scope",
+    "clarified h26-020 strict beyond, h26-049 later/earlier ratio, h26-070 regional scope, and h26-075 signed-change order",
+    "recomputed every gold_shape mechanically with REGION nodes excluded"
+  ],
+  "excluded": {
+    "h26-006": "direct evidence returned no metro-station records for the resolved Nairobi scope",
+    "h26-012": "Warsaw bus-stop retrieval exceeded the completeness cap",
+    "h26-016": "the shelter annotation was absent from every retrieved Bangkok station record",
+    "h26-018": "direct evidence returned no metro-station records for the resolved Accra scope",
+    "h26-019": "direct evidence returned no metro-station records for the resolved Johannesburg scope",
+    "h26-021": "Istanbul bank retrieval exceeded the completeness cap",
+    "h26-022": "Manila bus-stop retrieval exceeded the completeness cap",
+    "h26-023": "Mexico City cafe retrieval exceeded the completeness cap",
+    "h26-060": "explicit World Bank constraint is not representable by SELECT",
+    "h26-087": "deictic target is resolved by the immediately preceding Guadalajara antecedent"
+  },
+  "selection": [
+    "h26-001",
+    "h26-002",
+    "h26-003",
+    "h26-004",
+    "h26-005",
+    "h26-007",
+    "h26-008",
+    "h26-009",
+    "h26-010",
+    "h26-011",
+    "h26-013",
+    "h26-014",
+    "h26-015",
+    "h26-017",
+    "h26-020",
+    "h26-024",
+    "h26-025",
+    "h26-026",
+    "h26-027",
+    "h26-028",
+    "h26-029",
+    "h26-030",
+    "h26-031",
+    "h26-032",
+    "h26-033",
+    "h26-034",
+    "h26-035",
+    "h26-036",
+    "h26-037",
+    "h26-038",
+    "h26-039",
+    "h26-040",
+    "h26-041",
+    "h26-042",
+    "h26-043",
+    "h26-044",
+    "h26-045",
+    "h26-046",
+    "h26-047",
+    "h26-048",
+    "h26-049",
+    "h26-050",
+    "h26-051",
+    "h26-052",
+    "h26-053",
+    "h26-054",
+    "h26-055",
+    "h26-056",
+    "h26-057",
+    "h26-058",
+    "h26-059",
+    "h26-061",
+    "h26-062",
+    "h26-063",
+    "h26-064",
+    "h26-065",
+    "h26-066",
+    "h26-067",
+    "h26-068",
+    "h26-069",
+    "h26-070",
+    "h26-071",
+    "h26-072",
+    "h26-073",
+    "h26-074",
+    "h26-075",
+    "h26-076",
+    "h26-077",
+    "h26-078",
+    "h26-079",
+    "h26-080",
+    "h26-081",
+    "h26-082",
+    "h26-083",
+    "h26-084",
+    "h26-085",
+    "h26-086",
+    "h26-088",
+    "h26-089",
+    "h26-090",
+    "h26-091",
+    "h26-092",
+    "h26-093",
+    "h26-094",
+    "h26-095",
+    "h26-096"
+  ],
+  "direct_execution": "all admitted golds matched their declared permitted outcome class",
+  "questions": [
+    {
+      "id": "h26-001",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_select",
+      "adversarial": false,
+      "q": "Field map: list the metro stations in Bengaluru, India.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Ordinary OSM point-record control; unnamed records remain valid records."
+    },
+    {
+      "id": "h26-002",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_count",
+      "adversarial": false,
+      "q": "How many metro stations are mapped in Delhi, India?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "count",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Delhi, India"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Ordinary point-count control."
+    },
+    {
+      "id": "h26-003",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_presence",
+      "adversarial": false,
+      "q": "Dashboard check — are any metro stations recorded in Hyderabad, India?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "yes-no",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Hyderabad, India"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "presence"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Presence answer head, not a count."
+    },
+    {
+      "id": "h26-004",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_density",
+      "adversarial": false,
+      "q": "Report the mapped metro-station density for Chennai, India.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "density",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Chennai, India"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "density"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Density control distinct from count."
+    },
+    {
+      "id": "h26-005",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "point_examples",
+      "adversarial": false,
+      "q": "Give me examples of metro stations mapped in Mumbai, India.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "examples",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Mumbai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Examples answer head still selects records without inventing a limit."
+    },
+    {
+      "id": "h26-007",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "beyond_relation",
+      "adversarial": false,
+      "q": "Paris field note: show metro stations with no hospital within 1.5 km.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Paris, France"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "hospital",
+          "region": {
+            "op": "REGION",
+            "place": "Paris, France"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 1.5
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Negative proximity maps to beyond."
+    },
+    {
+      "id": "h26-008",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "distance_relation",
+      "adversarial": false,
+      "q": "What are the distances from Berlin coworking spaces to metro stations?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "distance-records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": null
+        },
+        "relation": "distance"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Distance relation returns related records with distance annotation."
+    },
+    {
+      "id": "h26-009",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "cooccurrence_relation",
+      "adversarial": false,
+      "q": "In Madrid, which marketplaces co-occur with metro stations?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid, Spain"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid, Spain"
+          },
+          "time": null
+        },
+        "relation": "cooccur"
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Ordinary co-occurrence control."
+    },
+    {
+      "id": "h26-010",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "related_count",
+      "adversarial": false,
+      "q": "Count Barcelona metro stations within 0.5 km of a market.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "count",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Barcelona, Spain"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Barcelona, Spain"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.5
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Related records are counted after the spatial relation."
+    },
+    {
+      "id": "h26-011",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "related_presence",
+      "adversarial": false,
+      "q": "Does Lisbon have any metro station within 1 km of a coworking office?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "yes-no",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Lisbon, Portugal"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "coworking office",
+            "region": {
+              "op": "REGION",
+              "place": "Lisbon, Portugal"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "by": "space",
+        "metric": "presence"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Yes/no head requires presence."
+    },
+    {
+      "id": "h26-013",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "annotate",
+      "adversarial": false,
+      "q": "Add the wheelchair field to London's metro-station records.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated-records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "London, United Kingdom"
+          },
+          "time": null
+        },
+        "layer": "wheelchair"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "OSM wheelchair attributes may be only partially populated."
+    },
+    {
+      "id": "h26-014",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "annotate",
+      "adversarial": false,
+      "q": "Attach operator information to Dubai metro stations.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated-records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Dubai, United Arab Emirates"
+          },
+          "time": null
+        },
+        "layer": "operator"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "Supported record annotation; missing values remain partial evidence."
+    },
+    {
+      "id": "h26-015",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "annotate",
+      "adversarial": false,
+      "q": "Station inventory, Singapore: annotate each metro station with its network.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated-records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Singapore"
+          },
+          "time": null
+        },
+        "layer": "network"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "Network annotation over point records."
+    },
+    {
+      "id": "h26-017",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "two_anchor_conjunction",
+      "adversarial": true,
+      "q": "Cairo brief: list metro stations within 500 m of a market but more than 1 km from a hospital.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Cairo, Egypt"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Cairo, Egypt"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.5
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "hospital",
+          "region": {
+            "op": "REGION",
+            "place": "Cairo, Egypt"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 1
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Nested affirmative and negative anchors; one record-set answer."
+    },
+    {
+      "id": "h26-020",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "capability_family": "beyond_relation",
+      "adversarial": true,
+      "q": "Flag Lagos marketplaces that are more than 2,000 metres from every metro station.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Lagos, Nigeria"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Lagos, Nigeria"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 2
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Metres and universal negative proximity map to beyond. Wording clarified during the qwen-free admission audit."
+    },
+    {
+      "id": "h26-024",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "cooccur_beyond_composition",
+      "adversarial": true,
+      "q": "From Bogotá's markets that co-occur with metro stations, retain those beyond 1.25 km from a police station.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bogotá, Colombia"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bogotá, Colombia"
+            },
+            "time": null
+          },
+          "relation": "cooccur"
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "police",
+          "region": {
+            "op": "REGION",
+            "place": "Bogotá, Colombia"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 1.25
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Co-occurrence feeds one negative spatial constraint."
+    },
+    {
+      "id": "h26-025",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "spatial_place_compare",
+      "adversarial": true,
+      "q": "How many more metro stations within 1 km of a market does Rome have than Athens?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Rome, Italy"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Rome, Italy"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Athens, Greece"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Athens, Greece"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Both place operands remain independently scoped."
+    },
+    {
+      "id": "h26-026",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "spatial_place_compare",
+      "adversarial": true,
+      "q": "Compare the density of metro stations near bus stops in Prague with that in Vienna; use 0.4 km as near.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Prague, Czechia"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bus stop",
+              "region": {
+                "op": "REGION",
+                "place": "Prague, Czechia"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.4
+          },
+          "by": "space",
+          "metric": "density"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Vienna, Austria"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bus stop",
+              "region": {
+                "op": "REGION",
+                "place": "Vienna, Austria"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.4
+          },
+          "by": "space",
+          "metric": "density"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Same-unit related-density comparison."
+    },
+    {
+      "id": "h26-027",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "zero_denominator_ratio",
+      "adversarial": true,
+      "q": "For Quito, what is the ratio of metro stations near markets to coworking spaces near metro stations, using 0.5 km for both?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Quito, Ecuador"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Quito, Ecuador"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.5
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Quito, Ecuador"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Quito, Ecuador"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.5
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Observed denominator may be zero; IR remains an algebraic ratio."
+    },
+    {
+      "id": "h26-028",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "choice_compare",
+      "adversarial": true,
+      "q": "Either Sofia or Bucharest: which has more metro stations within 700 m of a bank?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "either-or-winner",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Sofia, Bulgaria"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Sofia, Bulgaria"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.7
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bucharest, Romania"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Bucharest, Romania"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.7
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Binary choice uses COMPARE, not RANK."
+    },
+    {
+      "id": "h26-029",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "Employment dashboard: Île-de-France employment rate, 2024.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Ile de France"
+        },
+        "time": {
+          "start": "2024",
+          "end": "2024"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Exact Eurostat NUTS2 level."
+    },
+    {
+      "id": "h26-030",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "What was Berlin's female employment rate in 2023?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "female employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Berlin, Germany"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Exact subnational female-rate level."
+    },
+    {
+      "id": "h26-031",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "Pull the 2022 unemployment rate for the Madrid region, Spain.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "unemployment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Madrid region, Spain"
+        },
+        "time": {
+          "start": "2022",
+          "end": "2022"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Exact Eurostat unemployment level."
+    },
+    {
+      "id": "h26-032",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "eurostat_level",
+      "adversarial": false,
+      "q": "Catalonia employed persons — give the 2024 level.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employed persons",
+        "region": {
+          "op": "REGION",
+          "place": "Catalonia, Spain"
+        },
+        "time": {
+          "start": "2024",
+          "end": "2024"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Eurostat level in thousand persons."
+    },
+    {
+      "id": "h26-033",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "ilostat_level",
+      "adversarial": false,
+      "q": "For France, report the informal employment rate in 2021.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "informal employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "France"
+        },
+        "time": {
+          "start": "2021",
+          "end": "2021"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Exact ILOSTAT annual percentage."
+    },
+    {
+      "id": "h26-034",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "ilostat_level",
+      "adversarial": false,
+      "q": "Germany, 2020: female average weekly hours worked?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "female average weekly hours worked",
+        "region": {
+          "op": "REGION",
+          "place": "Germany"
+        },
+        "time": {
+          "start": "2020",
+          "end": "2020"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Exact ILOSTAT hours/week level."
+    },
+    {
+      "id": "h26-035",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "ilostat_level",
+      "adversarial": false,
+      "q": "Show Spain's labour underutilization rate for 2023.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "labour underutilization rate",
+        "region": {
+          "op": "REGION",
+          "place": "Spain"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Exact ILOSTAT percent level."
+    },
+    {
+      "id": "h26-036",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "ilostat_level",
+      "adversarial": false,
+      "q": "Kenya's average weekly hours worked in 2021 — what was the observed value?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "average weekly hours worked",
+        "region": {
+          "op": "REGION",
+          "place": "Kenya"
+        },
+        "time": {
+          "start": "2021",
+          "end": "2021"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Census-backed ILOSTAT endpoint."
+    },
+    {
+      "id": "h26-037",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "gini_level",
+      "adversarial": false,
+      "q": "Archive lookup: Brazil's Gini coefficient in 1981.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "gini coefficient",
+        "region": {
+          "op": "REGION",
+          "place": "Brazil"
+        },
+        "time": {
+          "start": "1981",
+          "end": "1981"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Exact World Bank Gini level."
+    },
+    {
+      "id": "h26-038",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "gini_level",
+      "adversarial": false,
+      "q": "What is the recorded 2022 Gini coefficient for India?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "level",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "gini coefficient",
+        "region": {
+          "op": "REGION",
+          "place": "India"
+        },
+        "time": {
+          "start": "2022",
+          "end": "2022"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Exact sparse-series endpoint."
+    },
+    {
+      "id": "h26-039",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "eurostat_bounded_trend",
+      "adversarial": false,
+      "q": "Was Lombardy's employment rate rising or falling from 2022 through 2024?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend-direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Bounded Eurostat trend, not endpoint change."
+    },
+    {
+      "id": "h26-040",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "eurostat_bounded_trend",
+      "adversarial": false,
+      "q": "Direction only: Warsaw capital region employment rate, 2022–2024.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend-direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Subnational bounded trend control."
+    },
+    {
+      "id": "h26-041",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "ilostat_bounded_trend",
+      "adversarial": true,
+      "q": "Across 2019–2023, did France's informal employment rate trend upward or downward?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend-direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2023"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Five-point ILOSTAT bounded trend."
+    },
+    {
+      "id": "h26-042",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "endpoint_change",
+      "adversarial": true,
+      "q": "By how many percentage points did Spain's labour underutilization rate change from 2019 to 2023?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Later-minus-earlier endpoint difference."
+    },
+    {
+      "id": "h26-043",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "same_unit_ratio",
+      "adversarial": true,
+      "q": "For Germany, what was the ratio of female average weekly hours in 2023 to the 2019 value?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Explicit later-to-earlier hours/week ratio."
+    },
+    {
+      "id": "h26-044",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "endpoint_change",
+      "adversarial": true,
+      "q": "Kenya weekly-hours brief: 2021 minus 2019.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Explicit endpoint orientation."
+    },
+    {
+      "id": "h26-045",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "long_series_endpoints",
+      "adversarial": true,
+      "q": "Using the endpoints, how much did Brazil's Gini coefficient change between 1981 and 2024?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "Brazil"
+          },
+          "time": {
+            "start": "1981",
+            "end": "1981"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "Brazil"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Long series pressure with endpoint-only comparison."
+    },
+    {
+      "id": "h26-046",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "gini_same_unit_ratio",
+      "adversarial": true,
+      "q": "India's 2022 Gini divided by its 1977 Gini: what is the ratio?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "1977",
+            "end": "1977"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Explicit same-unit Gini endpoint ratio."
+    },
+    {
+      "id": "h26-047",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "gini_bounded_trend",
+      "adversarial": true,
+      "q": "Over Kenya's available observations from 1992 through 2022, was the Gini trend rising or falling?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend-direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "gini coefficient",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "1992",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Sparse bounded Gini trend uses all available points."
+    },
+    {
+      "id": "h26-048",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "endpoint_change",
+      "adversarial": true,
+      "q": "Madrid region unemployment: calculate 2024 less 2022.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid region, Spain"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid region, Spain"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Explicit later-minus-earlier subnational change."
+    },
+    {
+      "id": "h26-049",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "same_unit_ratio",
+      "adversarial": true,
+      "q": "What is the ratio of Catalonia's 2024 employed-person level to its 2022 level?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "employed persons",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia, Spain"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employed persons",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia, Spain"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Wording explicitly requests earlier divided by later. Wording clarified during the qwen-free admission audit."
+    },
+    {
+      "id": "h26-050",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "place_compare",
+      "adversarial": true,
+      "q": "In 2024, how much higher or lower was Lombardy's employment rate than Île-de-France's?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Lombardy, Italy"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Equal-year place comparison keeps first-named orientation."
+    },
+    {
+      "id": "h26-051",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "mixed_source_compare",
+      "adversarial": true,
+      "q": "Which percentage was larger: Berlin's female employment rate in 2024 or France's informal employment rate in 2023?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "either-or-winner",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Eurostat and ILOSTAT percent operands stay independently scoped."
+    },
+    {
+      "id": "h26-052",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "mixed_source_compare",
+      "adversarial": true,
+      "q": "Compare India's 2022 youth unemployment rate with Spain's 2022 labour underutilization rate; which was higher?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "either-or-winner",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "youth unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "World Bank and ILOSTAT same-unit percent choice."
+    },
+    {
+      "id": "h26-053",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "mixed_source_compare",
+      "adversarial": true,
+      "q": "2021 snapshot: Kenya's self-employment rate minus the Madrid region employment rate.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "self-employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid region, Spain"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Cross-source percent operands; source availability may differ."
+    },
+    {
+      "id": "h26-054",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "mixed_source_compare",
+      "adversarial": true,
+      "q": "For 2022, give the ratio of Brazil's vulnerable-employment rate to France's informal-employment rate.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "vulnerable employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Brazil"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "World Bank to ILOSTAT same-unit ratio."
+    },
+    {
+      "id": "h26-055",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "place_compare",
+      "adversarial": true,
+      "q": "At the 2022 observation, what is India's Gini coefficient minus Kenya's?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Explicit equal-year country orientation."
+    },
+    {
+      "id": "h26-056",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "place_compare",
+      "adversarial": true,
+      "q": "For 1994, divide Kenya's Gini by Brazil's Gini.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "1994",
+            "end": "1994"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "Brazil"
+          },
+          "time": {
+            "start": "1994",
+            "end": "1994"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Equal-year Gini ratio preserves requested country order."
+    },
+    {
+      "id": "h26-057",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "spatial_place_ratio",
+      "adversarial": true,
+      "q": "What is the ratio of mapped metro-station counts in Toronto to Montréal?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Toronto, Canada"
+            },
+            "time": null
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Montreal, Canada"
+            },
+            "time": null
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Same-unit point-count ratio."
+    },
+    {
+      "id": "h26-058",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "spatial_place_compare",
+      "adversarial": true,
+      "q": "How many more metro stations beyond 3 km from a marketplace are mapped in Seoul than in Busan?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Seoul, South Korea"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Seoul, South Korea"
+              },
+              "time": null
+            },
+            "relation": "beyond",
+            "threshold_km": 3
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Busan, South Korea"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Busan, South Korea"
+              },
+              "time": null
+            },
+            "relation": "beyond",
+            "threshold_km": 3
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Negative related counts compared across independently scoped cities."
+    },
+    {
+      "id": "h26-059",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "worldbank_bounded_trend",
+      "adversarial": true,
+      "q": "Ghana self-employment, 2010 to 2022: rising or falling overall?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend-direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "self-employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2010",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "World Bank bounded annual trend."
+    },
+    {
+      "id": "h26-061",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "endpoint_change",
+      "adversarial": true,
+      "q": "Mexico wage-and-salaried-workers rate: change from 2015 to 2022.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "difference",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "wage and salaried workers rate",
+          "region": {
+            "op": "REGION",
+            "place": "Mexico"
+          },
+          "time": {
+            "start": "2015",
+            "end": "2015"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "wage and salaried workers rate",
+          "region": {
+            "op": "REGION",
+            "place": "Mexico"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "World Bank endpoint change."
+    },
+    {
+      "id": "h26-062",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "capability_family": "place_compare",
+      "adversarial": true,
+      "q": "In 2023, what was Canada's labor-force-participation rate divided by the United States rate?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "labor force participation rate",
+          "region": {
+            "op": "REGION",
+            "place": "Canada"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labor force participation rate",
+          "region": {
+            "op": "REGION",
+            "place": "United States"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Equal-year same-indicator country ratio."
+    },
+    {
+      "id": "h26-063",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "eurostat_bounded_trend",
+      "adversarial": true,
+      "q": "Did Berlin's male employment rate rise or fall over 2022–2024?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend-direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "male employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin, Germany"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Supported subgroup and bounded subnational trend."
+    },
+    {
+      "id": "h26-064",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "ilostat_bounded_trend",
+      "adversarial": true,
+      "q": "Male average weekly hours worked in Italy, 2018–2023 — trend direction?",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend-direction",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "male average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Italy"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2023"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Curated ILOSTAT subgroup with bounded availability."
+    },
+    {
+      "id": "h26-065",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "noncurated_region_source_gap",
+      "adversarial": true,
+      "q": "Retrieve Alberta's female employment rate for 2024 from the regional series.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "data-request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "female employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Alberta, Canada"
+        },
+        "time": {
+          "start": "2024",
+          "end": "2024"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Named but non-curated statistical region remains a literal source gap."
+    },
+    {
+      "id": "h26-066",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "zero_denominator_ratio",
+      "adversarial": true,
+      "q": "In Kigali, divide the metro-station count by the count of coworking spaces more than 5 km from a metro station.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ratio",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Kigali, Rwanda"
+            },
+            "time": null
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Kigali, Rwanda"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Kigali, Rwanda"
+              },
+              "time": null
+            },
+            "relation": "beyond",
+            "threshold_km": 5
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Potentially zero observed denominator; no prose policy encoded in IR."
+    },
+    {
+      "id": "h26-067",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "partial_annotation_coverage",
+      "adversarial": true,
+      "q": "Add wheelchair annotations to Kolkata metro stations, including records where the tag is absent.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "annotated-records",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Kolkata, India"
+          },
+          "time": null
+        },
+        "layer": "wheelchair"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "Partial annotation coverage must not drop otherwise valid records."
+    },
+    {
+      "id": "h26-068",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "unnamed_spatial_records",
+      "adversarial": true,
+      "q": "Return the full metro-station record list for Pune, even if some station names are missing.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Pune, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Unnamed records remain evidence; full list contrasts with examples."
+    },
+    {
+      "id": "h26-069",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_winner",
+      "adversarial": true,
+      "q": "Which had the highest 2024 employment rate: Île-de-France, Lombardy, or the Warsaw capital region?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Complete three-item level winner plan."
+    },
+    {
+      "id": "h26-070",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_full",
+      "adversarial": true,
+      "q": "Rank Madrid region, Catalonia, and Andalusia from lowest to highest unemployment rate in 2023.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full-ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region, Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Catalonia, Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Andalusia, Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Ascending complete subnational ranking. Wording clarified during the qwen-free admission audit."
+    },
+    {
+      "id": "h26-071",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_full",
+      "adversarial": true,
+      "q": "Give the full 2022 Gini ranking, highest first, for Brazil, India, and Kenya.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full-ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "gini coefficient",
+            "region": {
+              "op": "REGION",
+              "place": "Brazil"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "gini coefficient",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "gini coefficient",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Full Gini ranking with all named candidates."
+    },
+    {
+      "id": "h26-072",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_intermediate_k",
+      "adversarial": true,
+      "q": "Top two informal-employment rates in 2021 among France, Spain, Germany, and Italy.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top-k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Italy"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Intermediate-k four-country ILOSTAT ranking."
+    },
+    {
+      "id": "h26-073",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_full",
+      "adversarial": true,
+      "q": "Order Brazil, India, Kenya, and Ghana by 2022 self-employment rate, descending; show every country.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full-ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "self-employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Brazil"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self-employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self-employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self-employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Complete four-item World Bank level ranking."
+    },
+    {
+      "id": "h26-074",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_change_winner",
+      "adversarial": true,
+      "q": "From 2022 to 2024, which employment rate rose the most: Berlin, Madrid region, or Lombardy?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin, Germany"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin, Germany"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid region, Spain"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid region, Spain"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy, Italy"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy, Italy"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "how": "difference"
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Winner over three complete endpoint-difference plans."
+    },
+    {
+      "id": "h26-075",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_change_full",
+      "adversarial": true,
+      "q": "Using signed 2022-minus-1992 Gini changes, rank Brazil, India, and Kenya from the lowest signed change to the highest.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full-ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "1992",
+                "end": "1992"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "1992",
+                "end": "1992"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "1992",
+                "end": "1992"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "how": "difference"
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Sparse endpoint availability may yield a data request; candidates are complete. Wording clarified during the qwen-free admission audit."
+    },
+    {
+      "id": "h26-076",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_ratio_full",
+      "adversarial": true,
+      "q": "For Germany, Kenya, and France, rank the 2021-to-2019 average-weekly-hours ratios from highest to lowest.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full-ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "average weekly hours worked",
+              "region": {
+                "op": "REGION",
+                "place": "Germany"
+              },
+              "time": {
+                "start": "2021",
+                "end": "2021"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "average weekly hours worked",
+              "region": {
+                "op": "REGION",
+                "place": "Germany"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "average weekly hours worked",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2021",
+                "end": "2021"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "average weekly hours worked",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "average weekly hours worked",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2021",
+                "end": "2021"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "average weekly hours worked",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "how": "ratio"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Complete three-country endpoint-ratio ranking."
+    },
+    {
+      "id": "h26-077",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_count_winner",
+      "adversarial": true,
+      "q": "Which city has the most metro stations within 0.5 km of a market: Bengaluru, Delhi, or Mumbai?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.5
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Delhi, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Delhi, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.5
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Mumbai, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Mumbai, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.5
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Complete related-count winner plan."
+    },
+    {
+      "id": "h26-078",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_density_top_k",
+      "adversarial": true,
+      "q": "Top two cities by density of metro stations within 0.8 km of bus stops: London, Paris, Berlin, Madrid.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top-k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "London, United Kingdom"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bus stop",
+                "region": {
+                  "op": "REGION",
+                  "place": "London, United Kingdom"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.8
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Paris, France"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bus stop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Paris, France"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.8
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Berlin, Germany"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bus stop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Berlin, Germany"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.8
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Madrid, Spain"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bus stop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Madrid, Spain"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.8
+            },
+            "by": "space",
+            "metric": "density"
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Intermediate-k ranking over four related-density plans."
+    },
+    {
+      "id": "h26-079",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_point_count_full",
+      "adversarial": true,
+      "q": "Fewest to most mapped metro stations: rank Tbilisi, Yerevan, and Baku.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full-ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Tbilisi, Georgia"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Yerevan, Armenia"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Baku, Azerbaijan"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "Ascending full point-count ranking."
+    },
+    {
+      "id": "h26-080",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_endpoint_ratio_full",
+      "adversarial": true,
+      "q": "Rank Indonesia, Mexico, South Africa, and Türkiye by their 2022-to-2012 employment-in-services ratio, highest first.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full-ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment in services rate",
+              "region": {
+                "op": "REGION",
+                "place": "Indonesia"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment in services rate",
+              "region": {
+                "op": "REGION",
+                "place": "Indonesia"
+              },
+              "time": {
+                "start": "2012",
+                "end": "2012"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment in services rate",
+              "region": {
+                "op": "REGION",
+                "place": "Mexico"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment in services rate",
+              "region": {
+                "op": "REGION",
+                "place": "Mexico"
+              },
+              "time": {
+                "start": "2012",
+                "end": "2012"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment in services rate",
+              "region": {
+                "op": "REGION",
+                "place": "South Africa"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment in services rate",
+              "region": {
+                "op": "REGION",
+                "place": "South Africa"
+              },
+              "time": {
+                "start": "2012",
+                "end": "2012"
+              }
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "SELECT",
+              "entity": "employment in services rate",
+              "region": {
+                "op": "REGION",
+                "place": "Türkiye"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "employment in services rate",
+              "region": {
+                "op": "REGION",
+                "place": "Türkiye"
+              },
+              "time": {
+                "start": "2012",
+                "end": "2012"
+              }
+            },
+            "how": "ratio"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Complete four-country World Bank endpoint-ratio ranking."
+    },
+    {
+      "id": "h26-081",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_full",
+      "adversarial": true,
+      "q": "List all five, highest 2023 employment rate first: Berlin, Île-de-France, Lombardy, Madrid region, Warsaw capital region.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "full-ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin, Germany"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region, Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Full five-region ranking, not examples or top-k."
+    },
+    {
+      "id": "h26-082",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_envelope",
+      "adversarial": true,
+      "q": "Use Bengaluru's observed metro-station records as the source envelope to estimate a metro-access field for Mysuru, India.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated-field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Mysuru, India"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "Explicit observed source and target; gate may refuse."
+    },
+    {
+      "id": "h26-083",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_feature",
+      "adversarial": true,
+      "q": "Feature-transfer Berlin's metro-station pattern to estimate a station-access field for Hamburg.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated-field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Hamburg, Germany"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "Explicit feature method and independently named roles."
+    },
+    {
+      "id": "h26-084",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_interpolate",
+      "adversarial": true,
+      "q": "Interpolate from Paris metro-station observations to model a metro-access field in Lyon.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated-field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Paris, France"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Lyon, France"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "Explicit interpolation source and target."
+    },
+    {
+      "id": "h26-085",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_related_source",
+      "adversarial": true,
+      "q": "Using Nairobi metro stations observed within 1 km of markets, estimate an envelope field for Mombasa.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated-field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Mombasa, Kenya"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Legal related-record source; gate may refuse transfer."
+    },
+    {
+      "id": "h26-086",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_source_gap",
+      "adversarial": true,
+      "q": "Use Accra street-vendor permit records to estimate a permit-density envelope for Kumasi.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "data-request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "street vendor permit",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kumasi, Ghana"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "Literal unsupported source fails honestly before transfer; no hole."
+    },
+    {
+      "id": "h26-088",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "anaphoric_estimate_source",
+      "adversarial": true,
+      "q": "Use that city's metro stations as the feature source for an estimate in Porto, Portugal.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": true,
+      "output_form": "clarification",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "?source_city"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Porto, Portugal"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "Only the anaphoric source-city role is unresolved."
+    },
+    {
+      "id": "h26-089",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "estimate_entity_role_hole",
+      "adversarial": true,
+      "q": "From Rotterdam, transfer the relevant facility records by interpolation to Utrecht.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": true,
+      "output_form": "clarification",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "?facility_type",
+          "region": {
+            "op": "REGION",
+            "place": "Rotterdam, Netherlands"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Utrecht, Netherlands"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "Places and method are fixed; only facility type is unresolved."
+    },
+    {
+      "id": "h26-090",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_gate_pressure",
+      "adversarial": true,
+      "q": "Use Tokyo metro-station observations as an envelope source to estimate metro access in Lima.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated-field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Tokyo, Japan"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Lima, Peru"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "Distant source-target pairing deliberately pressures the gate."
+    },
+    {
+      "id": "h26-091",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_annotated_source",
+      "adversarial": true,
+      "q": "Feature-transfer wheelchair-annotated metro-station records from Stockholm to estimate an accessibility field in Gothenburg.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated-field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Stockholm, Sweden"
+            },
+            "time": null
+          },
+          "layer": "wheelchair"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Gothenburg, Sweden"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "ANNOTATE preserves Records and is a legal estimate source."
+    },
+    {
+      "id": "h26-092",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_related_source",
+      "adversarial": true,
+      "q": "Estimate a co-location envelope for Recife from Salvador marketplaces that co-occur with metro stations.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "estimated-field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Salvador, Brazil"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Salvador, Brazil"
+            },
+            "time": null
+          },
+          "relation": "cooccur"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Recife, Brazil"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Co-occurring records form a legal source; gate remains authoritative."
+    },
+    {
+      "id": "h26-093",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "anaphoric_relation_anchor",
+      "adversarial": true,
+      "q": "In Jakarta, how many metro stations are within 500 metres of it?",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "clarification",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Jakarta, Indonesia"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "?anchor_entity",
+            "region": {
+              "op": "REGION",
+              "place": "Jakarta, Indonesia"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.5
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "Exactly the anaphoric anchor entity is a hole."
+    },
+    {
+      "id": "h26-094",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "capability_family": "preference_proxy_hole",
+      "adversarial": true,
+      "q": "Why do workers in Naples prefer metro-adjacent coworking spaces?",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "clarification",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?preference_proxy",
+        "region": {
+          "op": "REGION",
+          "place": "Naples, Italy"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Facilities cannot establish preference motives; an honest proxy role is unresolved."
+    },
+    {
+      "id": "h26-095",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "capability_family": "demand_proxy_hole",
+      "adversarial": true,
+      "q": "Do residents of Casablanca want more markets near metro stations?",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "clarification",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?demand_proxy",
+        "region": {
+          "op": "REGION",
+          "place": "Casablanca, Morocco"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Mapped facilities do not prove demand; requires an explicit proxy."
+    },
+    {
+      "id": "h26-096",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "capability_family": "motive_proxy_hole",
+      "adversarial": true,
+      "q": "Are commuters in Santiago choosing the metro because fares are low?",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "clarification",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?motive_proxy",
+        "region": {
+          "op": "REGION",
+          "place": "Santiago, Chile"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "Causal motive is not inferable from station records; proxy semantics remain unresolved."
+    }
+  ]
+}

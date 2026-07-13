@@ -167,7 +167,9 @@ def _difference_finding(question, scalar, ir):
         if scalar==0:return f"The two operands are tied (difference 0)."
         winner=_operand_label(ir["left"] if scalar>0 else ir["right"])
         return f"{winner} has the larger value; the left-minus-right difference is {_fmt(scalar)}."
-    return f"The computed left-minus-right difference is {_fmt(scalar)}."
+    left=_contrast_label(ir.get("left"),ir.get("right"),True)
+    right=_contrast_label(ir.get("left"),ir.get("right"),False)
+    return f"{left} minus {right} is {_fmt(scalar)}."
 
 
 def _contract_issue(question, exec_result, ir):
@@ -234,7 +236,7 @@ def _render_nonanswer(exec_result):
                 "the source or provide a verified alternate connector.")
     if reason == "parse_invalid":
         return ("I couldn't compile this request into a valid typed query. This is a compiler "
-                "failure, not evidence that the requested data are absent.")
+                "failure and establishes nothing about source coverage.")
     if reason == "unbound_holes":
         holes=detail.get("holes") or []
         names=[str(item.get("name",item)) if isinstance(item,dict) else str(item) for item in holes]
