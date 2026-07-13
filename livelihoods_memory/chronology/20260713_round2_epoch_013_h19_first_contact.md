@@ -30,11 +30,13 @@ and any repair retires the freeze and resets the consecutive-pass count to zero.
 
 ## Final adjudication and disclosed replay
 
-Independent row-level adjudication classified 15 valid compiler discoveries, two bad or ambiguous
+Independent row-level adjudication classified 15 strict canonical compiler discoveries, two bad or ambiguous
 golds (`h19-013`, `h19-046`), and two strict-audit canonicalization defects (`h19-038`,
-`h19-040`). The valid rows cluster into four general repairs: explicit subnational place-scope
+`h19-040`). The ordinary schema gate added a sixteenth valid discovery: `h19-064` emitted an
+explicit null threshold where the schema requires omission. The valid rows cluster into five
+general repairs: explicit subnational place-scope
 preservation, list/rank blueprint construction, endpoint-change synthesis, and spatial relation
-completeness. The strict audit now recognizes the frozen executor's documented record-count
+completeness, plus fail-closed optional-field construction. The strict audit now recognizes the frozen executor's documented record-count
 scalarization only inside COMPARE and protects integral place names such as Île-de-France from
 country-suffix truncation.
 
@@ -45,7 +47,7 @@ under proposal `ASK-003` and the existing typed-hole protocol.
 
 The disclosed replay at `runs/epoch013-holdout-019-fix1/` passes strict canonical audit 38/40
 overall and 38/38 over eligible rows. Ordinary score is 0.994; the only non-perfect ordinary row
-among valid questions is source-limited `h19-064`, which still has the correct canonical IR and
-allowed execution class. H19 therefore becomes development evidence, not a saturation pass. Its
+among valid questions is schema-invalid `h19-064`, whose explicit null threshold is repaired and
+guarded in the subsequent wall candidate. H19 therefore becomes development evidence, not a saturation pass. Its
 38 valid rows are copied to `questions/round2-h19-dev.json`; the active wall grows from 925 to
 963 questions and from 26 to 27 skeletons.

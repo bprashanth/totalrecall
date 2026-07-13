@@ -299,6 +299,12 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual((got["how"],got["left"]["time"]["start"],got["right"]["time"]["start"]),
                          ("difference","2022","2018"))
 
+    def test_continuous_increasing_or_decreasing_remains_unary_trend(self):
+        q="Was Spain's informal employment rate increasing or decreasing between 2015 and 2023?"
+        seed={"op":"COMPARE","how":"trend_direction",
+              "left":select("informal employment rate",{"op":"REGION","place":"Spain"})}
+        self.assertIs(P.mech_explicit_change(seed,q),seed)
+
     def test_highest_colon_list_preserves_all_candidates_and_top_one(self):
         q="Which has the highest youth unemployment: Kenya, Ghana, or Spain in 2021?"
         got=P.mech_explicit_rank_semantics(select("youth unemployment"),q)
@@ -371,6 +377,12 @@ class ParserRegressionTests(unittest.TestCase):
            "in 2021.")
         got=P.mech_series_rank(select("labor force participation"),q)
         self.assertEqual(len(got["items"]),6)
+
+    def test_rank_of_near_counts_omits_absent_threshold(self):
+        q="Rank Berlin, Paris, and Madrid region by the number of coworking spaces near cafes."
+        got=P.mech_series_rank(select("coworking space"),q)
+        self.assertTrue(all(item["source"]["op"]=="RELATE" for item in got["items"]))
+        self.assertTrue(all("threshold_km" not in item["source"] for item in got["items"]))
 
     def test_compare_record_scalarization_matches_explicit_count(self):
         region={"op":"REGION","place":"Nairobi"}

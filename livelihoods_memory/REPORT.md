@@ -210,3 +210,25 @@ H3 30/40, H4 34/40, H5 15/40, H8 22/40, H9 40/40, H10 28/40, H11 31/40,
 H12 37/40, H13 30/40, H14 23/40, H15 37/40, and H16 22/40. H9 demonstrates a local
 plateau for an exact statistical register, not general solver saturation. H14–H16 remain failed
 untouched evidence at this checkpoint and must drive the next development epoch.
+
+### Round 2 checkpoint 4 — cross-family H19 rejects saturation again
+
+After H17 and H18 drove epochs 012 and 013, H19 was independently authored with Google's
+Gemini 3.1 Pro under a parser-blind allowlist. Sixty-four candidates were generated; 40 survived
+pre-contact semantic and execution audit. That audit itself rejected historical trend questions
+over current-snapshot OSM data instead of weakening their expectation, producing governed
+proposal `SRC-001`. It also exposed the unresolved policy for a scalar change with no interval,
+recorded as `ASK-003`.
+
+H19 first contact scored 0.927 coarsely and only 21/40 under the strict canonical audit. Final
+adjudication found 16 valid compiler/schema discoveries, two bad or ambiguous golds, and two
+strict-audit equivalence defects. General fixes now preserve explicit subnational record scope,
+compile complete rank value subtrees (including densities and endpoint changes), retain all list
+members, complete nested spatial constraints, and omit absent optional fields rather than emitting
+schema-invalid nulls. The two bad golds are quarantined and excluded from training.
+
+Epoch 014 recertifies 963 valid questions across 22 banks and 27 skeletons: ordinary 963/963,
+strict 961/963 overall and 961/961 eligible, dialogue 5/5, and 51/51 deterministic regressions.
+The corpus contains 975 parse and 5 clarification rows with all six declared bad-gold questions
+excluded. This is still not saturation. H19 is disclosed development, so the consecutive untouched
+counter is zero and three new post-epoch-014 cross-family banks remain required.
