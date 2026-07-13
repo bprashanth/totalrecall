@@ -26,3 +26,27 @@ first-contact evidence. No parser repair is permitted until this evidence checkp
 and every mismatch is classified against the frozen algebra. If valid discoveries are absorbed,
 the development wall must be recertified, a new epoch frozen, and the required three-bank
 cross-family sequence restarted from zero.
+
+## Classification and epoch-012 absorption
+
+All 17 mismatches were valid compiler discoveries; none was excluded as bad gold. They exposed
+clause-scoped two-anchor composition (`and not`, `while also being beyond`, `but are within`, and
+`and a Y within`), output wrappers over completed relation trees, relation arithmetic, word-form
+top-k, cross-country ratio operand aliasing, city-to-supported-region ranks, same-time
+measure-minus-measure, named donors with deictic targets, typed facility/indicator holes, and
+generic relation anchors.
+
+Repairs remained inside frozen v2.1. The principal change is one clause-scoped three-entity
+relation compiler followed by output-form binding, rather than additional algebra. Independent
+binders cover rank `k`, textual operand regions, rejected fallback indicators, and transfer roles.
+Sixteen deterministic regressions include negative controls: meta-language “both clauses” must not
+trigger shared-distance semantics, and “yes/no” must not make a relation negative.
+
+The first disclosed rerun reached 36/40 strict and exposed four incomplete hole/role rules. The
+second reached 40/40. Two complete-wall candidates were then rejected: v1 regressed `gen-live-11`
+and `h3-040`; v2 treated the word `no` inside “yes/no” as relation negation. After narrowing those
+rules, the final 887-question v3 wall reached ordinary 887/887 and strict 885/885 over eligible
+rows (885/887 including the two declared legacy gold defects). Both dialogue binders remain 5/5.
+
+`coverage/epoch-012-certification.json` records the certified wall. H17 remains a failed untouched
+bank and contributes zero saturation passes. Epoch 012 restarts the cross-family sequence.

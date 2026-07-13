@@ -393,3 +393,16 @@ attempt passed observed rows but failed adversarial review of rule generality; a
 the rules but reopened six deictic-transfer cases. Only v4 is freezeable. This is development-wall
 closure, not saturation evidence. The untouched three-bank discovery-rate sequence restarts after
 the epoch-011 freeze. Machine-readable evidence is in `coverage/epoch-011-certification.json`.
+
+## 2026-07-13 — H17 defeats epoch 011; epoch 012 absorbs 17 discoveries [PARSER/HARNESS]
+
+The first post-freeze OpenAI-family bank scored strict 23/40 despite the certified 847-question
+wall. All 17 mismatches were admissible. The resulting v2.1 compiler coverage includes scoped
+multi-anchor predicates and outputs, relation arithmetic, word top-k, distinct ratio regions,
+supported-region rank phrasing, deictic transfer targets, and rejected-fallback holes. No new
+algebra operator was required.
+
+The absorption loop itself rejected two seemingly clean wall attempts after strict regression
+checks. The final epoch-012 wall contains 887 questions and passes ordinary 887/887, strict eligible
+885/885, 16/16 deterministic regressions, and dialogue 5/5 for each binder. H17 is immutable failed
+evidence, not a saturation success; the untouched counter is zero at the epoch-012 freeze.
