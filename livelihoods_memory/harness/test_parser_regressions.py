@@ -1454,6 +1454,19 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual((deictic["metric"],deictic["source"]["right"]["entity"]),
                          ("presence","?anchor_entity"))
 
+        canonical={"op":"ANNOTATE","source":select("marketplace"),"layer":"name"}
+        self.assertEqual(P.mech_explicit_surface_closure(canonical,
+            "Attach the name field to every mapped marketplace in Bengaluru, India."),canonical)
+
+    def test_negative_surface_closure_does_not_flip_positive_sibling_relation(self):
+        region={"op":"REGION","place":"Palermo, Italy"}
+        inner={"op":"RELATE","relation":"within","threshold_km":2.0,
+               "left":select("coworking space",region),"right":select("bank",region)}
+        tree={"op":"RELATE","relation":"beyond","threshold_km":1.0,
+              "left":inner,"right":select("ATM",region)}
+        q="Which coworking spaces in Palermo are within 2 km of a bank but more than 1 km from an ATM?"
+        self.assertEqual(P.mech_explicit_surface_closure(tree,q),tree)
+
     def test_unchanged_mixed_geography_tree_is_not_rebound_by_late_closure(self):
         raw='{"op":"COMPARE","how":"difference","left":{"op":"SELECT","entity":' \
             '"labour force participation","region":{"op":"REGION","place":"France"},' \

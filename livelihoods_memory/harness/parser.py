@@ -2417,7 +2417,8 @@ def mech_explicit_surface_closure(ir, question):
             return {"op":"RELATE","relation":"within","threshold_km":d,"left":inner,"right":sel(anchors[1],region)}
 
     # Written negative-distance markers apply to the explicit relation regardless of numeral form.
-    if re.search(r"\b(?:more\s+than|farther\s+than)\b",ql) and isinstance(ir,dict):
+    relation_count=json.dumps(ir).count('"op": "RELATE"') if isinstance(ir,dict) else 0
+    if re.search(r"\b(?:more\s+than|farther\s+than)\b",ql) and relation_count == 1:
         def flip(n):
             if isinstance(n,list):return [flip(x) for x in n]
             if not isinstance(n,dict):return n
@@ -2570,7 +2571,9 @@ def mech_explicit_surface_closure(ir, question):
     rent=re.match(r"\s*attach\s+(.+?)\s+to\s+every\s+(.+?)\s+in\s+(.+?)[.?!]*$",question,re.I)
     if rent:
         layer,e_text,place=rent.groups();ee=ents(e_text)
-        if ee:
+        # Canonical connector fields may already be normalized (opening_hours, name, operator).
+        # Rebuild only a modifier-bearing unsupported literal that the generic binder truncated.
+        if ee and re.search(r"\b(?:verified|monthly|survey(?:ed)?|reported)\b",layer,re.I):
             layer=re.sub(r"\brents\b","rent",layer,flags=re.I)
             return {"op":"ANNOTATE","source":sel(ee[-1],{"op":"REGION","place":place}),"layer":layer}
     deictic_presence=re.match(r"\s*in\s+(.+?),\s*are\s+any\s+(.+?)\s+within\s+(.+?)\s+of\s+those[?!.]*$",question,re.I)
