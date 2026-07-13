@@ -235,3 +235,23 @@ contract, not a new parser operation.
 **Evidence:** rejected pre-contact candidates `h19-057` and `h19-062` in
 `questions/holdout-h19-generated.json`; admission record
 `chronology/20260713_round2_epoch_013_h19_admission.md`.
+
+## 2026-07-13 — Unbounded scalar change needs an interval policy
+
+**Question that forced it:** “How much did employment in agriculture change here?”
+
+**Why v2.1 is ambiguous:** the frozen convention says absent time is `null`, meaning the available
+series rather than a time hole. But “how much changed” requests one scalar difference and therefore
+needs two endpoints. Two independently invented time holes violate the null-time convention;
+duplicating the same null-time series on both sides produces a meaningless zero; silently choosing
+the first and last available observations hides a source-dependent interval.
+
+**Proposed change:** Codex/Fable should choose one protocol-level rule: either (a) compile an
+unbounded scalar change into a typed interval clarification with start/end slots, or (b) define an
+explicit available-range reduction whose returned provenance names the selected endpoints. Until
+that choice is released, such questions are ambiguity cases and benchmark authors may not invent
+endpoint holes ad hoc. Explicit two-year changes and ordinary unary trend requests remain
+unchanged.
+
+**Evidence:** declared bad gold `h19-013` in `questions/holdout-019.json` and independent H19
+adjudication in `chronology/20260713_round2_epoch_013_h19_first_contact.md`.
