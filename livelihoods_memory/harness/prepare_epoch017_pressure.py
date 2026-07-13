@@ -137,8 +137,27 @@ def prepare_h24():
 
 
 def main():
-    targets=(("questions/round2-h23-pressure.json",prepare_h23()),
-             ("questions/round2-h24-pressure.json",prepare_h24()))
+    h23_pressure = prepare_h23()
+    h24_pressure = prepare_h24()
+    h23_dev = json.loads(json.dumps(h23_pressure))
+    h24_dev = json.loads(json.dumps(h24_pressure))
+    h23_dev["note"] = ("H23 disclosed epoch-017 development release after first-contact "
+                       "adjudication; never blind evidence")
+    h24_dev["note"] = ("H24 disclosed epoch-017 development release after first-contact "
+                       "adjudication; never blind evidence")
+    # These two immutable pressure expectations were truthful before the connector census
+    # expanded. Verified World Bank Gini and OSM metro routes now ground them as Answers.
+    h24_dev_rows = {row["id"]: row for row in h24_dev["questions"]}
+    for row_id in ("h24-078", "h24-080"):
+        h24_dev_rows[row_id]["expect"] = "answer"
+    h24_dev["source_expansion"] = {
+        "h24-078": "OSM railway=station + station=subway verified in Bengaluru",
+        "h24-080": "World Bank SI.POV.GINI verified for Brazil, India, and Kenya",
+    }
+    targets=(("questions/round2-h23-pressure.json",h23_pressure),
+             ("questions/round2-h24-pressure.json",h24_pressure),
+             ("questions/round2-h23-dev.json",h23_dev),
+             ("questions/round2-h24-dev.json",h24_dev))
     for rel,payload in targets:
         path=ROOT/rel;path.write_text(json.dumps(payload,indent=2,ensure_ascii=False)+"\n")
         print(rel,len(payload["questions"]))

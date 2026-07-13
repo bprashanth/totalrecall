@@ -77,6 +77,10 @@ def _route_select(entity, region, time, prov):
     # world bank indicator?
     code, canon, ambig = C.wb_resolve_indicator(entity)
     if code:
+        if ambig:
+            prov.append({"op":"SELECT", "route":"worldbank", "resolved":canon,
+                         "ambiguous":ambig, "note":"distinct indicator mappings remain"})
+            raise DataRequest("ambiguous_entity", {"entity":entity, "alternatives":ambig})
         if not C.wb_resolve_iso(region):
             prov.append({"op":"SELECT", "route":"worldbank", "resolved":canon,
                          "note":"national indicator rejected for non-country scope"})
@@ -91,6 +95,10 @@ def _route_select(entity, region, time, prov):
     # osm point entity?
     tag, ocanon, oambig = C.osm_resolve_tag(entity)
     if tag:
+        if oambig and len({C.OSM_TAGS[key] for key in oambig}) > 1:
+            prov.append({"op":"SELECT", "route":"osm", "resolved":ocanon,
+                         "ambiguous":oambig, "note":"distinct OSM mappings remain"})
+            raise DataRequest("ambiguous_entity", {"entity":entity, "alternatives":oambig})
         out = C.osm_select(entity, region)
         prov.append({"op": "SELECT", "route": "osm", "resolved": ocanon,
                      "ambiguous": oambig, "note": out["note"]})

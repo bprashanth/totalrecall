@@ -405,3 +405,58 @@ remains proposed.
 
 **Evidence:** immutable `h22-043` and `h22-045`, direct gold execution adjudication, and executor
 regressions. Governance record: `EXEC-001`.
+
+## 2026-07-13 — Enforce the frozen IR's input types before execution
+
+**Failure that forced it:** H24 produced trees that placed scalar `AGGREGATE` results in
+Records-only inputs to `RELATE`, `AGGREGATE`, and `ESTIMATE`, and also placed a non-`REGION` node
+in `ESTIMATE.target`. The structural validator accepted them because it checked required children
+but not their declared types.
+
+**Proposed implementation requirement:** validators must encode every frozen operation signature,
+including value-or-node alternatives, and reject an invalid child type before execution or any
+connector call. This does not add an operation or alter v2.1 semantics; it makes the existing
+Records/Series/Scalar contract executable. Maintain an exhaustive valid/invalid composition
+matrix so a new executor branch cannot silently widen the schema.
+
+**Evidence:** H24 first-contact traces and the corrected fix2 replay in
+`runs/epoch017-pressure-fix2-h24/`; deterministic schema guards. Governance record: `BUG-005`.
+
+## 2026-07-13 — Constrained typed holes
+
+**Question that forced it:** “Count craft workshops within 1 km of a bus stop in the Indian focus
+city.”
+
+**Why v2.1 is lossy:** the focus city is unresolved but the country constraint is known. A plain
+`?place` loses India, `REGION(place="?place")` cannot express a fixed parent, and a synthetic name
+such as `?focus_city_in_India` preserves the constraint only for a human reader. The binder cannot
+validate the supplied city against it.
+
+**Proposed change:** allow clarification slots to carry a type plus machine-checkable constraints,
+for example a region slot constrained to `country=India`. Binding resolves and validates the
+candidate before substituting it; a mismatch remains a clarification rather than reaching a
+connector. This may live in the dialogue plan rather than the data kernel, but it must round-trip
+without hiding constraints in the hole name.
+
+**Evidence:** raw `h23-052`, its pre-contact admission normalization in
+`harness/prepare_epoch017_pressure.py`, and the disclosed H23 replay. Governance record: `ASK-005`.
+
+## 2026-07-13 — Spatial candidate generation and optimization
+
+**Question that forced it:** “Where should a micro-enterprise open to maximize foot traffic near
+informal markets in Nairobi?”
+
+**Why v2.1 cannot express it honestly:** `RANK` orders an already supplied list. It cannot generate
+candidate sites, define a feasible spatial domain, attach a measured or modelled foot-traffic
+objective, express constraints, or report optimization uncertainty. Compiling the request as a
+SELECT for “site suitability” merely turns an optimization problem into a phantom source entity.
+
+**Proposed change:** define candidate generation separately from optimization. A candidate-domain
+node should produce finite, provenance-bearing alternatives (user supplied, grid, parcels, or
+declared sites); an optimization node ranks them by a typed objective and explicit hard/soft
+constraints. Missing footfall evidence returns a typed DataRequest. Any inferred suitability must
+be labelled modelled and expose objective units, uncertainty, and sensitivity—not synthesized as
+an observed best location.
+
+**Evidence:** excluded raw pressure probe `h23-079` in
+`questions/holdout-h23-generated.json`. Governance record: `ALG-010`.

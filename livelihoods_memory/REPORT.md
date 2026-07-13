@@ -327,3 +327,27 @@ so they are disclosed development pressure and contribute no saturation passes.
 The preserved contact establishes 47 exact divergences to adjudicate before epoch 017 can freeze.
 The counter remains zero. After generalized absorption and another complete wall, all countable
 saturation banks must be newly authored from the resulting checksum boundary.
+
+### Round 2 checkpoint 9 — pressure absorbed, boundary still not frozen
+
+Independent adjudication found 46 compiler-bearing divergences across the two pressure banks plus
+one strict-audit equivalence defect. Generalized repairs move H23 from 8/40 to 40/40 strict and H24
+from 25/40 to 40/40; 114 deterministic tests pass. The separate disclosed development releases
+score 1.000 ordinarily and 40/40 strictly. None of those replays count toward saturation.
+
+This round materially strengthened evidence honesty. A zero-overlap entity-restoration bug and
+uncontrolled resolver prefix/subset matching could turn unsupported restrictive phrases into
+plausible answers from broader OSM entities. The resolver now fails closed except for declared
+aliases, and legacy unsafe gold assumptions are quarantined. Frozen IR signatures are enforced
+before execution. Verified World Bank Gini and OSM metro routes expand the live source census to
+14/14 probes across four tested families.
+
+The governance ledger now carries additional reviewable proposals: complete input-type validation
+(`BUG-005`), constrained typed holes (`ASK-005`), and spatial candidate generation/optimization
+(`ALG-010`), with expanded evidence for fail-closed resolver morphology (`BUG-003`). These are
+proposals for orchestrator/Fable reconciliation, not silent changes to algebra v2.1.
+
+Because parser, connector, schema, executor, and audit code changed, the prior 1,076-row wall is
+retired. The next required step is another complete all-bank wall, corpus/dialogue/source
+certification, and an epoch-017 checksum freeze. Only banks newly generated after that freeze may
+start the three-contact saturation sequence.
