@@ -1,0 +1,125 @@
+{
+  "schema_version": "framework-proposals-v1",
+  "proposals": [
+    {
+      "id": "EVD-001",
+      "title": "Connector-declared evidence labels",
+      "scope": "connector-contract",
+      "status": "validated",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroboration": ["transport_memory/spec-proposals.md"],
+      "resolution": "Connector metadata may label an upstream result observed, modelled, or proxy; SELECT propagates the label without adding a parser op.",
+      "target": "algebra-v2.2",
+      "required_tests": ["connector evidence-label propagation", "default observed compatibility", "provenance reason retained"]
+    },
+    {
+      "id": "ALG-001",
+      "title": "Positive entity union",
+      "scope": "algebra",
+      "status": "validated",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroboration": ["transport_memory/spec-proposals.md"],
+      "resolution": "Adopt the common positive case as list-valued SELECT.entity with deterministic union and deduplication; do not imply general intersection or difference.",
+      "target": "algebra-v2.2",
+      "required_tests": ["multi-entity routing", "deduplication", "evidence taint join", "De Morgan negated-union regression"]
+    },
+    {
+      "id": "ALG-002",
+      "title": "Typed FILTER over records and source dimensions",
+      "scope": "algebra",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroboration": ["transport_memory/spec-proposals.md"],
+      "dependencies": ["typed connector field declarations"],
+      "required_tests": ["record attribute predicates", "official-statistic dimensions", "unknown field DataRequest", "predicate type errors", "provenance counts"]
+    },
+    {
+      "id": "ALG-003",
+      "title": "Partitioned GROUP",
+      "scope": "algebra",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroboration": ["transport_memory/spec-proposals.md"],
+      "dependencies": ["ALG-002 field resolver", "typed keyed-result contract"],
+      "required_tests": ["single and multiple group keys", "unit-preserving metrics", "missing partitions", "no implicit flattening"]
+    },
+    {
+      "id": "ALG-004",
+      "title": "General record-set intersection and difference",
+      "scope": "algebra",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "dependencies": ["record identity contract"],
+      "note": "The positive union subset is already ALG-001; this proposal covers only semantics not supplied by list-valued SELECT.entity.",
+      "required_tests": ["same-source identity", "cross-source identity refusal", "intersection", "difference", "schema compatibility"]
+    },
+    {
+      "id": "ALG-005",
+      "title": "Unit-tagged derived arithmetic",
+      "scope": "algebra",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroboration": ["transport_memory/spec-proposals.md"],
+      "dependencies": ["typed units", "grain co-scoping", "alignment rules"],
+      "required_tests": ["valid derived rate", "scale", "unit mismatch refusal", "grain mismatch refusal", "zero denominator"]
+    },
+    {
+      "id": "ALG-006",
+      "title": "Distribution-valued aggregation",
+      "scope": "algebra",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroboration": ["transport_memory/spec-proposals.md"],
+      "dependencies": ["typed aggregate specification"],
+      "required_tests": ["median", "quantile", "histogram policy", "null policy", "exact versus approximate provenance"]
+    },
+    {
+      "id": "ALG-007",
+      "title": "Explicit temporal alignment and vintage",
+      "scope": "algebra",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroboration": ["transport_memory/spec-proposals.md"],
+      "dependencies": ["calendar and frequency metadata"],
+      "required_tests": ["inner and outer calendar joins", "missingness certificate", "lag", "interpolation refusal/default", "vintage selection"]
+    },
+    {
+      "id": "ALG-008",
+      "title": "Epistemic CORROBORATE or VERIFY",
+      "scope": "claim-layer",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "dependencies": ["EVD-001", "ALG-005", "ALG-007", "measure-definition compatibility", "lineage metadata"],
+      "required_tests": ["agreement", "conflict", "incomparable definitions", "shared-lineage non-independence", "tolerance provenance"]
+    },
+    {
+      "id": "PLN-001",
+      "title": "Multi-clause completeness",
+      "scope": "dialogue-protocol",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroboration": ["transport_memory/spec-proposals.md"],
+      "note": "The evidence supports mandatory clause completeness. Whether a BUNDLE is needed remains separate from the currently preferred upstream clause split.",
+      "required_tests": ["no silent half-golds", "independent clause split", "dependency detection", "labelled answer completeness"]
+    },
+    {
+      "id": "ASK-001",
+      "title": "Causal requests remain typed asks",
+      "scope": "protocol",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "resolution_candidate": "Compile causal intent to a typed DataRequest unless a future claim layer carries an explicit identification design; never overload observational COMPARE or ESTIMATE.",
+      "required_tests": ["causal wording detection", "typed treatment/outcome/population/time ask", "no observational causal assertion"]
+    },
+    {
+      "id": "SAT-001",
+      "title": "Discovery-rate saturation protocol",
+      "scope": "saturation-protocol",
+      "status": "proposed",
+      "source": "livelihoods_memory/ROUND2.md",
+      "corroboration": ["transport_memory/ROUND2.md"],
+      "resolution_candidate": "Saturation requires coverage and breaker pressure plus three consecutive post-freeze untouched holdouts of at least 40 rows, a flat discovery curve, complete guards, and immutable checksums.",
+      "required_tests": ["freeze invalidation", "holdout provenance", "three-bank sequence", "discovery classification", "corpus leakage audit"]
+    }
+  ]
+}
