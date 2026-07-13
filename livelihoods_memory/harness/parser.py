@@ -2624,6 +2624,10 @@ def mech_transfer_source_expression(ir, question):
 
     existing=(ir.get("source") if isinstance(ir,dict) and ir.get("op")=="ESTIMATE" else None)
     composite=bool(isinstance(existing,dict) and existing.get("op") in ("RELATE","ANNOTATE"))
+    if composite and existing.get("op")=="RELATE" and re.search(r"\bwhich\s+amenity\b",ql):
+        existing=json.loads(json.dumps(existing))
+        if isinstance(existing.get("right"),dict) and existing["right"].get("op")=="SELECT":
+            existing["right"]["entity"]="?anchor_amenity"
     named=list(dict.fromkeys(k for _,_,k in _entity_occurrences(question,osm_only=True)))
     source=existing if composite else first
     if named and not composite:

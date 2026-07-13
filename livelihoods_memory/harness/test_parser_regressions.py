@@ -1584,6 +1584,14 @@ class ParserRegressionTests(unittest.TestCase):
             "Using Casablanca food vendors within 0.6 km of banks, envelope an estimate for Mohammedia.")
         self.assertEqual((rebuilt["source"]["op"],rebuilt["source"]["left"]["entity"]),
                          ("RELATE","food vendors"))
+        self_join={"op":"ESTIMATE","method":"interpolate","source":{
+            "op":"RELATE","relation":"within","threshold_km":0.6,
+            "left":select("craft workshop",{"op":"REGION","place":"Niamey"}),
+            "right":select("craft workshop",{"op":"REGION","place":"Niamey"})},
+            "target":{"op":"REGION","place":"Maradi"}}
+        holed=P.mech_transfer_source_expression(self_join,
+            "From Niamey craft workshops within 0.6 km of which amenity, interpolate a field for Maradi.")
+        self.assertEqual(holed["source"]["right"]["entity"],"?anchor_amenity")
 
     def test_full_rank_k_is_canonical_identity(self):
         items=[select("bank",{"op":"REGION","place":p}) for p in ("A","B","C")]
