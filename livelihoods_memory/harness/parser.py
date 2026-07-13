@@ -306,13 +306,39 @@ def faithfulness_pass(ir, question):
 
 
 def bind_named_indicator(ir, question):
-    """A ?indicator is not a real hole when the question names one unique verified indicator.
-    Bind from trusted resolver vocabulary; never infer bare 'employment' or bind ?proxy."""
+    """Bind one uniquely named verified statistic across its SELECT leaves.
+
+    This is intentionally source-family neutral. A small-model leaf such as `labor slack`,
+    `person`, or even a different supported labor indicator must not survive when the question
+    names exactly one ILO/Eurostat/WB measure. Mixed-measure questions remain untouched.
+    """
     if not isinstance(ir, dict):
         return ir
     import connectors as C
-    code, canon, ambig = C.wb_resolve_indicator(question)
-    if not code or ambig:
+    named=[]
+    for _,_,entity in _entity_occurrences(question):
+        if (C.ilo_resolve_indicator(entity)[0] or C.eurostat_resolve_indicator(entity)[0] or
+                C.wb_resolve_indicator(entity)[0]):
+            named.append(entity)
+    named=list(dict.fromkeys(named))
+    if len(named) != 1:
+        return ir
+    canon=named[0]
+
+    existing=set()
+    def collect_existing(value):
+        if isinstance(value,list):
+            for item in value:collect_existing(item)
+        elif isinstance(value,dict):
+            if value.get("op")=="SELECT":
+                entity=str(value.get("entity"))
+                resolved=(C.ilo_resolve_indicator(entity)[0] or
+                          C.eurostat_resolve_indicator(entity)[0] or
+                          C.wb_resolve_indicator(entity)[0])
+                if resolved:existing.add(json.dumps(resolved,sort_keys=True))
+            for child in value.values():collect_existing(child)
+    collect_existing(ir)
+    if len(existing)>1:
         return ir
 
     def walk(v):
@@ -321,7 +347,21 @@ def bind_named_indicator(ir, question):
         if isinstance(v, list):
             return [walk(x) for x in v]
         if isinstance(v, dict):
-            return {k: walk(x) for k, x in v.items()}
+            out={k:walk(x) for k,x in v.items()}
+            if out.get("op")=="SELECT" and isinstance(out.get("entity"),str) \
+                    and out["entity"] != "?proxy" and not C.osm_resolve_tag(out["entity"])[0]:
+                current=out["entity"]
+                current_target=(C.ilo_resolve_indicator(current)[0] or
+                                C.eurostat_resolve_indicator(current)[0] or
+                                C.wb_resolve_indicator(current)[0])
+                canon_target=(C.ilo_resolve_indicator(canon)[0] or
+                              C.eurostat_resolve_indicator(canon)[0] or
+                              C.wb_resolve_indicator(canon)[0])
+                current_tokens=set(_phrase_norm(current).split())
+                canon_tokens=set(_phrase_norm(canon).split())
+                if current_target != canon_target and not canon_tokens <= current_tokens:
+                    out["entity"]=canon
+            return out
         return v
     return walk(ir)
 
@@ -613,6 +653,9 @@ def _stat_operand_from_clause(text, year, fallback=None):
         remainder = re.sub(r"\b(?:world bank|eurostat|ilostat|ilo|national|reported|rate|"
                            r"percentage|share|value|its|the|s)\b", " ", remainder)
         remainder = re.sub(r"\b(?:19|20)\d{2}\b", " ", remainder)
+        remainder = re.sub(r"^(?:what\s+(?:was|is)|compare|show|give\s+me)\s+", "", remainder)
+        remainder = re.sub(r"\s+(?:preserve|keep)\s+(?:that|the)\s+left\s+right\s+order.*$",
+                           "", remainder)
         remainder = re.sub(r"^(?:for|in|of)\s+|\s+(?:for|in|of)$", "", remainder.strip())
         place = " ".join(remainder.split())
     if not place and isinstance(fallback, dict):
@@ -1405,14 +1448,28 @@ def mech_prefixed_statistic(ir, question):
                      question, re.I)
     if not match: return ir
     place, heading_year, body = match.groups()
+    place=re.sub(r"^(?:analyst\s+note|note|briefing)\s*:\s*","",place,flags=re.I).strip()
     back_year=re.search(r"\s+back\s+in\s+((?:19|20)\d{2})\s*$",place,re.I)
     if back_year:
         heading_year=heading_year or back_year.group(1)
         place=place[:back_year.start()].strip()
+    # A dash after a narrative preamble is punctuation, not a PLACE heading. The prior broad
+    # match turned “I'm a freelance consultant — ... in Kenya” into an unresolved region.
+    if re.search(r"\b(?:i\s+am|i\s+m|my|for\s+the|actually|just\s+need|thinking|worried|"
+                 r"consultant|scrap)\b",_phrase_norm(place)):
+        return ir
+    years=re.findall(r"\b(?:19|20)\d{2}\b",question)
+    # Analyst heading with an explicit endpoint difference: PLACE+MEASURE appears before the
+    # dash, so compile that clause directly rather than sending an invalid raw tree to repair.
+    if re.search(r"\bdifference\b",body,re.I) and len(set(years))==2:
+        y1,y2=sorted(set(years),key=int)
+        left=_stat_operand_from_clause(place,y2)
+        right=_stat_operand_from_clause(place,y1)
+        if left and right:
+            return {"op":"COMPARE","how":"difference","left":left,"right":right}
     if re.search(r"\b(?:minus|divided|ratio|rank|order|estimate|transfer|within|beyond|distance)\b|/",
                  body,re.I):
         return ir
-    years=re.findall(r"\b(?:19|20)\d{2}\b",question)
     region={"op":"REGION","place":place.strip(" ,")}
     occurrences=_entity_occurrences(body)
     entity=None
@@ -1616,6 +1673,7 @@ def mech_nearest_distance(ir, question):
         found = _entity_occurrences(text)
         if found: return max(found, key=lambda item: item[1] - item[0])[2]
         value = re.sub(r"^(?:a|an|the)\s+", "", text.strip(" ,.;:?"), flags=re.I)
+        value = re.sub(r"^(?:their|its)\s+(?:nearest|closest)\s+", "", value, flags=re.I)
         if value.lower().endswith("ies"): value = value[:-3] + "y"
         elif value.lower().endswith("s"): value = value[:-1]
         return value
@@ -2002,7 +2060,8 @@ def mech_behavior_proxy(ir, question):
     """Preference/motivation/usage-likelihood claims need a proxy, never facility arithmetic."""
     ql=question.lower()
     personal_goal=bool(re.search(r"\bwhere\b.+\bcould\s+i\b.+\b(?:sell|meet|withdraw|work)\b",ql) or
-                       re.search(r"\bto\s+(?:start\s+earning|sell\s+things)\b.+\bwhere\s+should\s+i\s+go\b",ql))
+                       re.search(r"\bto\s+(?:start\s+earning|sell\s+things|learn\s+a\s+trade)\b"
+                                 r".+\bwhere\s+should\s+i\s+go\b",ql))
     human_cluster=bool(re.search(r"\bwhere\s+do\s+.+?\b(?:workers|people|residents|freelancers|"
                                  r"vendors|traders)\b.+?\b(?:cluster|gather|congregate)\b",ql))
     if not (personal_goal or human_cluster or
@@ -2355,11 +2414,36 @@ def mech_source_gap_select(ir, question):
         r"(?:a|an|the)\s+(.+?)[.?!]*$",question,re.I)
     if literal_relation:
         left_entity,place,distance,right_entity=(x.strip(" ,") for x in literal_relation.groups())
+        if (json.dumps(ir).count('"RELATE"') >= 2 or
+                re.search(r"\b(?:but|and|yet)\s+(?:not\s+within|within|beyond|more\s+than)",
+                          right_entity,re.I)):
+            return ir
         if not is_supported(left_entity) or not is_supported(right_entity):
             region={"op":"REGION","place":place};return {
                 "op":"RELATE","relation":"within","threshold_km":_parse_dist_km(distance),
                 "left":{"op":"SELECT","entity":left_entity,"region":region,"time":None},
                 "right":{"op":"SELECT","entity":right_entity,"region":region,"time":None}}
+
+    # Preserve a restrictive or unresolved anchor even when the question carries a narrative
+    # preamble. `main marketplace` must not execute as every marketplace. Deictic suffixes such
+    # as `by me`/`here` are normalized later while their region remains a hole.
+    anchor_relation=re.search(
+        r"\bwhich\s+(.+?)\s+are\s+within\s+(.+?)\s+of\s+(?:a|an|the)\s+(.+?)[.?!]*$",
+        question,re.I)
+    if anchor_relation and isinstance(ir,dict) and ir.get("op")=="RELATE":
+        _,distance,right_entity=(x.strip(" ,") for x in anchor_relation.groups())
+        semantic_entity=re.sub(
+            r"(?:\s+there|\s*,?\s+in\s+(?:this|that|the)\s+(?:place|city|area)\b.*)$",
+            "",right_entity,flags=re.I).strip(" ,")
+        if not re.search(r"\b(?:but|and|yet)\s+(?:not\s+within|within|beyond|more\s+than)",
+                         right_entity,re.I) \
+                and not is_supported(semantic_entity):
+            out=json.loads(json.dumps(ir))
+            if isinstance(out.get("right"),dict) and out["right"].get("op")=="SELECT":
+                out["right"]["entity"]=right_entity
+                parsed=_parse_dist_km(distance)
+                if parsed is not None:out["threshold_km"]=parsed
+                return out
 
     recorded=re.match(r"\s*how\s+many\s+(.+?)\s+are\s+recorded\s+in\s+(.+?)[.?!]*$",
                       question,re.I)
@@ -2484,7 +2568,7 @@ def mech_source_gap_select(ir, question):
     # phrase "female-to-male ... ratio" is not itself a connector entity and must not cause this
     # late source-gap pass to erase a valid COMPARE synthesized earlier in the pipeline.
     if isinstance(ir, dict) and ir.get("op") == "COMPARE" and re.search(
-            r"\b(?:ratio|difference|subtract|minus|divid)\w*\b", question, re.I):
+            r"\b(?:ratio|difference|gap|subtract|minus|divid)\w*\b", question, re.I):
         return ir
     # Only apply when the phrase is not already a supported connector measure.
     if (C.ilo_resolve_indicator(entity)[0] or C.eurostat_resolve_indicator(entity)[0]
@@ -2538,6 +2622,10 @@ def mech_deictic_roles(ir, question):
             return out
 
         entity = str(out.get("entity", ""))
+        if parent_op == "RELATE" and side == "right" and (by_me or unresolved_here):
+            cleaned=re.sub(r"\s+(?:(?:by|near|beside)\s+me|here)\s*$","",entity,flags=re.I)
+            if _phrase_norm(cleaned) == "market":cleaned="marketplace"
+            if cleaned:out["entity"]=cleaned
         if workshop_anaphor and parent_op in ("COMPARE", "AGGREGATE", "RANK"):
             # In a count comparison the antecedent subtype, not merely "workshop", is missing.
             if re.search(r"\b(?:craft|artisan|workshop)\b", _phrase_norm(entity)):
@@ -2594,6 +2682,17 @@ def mech_explicit_change(ir, question):
     if len(years) != 2:
         return ir
     y1, y2 = years
+
+    direct=re.search(
+        r"\b(?:how\s+much|by\s+how\s+much)\s+did\s+(.+?)\s+in\s+(.+?)\s+change\s+"
+        r"(?:between|from)\s+(?:19|20)\d{2}\s+(?:and|to)\s+(?:19|20)\d{2}",
+        question,re.I)
+    if direct:
+        entity,place=direct.groups()
+        left=_stat_operand_from_clause(f"{place} {entity}",y2)
+        right=_stat_operand_from_clause(f"{place} {entity}",y1)
+        if left and right:
+            return {"op":"COMPARE","how":"difference","left":left,"right":right}
 
     sels = []
     def collect(n):
@@ -3029,6 +3128,10 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     if json.dumps(ir) != before:
         events.append("mech_synthesis:answer_form_comparison_or_behavior")
     before = json.dumps(ir)
+    ir = bind_named_indicator(ir, question)
+    if json.dumps(ir) != before:
+        events.append("binder:unique_named_statistic")
+    before = json.dumps(ir)
     ir = mech_series_types(ir, question)
     if json.dumps(ir) != before:
         events.append("typecheck:invalid_series_aggregate_removed")
@@ -3127,7 +3230,8 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
                    mech_nearest_distance,
                    mech_relation_comparisons, mech_spatial_arithmetic, mech_requested_reduction,
                    mech_comparison_mode, mech_behavior_proxy, mech_transfer_contract,
-                   mech_transfer_relational_source, mech_series_types, mech_explicit_point_time,
+                   mech_transfer_relational_source, bind_named_indicator, mech_series_types,
+                   mech_explicit_point_time,
                    mech_explicit_window_time, mech_time_faithfulness, mech_unresolved_point_time,
                    mech_since_time, mech_source_gap_select,
                    mech_generic_entity_hole, mech_abstract_rate_hole,

@@ -506,3 +506,18 @@ Live/cache-backed verification added World Bank Gini (`SI.POV.GINI`) for Brazil,
 and OSM metro stations in Bengaluru. Source census is 14/14 across ILOSTAT, Eurostat, World Bank
 Gini, and OSM metro families. H24's immutable DataRequest expectations remain preserved; its
 disclosed development metadata expects the two newly grounded Answers.
+
+## 2026-07-13 — Two rejected epoch-017 walls expose late-pass interference [PARSER/HARNESS]
+
+Wall v3 exposed 36 strict mismatches after resolver hardening and also revealed that H22's 36-row
+development release was missing from the freeze bank list. Thirteen failures came from late
+source-gap repair erasing already-complete mixed comparisons or nested relations; six came from
+mistaking narrative em-dash preambles for place headings. The rest required unique named-statistic
+reconciliation, deictic locative cleanup, idiomatic behavior handling, operand-clause cleanup, or
+two exact reviewed aliases. Targeted v4 replays close all affected banks, including H22.
+
+Complete wall v5 then exposed `h3-044`'s “but not within” conjunction variant and a late pass
+overwriting Madrid's reviewed regional unemployment interpretation. Both were guarded and targeted
+replays are exact. Judge decision: v3 and v5 are rejected evidence, never certification. The
+breakers file remains checksummed proposal/coverage evidence but is not a runnable bank schema.
+Full narrative: `chronology/20260713_round2_epoch_017_wall_rejections.md`.
