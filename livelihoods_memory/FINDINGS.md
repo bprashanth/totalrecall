@@ -432,3 +432,15 @@ curated statistical regions are geocoded with country qualification; region-reso
 return typed DataRequests. Judge decision: implicit geographic coarsening is an evidence defect,
 not a convenient fallback. SRC-003 proposes a general connector scope certificate and corroborates
 BUG-002.
+
+## 2026-07-13 — Epoch 016 certified after two rejected walls [PARSER/CONNECTOR/HARNESS]
+
+The final v3 wall passes ordinary 1,040/1,040 and strict 1,038/1,038 eligible across 24 banks and
+34 skeletons. The two noneligible strict mismatches are the declared `gen-001` defects. Dialogue
+passes 5/5 on both binding paths, source census passes 10/10, 92/92 regressions pass, and corpus
+output contains 1,052 unique parse plus five clarification rows.
+
+Judge decision: the v1 and v2 wall attempts do not count. V1 revealed H19's latent Warsaw
+source-truncation expectation defect after geocoder correction. V2 revealed a late source-gap pass
+overwriting correct arithmetic. Each change reset the wall and forced all banks to rerun. Epoch 016
+starts with saturation counter zero; only post-freeze H22+ contacts may increment it.

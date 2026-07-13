@@ -1,7 +1,7 @@
 {
   "schema_version": "round2-coverage-v1",
   "summary": {
-    "question_count": 1000,
+    "question_count": 1040,
     "by_bank": {
       "gen-001.json": 17,
       "gen-002-indirect.json": 11,
@@ -19,6 +19,7 @@
       "round2-h19-dev.json": 38,
       "round2-h2-dev.json": 37,
       "round2-h20-dev.json": 37,
+      "round2-h21-dev.json": 40,
       "round2-h3-dev.json": 39,
       "round2-h4-dev.json": 37,
       "round2-h5-dev.json": 39,
@@ -28,71 +29,71 @@
       "seed.json": 24
     },
     "by_type": {
-      "AMBIGUOUS": 78,
+      "AMBIGUOUS": 87,
       "BEHAVIOUR": 42,
-      "CHANGE": 147,
-      "COMPOSITE": 194,
-      "RANKING": 93,
-      "RELATION": 92,
-      "STATE": 169,
-      "TRANSFER": 58,
-      "TREND": 92,
+      "CHANGE": 148,
+      "COMPOSITE": 202,
+      "RANKING": 106,
+      "RELATION": 93,
+      "STATE": 175,
+      "TRANSFER": 59,
+      "TREND": 93,
       "VALUE": 35
     },
     "by_expect": {
-      "answer": 791,
-      "answer_or_data_request": 72,
-      "data_request": 137
+      "answer": 803,
+      "answer_or_data_request": 87,
+      "data_request": 150
     },
     "by_source": {
-      "eurostat": 170,
-      "hole": 79,
-      "ilostat": 145,
+      "eurostat": 181,
+      "hole": 81,
+      "ilostat": 155,
       "none": 2,
-      "osm-overpass": 439,
-      "unknown": 13,
-      "world-bank": 180
+      "osm-overpass": 452,
+      "unknown": 16,
+      "world-bank": 193
     },
     "by_grain": {
-      "city-bbox/point-record": 439,
-      "country/annual-series": 180,
-      "country/annual-survey-series": 145,
-      "nuts2/annual-survey-series": 170,
-      "unknown": 13,
-      "unresolved": 79,
+      "city-bbox/point-record": 452,
+      "country/annual-series": 193,
+      "country/annual-survey-series": 155,
+      "nuts2/annual-survey-series": 181,
+      "unknown": 16,
+      "unresolved": 81,
       "unsupported": 2
     },
     "by_time_form": {
-      "point": 348,
-      "unspecified": 545,
-      "window": 107
+      "point": 372,
+      "unspecified": 560,
+      "window": 108
     },
     "by_relation": {
-      "beyond": 63,
+      "beyond": 64,
       "cooccur": 11,
-      "distance": 9,
-      "within": 153
+      "distance": 10,
+      "within": 157
     },
     "by_aggregate_metric": {
-      "count": 159,
-      "density": 6,
-      "mean": 111,
-      "presence": 63
+      "count": 163,
+      "density": 8,
+      "mean": 113,
+      "presence": 64
     },
     "by_compare_mode": {
-      "difference": 224,
-      "ratio": 60,
-      "trend_direction": 99
+      "difference": 235,
+      "ratio": 65,
+      "trend_direction": 101
     },
     "by_estimate_method": {
-      "envelope": 59
+      "envelope": 60
     },
     "by_rank_order": {
-      "asc": 33,
-      "desc": 77
+      "asc": 35,
+      "desc": 90
     },
     "by_capability_family": {
-      "None": 786,
+      "None": 826,
       "ambiguity": 10,
       "annotate": 6,
       "bounded_trend": 28,
@@ -109,16 +110,16 @@
       "window_select": 26
     },
     "op_occurrences": {
-      "AGGREGATE": 467,
+      "AGGREGATE": 482,
       "ANNOTATE": 36,
-      "COMPARE": 399,
-      "ESTIMATE": 59,
-      "RANK": 110,
-      "REGION": 1863,
-      "RELATE": 278,
-      "SELECT": 1876
+      "COMPARE": 439,
+      "ESTIMATE": 60,
+      "RANK": 125,
+      "REGION": 2006,
+      "RELATE": 287,
+      "SELECT": 2018
     },
-    "unique_skeletons": 31,
+    "unique_skeletons": 34,
     "adversarial_count": 0
   },
   "rows": [
@@ -25405,7 +25406,7 @@
       "id": "h19-008",
       "bank": "round2-h19-dev.json",
       "type": "RELATION",
-      "expect": "answer",
+      "expect": "data_request",
       "skeleton": "AGGREGATE(RELATE(RELATE(SELECT,SELECT),SELECT))",
       "ops": {
         "AGGREGATE": 1,
@@ -29897,6 +29898,1753 @@
       "estimate_methods": [
         "envelope"
       ],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-001",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT))",
+      "ops": {
+        "COMPARE": 3,
+        "RANK": 1,
+        "REGION": 6,
+        "SELECT": 6
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "self employment"
+      ],
+      "regions": [
+        "Ghana",
+        "India",
+        "Kenya"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-002",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT))",
+      "ops": {
+        "COMPARE": 3,
+        "RANK": 1,
+        "REGION": 6,
+        "SELECT": 6
+      },
+      "sources": [
+        "ilostat"
+      ],
+      "grain": [
+        "country/annual-survey-series"
+      ],
+      "entities": [
+        "average weekly hours worked"
+      ],
+      "regions": [
+        "France",
+        "Germany",
+        "Spain"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [
+        "asc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-003",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT))",
+      "ops": {
+        "COMPARE": 6,
+        "RANK": 1,
+        "REGION": 12,
+        "SELECT": 12
+      },
+      "sources": [
+        "eurostat"
+      ],
+      "grain": [
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "employment rate"
+      ],
+      "regions": [
+        "Berlin region",
+        "Catalonia",
+        "Ile de France",
+        "Lombardy",
+        "Madrid region",
+        "Warsaw capital region"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        6
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-004",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer_or_data_request",
+      "skeleton": "RANK(COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT))",
+      "ops": {
+        "COMPARE": 8,
+        "RANK": 1,
+        "REGION": 16,
+        "SELECT": 16
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "youth unemployment"
+      ],
+      "regions": [
+        "France",
+        "Germany",
+        "Ghana",
+        "India",
+        "Italy",
+        "Kenya",
+        "Poland",
+        "Spain"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        8
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-005",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(SELECT,SELECT,SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 5,
+        "SELECT": 5
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "self employment"
+      ],
+      "regions": [
+        "France",
+        "Germany",
+        "Ghana",
+        "India",
+        "Kenya"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        5
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-006",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer_or_data_request",
+      "skeleton": "RANK(SELECT,SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 4,
+        "SELECT": 4
+      },
+      "sources": [
+        "ilostat"
+      ],
+      "grain": [
+        "country/annual-survey-series"
+      ],
+      "entities": [
+        "labour underutilization rate"
+      ],
+      "regions": [
+        "France",
+        "Germany",
+        "Kenya",
+        "Spain"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        4
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-007",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(SELECT,SELECT,SELECT,SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 6,
+        "SELECT": 6
+      },
+      "sources": [
+        "eurostat"
+      ],
+      "grain": [
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "employed persons"
+      ],
+      "regions": [
+        "Berlin region",
+        "Catalonia",
+        "Ile de France",
+        "Lombardy",
+        "Madrid region",
+        "Warsaw capital region"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        6
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-008",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT))",
+      "ops": {
+        "COMPARE": 4,
+        "RANK": 1,
+        "REGION": 8,
+        "SELECT": 8
+      },
+      "sources": [
+        "eurostat"
+      ],
+      "grain": [
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "employment rate"
+      ],
+      "regions": [
+        "Berlin region",
+        "Catalonia",
+        "Lombardy",
+        "Warsaw capital region"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [
+        "asc"
+      ],
+      "rank_sizes": [
+        4
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-009",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer_or_data_request",
+      "skeleton": "RANK(SELECT,SELECT,SELECT,SELECT,SELECT,SELECT,SELECT,SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 10,
+        "SELECT": 10
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "employment in agriculture"
+      ],
+      "regions": [
+        "Brazil",
+        "France",
+        "Germany",
+        "Ghana",
+        "India",
+        "Italy",
+        "Kenya",
+        "Poland",
+        "South Africa",
+        "Spain"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        10
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-010",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer_or_data_request",
+      "skeleton": "RANK(COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT),COMPARE(SELECT,SELECT))",
+      "ops": {
+        "COMPARE": 4,
+        "RANK": 1,
+        "REGION": 8,
+        "SELECT": 8
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "wage and salaried workers"
+      ],
+      "regions": [
+        "Ghana",
+        "India",
+        "Kenya",
+        "South Africa"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "ratio"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        4
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-029",
+      "bank": "round2-h21-dev.json",
+      "type": "RELATION",
+      "expect": "data_request",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass",
+        "unknown"
+      ],
+      "grain": [
+        "city-bbox/point-record",
+        "unknown"
+      ],
+      "entities": [
+        "craft workshop",
+        "vocational training centre"
+      ],
+      "regions": [
+        "Accra, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        1
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-032",
+      "bank": "round2-h21-dev.json",
+      "type": "STATE",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "unknown"
+      ],
+      "grain": [
+        "unknown"
+      ],
+      "entities": [
+        "median monthly earnings of street vendors"
+      ],
+      "regions": [
+        "India"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-033",
+      "bank": "round2-h21-dev.json",
+      "type": "STATE",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "unknown"
+      ],
+      "grain": [
+        "unknown"
+      ],
+      "entities": [
+        "share of home based women workers"
+      ],
+      "regions": [
+        "Ghana"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-037",
+      "bank": "round2-h21-dev.json",
+      "type": "COMPOSITE",
+      "expect": "answer_or_data_request",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "eurostat",
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series",
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "employment rate",
+        "labor force participation"
+      ],
+      "regions": [
+        "France",
+        "Ile de France"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-038",
+      "bank": "round2-h21-dev.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "ilostat",
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series",
+        "country/annual-survey-series"
+      ],
+      "entities": [
+        "informal employment rate",
+        "self employment"
+      ],
+      "regions": [
+        "France"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "ratio"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-039",
+      "bank": "round2-h21-dev.json",
+      "type": "COMPOSITE",
+      "expect": "answer_or_data_request",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "eurostat",
+        "ilostat"
+      ],
+      "grain": [
+        "country/annual-survey-series",
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "female employment rate",
+        "female informal employment rate"
+      ],
+      "regions": [
+        "Berlin region",
+        "Germany"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-040",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "eurostat",
+        "ilostat",
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series",
+        "country/annual-survey-series",
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "labour underutilization rate",
+        "unemployment rate",
+        "youth unemployment"
+      ],
+      "regions": [
+        "Madrid region",
+        "Spain"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-041",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer_or_data_request",
+      "skeleton": "RANK(SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "eurostat",
+        "ilostat",
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series",
+        "country/annual-survey-series",
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "employment rate",
+        "informal employment rate",
+        "self employment"
+      ],
+      "regions": [
+        "India",
+        "Kenya",
+        "Lombardy"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-042",
+      "bank": "round2-h21-dev.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(SELECT,SELECT,SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 5,
+        "SELECT": 5
+      },
+      "sources": [
+        "eurostat",
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series",
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "employment rate",
+        "unemployment"
+      ],
+      "regions": [
+        "Berlin region",
+        "Ghana",
+        "Ile de France",
+        "India",
+        "Kenya"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        5
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-043",
+      "bank": "round2-h21-dev.json",
+      "type": "COMPOSITE",
+      "expect": "answer_or_data_request",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "ilostat"
+      ],
+      "grain": [
+        "country/annual-survey-series"
+      ],
+      "entities": [
+        "female average weekly hours worked",
+        "male average weekly hours worked"
+      ],
+      "regions": [
+        "Germany"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "ratio"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-044",
+      "bank": "round2-h21-dev.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "eurostat",
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series",
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "unemployment",
+        "unemployment rate"
+      ],
+      "regions": [
+        "Berlin region",
+        "Germany"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "ratio"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-045",
+      "bank": "round2-h21-dev.json",
+      "type": "COMPOSITE",
+      "expect": "answer_or_data_request",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "ilostat",
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series",
+        "country/annual-survey-series"
+      ],
+      "entities": [
+        "employment in services",
+        "informal employment rate"
+      ],
+      "regions": [
+        "Ghana",
+        "Kenya"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-046",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "?place"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-047",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop"
+      ],
+      "regions": [
+        "?place"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "presence"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-048",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space",
+        "market"
+      ],
+      "regions": [
+        "?anchor_place",
+        "Accra, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        1
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?anchor_place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-049",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "market"
+      ],
+      "regions": [
+        "?third_city",
+        "Accra, Ghana",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [
+        "?third_city"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-050",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "COMPARE(AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "hole"
+      ],
+      "grain": [
+        "unresolved"
+      ],
+      "entities": [
+        "?workshop_type"
+      ],
+      "regions": [
+        "Accra, Ghana",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?workshop_type"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-051",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "hole",
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record",
+        "unresolved"
+      ],
+      "entities": [
+        "?anchor_entity",
+        "craft workshop"
+      ],
+      "regions": [
+        "Kumasi, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?anchor_entity"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-052",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "unemployment"
+      ],
+      "regions": [
+        "?place"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "mean"
+      ],
+      "compare_modes": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-053",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "RANK(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(RELATE(SELECT,SELECT)))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 6,
+        "RELATE": 3,
+        "SELECT": 6
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bank",
+        "market"
+      ],
+      "regions": [
+        "?third_place",
+        "Accra, Ghana",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        1
+      ],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [
+        "?third_place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-054",
+      "bank": "round2-h21-dev.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus station",
+        "coworking space"
+      ],
+      "regions": [
+        "?place"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "distance"
+      ],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-056",
+      "bank": "round2-h21-dev.json",
+      "type": "STATE",
+      "expect": "answer_or_data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "Bengaluru, India"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-059",
+      "bank": "round2-h21-dev.json",
+      "type": "STATE",
+      "expect": "answer_or_data_request",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "Bengaluru, India"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "density"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-063",
+      "bank": "round2-h21-dev.json",
+      "type": "STATE",
+      "expect": "answer_or_data_request",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop"
+      ],
+      "regions": [
+        "Kumasi, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "density"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-068",
+      "bank": "round2-h21-dev.json",
+      "type": "COMPOSITE",
+      "expect": "answer_or_data_request",
+      "skeleton": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(RELATE(SELECT,SELECT)))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 4,
+        "RELATE": 2,
+        "SELECT": 4
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bank",
+        "market"
+      ],
+      "regions": [
+        "Accra, Ghana",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond"
+      ],
+      "thresholds_km": [
+        2
+      ],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [
+        "ratio"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-073",
+      "bank": "round2-h21-dev.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop"
+      ],
+      "regions": [
+        "Mombasa, Kenya",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [
+        "envelope"
+      ],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-077",
+      "bank": "round2-h21-dev.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "ilostat"
+      ],
+      "grain": [
+        "country/annual-survey-series"
+      ],
+      "entities": [
+        "average weekly hours worked"
+      ],
+      "regions": [
+        "Kenya"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-078",
+      "bank": "round2-h21-dev.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "eurostat"
+      ],
+      "grain": [
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "employed persons"
+      ],
+      "regions": [
+        "Catalonia"
+      ],
+      "time_forms": [
+        "window"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "mean"
+      ],
+      "compare_modes": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-079",
+      "bank": "round2-h21-dev.json",
+      "type": "COMPOSITE",
+      "expect": "answer_or_data_request",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "ilostat"
+      ],
+      "grain": [
+        "country/annual-survey-series"
+      ],
+      "entities": [
+        "female average weekly hours worked",
+        "male average weekly hours worked"
+      ],
+      "regions": [
+        "Germany"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "h21-080",
+      "bank": "round2-h21-dev.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "eurostat"
+      ],
+      "grain": [
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "unemployment rate"
+      ],
+      "regions": [
+        "Madrid region"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
       "rank_orders": [],
       "rank_sizes": [],
       "holes": [],

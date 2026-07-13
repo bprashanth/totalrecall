@@ -1914,6 +1914,12 @@ def mech_source_gap_select(ir, question):
             if found: break
         if not found: return ir
         entity, place = found.groups(); year = None
+    # A complete arithmetic tree already represents the user's supported operands.  The surface
+    # phrase "female-to-male ... ratio" is not itself a connector entity and must not cause this
+    # late source-gap pass to erase a valid COMPARE synthesized earlier in the pipeline.
+    if isinstance(ir, dict) and ir.get("op") == "COMPARE" and re.search(
+            r"\b(?:ratio|difference|subtract|minus|divid)\w*\b", question, re.I):
+        return ir
     # Only apply when the phrase is not already a supported connector measure.
     import connectors as C
     if (C.ilo_resolve_indicator(entity)[0] or C.eurostat_resolve_indicator(entity)[0]
