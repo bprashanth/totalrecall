@@ -464,3 +464,16 @@ between hyphenated and spaced annotation layers (`BUG-010`). The disclosed final
 1.000, strict 100/100, and synthesis 100/100 after exact unsupported train-station literals were
 preserved. Every repair and scorer change keeps the counter at zero and moves the next possible
 start line to epoch 020; the expanded historical wall is now mandatory.
+
+### Round 2 checkpoint 15 — epoch 020 candidate wall is exact at 1,382 questions
+
+After wall v1 exposed and retired two over-broad closure rules, wall v2 passes all gates: ordinary
+and strict canonical audits are exact on all 1,379 eligible rows, and synthesis/evidence is exact
+on all 1,382 rows. The active registry spans 30 runnable banks and 39 skeletons. Regressions are
+157/157, source probes 14/14, both dialogue binders 5/5, and the corpus contains 1,373 unique parse
+rows plus five clarifications, including all 100 disclosed H27 rows.
+
+`coverage/epoch-020-certification.json` records this candidate boundary. Because adding that
+artifact to the freeze registry changes checksummed core state, a complete post-artifact wall must
+repeat before the epoch-020 checksum is valid. The saturation counter remains zero: H27 and every
+wall are disclosed development, and H28 can count only if generated after the exact freeze commit.

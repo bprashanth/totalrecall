@@ -1,6 +1,6 @@
 # Training corpus (auto-compiled by compile_corpus.py)
 
-- `parse.jsonl` — 1273 verified (question → IR) pairs in chat format, across sectors.
+- `parse.jsonl` — 1373 verified (question → IR) pairs in chat format, across sectors.
   A row is included only if the tree validates AND its execution matched the expected outcome
   class in a benchmark run. When the small parser's own tree scored perfect, that tree is used
   (self-training signal); otherwise the validated gold.

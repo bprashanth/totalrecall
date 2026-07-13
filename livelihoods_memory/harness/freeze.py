@@ -44,6 +44,7 @@ EVIDENCE.append("coverage/epoch-016-certification.json")
 EVIDENCE.append("coverage/epoch-017-certification.json")
 EVIDENCE.append("coverage/epoch-018-certification.json")
 EVIDENCE.append("coverage/epoch-019-certification.json")
+EVIDENCE.append("coverage/epoch-020-certification.json")
 
 
 def digest(path):
