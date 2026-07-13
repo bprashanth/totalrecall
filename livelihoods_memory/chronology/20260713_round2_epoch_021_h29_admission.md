@@ -29,3 +29,16 @@ All gates passed. Direct gold execution produced 46 answers and 48 typed DataReq
 outcome-class mismatch. The unchanged raw SHA-256 is
 `edbc73c440da63d7c48814f7e5871aecf7cc5b6f9d88f9ec6c25599a99856323`; the admitted 94-row SHA-256
 is `4ba9c2a46e83cf2349675dac79541d7d3385099c051d907761ac484f381e733d`.
+
+## Immutable first contact
+
+The admitted artifact was committed as `beb84a7` before qwen contact. The immutable run is
+`runs/epoch021-holdout-029`. Ordinary aggregate scoring is 0.9127, including shape 0.7979, hole
+correctness 0.8936, ESTIMATE correctness 0.9787, and execution class 0.9255. Strict canonical audit
+matches 51/94 and synthesis/evidence audit matches 92/94.
+
+H29 therefore rejects epoch 021 and the practical-saturation claim. Its 43 canonical divergences
+and two synthesis failures are now disclosed development evidence; H29 can never count as an
+untouched pass. The counter remains zero. Generalized absorption, a complete wall, a new checksum
+freeze, and an entirely new post-freeze exam are required before practical saturation can be
+claimed.

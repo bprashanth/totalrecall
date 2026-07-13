@@ -530,3 +530,18 @@ boundary, stay parser-blind through independent admission and direct-gold checks
 strict, execution, and synthesis gates without any valid change. A clean H29 would establish the
 cost-aware practical claim; any valid discovery forces absorption, another freeze, and another new
 exam. Hard three-bank saturation remains explicitly pending.
+
+### Round 2 checkpoint 20 — H29 rejects epoch 021; practical saturation remains unproven
+
+H29 was independently authored after the exact epoch-021 boundary and admitted before parser
+contact as 94 rows, 75 adversarial, spanning 63 capability families and 23 exact shapes. Six
+debatable raw golds were conservatively excluded; the remaining golds validate and directly execute
+94/94 within their declared outcome classes. Raw and admitted artifacts were checksummed and
+committed before qwen contact.
+
+Immutable first contact is not close enough to certify: ordinary aggregate 0.9127, strict canonical
+51/94, and synthesis/evidence 92/94. H29 has therefore done its job by finding another broad family
+of failures. It is permanently disclosed, epoch 021 is retired, and the untouched practical
+counter remains zero. The required path is generalized failure absorption, a full expanded wall,
+another exact freeze, and a wholly new qualifying exam. Hard three-bank saturation is still
+pending as before.
