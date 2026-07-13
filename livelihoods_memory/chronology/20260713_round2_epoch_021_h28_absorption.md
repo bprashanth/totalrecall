@@ -71,3 +71,20 @@ present in the active corpus with no immutable-defect leakage.
 It is itself a freeze input, so the certification artifact and registry change must be committed
 before the epoch-021 manifest is generated. A post-commit confirmation wall will then bind the
 exact checksummed content before any new practical-saturation exam is authored.
+
+## Exact freeze and post-freeze confirmation
+
+Commit `e4cfca9` created `freezes/epoch-021.json`, hashing 60 active compiler, harness, bank,
+coverage, source, corpus, and certification inputs. An independent hash replay verified all 60
+files before the manifest was committed.
+
+Wall v4 was executed only after that commit. It repeats the candidate result on the exact frozen
+artifact: ordinary 1,479/1,479 eligible rows, strict canonical 1,479/1,479 eligible rows, and
+synthesis/evidence 1,482/1,482. The only raw ordinary misses are the three registered live-data
+defects; the only raw strict misses are the two registered gold/execution defects. Regressions
+remain 168/168, and a second manifest verification found no changed freeze input.
+
+Epoch 021 is therefore the exact start line for the next practical-saturation examination. H28 and
+all wall runs are disclosed development and leave the counter at zero. Only a qualifying bank
+authored after commit `e4cfca9`, admitted and checksummed before parser contact, can advance the
+counter.

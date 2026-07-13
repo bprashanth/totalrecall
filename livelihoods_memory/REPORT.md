@@ -501,3 +501,32 @@ ESTIMATE, ambiguity, evidence, contrastive, and output-head pressure. If it pass
 ordinary, strict, execution, and synthesis gates, livelihoods may stop at practical saturation
 while explicitly reporting hard `3/3` as pending. The harder protocol is deferred to a second LoRA
 round or deployment-strength evaluation.
+
+### Round 2 checkpoint 18 — H28 rejects practical saturation and is absorbed
+
+H28 passed parser-blind admission as a 100-row, 55-adversarial, 60-family exam, but immutable first
+contact rejected epoch 020: ordinary scoring was 0.8625, strict canonical agreement was 44/100,
+and synthesis audit found 30 failures. The failures exposed reusable rank, spatial, temporal,
+transfer, hole-preservation, literal-output, and renderer/scorer-contract defects. H28 therefore
+became disclosed development evidence and can never count as a saturation pass.
+
+General closure repairs inside algebra v2.1 bring the disclosed bank to ordinary, strict, and
+synthesis 100/100. Two attempted expanded walls were then rejected for over-broad closure guards;
+the corrected wall passes all 1,479 eligible ordinary and strict rows and all 1,482 synthesis rows.
+The new framework proposals and H28 review entry point are registered in
+`../governance/review-packet-h28.md`; the practical-saturation policy remains centralized in
+`../governance/review-packet-sat004.md`.
+
+### Round 2 checkpoint 19 — epoch 021 frozen and confirmed; H29 is the next countable exam
+
+`freezes/epoch-021.json` hashes 60 active inputs. After its commit, wall v4 independently repeated
+1,479/1,479 eligible ordinary, 1,479/1,479 eligible strict, and 1,482/1,482 synthesis, with
+regressions at 168/168 and no checksum drift. Epoch 021 is now the exact practical-saturation start
+line.
+
+The untouched counter remains zero because H28 caused changes. H29 must be authored after this
+boundary, stay parser-blind through independent admission and direct-gold checks, contain at least
+80 rows with at least half adversarial coverage across the major families, and pass ordinary,
+strict, execution, and synthesis gates without any valid change. A clean H29 would establish the
+cost-aware practical claim; any valid discovery forces absorption, another freeze, and another new
+exam. Hard three-bank saturation remains explicitly pending.
