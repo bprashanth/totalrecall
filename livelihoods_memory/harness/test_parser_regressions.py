@@ -1628,6 +1628,13 @@ class ParserRegressionTests(unittest.TestCase):
         entities=[item["entity"] for item in got["items"]]
         self.assertEqual(entities.count("female employment rate"),1)
         self.assertEqual(entities.count("employment rate"),3)
+        heterogeneous={"op":"RANK","order":"desc","k":1,"items":[
+            select("informal employment rate",{"op":"REGION","place":"France"}),
+            select("labour underutilization rate",{"op":"REGION","place":"Spain"}),
+            select("female employment rate",{"op":"REGION","place":"Berlin, Germany"})]}
+        hq=("Which one had the highest 2023 value: France's informal employment rate, "
+            "Spain's labour underutilization rate, or Berlin, Germany's female employment rate?")
+        self.assertEqual(P.mech_role_complete_surface(heterogeneous,hq),heterogeneous)
 
     def test_role_complete_surface_keeps_nested_transfer_sources(self):
         got=P.mech_role_complete_surface(None,

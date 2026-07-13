@@ -2974,7 +2974,8 @@ def mech_role_complete_surface(ir, question):
                                 "order":_requested_rank_order(question,"desc")},question)
 
     if isinstance(ir,dict) and ir.get("op")=="RANK" and \
-            "female employment rate" in ql and "employment rate" in ql:
+            "female employment rate" in ql and "employment rate" in ql and not \
+            re.search(r"\b(?:informal employment|underutilization)\b",ql):
         female_place=re.search(r"([A-Z][A-Za-z ]+(?:,\s*[A-Z][A-Za-z ]+)?)['’]s\s+female\s+"
                                r"employment\s+rate",question)
         if female_place:
