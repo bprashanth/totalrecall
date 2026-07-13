@@ -45,3 +45,9 @@ requirement. General repairs now distinguish either/or choices from yes/no compa
 full typed record result and use declared coordinates for unnamed examples, disclose partial lists,
 and render the observation requirement specifically. The audit itself now gates these classes.
 Neither v3 nor v4 is certification evidence.
+
+Wall v5 exercised the corrected answer contracts but was also rejected: two coordinate examples
+were rounded with six significant digits, which can lose more than the numeric-authorization
+tolerance for three-digit longitudes. Coordinate rendering now uses six decimal places, preserving
+sub-metre source fidelity while remaining concise. This was a synthesis-core change, so a complete
+new wall is required; the otherwise-green v5 rows do not count.
