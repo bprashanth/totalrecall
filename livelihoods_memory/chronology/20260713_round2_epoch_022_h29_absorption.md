@@ -36,3 +36,17 @@ country-qualified splitting inside the new rank register; and rebuild an existin
 demonstrated candidate-count, self-relation, or local-modifier evidence. Offline replay changes zero
 previously strict-exact wall rows while still closing all 43 immutable H29 divergences. Wall v1 is
 rejected; the entire wall must repeat as v2.
+
+## Candidate certification
+
+Wall v2 is exact on all 1,573 eligible ordinary and strict rows; synthesis is 1,576/1,576. The
+source census is 14/14, model and mechanical dialogue binding are each 5/5, regressions are
+175/175, and the active matrix contains 1,576 questions across 32 banks and 42 unique skeletons.
+The corpus contains 1,567 unique parse questions plus five clarifications, including all 94 H29
+development rows with no immutable-defect leakage.
+
+`coverage/epoch-022-certification.json` records this candidate boundary and the rejected wall. The
+artifact and its freeze-registry entry alter checksummed state, so a complete post-artifact wall is
+required before the epoch-022 manifest is generated. A further post-freeze wall must then confirm
+the exact checksummed artifact. Neither wall can advance saturation; both are disclosed boundary
+evidence.
