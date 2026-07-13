@@ -540,3 +540,20 @@ after the next exact checksum freeze.
 
 **Evidence:** H26 pre-contact execution of source-heavy spatial candidates, deterministic executor
 and synthesis regressions, and the subsequent all-row wall. Governance record: `BUG-008`.
+
+## 2026-07-13 — Coverage admission must share the freeze-bank identity
+
+**Failure that forced it:** after H26 absorption, the coverage builder reported 1,362 active rows
+while the executable wall contained 1,282. Its default filesystem glob had silently included the
+retired H23 and H24 pressure releases. The wall, corpus, defect registry, and freeze manifest were
+already scoped to the explicit active-bank registry.
+
+**Proposed implementation requirement:** all certification consumers use one exact active-bank
+authority. Coverage rows are keyed by `(bank, bank-local id, current question text)`; immutable
+holdouts, raw generator pools, pressure releases, and superseded copies remain auditable artifacts
+but cannot enter active counts through filename conventions or directory presence. A freeze must
+fail when wall, matrix, corpus, and manifest bank sets disagree.
+
+This extends the corpus-specific evidence in `BUG-006` into a shared certification invariant; it
+does not alter frozen algebra semantics. The local implementation now sources the default matrix
+from `freeze.BANKS`. Governance record: `BUG-009`.
