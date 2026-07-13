@@ -16,6 +16,10 @@ decision, implementation, and validation are recorded.
 The later cost-aware stopping proposal `SAT-004` has its own self-contained review entry point at
 `governance/review-packet-sat004.md`. Review it independently of H28's eventual score.
 
+H27/H28 certification and repair contracts have a second focused entry point at
+`governance/review-packet-h28.md`, covering `BUG-009`, `BNCH-003`, `BUG-010`, `ALG-011`, `BUG-011`,
+and `BUG-012`.
+
 H21 pre-contact admission adds SRC-002 (annotation-layer capability), BUG-003 (fail-closed resolver
 morphology), and ASK-004 (bounded endpoint-direction versus trend wording). These were discovered
 without parser contact and are likewise unreleased pending independent review and conformance tests.
