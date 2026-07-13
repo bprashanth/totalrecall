@@ -403,7 +403,7 @@ def score_synthesis(question, exec_result, prose):
     else:
         s["modelled_flagged"] = True
     if status == "data_request":
-        s["gap_stated"] = bool(re.search(r"missing|no data|source-coverage gap|no configured data source|need|required?|collect|clarif|which |couldn|unable|specify"
+        s["gap_stated"] = bool(re.search(r"missing|no data|source-coverage gap|availability gap|temporarily unavailable|no configured data source|need|required?|collect|clarif|which |couldn|unable|specify"
                                          r"|cannot|can't|not (?:locate|find|available)|no available"
                                          r"|exceeded|incomplete|misleading|narrow|complete bulk|outside|add a verified",
                                          prose.lower()))

@@ -730,6 +730,7 @@ class ParserRegressionTests(unittest.TestCase):
         prose=SYN.synthesize("List markets in Porto.",got,ir=tree)
         self.assertIn("temporarily unavailable",prose)
         self.assertIn("not evidence",prose)
+        self.assertTrue(SYN.score_synthesis("List markets in Porto.",got,prose)["gap_stated"])
         trace={"question":"List markets in Porto.","synthesis":prose,
                "synthesis_scores":{"overall":1.0},"ir":tree,"execution":got}
         self.assertEqual(SA.audit_trace(trace),[])
@@ -1491,6 +1492,73 @@ class ParserRegressionTests(unittest.TestCase):
               "must_estimate":False,"expect":"data_request"}
         result={"status":"data_request","reason":"annotation_unavailable","detail":{}}
         self.assertTrue(SC.score(gold,got,result)["shape_match"])
+
+    def test_enumerated_rank_closes_candidate_local_derived_quantities(self):
+        statistical=P.mech_enumerated_rank(None,
+            "Largest later-to-earlier Gini ratio: Brazil, 1994/1993; India, 1997/1996; "
+            "Kenya, 2009/2008.")
+        self.assertEqual((statistical["op"],statistical["order"],statistical["k"]),
+                         ("RANK","desc",1))
+        self.assertTrue(all(item["op"]=="COMPARE" and item["how"]=="ratio"
+                            for item in statistical["items"]))
+        spatial=P.mech_enumerated_rank(None,
+            "Two least dense candidates: Dar es Salaam markets within 0.5 km of bus stations; "
+            "Abidjan pharmacies within 0.5 km of hospitals; Addis Ababa coworking spaces "
+            "within 0.5 km of banks.")
+        self.assertEqual((spatial["order"],spatial["k"]),("asc",2))
+        self.assertTrue(all(item["metric"]=="density" and
+                            item["source"]["threshold_km"]==0.5 for item in spatial["items"]))
+
+    def test_closed_spatial_surface_preserves_independent_relation_operands(self):
+        q=("In Kigali, Rwanda, subtract the count of pharmacies within 0.8 km of hospitals "
+           "from the count of markets within 0.3 km of banks.")
+        got=P.mech_closed_spatial_surface(select("bank",{"op":"REGION","place":"Kigali"}),q)
+        self.assertEqual((got["op"],got["how"]),("COMPARE","difference"))
+        self.assertEqual((got["left"]["source"]["threshold_km"],
+                          got["right"]["source"]["threshold_km"]),(0.3,0.8))
+        self.assertEqual((got["left"]["source"]["right"]["entity"],
+                          got["right"]["source"]["right"]["entity"]),("bank","hospital"))
+
+    def test_closed_spatial_surface_preserves_nested_polarity_and_cooccurrence(self):
+        q=("In Sarajevo, Bosnia and Herzegovina, show coworking spaces cooccurring with cafes "
+           "and beyond 700 metres from banks.")
+        got=P.mech_closed_spatial_surface(select("bank"),q)
+        self.assertEqual((got["relation"],got["threshold_km"]),("beyond",0.7))
+        self.assertEqual(got["left"]["relation"],"cooccur")
+
+    def test_closed_statistical_surface_prioritizes_explicit_direction_and_roles(self):
+        seed=select("gini coefficient",{"op":"REGION","place":"Brazil"})
+        got=P.mech_closed_statistical_surface(seed,
+            "Only the fitted direction over 1981–1982 for Brazil's gini coefficient; "
+            "do not give endpoint change.")
+        self.assertEqual((got["op"],got["how"]),("COMPARE","trend_direction"))
+        self.assertEqual(got["left"]["source"]["time"],{"start":"1981","end":"1982"})
+
+    def test_estimate_source_keeps_annotation_relation_and_holes(self):
+        region={"op":"REGION","place":"Niamey, Niger"}
+        seed={"op":"ESTIMATE","method":"interpolate","source":select("craft workshop",region),
+              "target":{"op":"REGION","place":"Maradi, Niger"}}
+        got=P.mech_transfer_source_expression(seed,
+            "From Niamey, Niger craft workshops within 0.6 km of which amenity, interpolate "
+            "a field for Maradi, Niger.")
+        self.assertEqual((got["source"]["op"],got["source"]["right"]["entity"]),
+                         ("RELATE","?anchor_amenity"))
+        self.assertEqual(got["source"]["threshold_km"],0.6)
+
+    def test_output_and_literal_honesty_override_plausible_lossy_roots(self):
+        region={"op":"REGION","place":"Mogadishu, Somalia"}
+        lossy={"op":"AGGREGATE","by":"space","metric":"mean","source":select("gig",region)}
+        got=P.mech_output_literal_honesty(lossy,
+            "Report gig platform earnings in Mogadishu, Somalia.")
+        self.assertEqual((got["op"],got["entity"]),("SELECT","gig platform earnings"))
+        causal=P.mech_output_literal_honesty(select("shop",region),
+            "Did the new metro station cause shop incomes to rise in Bengaluru, India?")
+        self.assertTrue(causal["entity"].startswith("?proxy_for_"))
+
+    def test_written_and_hyphenated_distances_are_exact(self):
+        self.assertEqual(P._parse_dist_km("three-quarters of a kilometre"),0.75)
+        self.assertEqual(P._parse_dist_km("0.6-kilometre radius"),0.6)
+        self.assertEqual(P._parse_dist_km("within two kilometres"),2.0)
 
 
 if __name__ == "__main__":
