@@ -1,0 +1,2161 @@
+{
+ "spec_version": "v2.1",
+ "author": {
+  "family": "openai",
+  "model": "gpt-5.5-high-fast",
+  "blind_after_freeze": "epoch-011"
+ },
+ "questions": [
+  {
+   "id": "h17-001",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "For a walkability note, list the named coworking spaces in Nairobi, Kenya that are within 1 km of a bus stop and not within 0.4 km of a bank; names are the requested answer, not a count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1.0
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 0.4
+    },
+    "layer": "name"
+   },
+   "gold_shape": [
+    "ANNOTATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-002",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "In Cape Town, South Africa, count craft workshops that sit within 0.8 km of a market while also being beyond 0.3 km from any bus station; return only the count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Cape Town, South Africa"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Cape Town, South Africa"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.8
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bus station",
+      "region": {
+       "op": "REGION",
+       "place": "Cape Town, South Africa"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 0.3
+    },
+    "by": "space",
+    "metric": "count"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-003",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Do Porto, Portugal coworking offices have any park within 0.6 km and a cafe within 0.2 km? I need a yes/no presence result for spaces satisfying both clauses.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "coworking office",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.6
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "cafe",
+      "region": {
+       "op": "REGION",
+       "place": "Porto, Portugal"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 0.2
+    },
+    "by": "space",
+    "metric": "presence"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-004",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "For Osaka, Japan, annotate pharmacies that are within 0.5 km of a school but outside 0.25 km from a hospital; keep the pharmacy records rather than summarising them.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "pharmacy",
+       "region": {
+        "op": "REGION",
+        "place": "Osaka, Japan"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "school",
+       "region": {
+        "op": "REGION",
+        "place": "Osaka, Japan"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.5
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Osaka, Japan"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 0.25
+    },
+    "layer": "name"
+   },
+   "gold_shape": [
+    "ANNOTATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-005",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "In Curitiba, Brazil, how many supermarkets are within 0.7 km of a bus stop and within 0.7 km of a bank? The two anchors are distinct even though the distance is repeated.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "supermarket",
+       "region": {
+        "op": "REGION",
+        "place": "Curitiba, Brazil"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Curitiba, Brazil"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.7
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Curitiba, Brazil"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 0.7
+    },
+    "by": "space",
+    "metric": "count"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-006",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "For Lyon, France, count libraries that are not within 0.9 km of a university but are within 0.4 km of a cafe; preserve that negation scope.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "library",
+       "region": {
+        "op": "REGION",
+        "place": "Lyon, France"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Lyon, France"
+       },
+       "time": null
+      },
+      "relation": "beyond",
+      "threshold_km": 0.9
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "cafe",
+      "region": {
+       "op": "REGION",
+       "place": "Lyon, France"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 0.4
+    },
+    "by": "space",
+    "metric": "count"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-007",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Which is larger in Nairobi, Kenya: coworking spaces within 1 km of banks, or craft workshops within 1 km of banks? Use ratio with coworking as the numerator.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1.0
+     },
+     "by": "space",
+     "metric": "count"
+    },
+    "how": "ratio",
+    "right": {
+     "op": "AGGREGATE",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1.0
+     },
+     "by": "space",
+     "metric": "count"
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-008",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "For Cape Town, South Africa, compute the difference: coworking spaces within 1 km of bus stops minus coworking spaces beyond 1 km from bus stops.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Cape Town, South Africa"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Cape Town, South Africa"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1.0
+     },
+     "by": "space",
+     "metric": "count"
+    },
+    "how": "difference",
+    "right": {
+     "op": "AGGREGATE",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Cape Town, South Africa"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Cape Town, South Africa"
+       },
+       "time": null
+      },
+      "relation": "beyond",
+      "threshold_km": 1.0
+     },
+     "by": "space",
+     "metric": "count"
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-009",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "For Porto, Portugal, rank these livelihood amenities by count from fewest to most: coworking spaces, craft workshops, and markets.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      },
+      "by": "space",
+      "metric": "count"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      },
+      "by": "space",
+      "metric": "count"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      },
+      "by": "space",
+      "metric": "count"
+     }
+    ],
+    "order": "asc"
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-010",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Grant shortlist: among Nairobi, Kenya; Cape Town, South Africa; and Porto, Portugal, give the top two cities by coworking-space count, highest first.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "by": "space",
+      "metric": "count"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Cape Town, South Africa"
+       },
+       "time": null
+      },
+      "by": "space",
+      "metric": "count"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      },
+      "by": "space",
+      "metric": "count"
+     }
+    ],
+    "order": "desc",
+    "k": 2
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-011",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "For Osaka, Japan, count toilets that are within 0.4 km of a park and beyond 0.6 km from a train-like bus station; treat bus station as the explicit anchor.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "toilet",
+       "region": {
+        "op": "REGION",
+        "place": "Osaka, Japan"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Osaka, Japan"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.4
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bus station",
+      "region": {
+       "op": "REGION",
+       "place": "Osaka, Japan"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 0.6
+    },
+    "by": "space",
+    "metric": "count"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-012",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "In Accra, Ghana, list the water points that are within 0.5 km of a market and within 0.3 km of a bus stop; keep records with names if present.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "water point",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.5
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 0.3
+    },
+    "layer": "name"
+   },
+   "gold_shape": [
+    "ANNOTATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-013",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "For Bengaluru, India, give a presence answer for craft workshops within 0.6 km of coworking spaces and not within 0.2 km of a bank.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.6
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru, India"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 0.2
+    },
+    "by": "space",
+    "metric": "presence"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-014",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "In Curitiba, Brazil, annotate markets that are within 1.2 km of bus stops and beyond 0.5 km from supermarkets; the requested form is market records.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Curitiba, Brazil"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Curitiba, Brazil"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1.2
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "supermarket",
+      "region": {
+       "op": "REGION",
+       "place": "Curitiba, Brazil"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 0.5
+    },
+    "layer": "name"
+   },
+   "gold_shape": [
+    "ANNOTATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-015",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "For a livelihoods baseline, give the self-employment series for India from 2018 through 2022; do not substitute GDP or population.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "self employment",
+    "region": {
+     "op": "REGION",
+     "place": "India"
+    },
+    "time": {
+     "start": "2018",
+     "end": "2022"
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-016",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Show Bangladesh vulnerable employment for 2017-2021 as a yearly series, not a single latest value.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "vulnerable employment",
+    "region": {
+     "op": "REGION",
+     "place": "Bangladesh"
+    },
+    "time": {
+     "start": "2017",
+     "end": "2021"
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-017",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Is Brazil mobile-subscription coverage trending up or down from 2016 through 2021? Return only the trend direction.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "source": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "Brazil"
+      },
+      "time": {
+       "start": "2016",
+       "end": "2021"
+      }
+     },
+     "by": "time",
+     "metric": "mean"
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-018",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "By how many points did Kenya youth unemployment in 2022 exceed its 2018 value? Use 2022 minus 2018 in that order.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "youth unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "how": "difference",
+    "right": {
+     "op": "SELECT",
+     "entity": "youth unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2018",
+      "end": "2018"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-019",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "Compute the ratio of Bangladesh self employment to India self employment in 2020; Bangladesh is the numerator.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "self employment",
+     "region": {
+      "op": "REGION",
+      "place": "Bangladesh"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "how": "ratio",
+    "right": {
+     "op": "SELECT",
+     "entity": "self employment",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-020",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "For Ghana, average the labour-force participation yearly series over 2015-2019; keep it as the supported time-mean series operation.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "labor force participation",
+     "region": {
+      "op": "REGION",
+      "place": "Ghana"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2019"
+     }
+    },
+    "by": "time",
+    "metric": "mean"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-021",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "For Pakistan, tell me the trend direction of electricity access between 2010 and 2020; the goal is direction, not endpoint difference.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "source": {
+      "op": "SELECT",
+      "entity": "electricity access",
+      "region": {
+       "op": "REGION",
+       "place": "Pakistan"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2020"
+      }
+     },
+     "by": "time",
+     "metric": "mean"
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-022",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "In 2021, what was India wage-and-salaried workers minus Bangladesh wage-and-salaried workers? Preserve that left-right order.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "wage and salaried workers",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2021",
+      "end": "2021"
+     }
+    },
+    "how": "difference",
+    "right": {
+     "op": "SELECT",
+     "entity": "wage and salaried workers",
+     "region": {
+      "op": "REGION",
+      "place": "Bangladesh"
+     },
+     "time": {
+      "start": "2021",
+      "end": "2021"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-023",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "For Mexico, return the 2016-2020 informal-livelihood proxy series using self employment, not an informal-income measure.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "self employment",
+    "region": {
+     "op": "REGION",
+     "place": "Mexico"
+    },
+    "time": {
+     "start": "2016",
+     "end": "2020"
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-024",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "For Indonesia, compare 2022 service employment to 2012 service employment as a ratio, with 2022 on the left.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "employment in services",
+     "region": {
+      "op": "REGION",
+      "place": "Indonesia"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "how": "ratio",
+    "right": {
+     "op": "SELECT",
+     "entity": "employment in services",
+     "region": {
+      "op": "REGION",
+      "place": "Indonesia"
+     },
+     "time": {
+      "start": "2012",
+      "end": "2012"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-025",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "For South Africa, classify the trend in unemployment from 2014 through 2021; do not answer with the level.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "South Africa"
+      },
+      "time": {
+       "start": "2014",
+       "end": "2021"
+      }
+     },
+     "by": "time",
+     "metric": "mean"
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-026",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Livelihood dashboard: rank India, Bangladesh, and Kenya by vulnerable employment in 2020, highest first.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "vulnerable employment",
+       "region": {
+        "op": "REGION",
+        "place": "India"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "vulnerable employment",
+       "region": {
+        "op": "REGION",
+        "place": "Bangladesh"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "vulnerable employment",
+       "region": {
+        "op": "REGION",
+        "place": "Kenya"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-027",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "For a European comparison covering Berlin, Germany; Paris, France; Madrid, Spain; and Milan/Lombardy, rank the supported regions by 2021 employment rate from lowest to highest.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "employment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Berlin region"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "employment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Ile de France"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "employment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Madrid region"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "employment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Lombardy"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     }
+    ],
+    "order": "asc"
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-028",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Give the female employment-rate series for Comunidad de Madrid from 2019 to 2022; the city mention is Madrid, Spain, but use the supported regional series.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "female employment rate",
+    "region": {
+     "op": "REGION",
+     "place": "Madrid region"
+    },
+    "time": {
+     "start": "2019",
+     "end": "2022"
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-029",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "For Berlin region, calculate male employment rate in 2022 minus female employment rate in 2022.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "male employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin region"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "how": "difference",
+    "right": {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin region"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-030",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Among Ile de France, Catalonia, and Warsaw capital region, return the top two by unemployment rate in 2022, descending.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Ile de France"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Catalonia"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     },
+     {
+      "op": "AGGREGATE",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Warsaw capital region"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      },
+      "by": "time",
+      "metric": "mean"
+     }
+    ],
+    "order": "desc",
+    "k": 2
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-031",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "In Nairobi, Kenya, list coworking spaces within 0.75 km of a cafe; no counts, just the matching records.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "cafe",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "relation": "within",
+    "threshold_km": 0.75
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-032",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "For Cape Town, South Africa, return craft workshops beyond 1.5 km from markets; the negation is part of the relation.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    },
+    "relation": "beyond",
+    "threshold_km": 1.5
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-033",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Could you pull the named coworking-space records in Porto, Portugal for a site visit list?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    },
+    "layer": "name"
+   },
+   "gold_shape": [
+    "ANNOTATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-034",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Count ATMs in Osaka, Japan; this is an amenity count, not a banking employment statistic.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "atm",
+     "region": {
+      "op": "REGION",
+      "place": "Osaka, Japan"
+     },
+     "time": null
+    },
+    "by": "space",
+    "metric": "count"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-035",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "For Curitiba, Brazil, show parks within 0.8 km of schools as records.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "park",
+     "region": {
+      "op": "REGION",
+      "place": "Curitiba, Brazil"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "school",
+     "region": {
+      "op": "REGION",
+      "place": "Curitiba, Brazil"
+     },
+     "time": null
+    },
+    "relation": "within",
+    "threshold_km": 0.8
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-036",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "For Lyon, France, give a presence answer for whether any coworking spaces are mapped.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Lyon, France"
+     },
+     "time": null
+    },
+    "by": "space",
+    "metric": "presence"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h17-037",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "Use Porto, Portugal as the donor pattern to estimate coworking-space coverage for Braga, Portugal; do not report Porto itself as the target.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Braga, Portugal"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "must_estimate": true
+  },
+  {
+   "id": "h17-038",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "For a Ghana pilot, transfer Nairobi, Kenya coworking-space evidence to Accra, Ghana; Accra is the named target and Nairobi is only the donor.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Accra, Ghana"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "must_estimate": true
+  },
+  {
+   "id": "h17-039",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "Estimate craft-workshop records for Durban, South Africa using Cape Town, South Africa as the donor city.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Durban, South Africa"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "must_estimate": true
+  },
+  {
+   "id": "h17-040",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "Using Osaka, Japan as source evidence, estimate pharmacy availability for Kyoto, Japan; target means Kyoto.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "pharmacy",
+     "region": {
+      "op": "REGION",
+      "place": "Osaka, Japan"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Kyoto, Japan"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "must_estimate": true
+  },
+  {
+   "id": "h17-041",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "Take Bengaluru, India coworking offices as the donor and estimate for Mysuru, India; the donor should not overwrite the target.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking office",
+     "region": {
+      "op": "REGION",
+      "place": "Bengaluru, India"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Mysuru, India"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "must_estimate": true
+  },
+  {
+   "id": "h17-042",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "Use Nairobi, Kenya water-point evidence to estimate water points in La Paz, Bolivia for a cautious planning envelope.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "water point",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "La Paz, Bolivia"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "must_estimate": true
+  },
+  {
+   "id": "h17-043",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "For Ho Chi Minh City, Vietnam, estimate market records using Bangkok, Thailand as the named donor.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Bangkok, Thailand"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Ho Chi Minh City, Vietnam"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "must_estimate": true
+  },
+  {
+   "id": "h17-044",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "Use Porto, Portugal as the donor for coworking spaces in my city; ask for the missing target city instead of assuming Braga.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "?target_city"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "must_estimate": true,
+   "must_hole": true
+  },
+  {
+   "id": "h17-045",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Near me, how many craft workshops are there? The place is not stated, so request the missing place.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": "?place",
+     "time": null
+    },
+    "by": "space",
+    "metric": "count"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ],
+   "must_hole": true
+  },
+  {
+   "id": "h17-046",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Map livelihood support sites in Accra, Ghana; ask which supported facility type is meant rather than guessing between markets, banks, workshops, or coworking.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?facility_type",
+    "region": {
+     "op": "REGION",
+     "place": "Accra, Ghana"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ],
+   "must_hole": true
+  },
+  {
+   "id": "h17-047",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Compare median daily earnings in India and Kenya for 2020; if earnings is unsupported, ask for a supported livelihood indicator instead of using GDP.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "?supported_livelihood_indicator",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "how": "difference",
+    "right": {
+     "op": "SELECT",
+     "entity": "?supported_livelihood_indicator",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "must_hole": true
+  },
+  {
+   "id": "h17-048",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Which city has better jobs, Nairobi or Accra? Ask for the exact livelihood measure before ranking anything.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "?livelihood_measure",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "?livelihood_measure",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    },
+    "how": "difference"
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "must_hole": true
+  },
+  {
+   "id": "h17-049",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Show shops near transport in Curitiba, Brazil; transport could mean bus stops or bus stations, so ask for the anchor type.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "shop",
+     "region": {
+      "op": "REGION",
+      "place": "Curitiba, Brazil"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "?transport_anchor",
+     "region": {
+      "op": "REGION",
+      "place": "Curitiba, Brazil"
+     },
+     "time": null
+    },
+    "relation": "within"
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "must_hole": true
+  },
+  {
+   "id": "h17-050",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Give me the unemployment rate for 2020 there; the country or supported region is missing, so do not use the donor from earlier context.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "unemployment",
+    "region": "?place",
+    "time": {
+     "start": "2020",
+     "end": "2020"
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ],
+   "must_hole": true
+  },
+  {
+   "id": "h17-051",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "I need the fastest improving livelihood indicator in Ghana since 2015; ask which supported indicator to evaluate before computing a trend.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "source": {
+      "op": "SELECT",
+      "entity": "?livelihood_indicator",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2015",
+       "end": "2022"
+      }
+     },
+     "by": "time",
+     "metric": "mean"
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ],
+   "must_hole": true
+  },
+  {
+   "id": "h17-052",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "For Paris, France, rank neighbourhoods by gig-work density; the geography and metric are unsupported here, so request the supported place/measure instead.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "?supported_livelihood_entity",
+     "region": {
+      "op": "REGION",
+      "place": "?supported_place"
+     },
+     "time": null
+    },
+    "by": "space",
+    "metric": "?supported_metric"
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ],
+   "must_hole": true
+  }
+ ]
+}
