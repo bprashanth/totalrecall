@@ -48,3 +48,13 @@ co-location subjects independently. Full-list `k=N` is a canonical identity in b
 strict scoring. A literal-output guard was also narrowed so a dated `Report ... in PLACE for YEAR`
 cannot swallow the year into the region. The regression suite is 168/168. Wall v1 remains rejected;
 v2 must replay all 31 banks.
+
+## Expanded wall v2 rejection
+
+Wall v2 passed synthesis on 1,482/1,482 and reduced the eligible ordinary/strict failures to one:
+`h28-077`. On this replay qwen supplied an already-composite self-relation for “within 0.6 km of
+which amenity.” The typed-source preservation guard correctly kept the RELATE shape but incorrectly
+treated structural completeness as warrant to retain the invented anchor, losing the required
+hole. Explicit unresolved role language now overrides a composite donor source and rewrites only
+the named anchor slot to `?anchor_amenity`. Three fresh targeted parses are strict-exact and the
+suite remains 168/168. Wall v2 is rejected; v3 must replay all banks.
