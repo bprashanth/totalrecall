@@ -21,3 +21,18 @@ preserving the immutable holdout. The next boundary cannot freeze until all 32 r
 (1,576 active questions), strict and synthesis audits, source census, dialogue binders, coverage,
 corpus, and post-artifact confirmation all pass. Only a newly authored post-freeze exam can attempt
 practical saturation; the counter remains zero.
+
+## Expanded wall v1 rejection
+
+The first 1,576-row wall keeps synthesis exact at 1,576/1,576 but rejects the compiler boundary:
+38 eligible strict rows regress. The role-complete pass rebuilt already-complete historical spatial
+chains, let a broad two-noun co-occurrence pattern consume rank questions, and reused candidate-list
+splitting outside the country-qualified register that motivated it. Candidate-local modifier
+closure also needed to distinguish one explicitly qualified item from a measure applying globally.
+
+The guards now trust an existing spatial chain only when its node count and spoken negative
+polarities are complete; restrict simple co-occurrence to an explicit co-occurrence head; isolate
+country-qualified splitting inside the new rank register; and rebuild an existing rank only on
+demonstrated candidate-count, self-relation, or local-modifier evidence. Offline replay changes zero
+previously strict-exact wall rows while still closing all 43 immutable H29 divergences. Wall v1 is
+rejected; the entire wall must repeat as v2.

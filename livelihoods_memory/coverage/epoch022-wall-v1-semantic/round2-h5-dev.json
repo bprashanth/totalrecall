@@ -1,0 +1,575 @@
+{
+  "schema_version": "round2-semantic-audit-v1",
+  "questions": "questions/round2-h5-dev.json",
+  "traces": "runs/epoch022-wall-v1-round2-h5-dev/traces.jsonl",
+  "n": 39,
+  "all_match": false,
+  "counts": {
+    "match": 33,
+    "canonical_ir_mismatch": 6
+  },
+  "rows": [
+    {
+      "id": "h5-001",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-002",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-003",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-004",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-005",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-006",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-007",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-008",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-010",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-011",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.2,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.2,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "cusco",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"marketplace\"]",
+              "region": "cusco",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"atm\"]",
+            "region": "cusco",
+            "time": null
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.2,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.2,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "cusco",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"marketplace\"]",
+              "region": "cusco",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "literal:n atm",
+            "region": "cusco",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h5-012",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": null,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "thessaloniki",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"office\"=\"coworking\"]",
+            "region": "thessaloniki",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"marketplace\"]",
+          "region": "thessaloniki",
+          "time": null
+        }
+      },
+      "actual": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"bank\"]",
+          "region": "thessaloniki",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"marketplace\"]",
+          "region": "thessaloniki",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h5-014",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"marketplace\"]",
+          "region": "iloilo city",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"bank\"]",
+          "region": "iloilo city",
+          "time": null
+        }
+      },
+      "actual": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"marketplace\"]",
+          "region": "iloilo city",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "literal:ny bank",
+          "region": "iloilo city",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h5-015",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.15,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "medellin",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"atm\"]",
+            "region": "medellin",
+            "time": null
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.15,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "medellin",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "literal:n atm",
+            "region": "medellin",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h5-016",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-017",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-018",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 2.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"office\"=\"coworking\"]",
+            "region": "palermo",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "palermo",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"atm\"]",
+          "region": "palermo",
+          "time": null
+        }
+      },
+      "actual": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 2.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"office\"=\"coworking\"]",
+            "region": "palermo",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "palermo",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "literal:n atm",
+          "region": "palermo",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h5-019",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 2.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "accra",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"atm\"]",
+            "region": "accra",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"marketplace\"]",
+          "region": "accra",
+          "time": null
+        }
+      },
+      "actual": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 2.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "accra",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "literal:n atm",
+            "region": "accra",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"marketplace\"]",
+          "region": "accra",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h5-020",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-021",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-022",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-025",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-028",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-029",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-030",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-031",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-032",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-033",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-034",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-035",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-036",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-037",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-038",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-039",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-040",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-041",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-042",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-043",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-044",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h5-045",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    }
+  ]
+}
