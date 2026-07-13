@@ -44,3 +44,15 @@ canonical `name`, `opening_hours`, and `operator` fields. The repair now flips o
 tree and rebuilds annotation literals only for explicitly modifier-bearing unsupported fields.
 Regression tests cover both transfer boundaries. Wall v1 is development evidence and v2 must replay
 all banks from scratch.
+
+## Candidate certification and confirmation
+
+Wall v2 is exact on all 1,379 eligible ordinary and strict rows; synthesis is 1,382/1,382. The
+source census is 14/14, dialogue binding 5/5 on both paths, regressions 157/157, coverage 1,382
+rows across 30 runnable banks and 39 skeletons, and corpus 1,373 unique parse rows plus five
+clarifications. All 100 H27 rows are present in the corpus with zero immutable-defect leakage.
+
+After the machine-readable certification artifact and its freeze-registry entry were committed,
+wall v3 repeated all 1,382 rows from scratch with the same exact ordinary, strict, and synthesis
+result. The final certification metadata update is itself checksummed evidence; one last v4 replay
+will bind the exact content before generating the epoch-020 manifest.
