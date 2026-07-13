@@ -228,6 +228,10 @@ def _render_nonanswer(exec_result):
     if reason == "source_truncated":
         return ("The source exceeded the safe retrieval cap, so an exact or spatially complete "
                 "answer would be misleading. Narrow the region or use a complete bulk source.")
+    if reason == "source_unavailable":
+        return ("The configured source is temporarily unavailable after bounded retries. This is "
+                "an upstream availability gap, not evidence that no matching records exist; retry "
+                "the source or provide a verified alternate connector.")
     if reason == "parse_invalid":
         return ("I couldn't compile this request into a valid typed query. This is a compiler "
                 "failure, not evidence that the requested data are absent.")

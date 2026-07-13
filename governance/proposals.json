@@ -325,6 +325,15 @@
       "source": "livelihoods_memory/spec-proposals.md",
       "note": "H25 generation used scalar year strings that the connector treated as unbounded while object windows were bounded, and sparse source-census summaries were too weak to adjudicate exact operands. Before checksum freeze, admitted golds should normalize time shape, execute each operand, and record source route, table, unit, observation count, flags, and permitted DataRequest outcomes without contacting the parser under test.",
       "required_tests": ["time-window normalization", "direct gold execution", "one requested point per exact-year operand", "route and table provenance", "unit compatibility", "source flags", "outcome-class validation", "immutable post-contact gold"]
+    },
+    {
+      "id": "BUG-008",
+      "title": "Upstream source outages are typed evidence gaps",
+      "scope": "connector-executor-answer-boundary",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "note": "H26's pre-contact direct-gold audit exhausted bounded Overpass retries and exposed a generic executor error. A transport outage neither proves an empty result nor invalidates a typed plan: it must return a source_unavailable DataRequest, preserve any accumulated provenance, distinguish temporary availability from connector coverage and truncation, and invite retry or a verified alternate source.",
+      "required_tests": ["bounded connector retries exhausted", "source_unavailable DataRequest", "not evidence of absence", "retry or alternate-source instruction", "programming errors remain executor errors", "all-row synthesis audit"]
     }
   ]
 }
