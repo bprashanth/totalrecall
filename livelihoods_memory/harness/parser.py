@@ -3800,11 +3800,14 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
         events.append("binder:unresolved_deictic_roles")
     before = json.dumps(ir)
     ir = mech_explicit_surface_closure(ir, question)
-    if json.dumps(ir) != before:
+    closure_changed=json.dumps(ir) != before
+    if closure_changed:
         events.append("mech_synthesis:explicit_surface_closure")
-    # The closure can synthesize fresh canonical leaves after the earlier restoration pass.
-    ir = restore_eurostat_regions(ir, question)
-    ir = restore_named_region_scope(ir, question)
+        # The closure can synthesize fresh canonical leaves after the earlier restoration pass.
+        # Do not rebind an unchanged mixed national/regional tree: a nested regional alias must
+        # never pull the national operand into its boundary.
+        ir = restore_eurostat_regions(ir, question)
+        ir = restore_named_region_scope(ir, question)
     # repair-with-feedback (tick-010): a schema-invalid tree gets ONE correction round with the
     # validator's exact errors — compiler-style error recovery, generic across failure patterns.
     if repair and ir is not None:
@@ -3866,9 +3869,11 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
                    mech_rejected_indicator_hole, bind_named_behavior_place):
             ir = fn(ir, question)
         ir = mech_deictic_roles(ir, question)
+        before_closure=json.dumps(ir)
         ir = mech_explicit_surface_closure(ir, question)
-        ir = restore_eurostat_regions(ir, question)
-        ir = restore_named_region_scope(ir, question)
+        if json.dumps(ir) != before_closure:
+            ir = restore_eurostat_regions(ir, question)
+            ir = restore_named_region_scope(ir, question)
         if json.dumps(ir) != before_post:
             events.append("post_repair:semantic_passes_reapplied")
     return {"question": question, "raw": raw, "ir": ir, "parse_valid": ir is not None,
