@@ -46,6 +46,46 @@ def _shape(ir):
     return Counter(ops)
 
 
+def _answer_contract(ir):
+    """Meaning-bearing fields that an op multiset cannot see.
+
+    This remains lighter than strict canonical audit, but prevents a missing density/mean head,
+    wrong arithmetic mode, lost RANK cardinality, or wrong annotation field from scoring as a
+    perfect structural parse.  Count inside COMPARE/RANK stays optional because the frozen
+    executor scalarizes records there.
+    """
+    contract = []
+    def walk(node, parent=None):
+        if isinstance(node,list):
+            for value in node: walk(value,parent)
+            return
+        if not isinstance(node,dict): return
+        op=node.get("op")
+        if op == "COMPARE":
+            contract.append(("compare",node.get("how")))
+        elif op == "RANK":
+            contract.append(("rank",node.get("order"),node.get("k"),len(node.get("items",[]))))
+        elif op == "ANNOTATE":
+            contract.append(("annotate",str(node.get("layer","")).lower().replace("_"," ")))
+        elif op == "AGGREGATE":
+            by,metric=node.get("by"),node.get("metric")
+            required = metric in ("density","presence") or (metric == "mean" and by == "space")
+            required = required or (metric == "count" and parent not in ("COMPARE","RANK"))
+            if metric == "mean" and by == "time":
+                # Only a known connector Series has the documented identity denotation.
+                source=node.get("source")
+                entity=source.get("entity") if isinstance(source,dict) and source.get("op")=="SELECT" else None
+                if entity:
+                    import connectors as C
+                    required = not bool(C.ilo_resolve_indicator(entity)[0] or
+                        C.eurostat_resolve_indicator(entity)[0] or C.wb_resolve_indicator(entity)[0])
+            if required: contract.append(("aggregate",by,metric))
+        for value in node.values():
+            if isinstance(value,(dict,list)): walk(value,op)
+    walk(ir)
+    return Counter(contract)
+
+
 def score(qrow, ir, exec_result):
     g = qrow
     s = {}
@@ -68,7 +108,9 @@ def score(qrow, ir, exec_result):
         s["shape_match"] = bool(got and got.get("SELECT"))
     else:
         accepted = [norm_listed(gs) for gs in gold_sets]
-        s["shape_match"] = (got in accepted) if got is not None else False
+        skeleton_ok = (got in accepted) if got is not None else False
+        contract_ok = (_answer_contract(ir) == _answer_contract(g.get("gold_ir")))
+        s["shape_match"] = skeleton_ok and contract_ok
 
     has_holes = bool(rep["holes"]) if ir is not None else False
     if g.get("must_hole"):
@@ -79,7 +121,10 @@ def score(qrow, ir, exec_result):
         if grep and grep.get("holes"):
             # REGION{place:"?place"} and SELECT{region:"?place"} are the two schema-valid
             # encodings of the same missing region slot.
-            def slot(h): return "region" if h.get("op")=="REGION" and h.get("field")=="place" else h["field"]
+            def slot(h):
+                if h.get("op")=="REGION" and h.get("field")=="place":
+                    return "target" if str(h.get("path","")).startswith("root.target") else "region"
+                return h["field"]
             s["holes_correct"] = (Counter(slot(h) for h in rep["holes"]) ==
                                   Counter(slot(h) for h in grep["holes"]))
         else:

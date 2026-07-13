@@ -9,6 +9,8 @@ import semantic_audit as S
 import compile_corpus as CC
 import connectors as C
 import executor as E
+import ir_schema as I
+import scorer as SC
 
 
 def select(entity, region="?place"):
@@ -701,6 +703,104 @@ class ParserRegressionTests(unittest.TestCase):
         finally:
             C.resolve_region=original
         self.assertEqual((got["status"],got["reason"]),("data_request","unresolved_region"))
+
+    def test_computed_relational_rank_recovers_without_model_tree(self):
+        q=("Which two of Bengaluru, Nairobi, and Accra have the most craft workshops "
+           "within 1 km of a market?")
+        got=P.mech_ranked_quantity(None,q)
+        self.assertEqual((got["k"],len(got["items"])),(2,3))
+        self.assertTrue(all(x["source"]["op"]=="RELATE" for x in got["items"]))
+        self.assertTrue(all(x["source"]["threshold_km"]==1.0 for x in got["items"]))
+
+    def test_rank_cardinality_binds_which_choose_and_terse_surfaces(self):
+        seed={"op":"RANK","order":"desc","items":[select("x")]*4}
+        self.assertEqual(P.mech_rank_k(seed,"Which two of A, B, and C have the most X?")["k"],2)
+        self.assertEqual(P.mech_rank_k(seed,"Choose the two highest among A, B, C.")["k"],2)
+        self.assertEqual(P.mech_rank_k(seed,"Two densest for coworking: A, B, C.")["k"],2)
+
+    def test_ranked_ratio_keeps_one_complete_subtree_per_place(self):
+        region=lambda p:{"op":"REGION","place":p}
+        seed={"op":"RANK","order":"desc","items":[select("craft workshop",region(p))
+              for p in ("Accra","Nairobi","Bengaluru")]}
+        got=P.mech_ranked_quantity(seed,
+            "Return the top two coworking-to-craft count ratios among Bengaluru, Nairobi, and Accra.")
+        self.assertEqual((got["k"],len(got["items"])),(2,3))
+        self.assertTrue(all(x["op"]=="COMPARE" and x["how"]=="ratio" for x in got["items"]))
+
+    def test_requested_density_and_mean_heads_do_not_degrade_to_records(self):
+        region={"op":"REGION","place":"Accra"}
+        rel={"op":"RELATE","relation":"within","left":select("water point",region),
+             "right":select("marketplace",region)}
+        density=P.mech_requested_reduction(rel,"Density of water points within markets?")
+        distance=dict(rel,relation="distance")
+        mean=P.mech_requested_reduction(distance,"Mean distance from water points to markets?")
+        self.assertEqual((density["metric"],mean["metric"]),("density","mean"))
+
+    def test_spatial_minus_mirror_preserves_operand_local_entities(self):
+        seed=select("craft workshop",{"op":"REGION","place":"Bengaluru"})
+        q=("Bengaluru's count of market-near craft workshops minus its count of "
+           "market-near coworking spaces, using 1 km?")
+        got=P.mech_spatial_arithmetic(seed,q)
+        left=got["left"]["source"];right=got["right"]["source"]
+        self.assertEqual((left["left"]["entity"],right["left"]["entity"]),
+                         ("craft_workshop","coworking_space"))
+        self.assertEqual((left["right"]["entity"],right["right"]["entity"]),
+                         ("marketplace","marketplace"))
+
+    def test_transfer_keeps_explicit_relational_donor_pattern(self):
+        region={"op":"REGION","place":"Accra"}
+        seed={"op":"ESTIMATE","method":"envelope","source":select("restaurant",region),
+              "target":{"op":"REGION","place":"?place"}}
+        q=("Use Accra restaurants within 1 km of markets as the donor pattern for an unnamed "
+           "target city, using the envelope method.")
+        got=P.mech_transfer_relational_source(seed,q)
+        self.assertEqual((got["source"]["op"],got["source"]["threshold_km"]),("RELATE",1.0))
+
+    def test_compact_trend_range_overrides_single_copied_endpoint(self):
+        region={"op":"REGION","place":"Berlin"}
+        seed={"op":"COMPARE","how":"trend_direction","left":
+              {**select("female employment rate",region),"time":{"start":"2022","end":"2022"}}}
+        got=P.mech_explicit_window_time(seed,"Berlin female employment-rate direction, 2022–24?")
+        self.assertEqual(got["left"]["time"],{"start":"2022","end":"2024"})
+        self.assertEqual(P.mech_time_faithfulness(got,
+            "Berlin female employment-rate direction, 2022–24?")["left"]["time"],
+            {"start":"2022","end":"2024"})
+
+    def test_possessive_source_gap_preserves_full_literal_without_mean(self):
+        got=P.mech_source_gap_select(select("earnings"),
+                                     "What was Kenya's median daily earnings in 2023?")
+        self.assertEqual((got["op"],got["entity"]),("SELECT","median daily earnings"))
+
+    def test_estimate_region_target_hole_is_recursively_unbound(self):
+        tree={"op":"ESTIMATE","method":"envelope","source":
+              select("restaurant",{"op":"REGION","place":"Accra"}),
+              "target":{"op":"REGION","place":"?place"}}
+        report=I.validate(tree)
+        self.assertTrue(report["unbound"])
+        self.assertEqual(report["holes"][0]["path"],"root.target.place")
+
+    def test_estimate_scalar_and_region_target_holes_share_target_slot(self):
+        source=select("restaurant",{"op":"REGION","place":"Accra"})
+        gold={"gold_ir":{"op":"ESTIMATE","method":"envelope","source":source,
+                         "target":"?place"},"gold_shape":["ESTIMATE","SELECT"],
+              "must_hole":True,"must_estimate":True,"expect":"data_request"}
+        actual={"op":"ESTIMATE","method":"envelope","source":source,
+                "target":{"op":"REGION","place":"?place"}}
+        scores=SC.score(gold,actual,E.execute(actual))
+        self.assertTrue(scores["holes_correct"])
+
+    def test_spatial_mean_uses_declared_distance_column(self):
+        got=E._aggregate({"kind":"records","rows":[{"dist_km":1.0},{"dist_km":3.0}]},
+                         "space","mean")
+        self.assertEqual(got["value"],2.0)
+        with self.assertRaises(E.DataRequest):
+            E._aggregate({"kind":"records","rows":[{"lat":1.0,"lon":2.0}]},"space","mean")
+
+    def test_one_point_trend_is_data_request_not_null_answer(self):
+        with self.assertRaises(E.DataRequest) as caught:
+            E._compare({"kind":"series","rows":[{"t":"2022","value":1.0}]},None,
+                       "trend_direction")
+        self.assertEqual(caught.exception.reason,"insufficient_series")
 
 
 if __name__ == "__main__":

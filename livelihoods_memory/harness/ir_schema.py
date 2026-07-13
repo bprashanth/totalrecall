@@ -159,6 +159,16 @@ def _walk(node, path, errs, holes, ops, depth):
             holes.append({"path": f"{path}.region", "op": op, "field": "region", "name": reg})
         elif reg is None:
             errs.append(f"{path}: SELECT missing required field 'region'")
+    # ESTIMATE.target is a value-or-REGION slot, just like SELECT.region.  Merely checking the
+    # required leaf above is insufficient: REGION{place:"?place"} otherwise looks like a bound
+    # dict and can reach the geocoder.  Every nested hole must stop execution (spec v2.1).
+    if op == "ESTIMATE":
+        target = node.get("target")
+        if isinstance(target, dict):
+            _walk(target, f"{path}.target", errs, holes, ops, depth + 1)
+        elif target is not None and not isinstance(target, str):
+            errs.append(f"{path}: ESTIMATE.target must be a string or REGION node, got "
+                        f"{type(target).__name__}")
 
 
 def validate(ir):

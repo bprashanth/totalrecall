@@ -243,6 +243,24 @@
       "corroborates": ["BUG-002"],
       "note": "H21 showed that a wrong subnational World Bank operand could execute to the intended national value because the resolver inferred France from a geocoder parent. Native-grain routing must certify the requested scope and fail closed on implicit coarsening.",
       "required_tests": ["exact country route", "subnational-to-national refusal", "geocoder parent is not consent", "explicit coarsening policy", "cross-grain comparison provenance", "unresolved region returns DataRequest"]
+    },
+    {
+      "id": "BUG-004",
+      "title": "Recursive hole safety for every value-or-node slot",
+      "scope": "schema-executor-semantics",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "note": "H22 encoded an unresolved ESTIMATE target as REGION(place='?place'). The validator inspected target as a leaf but did not walk the REGION, so the unbound placeholder reached geocoding and execution. The spec already requires every nested hole to stop execution; implementations need exhaustive value-or-node traversal tests.",
+      "required_tests": ["scalar target hole", "REGION target hole", "SELECT region hole", "nested time hole", "rank-item hole", "no connector call before unbound refusal"]
+    },
+    {
+      "id": "EXEC-001",
+      "title": "Declared numeric value binding for record aggregation",
+      "scope": "executor-contract",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "note": "H22 showed AGGREGATE(by=space, metric=mean) falling through to row count. RELATE(distance) can declare dist_km as its value column, but general record means require an explicit typed numeric field contract rather than guessing among ids, coordinates, and annotations.",
+      "required_tests": ["mean distance uses dist_km", "mean never falls through to count", "missing numeric value DataRequest", "arbitrary numeric id is not averaged", "typed annotated numeric field", "unit provenance"]
     }
   ]
 }

@@ -298,3 +298,21 @@ regressions 92/92. Two earlier wall attempts were rejected rather than averaged 
 Warsaw source-truncation expectation that unsafe geocoding had hidden, and one exposed a late-pass
 arithmetic regression. The corpus now contains 1,052 unique parse rows and five clarification rows.
 The untouched saturation counter remains zero until a post-freeze H22 contact.
+
+### Round 2 checkpoint 7 — H22 closes eligible rows but opens the executor contract
+
+H22 again rejects saturation: epoch-016 first contact was strict 17/40. All 23 mismatches contained
+real compiler failures, spanning five generalized families, while four questions also had
+ambiguous or inexpressible wording and were quarantined rather than tuned. The repaired disclosed
+bank is strict 36/36 over eligible rows; the four immutable defects remain visible.
+
+More importantly, direct gold execution found that valid algebra could still lie: spatial mean
+returned a row count, all-null annotation counted as grounded, a nested transfer-target hole
+executed, and a one-point trend returned a null Answer. The executor/schema now fail closed and the
+coarse diagnostic checks rank cardinality, arithmetic mode, reduction head, and annotation layer.
+Governance proposals BUG-004 and EXEC-001 capture the cross-sector contracts; strict canonical
+audit remains mandatory.
+
+The saturation counter is zero. H23/H24 raw banks were generated before the H22 repairs and may
+only be used as pre-freeze development pressure. Countable evidence must be generated anew after a
+complete epoch-017 freeze.

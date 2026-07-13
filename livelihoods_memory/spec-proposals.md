@@ -373,3 +373,35 @@ extends its guard from arithmetic to every SELECT route.
 **Evidence:** `h21-037` first-contact actual and gold returned the same 21.337 only under the unsafe
 fallback; independent execution adjudication and the fix2 replay are recorded in
 `chronology/20260713_round2_epoch_016_h21_absorption.md`.
+
+## 2026-07-13 — Recursive hole safety for every value-or-node slot
+
+**Question that forced it:** H22 asked to transfer an Accra donor pattern to an unnamed target city.
+The parser represented the target as `REGION(place="?place")`. The schema checked
+`ESTIMATE.target` only as a required leaf, did not recurse into the REGION, and reported the tree
+bound. The executor then sent the unresolved placeholder to geocoding and returned `gate_failed`
+instead of `unbound_holes`.
+
+**Proposed implementation requirement:** every schema slot that accepts either a scalar value or a
+node must recurse when given a node. The validator's collected-hole set is the sole pre-execution
+authority, and connector calls are forbidden until it is empty. Add an exhaustive slot test matrix;
+this implements the existing frozen recursive-hole rule and does not add an algebra operator.
+
+**Evidence:** immutable `h22-063`, epoch-016 first-contact trace, and the corrected fix2 trace.
+Governance record: `BUG-004`.
+
+## 2026-07-13 — Declared numeric value binding for record means
+
+**Question that forced it:** “What is the mean distance from Bengaluru craft workshops to their
+nearest markets?” The admitted gold correctly composed `AGGREGATE(mean, RELATE(distance,...))`, but
+the executor had no spatial-mean branch and silently returned the number of related rows (371).
+
+**Proposed contract:** a record-valued producer may declare a typed numeric value column and unit.
+`RELATE(distance)` declares `dist_km`; a numeric ANNOTATE may declare its connector field. Spatial
+mean consumes only that declared column, records its non-null coverage and unit, and returns a
+DataRequest if none exists. It must never guess among numeric ids/coordinates or fall through to
+count. The local v2.1 implementation now safely supports `dist_km`; the general typed contract
+remains proposed.
+
+**Evidence:** immutable `h22-043` and `h22-045`, direct gold execution adjudication, and executor
+regressions. Governance record: `EXEC-001`.
