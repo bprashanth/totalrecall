@@ -350,3 +350,26 @@ quantity, admission must reject or allow explicit alternative golds rather than 
 
 **Evidence:** `h20-011`, corrected development row `h4-014`, deterministic adjacent negative
 guards, and H21 control `h21-078`.
+
+## 2026-07-13 — National connectors require an explicit scope certificate
+
+**Question that forced it:** H21's mixed comparison subtracts France's national labor-force
+participation from Ile de France's regional employment rate. The first wrong parse scoped both
+leaves to Ile de France, yet execution returned the same numeric result as the correct gold.
+
+**Why the current connector contract is unsafe:** Nominatim's display name for a subnational place
+contains its parent country. The World Bank resolver used that suffix to convert `Ile de France`
+into `FRA`, silently coarsening the requested geography and making semantically wrong IR appear
+well grounded. The same hazard applies to national-only ILO tables and any future source whose
+native grain is coarser than SELECT.region.
+
+**Proposed change:** each connector returns a scope certificate containing requested scope,
+resolved scope, native source grain, match rule, and any coarsening. Exact native-scope matches may
+execute. Coarsening requires an explicit algebra/policy instruction or returns a typed
+`national_scope_required`/`grain_mismatch` DataRequest; a geocoder parent is never implicit user
+consent. Cross-grain COMPARE additionally records both certificates. This corroborates BUG-002 but
+extends its guard from arithmetic to every SELECT route.
+
+**Evidence:** `h21-037` first-contact actual and gold returned the same 21.337 only under the unsafe
+fallback; independent execution adjudication and the fix2 replay are recorded in
+`chronology/20260713_round2_epoch_016_h21_absorption.md`.

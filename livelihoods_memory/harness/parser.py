@@ -561,6 +561,65 @@ def _first_select(ir):
     return None
 
 
+def _stat_operand_from_clause(text, year, fallback=None):
+    """Compile one independently scoped official-statistic operand from a short clause."""
+    import connectors as C
+    surface = _phrase_norm(text)
+    # Percentage is a presentation synonym, not a distinct measure.
+    lookup = re.sub(r"\bpercentage\b", "rate", surface)
+    # The curated connector names include the unit-bearing noun that ordinary prose often drops.
+    lookup = re.sub(r"\b(labou?r underutilization)(?! rate)\b", r"\1 rate", lookup)
+    lookup = re.sub(r"\b((?:(?:female|male) )?average weekly hours)(?! worked)\b",
+                    r"\1 worked", lookup)
+    aliases = [(alias, code) for alias, code in C.EUROSTAT_GEOS.items()
+               if re.search(r"(?<![a-z0-9])" + re.escape(_phrase_norm(alias)) +
+                            r"(?![a-z0-9])", lookup)]
+    occurrences = _entity_occurrences(lookup)
+    measures = [item for item in occurrences if
+                C.ilo_resolve_indicator(item[2])[0] or
+                C.eurostat_resolve_indicator(item[2])[0] or
+                C.wb_resolve_indicator(item[2])[0]]
+    # A named national unemployment operand is the country-level WB measure, while a curated
+    # NUTS region's bare "unemployment" denotes Eurostat unemployment rate.
+    if re.search(r"\b(?:world bank|national)\b", lookup) and re.search(r"\bunemployment\b", lookup):
+        entity = "unemployment"
+    elif aliases and re.search(r"\bfemale\s+employment\s+rate\b", lookup):
+        entity = "female employment rate"
+    elif aliases and re.search(r"\bmale\s+employment\s+rate\b", lookup):
+        entity = "male employment rate"
+    elif aliases and re.search(r"\bemployment\s+rate\b", lookup):
+        entity = "employment rate"
+    elif aliases and re.search(r"\bunemployment(?:\s+rate)?\b", lookup):
+        entity = "unemployment rate"
+    elif not measures:
+        return None
+    else:
+        chosen = max(measures, key=lambda item:item[1]-item[0])
+        entity = chosen[2]
+
+    place = None
+    if aliases:
+        # Prefer the longest named NUTS surface, not a nested city alias.
+        place = max((alias for alias, _ in aliases), key=lambda value:len(_phrase_norm(value)))
+    if place is None:
+        remainder = lookup
+        en = _phrase_norm(entity)
+        remainder = re.sub(r"(?<![a-z0-9])" + re.escape(en) + r"(?![a-z0-9])", " ", remainder,
+                           count=1)
+        remainder = re.sub(r"\b(?:world bank|eurostat|ilostat|ilo|national|reported|rate|"
+                           r"percentage|share|value|its|the|s)\b", " ", remainder)
+        remainder = re.sub(r"\b(?:19|20)\d{2}\b", " ", remainder)
+        remainder = re.sub(r"^(?:for|in|of)\s+|\s+(?:for|in|of)$", "", remainder.strip())
+        place = " ".join(remainder.split())
+    if not place and isinstance(fallback, dict):
+        region = fallback.get("region")
+    else:
+        region = {"op":"REGION", "place":place}
+    if not region: return None
+    return {"op":"SELECT", "entity":entity, "region":region,
+            "time":{"start":year,"end":year}}
+
+
 def mech_series_rank(ir, question):
     """Named 'Rank/Sort/Order A, B ... by indicator in YEAR' has a fully determined wide tree."""
     match = re.search(r"\b(?:rank|sort|order)\s+(.+?)\s+by\s+", question, re.I)
@@ -686,16 +745,20 @@ def mech_explicit_rank_semantics(ir, question):
     # without weakening ordinary one-year ranks or unbounded unary trends.
     years = re.findall(r"\b(?:19|20)\d{2}\b", question)
     endpoint_rank = (len(years) == 2 and
-                     re.search(r"\b(?:rank|order|ladder|top\s*[- ]?\s*\d+|which\s+saw)\b",
+                     re.search(r"\b(?:rank|order|ladder|put|winner\s+only|which\s+(?:one|had|saw)|"
+                               r"whose\b|top\s*[- ]?\s*(?:\d+|one|two|three|four|five))\b",
                                question, re.I) and
-                     (re.search(r"\b(?:change|rise|rose|gain|fell|fall|drop|deteriorat|improvement)\w*\b",
+                     (re.search(r"\b(?:change|increas|decreas|rise|rose|gain|fell|fall|drop|"
+                                r"deteriorat|improvement)\w*\b",
                                 question, re.I) or
                       re.search(r"\bendpoint\b", question, re.I)))
     if endpoint_rank and not (change_rank or which_change):
         places_text = None
         for pattern in (
-            r"\bamong\s+(.+?),\s*(?:which|rank|order)\b",
+            r"\bamong\s+(.+?),\s*(?:which|whose|rank|order)\b",
+            r"\bof\s+(.+?),\s*which\b",
             r"\b(?:rank|order)\s+(.+?)\s+(?:by|on)\b",
+            r"\bcandidates?\s+(.+?)[.?!]*$",
             r":\s*([^:.?!]+?)[.?!]*$",
         ):
             match = re.search(pattern, question, re.I)
@@ -719,8 +782,10 @@ def mech_explicit_rank_semantics(ir, question):
                     C.ilo_resolve_indicator(item[2])[0] or
                     C.eurostat_resolve_indicator(item[2])[0] or
                     C.wb_resolve_indicator(item[2])[0]]
-        if len(places) >= 2 and measures:
-            entity = max(measures, key=lambda item: item[1] - item[0])[2]
+        inferred = _stat_operand_from_clause(question, years[-1])
+        if len(places) >= 2 and (measures or inferred):
+            entity = (max(measures, key=lambda item: item[1] - item[0])[2]
+                      if measures else inferred["entity"])
             earlier, later = sorted(set(years), key=int)
             def point(place, year):
                 return {"op":"SELECT", "entity":entity,
@@ -731,15 +796,55 @@ def mech_explicit_rank_semantics(ir, question):
                      for place in places]
             # Signed later-minus-earlier: the greatest fall/improvement is the smallest value.
             ascending = bool(re.search(
-                r"\b(?:fell|fall|largest\s+drop|greatest\s+drop|most\s+improvement)\b",
-                question, re.I)) and not bool(re.search(r"\bworst\s+deterioration\b", question, re.I))
+                r"\b(?:fell|fall|steepest\s+fall|largest\s+drop|greatest\s+drop|"
+                r"greatest\s+decrease|smallest\s+(?:increase|change|gain|rise)|"
+                r"most\s+improvement)\b", question, re.I)) \
+                and not bool(re.search(r"\bworst\s+deterioration\b", question, re.I))
+            if re.search(r"\bsmallest(?:\s+[\w-]+){0,4}\s+"
+                         r"(?:increase|change|gain|rise)\b", question, re.I):
+                ascending = True
             out = {"op":"RANK", "items":items, "order":"asc" if ascending else "desc"}
-            top = re.search(r"\btop\s*[- ]?\s*(\d+)\b", question, re.I)
-            if top: out["k"] = int(top.group(1))
+            words = {"one":1,"two":2,"three":3,"four":4,"five":5}
+            top = re.search(r"\btop\s*[- ]?\s*(\d+|one|two|three|four|five)\b", question, re.I)
+            if top:
+                token=top.group(1).lower();out["k"]=int(token) if token.isdigit() else words[token]
             elif re.search(r"\bwhich\s+(?:\w+\s+){0,2}(?:had|has|saw)\s+(?:the\s+)?"
-                           r"(?:largest|smallest|greatest|most|fewest)\b", question, re.I):
+                           r"(?:largest|smallest|greatest|most|fewest)\b|\b(?:winner\s+only|"
+                           r"which\s+one|whose\b.+?\b(?:largest|steepest|most))", question, re.I):
                 out["k"] = 1
             return out
+
+    # A rank of endpoint ratios is a different quantity blueprint from endpoint difference.
+    ratio_rank = re.search(
+        r"\bwhose\s+((?:19|20)\d{2})(?:\s*(?:-|–|—)?\s*to\s*(?:-|–|—)?\s*|"
+        r"\s*(?:-|–|—)\s*)((?:19|20)\d{2})\s+"
+        r"(.+?)\s+ratio\s+is\s+(?:the\s+)?(?:largest|highest)\s*,\s*(.+?)[?!.]*$",
+        question, re.I)
+    if ratio_rank:
+        y2,y1,entity_text,places_text=ratio_rank.groups()
+        places=_literal_place_list(places_text);occ=_entity_occurrences(entity_text)
+        if len(places)>=2 and occ:
+            entity=max(occ,key=lambda item:item[1]-item[0])[2]
+            later,earlier=sorted((y1,y2),key=int,reverse=True)
+            def point(place,year):return {"op":"SELECT","entity":entity,
+                "region":{"op":"REGION","place":place},"time":{"start":year,"end":year}}
+            return {"op":"RANK","order":"desc","k":1,"items":[
+                {"op":"COMPARE","how":"ratio","left":point(place,later),
+                 "right":point(place,earlier)} for place in places]}
+
+    # Heterogeneous but unit-compatible operands: parse every colon-delimited item locally.
+    heterogeneous = re.search(r":\s*(.+?)[?!.]*$", question)
+    if heterogeneous and re.search(r"\b(?:order|highest|lowest|numerically)\b", question, re.I):
+        year_match=re.search(r"\b(?:19|20)\d{2}\b",question)
+        parts=[p.strip(" ,") for p in re.split(r",|\b(?:and|or)\b",heterogeneous.group(1),flags=re.I)
+               if p.strip(" ,")]
+        if year_match and len(parts)>=3:
+            items=[_stat_operand_from_clause(part,year_match.group(0)) for part in parts]
+            if all(items):
+                out={"op":"RANK","order":"asc" if re.search(r"\blowest\b",question,re.I) else "desc",
+                     "items":items}
+                if re.search(r"\bwhich\s+is\b",question,re.I):out["k"]=1
+                return out
 
     if change_rank or which_change:
         if change_rank:
@@ -865,48 +970,72 @@ def mech_mixed_source_compare(ir, question):
         if match:
             mode = candidate_mode
             break
-    if not match: return ir
-
-    import connectors as C
-    def operand(text, fallback):
-        normalized = _phrase_norm(text)
-        occurrences = _entity_occurrences(normalized)
-        measures = [item for item in occurrences if
-                    C.ilo_resolve_indicator(item[2])[0] or
-                    C.eurostat_resolve_indicator(item[2])[0] or
-                    C.wb_resolve_indicator(item[2])[0]]
-        if not measures: return None
-        chosen = max(measures, key=lambda item:item[1]-item[0])
-        entity = chosen[2]
-        remainder = (normalized[:chosen[0]] + " " + normalized[chosen[1]:]).strip()
-        remainder = re.sub(r"\b(?:world bank|eurostat|ilostat|ilo)\b", " ", remainder)
-        remainder = " ".join(remainder.split())
-        remainder = re.sub(r"^(?:the\s+)?(?:for|in)\s+|\s+(?:for|in)$", "", remainder).strip()
-        if not remainder and fallback:
-            region = fallback.get("region")
-        else:
-            region = {"op":"REGION", "place":remainder}
-        return {"op":"SELECT", "entity":entity, "region":region,
-                "time":{"start":match.group(3),"end":match.group(3)}}
-
     left_fallback = ir.get("left") if isinstance(ir,dict) and ir.get("op") == "COMPARE" else _first_select(ir)
     right_fallback = ir.get("right") if isinstance(ir,dict) and ir.get("op") == "COMPARE" else None
-    left = operand(match.group(1), left_fallback)
-    right = operand(match.group(2), right_fallback)
-    if not left or not right or not left.get("region") or not right.get("region"): return ir
-    return {"op":"COMPARE", "how":mode, "left":left, "right":right}
+    if match:
+        year = match.group(3)
+        left = _stat_operand_from_clause(match.group(1), year, left_fallback)
+        right = _stat_operand_from_clause(match.group(2), year, right_fallback)
+        if left and right and left.get("region") and right.get("region"):
+            return {"op":"COMPARE", "how":mode, "left":left, "right":right}
+
+    # Non-commutative prose forms.  Every side is compiled from its own clause; a fallback may
+    # supply an explicitly shared region ("its", or a leading "For Germany") but never an entity.
+    surfaces = (
+        (r"^\s*in\s+percentage\s+points\s*,\s*subtract\s+(.+?)\s+from\s+(.+?)[.?!]*$",
+         "difference", 2, 1),
+        (r"^\s*difference\s+requested\s*:\s*(.+?)\s+minus\s+(.+?)\s+in\s+((?:19|20)\d{2})[.?!]*$",
+         "difference", 1, 2),
+        (r"^\s*ratio\s+check\s+for\s+((?:19|20)\d{2})\s*:\s*(.+?)\s+divided\s+by\s+(.+?)[.?!]*$",
+         "ratio", 2, 3),
+        (r"^\s*divide\s+(.+?)\s+by\s+(.+?)[.?!]*$", "ratio", 1, 2),
+    )
+    for pattern, candidate_mode, left_group, right_group in surfaces:
+        found = re.match(pattern, question, re.I)
+        if not found:
+            continue
+        years = re.findall(r"\b(?:19|20)\d{2}\b", question)
+        if not years:
+            return ir
+        year = years[-1]
+        left = _stat_operand_from_clause(found.group(left_group), year, left_fallback)
+        # "its" inherits only the already grounded sibling region.
+        inherited = left if re.search(r"\b(?:its|the same country)\b", found.group(right_group), re.I) else right_fallback
+        right = _stat_operand_from_clause(found.group(right_group), year, inherited)
+        if left and right and left.get("region") and right.get("region"):
+            return {"op":"COMPARE", "how":candidate_mode, "left":left, "right":right}
+
+    scoped = re.match(
+        r"^\s*for\s+(.+?)\s+in\s+((?:19|20)\d{2})\s*,\s*subtract\s+(.+?)\s+from\s+(.+?)[.?!]*$",
+        question, re.I)
+    if scoped:
+        place, year, subtrahend, minuend = scoped.groups()
+        fallback = {"region":{"op":"REGION", "place":place.strip()}}
+        left = _stat_operand_from_clause(minuend, year, fallback)
+        right = _stat_operand_from_clause(subtrahend, year, fallback)
+        if left and right:
+            return {"op":"COMPARE", "how":"difference", "left":left, "right":right}
+    return ir
 
 
 def mech_rank_k(ir, question):
     """Bind an explicit first-N modifier independently of how the RANK tree was produced."""
     if not isinstance(ir,dict) or ir.get("op")!="RANK":return ir
-    words={"one":1,"two":2,"three":3,"four":4,"five":5}
+    words={"one":1,"two":2,"three":3,"four":4,"five":5,"six":6,"seven":7,"eight":8,
+           "nine":9,"ten":10}
     m=re.search(r"\b(?:top|bottom)\s+(\d+|one|two|three|four|five)\b",question,re.I)
+    if not m:
+        m=re.search(r"\b(?:show|give|return)\s+(?:the\s+)?"
+                    r"(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b.+?"
+                    r"\b(?:highest|lowest|most|fewest)\b",question,re.I)
     if not m:
         # Singular winner questions denote argmax/argmin, not the complete ordering.
         if re.search(r"\bwhich\s+(?:(?:city|place|region|country)\s+)?(?:has|had|saw)\s+"
                      r"(?:the\s+)?(?:most|fewest|largest|smallest|greatest|more|fewer)\b",
                      question,re.I):
+            out=dict(ir);out["k"]=1;return out
+        if re.search(r"\b(?:winner\s+only|pick\s+the\s+\w+\s+with\s+the\s+"
+                     r"(?:highest|lowest|most|fewest)|which\s+one\b)",question,re.I):
             out=dict(ir);out["k"]=1;return out
         return ir
     token=m.group(1).lower();out=dict(ir);out["k"]=int(token) if token.isdigit() else words[token]
@@ -1229,6 +1358,9 @@ def mech_nearest_distance(ir, question):
     from_to = re.search(
         r"\bdistance\s+from\s+(.+?)\s+to\s+(.+?)(?:\s+nearby)?\s*(?:—|;|,|[.?!]|$)",
         question, re.I)
+    each_here = re.search(
+        r"\bgive\s+each\s+(.+?)\s+here\s+its\s+distance\s+to\s+(?:the\s+)?"
+        r"(?:nearest|closest)\s+(.+?)[.?!]*$", question, re.I)
     if annotate:
         left_entity, right_entity = entity(annotate.group(1)), entity(annotate.group(2))
     elif reverse:
@@ -1237,6 +1369,9 @@ def mech_nearest_distance(ir, question):
         left_entity, right_entity = entity(between.group(1)), entity(between.group(2))
     elif from_to:
         left_entity, right_entity = entity(from_to.group(1)), entity(from_to.group(2))
+    elif each_here:
+        left_entity, right_entity = entity(each_here.group(1)), entity(each_here.group(2))
+        region = {"op":"REGION", "place":"?place"}
     elif re.search(r"\bfor each\b.+?\bhow far\b.+?\bnearest\b", question, re.I):
         entities = list(dict.fromkeys(key for _, _, key in
                                       _entity_occurrences(question, osm_only=True)))
@@ -1300,6 +1435,30 @@ def mech_relation_comparisons(ir, question):
     if not first:return ir
     # Ratio of a related subset to its total, or difference between two related subsets.
     ents=list(dict.fromkeys(key for _,_,key in _entity_occurrences(question,osm_only=True)))
+    # Cross-place ratio of the same explicitly related count.  "Corresponding count" carries
+    # the whole entity/relation/threshold blueprint to the denominator, changing only its place.
+    corresponding = re.search(
+        r"\bratio\s+of\s+(.+?)(?:['’]s|\s+count\s+of)\s+count\s+of\s+(.+?)\s+"
+        r"(beyond|within)\s+([\d.]+\s*(?:km|kilometers?|kilometres?|m\b|meters?|metres?))\s+"
+        r"from\s+(.+?)\s+to\s+(.+?)(?:['’]s)?\s+corresponding\s+count[.?!]*$",
+        question, re.I)
+    if corresponding:
+        place1, entity_text, relation, distance, anchor_text, place2 = corresponding.groups()
+        entity_occ = _entity_occurrences(entity_text, osm_only=True)
+        anchor_occ = _entity_occurrences(anchor_text, osm_only=True)
+        if not entity_occ and re.fullmatch(r"markets?", entity_text.strip(), re.I):
+            entity_occ = [(0, len(entity_text), "marketplace")]
+        if entity_occ and anchor_occ:
+            entity = entity_occ[0][2]
+            anchor = anchor_occ[0][2]
+            d = _parse_dist_km(distance.lower())
+            def side(place):
+                region={"op":"REGION", "place":place.strip(" ,")}
+                related={"op":"RELATE", "relation":relation.lower(), "threshold_km":d,
+                         "left":{"op":"SELECT", "entity":entity, "region":region, "time":None},
+                         "right":{"op":"SELECT", "entity":anchor, "region":region, "time":None}}
+                return {"op":"AGGREGATE", "by":"space", "metric":"count", "source":related}
+            return {"op":"COMPARE", "how":"ratio", "left":side(place1), "right":side(place2)}
     if re.search(r"\bmore\b.+?\bnear\b.+?\bor\s+near\b", ql) and len(ents) >= 3:
         region=first.get("region")
         def side(anchor):
@@ -1728,8 +1887,17 @@ def mech_source_gap_select(ir, question):
         subject = " ".join(subject.split())
         return {"op":"SELECT","entity":f"{subject} headcount",
                 "region":{"op":"REGION","place":place.strip(" ,.;:—-")},"time":None}
+    preserve_number = False
     match = re.match(r"\s*show\s+(.+?)\s+for\s+(.+?)\s+in\s+((?:19|20)\d{2})[.?!]?\s*$",
                      question, re.I)
+    if not match:
+        match = re.match(r"\s*what\s+was\s+(?:the\s+)?(.+?)\s+in\s+(.+?)\s+in\s+"
+                         r"((?:19|20)\d{2})[.?!]?\s*$", question, re.I)
+        preserve_number = bool(match)
+    if not match:
+        match = re.match(r"\s*report\s+(?:the\s+)?(.+?)\s+in\s+(.+?)\s+for\s+"
+                         r"((?:19|20)\d{2})[.?!]?\s*$", question, re.I)
+        preserve_number = bool(match)
     if match:
         entity, place, year = match.groups()
         aggregate = False
@@ -1751,15 +1919,73 @@ def mech_source_gap_select(ir, question):
     if (C.ilo_resolve_indicator(entity)[0] or C.eurostat_resolve_indicator(entity)[0]
             or C.wb_resolve_indicator(entity)[0] or C.osm_resolve_tag(entity)[0]):
         return ir
-    if entity.lower().endswith("surveys"): entity = entity[:-3] + "ey"
-    elif entity.lower().endswith("s") and not re.search(r"\b(?:microdata|statistics)\b", entity, re.I):
-        entity = entity[:-1]
+    if not preserve_number:
+        if entity.lower().endswith("surveys"): entity = entity[:-3] + "ey"
+        elif entity.lower().endswith("s") and not re.search(r"\b(?:microdata|statistics)\b", entity, re.I):
+            entity = entity[:-1]
     selected = {"op":"SELECT","entity":entity.strip(),
                 "region":{"op":"REGION","place":place.strip()},
                 "time":{"start":year,"end":year} if year else None}
     if aggregate:
         return {"op":"AGGREGATE","by":"space","metric":"count","source":selected}
     return selected
+
+
+def mech_deictic_roles(ir, question):
+    """Keep unresolved place/entity roles as shared typed holes.
+
+    Late placement is intentional: named-entity and region binders may safely restore explicit
+    antecedents first, while unsupported deixis must be able to undo a model's plausible-looking
+    duplicated literal.  The rewrite is licensed only by narrow role-bearing surfaces.
+    """
+    if not isinstance(ir, dict):
+        return ir
+    ql = _phrase_norm(question)
+    by_me = bool(re.search(r"\b(?:by|near|beside) me\b", ql))
+    unresolved_city = "that city" in ql
+    unresolved_there = bool(re.search(r"\bthere\b", ql))
+    unresolved_here = bool(re.search(r"\bhere\b", ql))
+    workshop_anaphor = bool(re.search(r"\bthose workshops\b", ql))
+    generic_anchor = bool(re.search(r"\b(?:near|within|beside) the facility\b", ql))
+    if not any((by_me, unresolved_city, unresolved_there, unresolved_here,
+                workshop_anaphor, generic_anchor)):
+        return ir
+
+    def walk(value, parent_op=None, side=None):
+        if isinstance(value, list):
+            return [walk(item, parent_op, side) for item in value]
+        if not isinstance(value, dict):
+            return value
+        op = value.get("op")
+        out = {key: walk(child, op, key) if isinstance(child, (dict, list)) else child
+               for key, child in value.items()}
+        if op != "SELECT":
+            return out
+
+        entity = str(out.get("entity", ""))
+        if workshop_anaphor and parent_op in ("COMPARE", "AGGREGATE", "RANK"):
+            # In a count comparison the antecedent subtype, not merely "workshop", is missing.
+            if re.search(r"\b(?:craft|artisan|workshop)\b", _phrase_norm(entity)):
+                out["entity"] = "?workshop_type"
+        if generic_anchor and parent_op == "RELATE" and side == "right":
+            out["entity"] = "?anchor_entity"
+
+        region = out.get("region")
+        place = region.get("place", "") if isinstance(region, dict) else str(region or "")
+        pn = _phrase_norm(place)
+        replacement = None
+        if by_me and parent_op == "RELATE" and side == "right":
+            replacement = "?anchor_place"
+        elif unresolved_city and pn in ("that city", "city"):
+            replacement = "?third_city"
+        elif unresolved_there and pn in ("there", "that place", "third place"):
+            replacement = "?third_place"
+        elif unresolved_here and pn in ("here", "this place", "this area", ""):
+            replacement = "?place"
+        if replacement:
+            out["region"] = {"op":"REGION", "place":replacement}
+        return out
+    return walk(ir)
 
 
 def mech_explicit_change(ir, question):
@@ -2242,6 +2468,10 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     ir = bind_named_behavior_place(ir, question)
     if json.dumps(ir) != before:
         events.append("binder:named_behavior_place")
+    before = json.dumps(ir)
+    ir = mech_deictic_roles(ir, question)
+    if json.dumps(ir) != before:
+        events.append("binder:unresolved_deictic_roles")
     # repair-with-feedback (tick-010): a schema-invalid tree gets ONE correction round with the
     # validator's exact errors — compiler-style error recovery, generic across failure patterns.
     if repair and ir is not None:
@@ -2297,6 +2527,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
                    mech_generic_entity_hole, mech_abstract_rate_hole,
                    mech_rejected_indicator_hole, bind_named_behavior_place):
             ir = fn(ir, question)
+        ir = mech_deictic_roles(ir, question)
         if json.dumps(ir) != before_post:
             events.append("post_repair:semantic_passes_reapplied")
     return {"question": question, "raw": raw, "ir": ir, "parse_valid": ir is not None,

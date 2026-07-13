@@ -32,10 +32,15 @@ def _merge_label(*labels):
 
 
 def _resolve_region(region):
-    if isinstance(region, dict) and region.get("op") == "REGION":
-        return C.resolve_region(region["place"])
-    if isinstance(region, str) and not is_hole(region):
-        return C.resolve_region(region)
+    try:
+        if isinstance(region, dict) and region.get("op") == "REGION":
+            return C.resolve_region(region["place"])
+        if isinstance(region, str) and not is_hole(region):
+            return C.resolve_region(region)
+    except (RuntimeError, ValueError, KeyError, TypeError) as exc:
+        # Connector/geocoder failures are evidence gaps, not harness crashes.  Keep the original
+        # requested scope in the DataRequest so a caller can clarify or add a region connector.
+        raise DataRequest("unresolved_region", {"region": region, "error": str(exc)}) from exc
     raise DataRequest("unresolved_region", {"region": region})
 
 
@@ -46,6 +51,12 @@ def _route_select(entity, region, time, prov):
     # phrases are deliberately exact under frozen v2.1 (which has no FILTER operator).
     ilo_spec, ilo_canon, _ = C.ilo_resolve_indicator(entity)
     if ilo_spec:
+        if not C.wb_resolve_iso(region):
+            prov.append({"op":"SELECT", "route":"ilostat", "resolved":ilo_canon,
+                         "note":"national indicator rejected for non-country scope"})
+            raise DataRequest("national_scope_required",
+                              {"entity":entity, "region":region.get("orig") or region.get("name"),
+                               "source":"ilostat"})
         out = C.ilo_series(entity, region, time)
         prov.append({"op": "SELECT", "route": "ilostat", "resolved": ilo_canon,
                      "indicator": out.get("indicator"), "unit": out.get("unit"),
@@ -66,6 +77,12 @@ def _route_select(entity, region, time, prov):
     # world bank indicator?
     code, canon, ambig = C.wb_resolve_indicator(entity)
     if code:
+        if not C.wb_resolve_iso(region):
+            prov.append({"op":"SELECT", "route":"worldbank", "resolved":canon,
+                         "note":"national indicator rejected for non-country scope"})
+            raise DataRequest("national_scope_required",
+                              {"entity":entity, "region":region.get("orig") or region.get("name"),
+                               "source":"worldbank"})
         out = C.wb_series(entity, region, time)
         prov.append({"op": "SELECT", "route": "worldbank", "resolved": canon,
                      "ambiguous": ambig, "note": out["note"]})
@@ -94,7 +111,7 @@ def _ev(node, prov, region_ctx):
     op = node["op"]
 
     if op == "REGION":
-        return {"kind": "region", "value": C.resolve_region(node["place"]), "label": "observed"}
+        return {"kind": "region", "value": _resolve_region(node), "label": "observed"}
 
     if op == "SELECT":
         region = _resolve_region(node["region"])

@@ -233,6 +233,16 @@
       "source": "livelihoods_memory/spec-proposals.md",
       "note": "H19 exposed a conflict between absent-time-null series retrieval and a scalar 'how much did X change' request, which requires two endpoints. The framework must choose an explicit available-range convention or a typed interval clarification; benchmark golds must not invent two time holes ad hoc.",
       "required_tests": ["unbounded scalar change", "explicit endpoint change", "unary trend without dates", "available-range provenance", "interval clarification binding"]
+    },
+    {
+      "id": "SRC-003",
+      "title": "Explicit scope certificates for native-grain connectors",
+      "scope": "connector-contract",
+      "status": "proposed",
+      "source": "livelihoods_memory/spec-proposals.md",
+      "corroborates": ["BUG-002"],
+      "note": "H21 showed that a wrong subnational World Bank operand could execute to the intended national value because the resolver inferred France from a geocoder parent. Native-grain routing must certify the requested scope and fail closed on implicit coarsening.",
+      "required_tests": ["exact country route", "subnational-to-national refusal", "geocoder parent is not consent", "explicit coarsening policy", "cross-grain comparison provenance", "unresolved region returns DataRequest"]
     }
   ]
 }

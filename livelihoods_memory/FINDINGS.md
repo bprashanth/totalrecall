@@ -406,3 +406,29 @@ The absorption loop itself rejected two seemingly clean wall attempts after stri
 checks. The final epoch-012 wall contains 887 questions and passes ordinary 887/887, strict eligible
 885/885, 16/16 deterministic regressions, and dialogue 5/5 for each binder. H17 is immutable failed
 evidence, not a saturation success; the untouched counter is zero at the epoch-012 freeze.
+
+## 2026-07-13 — H21 rejects epoch 015 and exposes false-grounding risks [PARSER/CONNECTOR/HARNESS]
+
+H21 scored 17/40 on first-contact strict audit despite a certified 1,000-question development
+wall. Independent adjudication found 23 compiler-bearing rows, no gold defects, and no audit
+defects. Direct execution of all admitted golds confirmed every declared outcome class. The
+failures form six families: rank blueprint/candidate/cardinality closure, operand-local source and
+facet binding, complete unsupported indicators, unresolved deictic roles, relational predicate
+composition, and noncommutative orientation.
+
+Judge decision: H21 invalidates epoch 015 and contributes zero saturation passes. Its recurrence of
+the H20 family labels is not evidence that the failures were “known residue”; the new surfaces were
+not handled and therefore the families were not absorbed under SAT-002. Family closure requires a
+later untouched contact, not only disclosed positive and negative guards.
+
+General repairs plus 91 deterministic tests close the immutable bank at strict 40/40. All 40 valid
+rows become disclosed development in `questions/round2-h21-dev.json`. No IR operation or field was
+added.
+
+Execution adjudication also found a false-grounding path: the World Bank connector inferred France
+from the Nominatim parent of Ile de France, allowing wrong subnational IR to return the intended
+national number. National-only connectors now require the original requested scope to be a country;
+curated statistical regions are geocoded with country qualification; region-resolution exceptions
+return typed DataRequests. Judge decision: implicit geographic coarsening is an evidence defect,
+not a convenient fallback. SRC-003 proposes a general connector scope certificate and corroborates
+BUG-002.
