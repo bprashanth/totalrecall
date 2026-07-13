@@ -51,3 +51,10 @@ were rounded with six significant digits, which can lose more than the numeric-a
 tolerance for three-digit longitudes. Coordinate rendering now uses six decimal places, preserving
 sub-metre source fidelity while remaining concise. This was a synthesis-core change, so a complete
 new wall is required; the otherwise-green v5 rows do not count.
+
+Wall v6 passed every mechanical gate, but independent replay rejected it because trace compaction
+kept the first three series rows while prose cited the full series' final endpoint. Twenty-eight
+answers therefore contained endpoint values that were grounded during execution but not
+reconstructible from persisted evidence. Series compaction now preserves the first two and final
+rows, and the synthesis audit requires every cited endpoint to remain in the trace. V6 is rejected
+and contributes no certification or saturation evidence.

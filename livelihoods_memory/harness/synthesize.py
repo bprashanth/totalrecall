@@ -149,9 +149,12 @@ def _difference_finding(question, scalar, ir):
                 or re.search(r"\bmore\b.+?\bor\b",ql))
     if choice:
         if scalar==0:return "The two operands are tied (difference 0)."
-        winner=_contrast_label(ir.get("left"),ir.get("right"),scalar>0)
+        wants_smaller=bool(re.search(r"\b(?:fewer|lower|less|smaller|smallest)\b",ql))
+        choose_left=(scalar<0) if wants_smaller else (scalar>0)
+        winner=_contrast_label(ir.get("left"),ir.get("right"),choose_left)
         winner=winner[:1].upper()+winner[1:]
-        return f"{winner} has the larger value; the left-minus-right difference is {_fmt(scalar)}."
+        adjective="smaller" if wants_smaller else "larger"
+        return f"{winner} has the {adjective} value; the left-minus-right difference is {_fmt(scalar)}."
     if direct and re.search(r"\b(?:more|higher|greater|larger|outnumber)\b",ql):
         yes=scalar>0
         relation="higher" if scalar>0 else "lower" if scalar<0 else "equal"

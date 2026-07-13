@@ -1193,6 +1193,10 @@ class ParserRegressionTests(unittest.TestCase):
         prose=SYN.synthesize("Are there more workshops near a market or near a bank?",result,ir=choice)
         self.assertIn("bank-based side",prose)
         self.assertNotIn("No;",prose)
+        lower_result={**result,"value":{"kind":"scalar","value":-4.0}}
+        prose=SYN.synthesize("Which has fewer workshops, the market side or the bank side?",
+                             lower_result,ir=choice)
+        self.assertIn("market-based side has the smaller value",prose.lower())
 
     def test_zero_denominator_is_a_typed_undefined_answer(self):
         got=E._compare({"kind":"scalar","value":4},{"kind":"scalar","value":0},"ratio")
@@ -1214,6 +1218,17 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertIn("B — 09:00-17:00",prose)
         trimmed=RB.trim_exec(result)
         self.assertEqual([r["name"] for r in trimmed["value"]["rows"][:2]],["B","D"])
+
+    def test_trace_compaction_preserves_series_answer_endpoints(self):
+        rows=[{"t":str(year),"value":float(year-2000)} for year in range(2018,2023)]
+        result={"status":"answer","label":"observed","value":{"kind":"series","rows":rows},
+                "provenance":[{"route":"worldbank"}]}
+        prose=SYN.synthesize("Show the series.",result,ir=select("rate"))
+        trimmed=RB.trim_exec(result)
+        self.assertEqual([r["t"] for r in trimmed["value"]["rows"]],["2018","2019","2022"])
+        trace={"synthesis_scores":{"overall":1.0},"question":"Show the series.",
+               "synthesis":prose,"ir":select("rate"),"execution":trimmed}
+        self.assertEqual(SA.audit_trace(trace),[])
 
     def test_mapped_indicator_with_unsupported_geo_is_not_no_connector(self):
         with self.assertRaises(E.DataRequest) as ctx:

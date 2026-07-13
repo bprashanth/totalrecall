@@ -29,7 +29,11 @@ def trim_exec(res):
         # Keep annotation evidence auditable in a compact trace.  Source order can put all
         # non-null requested fields after the first three rows even when many values exist.
         layers=[p.get("layer") for p in r.get("provenance",[]) if p.get("op")=="ANNOTATE"]
-        if layers:
+        if v.get("kind")=="series" and len(rows)>3:
+            # Synthesis reports the first and final endpoints.  Persist both so an independent
+            # reviewer can replay the prose claim from the compact trace (v6 evidence finding).
+            rows=rows[:2]+rows[-1:]
+        elif layers:
             layer=layers[-1]
             rows=sorted(rows,key=lambda row: row.get(layer) is None)
         v["rows"] = rows[:3]
