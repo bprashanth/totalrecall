@@ -38,19 +38,28 @@ def active_questions():
     return active
 
 
-def declared_gold_defects():
-    """Durable exclusions prevent validated-but-wrong historical golds entering training."""
+def declared_gold_defect_questions():
+    """Resolve composite bank/id defect keys to text; IDs alone are not globally unique."""
     try:
         data = json.load(open(GOLD_DEFECTS))
     except (json.JSONDecodeError, OSError):
         return set()
-    return {row.get("id") for row in data.get("rows", []) if row.get("id")}
+    questions = set()
+    root = os.path.join(HERE, "..")
+    for defect in data.get("rows", []):
+        try:
+            bank = json.load(open(os.path.join(root, defect["bank"])))
+        except (KeyError, json.JSONDecodeError, OSError):
+            continue
+        questions.update(row.get("q") for row in bank.get("questions", [])
+                         if row.get("id") == defect.get("id") and row.get("q"))
+    return questions
 
 
 def collect_parse_rows():
     best = {}  # question -> (mtime, row)
     active = active_questions()
-    defects = declared_gold_defects()
+    defects = declared_gold_defect_questions()
     for path in sorted(glob.glob(os.path.join(RUNS, "*", "traces.jsonl"))):
         mtime = os.path.getmtime(path)
         for line in open(path):
@@ -59,7 +68,7 @@ def collect_parse_rows():
                 continue
             if r.get("model") != "qwen2b":
                 continue  # frontier controls are evaluation, not parser-under-test self-training
-            if r.get("id") in defects:
+            if r.get("question") in defects:
                 continue  # an executable/schema-valid tree can still be a declared bad gold
             s = r["scores"]
             ir = None
