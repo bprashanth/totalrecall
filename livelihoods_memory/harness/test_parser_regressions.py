@@ -1426,6 +1426,13 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual((ranked["op"],len(ranked["items"]),ranked["k"]),("RANK",4,2))
         self.assertTrue(all(item["source"]["op"] == "RELATE" for item in ranked["items"]))
 
+        train_rank=P.mech_explicit_surface_closure(None,
+            "Order Durban, Gqeberha and Johannesburg by count of markets beyond 1.2 km "
+            "from a train station; low to high.")
+        self.assertEqual(len(train_rank["items"]),3)
+        self.assertTrue(all(item["source"]["right"]["entity"] == "train station"
+                            for item in train_rank["items"]))
+
         estimated=P.mech_explicit_surface_closure(
             {"op":"ESTIMATE","method":"interpolate","source":select("marketplace"),
              "target":{"op":"REGION","place":"Muscat"}},

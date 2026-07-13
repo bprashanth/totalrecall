@@ -600,3 +600,17 @@ exact on all 1,282. The wall spans 29 banks and 39 skeletons. Regressions are 15
 14/14, dialogue 5/5 on both binders, and corpus 1,273 parse plus five clarification rows. Judge
 decision: epoch 019 is a valid freeze boundary, but its saturation counter is zero. Only new banks
 authored after the exact freeze commit may advance the required three-bank sequence.
+
+## 2026-07-13 — H27 rejects epoch 019 across seven compositional families [PARSER/BENCHMARK]
+
+The 100-row parser-blind bank scored strict 62/100 on immutable first contact. The failures reduce
+to general output-head, spatial, statistical, rank, transfer, unsupported-literal, and geography
+warrant families rather than 38 row-specific exceptions. General closure repairs recover all
+faithfully stated cases. Four golds silently add an unspoken place or station subtype and are
+declared immutable defects; `BNCH-003` proposes making literal-warrant linting an admission gate.
+
+The second immutable replay is strict 96/100 with only those four defects. A mixed national/NUTS
+regression found during replay was fixed and guarded. H27 also found that coarse annotation scoring
+used a punctuation equivalence inconsistent with strict audit; `BUG-010` unifies that contract.
+Judge decision: epoch 019 and every H27 replay contribute zero saturation passes. The disclosed H27
+bank becomes active regression pressure only after its final exact replay and full-wall absorption.

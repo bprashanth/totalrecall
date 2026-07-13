@@ -557,3 +557,32 @@ fail when wall, matrix, corpus, and manifest bank sets disagree.
 This extends the corpus-specific evidence in `BUG-006` into a shared certification invariant; it
 does not alter frozen algebra semantics. The local implementation now sources the default matrix
 from `freeze.BANKS`. Governance record: `BUG-009`.
+
+## 2026-07-13 — Gold may not invent an unspoken geography or entity subtype
+
+**Failure that forced it:** immutable H27 used bare “Córdoba” but selected Argentina rather than
+Spain, bare “Cebu” but selected Cebu City rather than the province, and generic “station” twice
+while selecting train station rather than metro or bus station. All four trees were executable or
+plausible enough to conceal the unsupported choice.
+
+**Proposed admission rule:** pre-contact semantic lints compare every fixed gold leaf against the
+question's literal warrant. A fixed place or entity subtype must be spoken, uniquely entailed by a
+declared connector scope, or represented by a typed hole. Post-contact discoveries remain in the
+immutable bank and defect registry; a disclosed development copy may clarify the wording, never
+silently rewrite the gold. Such rows cannot count toward saturation in either form.
+
+**Evidence:** `h27-010`, `h27-017`, `h27-024`, and `h27-059`, registered in
+`coverage/gold-defects.json`; deterministic disclosed copy produced by `harness/prepare_h27_dev.py`.
+Governance record: `BNCH-003`.
+
+## 2026-07-13 — Coarse answer contracts share strict literal normalization
+
+**Failure that forced it:** H27's population-density annotation was strictly denotationally exact,
+but the ordinary harness rejected `population-density` against `population density`. Its answer
+contract normalized underscores but not other separator punctuation, contradicting the strict
+audit and creating a false discovery signal.
+
+**Proposed implementation requirement:** every approximate/coarse contract derives literal
+normalization from the same canonical authority as strict audit. Coarse scoring may intentionally
+omit detail, but must not impose a different equivalence relation. A scorer change retires the
+epoch under `SAT-003` and requires a complete wall replay. Governance record: `BUG-010`.

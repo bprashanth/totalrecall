@@ -2360,6 +2360,12 @@ def mech_explicit_surface_closure(ir, question):
             # ``market`` is deliberately context-sensitive because of abstract "job market";
             # the caller has already established a concrete entity slot here.
             found=list(dict.fromkeys(k for _,_,k in _entity_occurrences("a "+str(text),osm_only=True)))
+        if not found:
+            # Exact but unsupported facility literals remain valid SELECT leaves and must fail
+            # closed in execution. Preserve the explicit subtype instead of deleting RELATE.
+            literal=_phrase_norm(str(text))
+            if re.fullmatch(r"(?:train|railway|bus) stations?",literal):
+                found=[re.sub(r"s$","",literal)]
         return [k.replace("_"," ") for k in found]
     def related(entity,anchor,place,relation="within",distance=None,metric="count"):
         reg={"op":"REGION","place":place.strip(" ,.;:—-")}
