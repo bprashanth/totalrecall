@@ -1,0 +1,6443 @@
+{
+  "bank": "holdout-h30-generated",
+  "schema_version": "round2-holdout-v1",
+  "epoch": "epoch-022",
+  "generated_after": "65924a8",
+  "questions": [
+  {
+    "id": "h30-001",
+    "sector": "livelihoods",
+    "type": "STATE",
+    "capability_family": "verified_point_select",
+    "adversarial": false,
+    "q": "Bengaluru metro stations — just the station records, please.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "SELECT",
+      "entity": "metro station",
+      "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+      },
+      "time": null
+    },
+    "gold_shape": [
+      "SELECT"
+    ],
+    "notes": "verified census operand"
+  },
+  {
+    "id": "h30-002",
+    "sector": "livelihoods",
+    "type": "STATE",
+    "capability_family": "point_count",
+    "adversarial": false,
+    "q": "How many metro stations are listed in Bengaluru?",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "AGGREGATE",
+      "source": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "by": "space",
+      "metric": "count"
+    },
+    "gold_shape": [
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "h30-003",
+    "sector": "livelihoods",
+    "type": "STATE",
+    "capability_family": "point_density",
+    "adversarial": true,
+    "q": "Map the density, not merely the total, of Bengaluru's metro stations.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "field",
+    "gold_ir": {
+      "op": "AGGREGATE",
+      "source": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "by": "space",
+      "metric": "density"
+    },
+    "gold_shape": [
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "contrastive output head"
+  },
+  {
+    "id": "h30-004",
+    "sector": "livelihoods",
+    "type": "STATE",
+    "capability_family": "point_presence",
+    "adversarial": true,
+    "q": "Show where Bengaluru has any metro-station presence; zeros matter too.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "field",
+    "gold_ir": {
+      "op": "AGGREGATE",
+      "source": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "by": "space",
+      "metric": "presence"
+    },
+    "gold_shape": [
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "presence head"
+  },
+  {
+    "id": "h30-005",
+    "sector": "livelihoods",
+    "type": "VALUE",
+    "capability_family": "series_mean",
+    "adversarial": false,
+    "q": "Give the 2022–2024 employment-rate series for Île-de-France as annual means.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "series",
+    "gold_ir": {
+      "op": "AGGREGATE",
+      "source": {
+        "op": "SELECT",
+        "entity": "employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Ile de France"
+        },
+        "time": {
+          "start": "2022",
+          "end": "2024"
+        }
+      },
+      "by": "time",
+      "metric": "mean"
+    },
+    "gold_shape": [
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "h30-006",
+    "sector": "livelihoods",
+    "type": "VALUE",
+    "capability_family": "annotation_source_gap",
+    "adversarial": true,
+    "q": "For each Bengaluru metro station, attach the local unemployment-rate layer.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "ANNOTATE",
+      "source": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "layer": "local unemployment rate"
+    },
+    "gold_shape": [
+      "ANNOTATE",
+      "SELECT"
+    ],
+    "notes": "layer not warranted by census"
+  },
+  {
+    "id": "h30-007",
+    "sector": "livelihoods",
+    "type": "TREND",
+    "capability_family": "gini_bounded_trend",
+    "adversarial": false,
+    "q": "Brazil's Gini from 1981 through 2024: rising or falling overall?",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "trend",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "Brazil"
+          },
+          "time": {
+            "start": "1981",
+            "end": "2024"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "trend_direction"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "h30-008",
+    "sector": "livelihoods",
+    "type": "CHANGE",
+    "capability_family": "endpoint_change",
+    "adversarial": true,
+    "q": "Between 2022 and 2024, what was the change in Berlin's female employment rate?",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "later-minus-earlier"
+  },
+  {
+    "id": "h30-009",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "cross_place_ratio",
+    "adversarial": true,
+    "q": "At the 2022 readings, take India's Gini divided by Kenya's—not the reverse.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "gini coefficient",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "ratio"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "first-named ratio orientation"
+  },
+  {
+    "id": "h30-010",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "cross_entity_difference",
+    "adversarial": true,
+    "q": "For 2023, contrast France's informal-employment rate with Spain's labour-underutilization rate.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "same-unit cross-entity comparison"
+  },
+  {
+    "id": "h30-011",
+    "sector": "livelihoods",
+    "type": "RELATION",
+    "capability_family": "within_relation",
+    "adversarial": false,
+    "q": "Which food markets in Bengaluru sit within 1.2 km of a metro station?",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "food market",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1.2
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "market evidence unavailable"
+  },
+  {
+    "id": "h30-012",
+    "sector": "livelihoods",
+    "type": "RELATION",
+    "capability_family": "beyond_relation",
+    "adversarial": true,
+    "q": "List Bengaluru food markets with no metro station inside 800 metres.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "food market",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "beyond",
+      "threshold_km": 0.8
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "negative polarity"
+  },
+  {
+    "id": "h30-013",
+    "sector": "livelihoods",
+    "type": "RELATION",
+    "capability_family": "distance_relation",
+    "adversarial": true,
+    "q": "Metro stations and street markets in Bengaluru: return their distances, without imposing a cutoff.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "street market",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "distance"
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "no invented threshold"
+  },
+  {
+    "id": "h30-014",
+    "sector": "livelihoods",
+    "type": "RELATION",
+    "capability_family": "cooccurrence_relation",
+    "adversarial": true,
+    "q": "Find Bengaluru metro stations co-occurring with night markets in the same observation context.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "night market",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "cooccur"
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "exact cooccur head"
+  },
+  {
+    "id": "h30-015",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "two_anchor_conjunction",
+    "adversarial": true,
+    "q": "Markets near a Bengaluru metro stop but farther than 2 km from any wholesale market.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.5
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "wholesale market",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "beyond",
+      "threshold_km": 2
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local: 0.5 applies only to metro anchor; 2 applies only to wholesale anchor"
+  },
+  {
+    "id": "h30-016",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "two_anchor_conjunction",
+    "adversarial": true,
+    "q": "Keep repair shops within 3 km of a Bengaluru metro station; among those, exclude anything within 250 m of a bank.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "repair shop",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 3
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "bank",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "beyond",
+      "threshold_km": 0.25
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local thresholds"
+  },
+  {
+    "id": "h30-017",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "nested_spatial",
+    "adversarial": true,
+    "q": "In Bengaluru, cafés near metro stations that themselves are near bus terminals.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "cafe",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bus terminal",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 1
+      },
+      "relation": "within",
+      "threshold_km": 0.4
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local: inner 1 km, outer 0.4 km"
+  },
+  {
+    "id": "h30-018",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "nested_spatial",
+    "adversarial": true,
+    "q": "Which pharmacies are over 1 km from the metro stations that lie within 300 m of hospitals in Bengaluru?",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "hospital",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.3
+      },
+      "relation": "beyond",
+      "threshold_km": 1
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local nested polarity"
+  },
+  {
+    "id": "h30-019",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "cooccur_beyond_composition",
+    "adversarial": true,
+    "q": "Bengaluru vendors sharing an observation context with metro stations, except those within 100 m of police posts.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "vendor",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "cooccur"
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "police post",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "beyond",
+      "threshold_km": 0.1
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local exclusion"
+  },
+  {
+    "id": "h30-020",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "distance_after_conjunction",
+    "adversarial": true,
+    "q": "First retain Bengaluru markets near metro stations and away from dumps; then report distances to warehouses.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.7
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "waste dump",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 1.5
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "warehouse",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "distance"
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "three relations; sibling-local thresholds"
+  },
+  {
+    "id": "h30-021",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "two_anchor_conjunction",
+    "adversarial": true,
+    "q": "No clinics near factories: show Bengaluru clinics beyond 2 km from factories but within 600 m of a metro stop.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "factory",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 2
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.6
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local 2 km vs 0.6 km"
+  },
+  {
+    "id": "h30-022",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "nested_spatial",
+    "adversarial": true,
+    "q": "The anchors are metro stations near colleges—not all stations. Find tailors within 900 m of those anchors in Bengaluru.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "tailor",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "college",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.2
+      },
+      "relation": "within",
+      "threshold_km": 0.9
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "delayed qualifier; sibling-local"
+  },
+  {
+    "id": "h30-023",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "cooccur_conjunction",
+    "adversarial": true,
+    "q": "Workshops co-occurring with markets and also more than 4 km from Bengaluru metro stations.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "cooccur"
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "beyond",
+      "threshold_km": 4
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "second clause local to workshops"
+  },
+  {
+    "id": "h30-024",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "independent_relation_operands",
+    "adversarial": true,
+    "q": "Measure distances between (street vendors near Bengaluru metro stations) and (warehouses near freight terminals).",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "street vendor",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.5
+      },
+      "right": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "warehouse",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "freight terminal",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 2
+      },
+      "relation": "distance"
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local: separate 0.5 and 2 km modifiers"
+  },
+  {
+    "id": "h30-025",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "nested_negative_anchor",
+    "adversarial": true,
+    "q": "Find kiosks near metro stations that are not near malls; Bengaluru only.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "kiosk",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "mall",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 1
+      },
+      "relation": "within",
+      "threshold_km": 0.3
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "negation modifies station anchor"
+  },
+  {
+    "id": "h30-026",
+    "sector": "livelihoods",
+    "type": "RELATION",
+    "capability_family": "windowed_relation",
+    "adversarial": true,
+    "q": "During 2023 only, which Bengaluru street vendors were within 500 m of metro stations?",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "street vendor",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "within",
+      "threshold_km": 0.5
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "time is local to vendor sibling"
+  },
+  {
+    "id": "h30-027",
+    "sector": "livelihoods",
+    "type": "RELATION",
+    "capability_family": "mixed_time_relation",
+    "adversarial": true,
+    "q": "Relate 2022 market records to all-available Bengaluru metro stations by distance.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "market",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": {
+          "start": "2022",
+          "end": "2022"
+        }
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "distance"
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local time"
+  },
+  {
+    "id": "h30-028",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "three_anchor_conjunction",
+    "adversarial": true,
+    "q": "Bengaluru eateries: within 400 m of metro, beyond 700 m from dumps, and co-occurring with markets.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "eatery",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.4
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "waste dump",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 0.7
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "market",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "cooccur"
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "three local relations"
+  },
+  {
+    "id": "h30-029",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "anchor_chain",
+    "adversarial": true,
+    "q": "Show laundries close to the clinics that are close to the Bengaluru metro, with 200 m for laundries and 1 km for clinics.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "SELECT",
+        "entity": "laundry",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "right": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 1
+      },
+      "relation": "within",
+      "threshold_km": 0.2
+    },
+    "gold_shape": [
+      "RELATE",
+      "SELECT",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local explicit thresholds"
+  },
+  {
+    "id": "h30-030",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "negative_chain",
+    "adversarial": true,
+    "q": "Bengaluru depots outside 5 km of airports that nevertheless sit within 2 km of metro stations.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "records",
+    "gold_ir": {
+      "op": "RELATE",
+      "left": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "depot",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "airport",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 5
+      },
+      "right": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "relation": "within",
+      "threshold_km": 2
+    },
+    "gold_shape": [
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "contrastive local relations"
+  },
+  {
+    "id": "h30-031",
+    "sector": "livelihoods",
+    "type": "CHANGE",
+    "capability_family": "bounded_endpoint_change",
+    "adversarial": false,
+    "q": "Kenya average weekly hours: 2021 minus 2019.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "wording explicitly later minus earlier"
+  },
+  {
+    "id": "h30-032",
+    "sector": "livelihoods",
+    "type": "CHANGE",
+    "capability_family": "reverse_worded_change",
+    "adversarial": true,
+    "q": "Using France's informal-employment readings, how much higher or lower was 2023 than 2019?",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "endpoint orientation"
+  },
+  {
+    "id": "h30-033",
+    "sector": "livelihoods",
+    "type": "TREND",
+    "capability_family": "bounded_trend",
+    "adversarial": true,
+    "q": "Only the 2019–2023 slice: did Germany's female weekly hours generally rise or fall?",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "trend",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2023"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "trend_direction"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "bounded window"
+  },
+  {
+    "id": "h30-034",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "thresholded_count_compare",
+    "adversarial": true,
+    "q": "Are there more Bengaluru markets within 1 km of metro stations than markets beyond 3 km from them?",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 3
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local thresholds and polarity"
+  },
+  {
+    "id": "h30-035",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "related_density_ratio",
+    "adversarial": true,
+    "q": "Ratio: density of vendors near Bengaluru metro stops to density of vendors far from them (0.5 km versus 2 km).",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "vendor",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.5
+        },
+        "by": "space",
+        "metric": "density"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "vendor",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 2
+        },
+        "by": "space",
+        "metric": "density"
+      },
+      "how": "ratio"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local thresholds"
+  },
+  {
+    "id": "h30-036",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "presence_compare",
+    "adversarial": true,
+    "q": "Compare where repair-shop presence near Bengaluru metro stations differs from pharmacy presence near those stations.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "field",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "repair shop",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "by": "space",
+        "metric": "presence"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "pharmacy",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "by": "space",
+        "metric": "presence"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "cross-entity field compare"
+  },
+  {
+    "id": "h30-037",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "annotated_compare",
+    "adversarial": true,
+    "q": "Contrast elevation-tagged metro-station records with population-tagged ones in Bengaluru, by mean over space.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "layer": "elevation"
+        },
+        "by": "space",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "layer": "population"
+        },
+        "by": "space",
+        "metric": "mean"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "ANNOTATE",
+      "SELECT",
+      "AGGREGATE",
+      "ANNOTATE",
+      "SELECT"
+    ],
+    "notes": "distinct sibling-local layers"
+  },
+  {
+    "id": "h30-038",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "cross_source_change_compare",
+    "adversarial": true,
+    "q": "Which shift was larger: Berlin female employment, 2022→2024, or Spain labour underutilization, 2019→2023?",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin, Germany"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin, Germany"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "difference"
+      },
+      "right": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "labour underutilization rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "labour underutilization rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2019"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "difference"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "nested temporal comparisons"
+  },
+  {
+    "id": "h30-039",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "cross_entity_ratio_change",
+    "adversarial": true,
+    "q": "Compare the 2024/2022 employment-rate ratio in Lombardy with that ratio in Île-de-France.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "ratio"
+      },
+      "right": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "ratio"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "nested ratios then difference"
+  },
+  {
+    "id": "h30-040",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "mixed_metric_compare",
+    "adversarial": true,
+    "q": "For Bengaluru metro stations, compare their spatial count with their spatial presence—keep the two heads distinct.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "field",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "presence"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "output types rely on scalar/field comparison"
+  },
+  {
+    "id": "h30-041",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "time_local_compare",
+    "adversarial": true,
+    "q": "France's 2020 informal-employment rate versus its 2023 rate; the first date belongs only to the first operand.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "sibling-local time anchors"
+  },
+  {
+    "id": "h30-042",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "nested_relation_compare",
+    "adversarial": true,
+    "q": "Difference between counts of (markets near metro and far from dumps) and (markets near warehouses), Bengaluru.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.6
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "waste dump",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "warehouse",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 2
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "RELATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "SELECT",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local relation chain"
+  },
+  {
+    "id": "h30-043",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "cooccur_distance_compare",
+    "adversarial": true,
+    "q": "Do more Bengaluru vendors co-occur with markets, or lie within 300 m of metro stations?",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "vendor",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "cooccur"
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "vendor",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.3
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "AGGREGATE",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "alternative relation heads"
+  },
+  {
+    "id": "h30-044",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "cross_entity_level_compare",
+    "adversarial": true,
+    "q": "2024 only: Madrid's unemployment rate minus Warsaw capital region's employment rate.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid region, Spain"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Warsaw capital region, Poland"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "spoken mixed entity difference"
+  },
+  {
+    "id": "h30-045",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "series_ratio",
+    "adversarial": true,
+    "q": "Across 2022–2024, form Lombardy employment rate divided by Île-de-France employment rate year by year.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "series",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Lombardy, Italy"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2024"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2024"
+          }
+        },
+        "by": "time",
+        "metric": "mean"
+      },
+      "how": "ratio"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "aligned known windows"
+  },
+  {
+    "id": "h30-046",
+    "sector": "livelihoods",
+    "type": "COMPOSITE",
+    "capability_family": "compare_annotated_related",
+    "adversarial": true,
+    "q": "Compare the mean lighting layer on Bengaluru metro stations near markets with the mean noise layer on stations far from factories.",
+    "expect": "data_request",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "scalar",
+    "gold_ir": {
+      "op": "COMPARE",
+      "left": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "layer": "night lighting"
+        },
+        "by": "space",
+        "metric": "mean"
+      },
+      "right": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "factory",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "beyond",
+            "threshold_km": 2
+          },
+          "layer": "noise"
+        },
+        "by": "space",
+        "metric": "mean"
+      },
+      "how": "difference"
+    },
+    "gold_shape": [
+      "COMPARE",
+      "AGGREGATE",
+      "ANNOTATE",
+      "RELATE",
+      "SELECT",
+      "SELECT",
+      "AGGREGATE",
+      "ANNOTATE",
+      "RELATE",
+      "SELECT",
+      "SELECT"
+    ],
+    "notes": "sibling-local layers, anchors, and thresholds"
+  },
+  {
+    "id": "h30-047",
+    "sector": "livelihoods",
+    "type": "RANKING",
+    "capability_family": "rank_level_full",
+    "adversarial": false,
+    "q": "Order Brazil, India, and Kenya from highest to lowest by their 2022 Gini readings.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "ranking",
+    "gold_ir": {
+      "op": "RANK",
+      "items": [
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "gini coefficient",
+            "region": {
+              "op": "REGION",
+              "place": "Brazil"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "gini coefficient",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "gini coefficient",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        }
+      ],
+      "order": "desc"
+    },
+    "gold_shape": [
+      "RANK",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "three candidates; full order"
+  },
+  {
+    "id": "h30-048",
+    "sector": "livelihoods",
+    "type": "RANKING",
+    "capability_family": "rank_level_winner",
+    "adversarial": true,
+    "q": "Which has the highest 2024 employment rate: Île-de-France, Lombardy, or Warsaw capital region?",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "winner",
+    "gold_ir": {
+      "op": "RANK",
+      "items": [
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region, Poland"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        }
+      ],
+      "order": "desc",
+      "k": 1
+    },
+    "gold_shape": [
+      "RANK",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "winner output"
+  },
+  {
+    "id": "h30-049",
+    "sector": "livelihoods",
+    "type": "RANKING",
+    "capability_family": "rank_level_top_k",
+    "adversarial": true,
+    "q": "Give me the two lowest 2022 employment rates among Île-de-France, Lombardy, and Warsaw capital region.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "top_k",
+    "gold_ir": {
+      "op": "RANK",
+      "items": [
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy, Italy"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region, Poland"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        }
+      ],
+      "order": "asc",
+      "k": 2
+    },
+    "gold_shape": [
+      "RANK",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "intermediate k"
+  },
+  {
+    "id": "h30-050",
+    "sector": "livelihoods",
+    "type": "RANKING",
+    "capability_family": "rank_endpoint_change_full",
+    "adversarial": true,
+    "q": "Rank these changes, largest first: France informal employment 2019→2023; Berlin female employment 2022→2024; Spain underutilization 2019→2023.",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "ranking",
+    "gold_ir": {
+      "op": "RANK",
+      "items": [
+        {
+          "op": "COMPARE",
+          "left": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "right": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "how": "difference"
+        },
+        {
+          "op": "COMPARE",
+          "left": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "female employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin, Germany"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "right": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "female employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin, Germany"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "how": "difference"
+        },
+        {
+          "op": "COMPARE",
+          "left": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "labour underutilization rate",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "right": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "labour underutilization rate",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "how": "difference"
+        }
+      ],
+      "order": "desc"
+    },
+    "gold_shape": [
+      "RANK",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "composite candidates"
+  },
+  {
+    "id": "h30-051",
+    "sector": "livelihoods",
+    "type": "RANKING",
+    "capability_family": "rank_endpoint_ratio_winner",
+    "adversarial": true,
+    "q": "Of Brazil, India, and Kenya, whose 2022 Gini-to-earliest-available-Gini ratio is greatest?",
+    "expect": "answer",
+    "must_hole": false,
+    "must_estimate": false,
+    "output_form": "winner",
+    "gold_ir": {
+      "op": "RANK",
+      "items": [
+        {
+          "op": "COMPARE",
+          "left": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "right": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "1981",
+                "end": "1981"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "how": "ratio"
+        },
+        {
+          "op": "COMPARE",
+          "left": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "right": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "1977",
+                "end": "1977"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "how": "ratio"
+        },
+        {
+          "op": "COMPARE",
+          "left": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "right": {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "1992",
+                "end": "1992"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          "how": "ratio"
+        }
+      ],
+      "order": "desc",
+      "k": 1
+    },
+    "gold_shape": [
+      "RANK",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT",
+      "COMPARE",
+      "AGGREGATE",
+      "SELECT",
+      "AGGREGATE",
+      "SELECT"
+    ],
+    "notes": "each baseline locally specified"
+  },
+  {
+      "id": "h30-052",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_full",
+      "adversarial": true,
+      "q": "Order Brazil, India, and Kenya high-to-low by 2022 Gini.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-053",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_level_top_k",
+      "adversarial": true,
+      "q": "Give the two lowest 2024 employment rates among Île-de-France, Lombardy, and Warsaw.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top_k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy, Italy"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region, Poland"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          }
+        ],
+        "order": "asc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-054",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_four_winner",
+      "adversarial": true,
+      "q": "Smallest 2023 reading: France informal employment, Spain underutilization, Berlin female employment, or Madrid unemployment?",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "labour underutilization rate",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "female employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin, Germany"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid region, Spain"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          }
+        ],
+        "order": "asc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-055",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_metric_heads",
+      "adversarial": true,
+      "q": "Rank Bengaluru metro count, density, and presence from low to high.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "presence"
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-056",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_raw_records",
+      "adversarial": true,
+      "q": "Full ordering by record-set size: Bengaluru metro stations, markets, and clinics.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "clinic",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-057",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_counts",
+      "adversarial": true,
+      "q": "Largest set: markets near metro, pharmacies far from hospitals, or workshops co-occurring with warehouses.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "pharmacy",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 2
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "workshop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "warehouse",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "cooccur"
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-058",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_related_density",
+      "adversarial": true,
+      "q": "Top two densities: vendors near metro, far from malls, or co-occurring with markets.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top_k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "vendor",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.3
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "vendor",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "mall",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 2
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "vendor",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "cooccur"
+            },
+            "by": "space",
+            "metric": "density"
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-059",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_annotated",
+      "adversarial": true,
+      "q": "Rank mean elevation, night-light, and noise on Bengaluru metro stations.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "ANNOTATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "layer": "elevation"
+            },
+            "by": "space",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "ANNOTATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "layer": "night lighting"
+            },
+            "by": "space",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "ANNOTATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "layer": "noise"
+            },
+            "by": "space",
+            "metric": "mean"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "ANNOTATE",
+        "SELECT",
+        "AGGREGATE",
+        "ANNOTATE",
+        "SELECT",
+        "AGGREGATE",
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-060",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_trends",
+      "adversarial": true,
+      "q": "Order Gini trend directions for Brazil, India, and Kenya over each full verified window.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "gini coefficient",
+                "region": {
+                  "op": "REGION",
+                  "place": "Brazil"
+                },
+                "time": {
+                  "start": "1981",
+                  "end": "2024"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "how": "trend_direction"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "gini coefficient",
+                "region": {
+                  "op": "REGION",
+                  "place": "India"
+                },
+                "time": {
+                  "start": "1977",
+                  "end": "2022"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "how": "trend_direction"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "gini coefficient",
+                "region": {
+                  "op": "REGION",
+                  "place": "Kenya"
+                },
+                "time": {
+                  "start": "1992",
+                  "end": "2022"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "how": "trend_direction"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-061",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_ratios",
+      "adversarial": true,
+      "q": "Order 2024/2022 employment-rate ratios for Île-de-France, Lombardy, and Warsaw.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "employment rate",
+                "region": {
+                  "op": "REGION",
+                  "place": "Ile de France"
+                },
+                "time": {
+                  "start": "2024",
+                  "end": "2024"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "employment rate",
+                "region": {
+                  "op": "REGION",
+                  "place": "Ile de France"
+                },
+                "time": {
+                  "start": "2022",
+                  "end": "2022"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "employment rate",
+                "region": {
+                  "op": "REGION",
+                  "place": "Lombardy, Italy"
+                },
+                "time": {
+                  "start": "2024",
+                  "end": "2024"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "employment rate",
+                "region": {
+                  "op": "REGION",
+                  "place": "Lombardy, Italy"
+                },
+                "time": {
+                  "start": "2022",
+                  "end": "2022"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "employment rate",
+                "region": {
+                  "op": "REGION",
+                  "place": "Warsaw capital region, Poland"
+                },
+                "time": {
+                  "start": "2024",
+                  "end": "2024"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "employment rate",
+                "region": {
+                  "op": "REGION",
+                  "place": "Warsaw capital region, Poland"
+                },
+                "time": {
+                  "start": "2022",
+                  "end": "2022"
+                }
+              },
+              "by": "time",
+              "metric": "mean"
+            },
+            "how": "ratio"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-062",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_nested",
+      "adversarial": true,
+      "q": "Rank counts of markets near metro but far from dumps, clinics near colleges, and depots far from airports.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "market",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "metro station",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 0.5
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "waste dump",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 1
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "clinic",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "college",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.7
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "depot",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "airport",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 5
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-063",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "rank_points",
+      "adversarial": true,
+      "q": "France informal employment in 2019, 2021, 2023: only the two largest readings.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top_k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2019",
+                "end": "2019"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2021",
+                "end": "2021"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "informal employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "candidate-local modifiers"
+    },
+    {
+      "id": "h30-064",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_interpolate",
+      "adversarial": true,
+      "q": "Using Bengaluru metro stations, interpolate a station-access surface for Mysuru.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Mysuru, India"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-065",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_feature",
+      "adversarial": true,
+      "q": "Build a feature-based Pune metro-access estimate from Bengaluru stations.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Pune, India"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-066",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_envelope",
+      "adversarial": true,
+      "q": "Derive a Hyderabad envelope estimate from Bengaluru metro stations.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Hyderabad, India"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-067",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_annotated",
+      "adversarial": true,
+      "q": "Use elevation-annotated Bengaluru stations for a Chennai feature estimate.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "layer": "elevation"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Chennai, India"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-068",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_related",
+      "adversarial": true,
+      "q": "Interpolate Kochi from Bengaluru stations within 1 km of markets.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kochi, India"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-069",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_nested",
+      "adversarial": true,
+      "q": "Envelope-estimate Jaipur from stations near markets but beyond 2 km from airports.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.6
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "airport",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 2
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Jaipur, India"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-070",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_cooccur",
+      "adversarial": true,
+      "q": "Feature-estimate Ahmedabad from stations co-occurring with commercial hubs.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "commercial hub",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "cooccur"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Ahmedabad, India"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-071",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_distance",
+      "adversarial": true,
+      "q": "Form a Surat envelope from Bengaluru metro-to-market distance records.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "distance"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Surat, India"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-072",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_window",
+      "adversarial": true,
+      "q": "Interpolate Belgium's 2023 informal-employment surface from France's 2023 records.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Belgium"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-073",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_series_annotation",
+      "adversarial": true,
+      "q": "Annotate German female-hours records with industry mix, then feature-estimate Austria.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "female average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2023"
+            }
+          },
+          "layer": "industry mix"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Austria"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-074",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "estimate_compare",
+      "adversarial": true,
+      "q": "Compare Mysuru interpolation with Pune feature transfer from the same stations.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "ESTIMATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "target": {
+            "op": "REGION",
+            "place": "Mysuru, India"
+          },
+          "method": "interpolate"
+        },
+        "right": {
+          "op": "ESTIMATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "target": {
+            "op": "REGION",
+            "place": "Pune, India"
+          },
+          "method": "feature"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "ESTIMATE",
+        "SELECT",
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-075",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "estimate_observed_compare",
+      "adversarial": true,
+      "q": "Observed Bengaluru metro density minus a Hyderabad envelope.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "by": "space",
+          "metric": "density"
+        },
+        "right": {
+          "op": "ESTIMATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "target": {
+            "op": "REGION",
+            "place": "Hyderabad, India"
+          },
+          "method": "envelope"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-076",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "estimate_rank",
+      "adversarial": true,
+      "q": "Rank Mysuru interpolation, Pune feature, and Hyderabad envelope estimates.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "ESTIMATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "target": {
+              "op": "REGION",
+              "place": "Mysuru, India"
+            },
+            "method": "interpolate"
+          },
+          {
+            "op": "ESTIMATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "target": {
+              "op": "REGION",
+              "place": "Pune, India"
+            },
+            "method": "feature"
+          },
+          {
+            "op": "ESTIMATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "target": {
+              "op": "REGION",
+              "place": "Hyderabad, India"
+            },
+            "method": "envelope"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "ESTIMATE",
+        "SELECT",
+        "ESTIMATE",
+        "SELECT",
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-077",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_anaphora",
+      "adversarial": true,
+      "q": "Annotate stations with elevation; use those records, not originals, to estimate Chennai.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "ANNOTATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "layer": "elevation"
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Chennai, India"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-078",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "capability_family": "estimate_negative",
+      "adversarial": true,
+      "q": "Use stations beyond 3 km from airports, not all stations, to interpolate Mysuru.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "airport",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 3
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Mysuru, India"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "modelled if admitted; arbitrary Records source"
+    },
+    {
+      "id": "h30-079",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "entity_hole",
+      "adversarial": true,
+      "q": "Map Bengaluru livelihood facilities—I did not say which kind.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?livelihood_entity",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-080",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "place_hole",
+      "adversarial": true,
+      "q": "List metro stations there; no city was supplied.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "metro station",
+        "region": {
+          "op": "REGION",
+          "place": "?place"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-081",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "nested_hole",
+      "adversarial": true,
+      "q": "Which stations are near those businesses? The businesses were never identified.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "?business_entity",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 1
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-082",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "layer_hole",
+      "adversarial": true,
+      "q": "Annotate Bengaluru metro stations with the unnamed measure.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "layer": "?annotation_layer"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-083",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "rank_hole",
+      "adversarial": true,
+      "q": "Rank Brazil, India, and the unnamed country by 2022 Gini.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "?country"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-084",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "estimate_source_hole",
+      "adversarial": true,
+      "q": "Feature-estimate Mysuru from Bengaluru transport points; point type unspecified.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": true,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "?transport_point_type",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Mysuru, India"
+        },
+        "method": "feature"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-085",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "estimate_target_hole",
+      "adversarial": true,
+      "q": "Interpolate from Bengaluru stations to the destination city—I omitted its name.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": true,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "?target_place"
+        },
+        "method": "interpolate"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-086",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "capability_family": "relation_left_hole",
+      "adversarial": true,
+      "q": "What is within 500 m of metro? The retrieved entity is unspecified.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "?entity_to_retrieve",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.5
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-087",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "unsupported_attribute",
+      "adversarial": true,
+      "q": "List wheelchair-accessible metro stations in Bengaluru, exactly that subset.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "wheelchair-accessible metro station",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-088",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "capability_family": "unsupported_quantile",
+      "adversarial": true,
+      "q": "Give France's 90th-percentile informal wage in 2023.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "90th-percentile informal wage",
+        "region": {
+          "op": "REGION",
+          "place": "France"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "exact unsupported literal or recursive typed hole"
+    },
+    {
+      "id": "h30-089",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "output_full",
+      "adversarial": true,
+      "q": "Don't name only a winner: give the full 2024 employment-rate order for Île-de-France, Lombardy, Warsaw.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy, Italy"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region, Poland"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-090",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "output_k",
+      "adversarial": true,
+      "q": "Exactly the bottom two—not all three—of Brazil, India, Kenya by 2022 Gini.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "top_k",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Brazil"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "India"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "gini coefficient",
+              "region": {
+                "op": "REGION",
+                "place": "Kenya"
+              },
+              "time": {
+                "start": "2022",
+                "end": "2022"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          }
+        ],
+        "order": "asc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-091",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "capability_family": "output_winner",
+      "adversarial": true,
+      "q": "One name only: highest 2023 employment rate among Île-de-France, Lombardy, Warsaw.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "winner",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Lombardy, Italy"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "employment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Warsaw capital region, Poland"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            },
+            "by": "time",
+            "metric": "mean"
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-092",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "multi_observed",
+      "adversarial": true,
+      "q": "Rank metro count, density-minus-presence, and presence largest first.",
+      "expect": "answer",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "density"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "presence"
+            },
+            "how": "difference"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "presence"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-093",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "multi_transfer",
+      "adversarial": true,
+      "q": "Compare Chennai feature transfer from tagged stations with Hyderabad envelope from raw stations.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "ESTIMATE",
+          "source": {
+            "op": "ANNOTATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "layer": "elevation"
+          },
+          "target": {
+            "op": "REGION",
+            "place": "Chennai, India"
+          },
+          "method": "feature"
+        },
+        "right": {
+          "op": "ESTIMATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "target": {
+            "op": "REGION",
+            "place": "Hyderabad, India"
+          },
+          "method": "envelope"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT",
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-094",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "rank_transfer",
+      "adversarial": true,
+      "q": "Rank observed metro density, Mysuru interpolation, and Pune feature transfer.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "ESTIMATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "target": {
+              "op": "REGION",
+              "place": "Mysuru, India"
+            },
+            "method": "interpolate"
+          },
+          {
+            "op": "ESTIMATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "metro station",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "target": {
+              "op": "REGION",
+              "place": "Pune, India"
+            },
+            "method": "feature"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "ESTIMATE",
+        "SELECT",
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-095",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "deep_spatial",
+      "adversarial": true,
+      "q": "Rank counts: markets near metro/far dumps; clinics near colleges/hospitals; depots far airports/near warehouses.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "market",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "metro station",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 0.5
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "dump",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 1
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "clinic",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "college",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 0.7
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.4
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "depot",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "airport",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "relation": "beyond",
+                "threshold_km": 5
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "warehouse",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 2
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-096",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "evidence_honesty",
+      "adversarial": true,
+      "q": "Contrast Mysuru interpolation with observed Bengaluru metro presence; preserve evidence.",
+      "expect": "answer_or_data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "field",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "ESTIMATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "target": {
+            "op": "REGION",
+            "place": "Mysuru, India"
+          },
+          "method": "interpolate"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "metro station",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "by": "space",
+          "metric": "presence"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "ESTIMATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-097",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "deep_hole",
+      "adversarial": true,
+      "q": "Rank counts of markets near metro, clinics near an unnamed facility, and depots far from airports.",
+      "expect": "data_request",
+      "must_hole": true,
+      "must_estimate": false,
+      "output_form": "data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "clinic",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "?facility_anchor",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 0.5
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "depot",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "airport",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 5
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-098",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "capability_family": "all_ops",
+      "adversarial": true,
+      "q": "Rank a Chennai estimate from tagged stations, count of stations near markets, and density-minus-presence.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": true,
+      "output_form": "ranking",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "ESTIMATE",
+            "source": {
+              "op": "ANNOTATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "layer": "elevation"
+            },
+            "target": {
+              "op": "REGION",
+              "place": "Chennai, India"
+            },
+            "method": "feature"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "density"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "metro station",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "presence"
+            },
+            "how": "difference"
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "ESTIMATE",
+        "ANNOTATE",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-099",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "capability_family": "unsupported_subgroup",
+      "adversarial": true,
+      "q": "Show Bengaluru metro stations operated by women-led cooperatives.",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "records",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "metro station operated by women-led cooperative",
+        "region": {
+          "op": "REGION",
+          "place": "Bengaluru, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    },
+    {
+      "id": "h30-100",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "capability_family": "unsupported_trend",
+      "adversarial": true,
+      "q": "Has median daily earnings of Kenyan street vendors risen since 2019?",
+      "expect": "data_request",
+      "must_hole": false,
+      "must_estimate": false,
+      "output_form": "trend",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "median daily earnings of street vendors",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2026"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "notes": "output/evidence/multi-clause fidelity"
+    }
+]
+}
