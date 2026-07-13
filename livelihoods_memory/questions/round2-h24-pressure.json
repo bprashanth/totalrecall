@@ -1,0 +1,1768 @@
+{
+  "spec_version": "v2.1",
+  "note": "H24 conversational pre-freeze development pressure; generated against retired epoch 016; never blind evidence",
+  "source_generated": "questions/holdout-h24-generated.json",
+  "questions": [
+    {
+      "id": "h24-003",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Ghana back in 2019 — what was youth unemployment sitting at, just the figure?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "youth unemployment",
+        "region": {
+          "op": "REGION",
+          "place": "Ghana"
+        },
+        "time": {
+          "start": "2019",
+          "end": "2019"
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "window_select",
+      "adversarial": false,
+      "output_form": "scalar value",
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-008",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Lyon, the craft workshops — how many of them, ballpark count?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Lyon, France"
+          },
+          "time": null
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "point_select",
+      "adversarial": true,
+      "output_form": "count",
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-009",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Nairobi — is there any coworking at all going on there?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "presence",
+      "adversarial": true,
+      "output_form": "yes/no presence",
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-011",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "France's informal employment rate — by how much did it move from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "endpoint_change",
+      "adversarial": false,
+      "output_form": "signed difference",
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-013",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "Berlin's employment rate — what's the change from 2022 across to 2024?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "endpoint_change",
+      "adversarial": false,
+      "output_form": "signed difference",
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-015",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "Spain's average weekly hours worked — the gap from 2019 up to 2023, how big?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "endpoint_change",
+      "adversarial": true,
+      "output_form": "signed difference",
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-017",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Spain — across 2019 to 2023, was informal employment climbing or dropping?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2023"
+            }
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "bounded_trend",
+      "adversarial": false,
+      "output_form": "rising/falling/flat",
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-019",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Madrid region — over 2022 to 2024, which way is unemployment heading?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region, Spain"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2024"
+            }
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "bounded_trend",
+      "adversarial": false,
+      "output_form": "rising/falling/flat",
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-021",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Vietnam — over all the years you've got, are internet users trending up?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "internet users",
+            "region": {
+              "op": "REGION",
+              "place": "Vietnam"
+            },
+            "time": null
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "bounded_trend",
+      "adversarial": true,
+      "output_form": "rising/falling/flat",
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-026",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Ile de France — the female employment rate specifically, for 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "female employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Ile de France"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "window_select",
+      "adversarial": false,
+      "output_form": "scalar value",
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-029",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Kenya — informal employment in agriculture specifically, 2019 level?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "informal employment rate in agriculture",
+        "region": {
+          "op": "REGION",
+          "place": "Kenya"
+        },
+        "time": {
+          "start": "2019",
+          "end": "2019"
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "window_select",
+      "adversarial": false,
+      "output_form": "scalar value",
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-030",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Catalonia — employed persons in thousands for 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employed persons",
+        "region": {
+          "op": "REGION",
+          "place": "Catalonia, Spain"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "window_select",
+      "adversarial": false,
+      "output_form": "scalar value",
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-033",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Spain, 2021 — labour underutilization rate, where'd it sit?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "labour underutilization rate",
+        "region": {
+          "op": "REGION",
+          "place": "Spain"
+        },
+        "time": {
+          "start": "2021",
+          "end": "2021"
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "window_select",
+      "adversarial": false,
+      "output_form": "scalar value",
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-034",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "In 2023, what is Catalonia's employment rate minus Lombardy's?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia, Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Lombardy, Italy"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "place_compare",
+      "adversarial": false,
+      "output_form": "signed difference",
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-035",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "2020 — India's self-employment is how many times Kenya's?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "same_unit_ratio",
+      "adversarial": false,
+      "output_form": "ratio",
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-038",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "Coworking spaces — what is Porto's count minus Valencia's?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Porto, Portugal"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Valencia, Spain"
+            },
+            "time": null
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "place_compare",
+      "adversarial": false,
+      "output_form": "signed difference",
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-041",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "2021 — Germany's average weekly hours worked, as a multiple of Kenya's?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "same_unit_ratio",
+      "adversarial": false,
+      "output_form": "ratio",
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-042",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Accra — how many banks sit within a kilometre of a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "spatial_composition",
+      "adversarial": false,
+      "output_form": "count",
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-044",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "For each marketplace in Mysuru, how far is its nearest bank, in km?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "distance",
+        "left": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Mysuru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Mysuru, India"
+          },
+          "time": null
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "spatial_composition",
+      "adversarial": false,
+      "output_form": "record set with dist_km",
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-045",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Nairobi — how many pharmacies have no hospital within a kilometre of them?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "pharmacy",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "hospital",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "spatial_composition",
+      "adversarial": true,
+      "output_form": "count",
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-046",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Marrakech — count craft workshops within 1km of a marketplace but beyond half a km of any bank.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Marrakech, Morocco"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Marrakech, Morocco"
+              },
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Marrakech, Morocco"
+            },
+            "time": null
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "spatial_composition",
+      "adversarial": false,
+      "output_form": "count",
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-050",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Medellin — count the banks that have no ATM within half a km.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Medellin, Colombia"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "atm",
+            "region": {
+              "op": "REGION",
+              "place": "Medellin, Colombia"
+            },
+            "time": null
+          }
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "spatial_composition",
+      "adversarial": false,
+      "output_form": "count",
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-051",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "No coworking data for Braga — estimate it off Porto with an envelope model.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "target": {
+          "op": "REGION",
+          "place": "Braga, Portugal"
+        },
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Porto, Portugal"
+          },
+          "time": null
+        }
+      },
+      "must_hole": false,
+      "must_estimate": true,
+      "capability_family": "spatial_composition",
+      "adversarial": false,
+      "output_form": "modelled estimate",
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-052",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "Estimate craft workshops in Kigali by carrying over the feature model from Nairobi.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "feature",
+        "target": {
+          "op": "REGION",
+          "place": "Kigali, Rwanda"
+        },
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        }
+      },
+      "must_hole": false,
+      "must_estimate": true,
+      "capability_family": "spatial_composition",
+      "adversarial": false,
+      "output_form": "modelled estimate",
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-053",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "Interpolate the cafe picture for Chiang Mai from Bangkok, please.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "interpolate",
+        "target": {
+          "op": "REGION",
+          "place": "Chiang Mai, Thailand"
+        },
+        "source": {
+          "op": "SELECT",
+          "entity": "cafe",
+          "region": {
+            "op": "REGION",
+            "place": "Bangkok, Thailand"
+          },
+          "time": null
+        }
+      },
+      "must_hole": false,
+      "must_estimate": true,
+      "capability_family": "spatial_composition",
+      "adversarial": false,
+      "output_form": "modelled estimate",
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-057",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Order France, Germany, Ghana, India and Kenya by 2020 self-employment, lowest to highest.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          }
+        ]
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "nary_rank",
+      "adversarial": false,
+      "output_form": "ordered list (all)",
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-059",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank Accra, Lagos, Nairobi, Kampala and Kigali by coworking-space count, most first.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Lagos, Nigeria"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Nairobi, Kenya"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Kampala, Uganda"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Kigali, Rwanda"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "nary_rank",
+      "adversarial": false,
+      "output_form": "ordered list (all)",
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-063",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Among France, Germany, Spain and Kenya, which 2 have the lowest average weekly hours worked in 2021?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "k": 2,
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          }
+        ]
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "top_k_rank",
+      "adversarial": false,
+      "output_form": "bottom-k list (k=2)",
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-064",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Top 3 of Barcelona, Seville, Valencia, Porto and Lyon for coworking-space count?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "k": 3,
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Barcelona, Spain"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Seville, Spain"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Valencia, Spain"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Porto, Portugal"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Lyon, France"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "top_k_rank",
+      "adversarial": false,
+      "output_form": "top-k list (k=3)",
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-065",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Of France, Germany, Ghana, India and Kenya, which 4 rank lowest on 2020 employment in services?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "k": 4,
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "employment in services",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment in services",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment in services",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment in services",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment in services",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          }
+        ]
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "top_k_rank",
+      "adversarial": true,
+      "output_form": "bottom-k list (k=4)",
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-068",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Nairobi, Accra or Lagos — name the one single city with the most coworking-spaces.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "k": 1,
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Nairobi, Kenya"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Lagos, Nigeria"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "top_k_rank",
+      "adversarial": false,
+      "output_form": "one place name (k=1)",
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-070",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "In Lyon, how many of those did you find?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "?entity",
+          "region": {
+            "op": "REGION",
+            "place": "Lyon, France"
+          },
+          "time": null
+        }
+      },
+      "must_hole": true,
+      "must_estimate": false,
+      "capability_family": "ambiguity",
+      "adversarial": false,
+      "output_form": "count",
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-072",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "In Accra, which of them sit within a kilometre of the market?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "?entity",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        }
+      },
+      "must_hole": true,
+      "must_estimate": false,
+      "capability_family": "ambiguity",
+      "adversarial": false,
+      "output_form": "record set",
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-073",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "Where do gig workers tend to cluster in Bogota?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy",
+        "region": {
+          "op": "REGION",
+          "place": "Bogota, Colombia"
+        },
+        "time": null
+      },
+      "must_hole": true,
+      "must_estimate": false,
+      "capability_family": "ambiguity",
+      "adversarial": false,
+      "output_form": "record set",
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-074",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Has youth unemployment been creeping up there?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "youth unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "?place"
+            },
+            "time": null
+          }
+        }
+      },
+      "must_hole": true,
+      "must_estimate": false,
+      "capability_family": "ambiguity",
+      "adversarial": false,
+      "output_form": "rising/falling/flat",
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-076",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Nairobi — how many art galleries are there?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "art gallery",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "source_gap",
+      "adversarial": false,
+      "output_form": "count",
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-077",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "India, 2020 — what was the median household income?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "median household income",
+        "region": {
+          "op": "REGION",
+          "place": "India"
+        },
+        "time": {
+          "start": "2020",
+          "end": "2020"
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "source_gap",
+      "adversarial": false,
+      "output_form": "scalar value",
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-078",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Bengaluru — from a coworking space, how far's the nearest metro station?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "distance",
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "metro station",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "source_gap",
+      "adversarial": false,
+      "output_form": "distance (km)",
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-079",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Bavaria, 2023 — what's the employment rate?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "employment rate",
+        "region": {
+          "op": "REGION",
+          "place": "Bavaria, Germany"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "source_gap",
+      "adversarial": false,
+      "output_form": "scalar value",
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h24-080",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Brazil — what's the Gini coefficient?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "gini coefficient",
+        "region": {
+          "op": "REGION",
+          "place": "Brazil"
+        },
+        "time": null
+      },
+      "must_hole": false,
+      "must_estimate": false,
+      "capability_family": "source_gap",
+      "adversarial": true,
+      "output_form": "scalar value",
+      "gold_shape": [
+        "SELECT"
+      ]
+    }
+  ]
+}

@@ -463,3 +463,17 @@ Fix2 is strict 36/36 on eligible H22 rows, with only the four registered defects
 immutable bank; 104 deterministic guards pass. This disclosed replay cannot count as saturation.
 H23/H24 were authored against the now-retired epoch and are therefore development pressure only.
 Full rationale: `chronology/20260713_round2_epoch_017_h22_absorption.md`.
+
+## 2026-07-13 — Epoch-017 wall and H23/H24 pressure reject a premature freeze [PARSER/HARNESS]
+
+The corrected 1,076-row wall passes ordinary and strict audit on all 1,074 eligible rows. Five
+disclosed expectations were updated to typed DataRequests after H22's fail-closed annotation and
+trend fixes; their immutable originals remain registered defects. Dialogue passes 5/5 through both
+binding paths, the source census passes 10/10, and 104 deterministic tests pass.
+
+H23 and H24 were generated against the retired epoch-016 boundary, so they are development
+pressure only. Their selected golds were validated and directly executed before qwen contact.
+First contact is strict 8/40 for H23 and 25/40 for H24 (ordinary 0.823 and 0.919). Judge decision:
+epoch 017 is not freezeable; the 47 exact divergences require full adjudication and generalized
+absorption. Neither pressure bank can increment the untouched saturation counter, regardless of
+its repaired replay score.

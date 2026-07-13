@@ -316,3 +316,14 @@ audit remains mandatory.
 The saturation counter is zero. H23/H24 raw banks were generated before the H22 repairs and may
 only be used as pre-freeze development pressure. Countable evidence must be generated anew after a
 complete epoch-017 freeze.
+
+### Round 2 checkpoint 8 — H23/H24 prevent an under-tested epoch-017 freeze
+
+The corrected post-H22 wall is exact on all 1,074 eligible rows across 25 banks, but two
+pre-freeze pressure banks show that regression closure is not yet enough. H23 is strict 8/40 and
+H24 is strict 25/40 on first contact. They were generated against the retired epoch-016 boundary,
+so they are disclosed development pressure and contribute no saturation passes.
+
+The preserved contact establishes 47 exact divergences to adjudicate before epoch 017 can freeze.
+The counter remains zero. After generalized absorption and another complete wall, all countable
+saturation banks must be newly authored from the resulting checksum boundary.
