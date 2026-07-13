@@ -62,7 +62,9 @@ def region_key(region, entity=None):
     if value in known_regions:
         return value
     for suffix in ("south africa", "south korea", "new zealand", "united kingdom",
-                   "united arab emirates", "united states"):
+                   "united arab emirates", "united states", "bosnia and herzegovina",
+                   "cote d ivoire", "democratic republic of the congo",
+                   "central african republic", "sierra leone"):
         if value.endswith(" " + suffix): value = value[:-(len(suffix)+1)]
     if value.startswith("the "): value = value[4:]
     parts = value.split()
@@ -74,7 +76,10 @@ def region_key(region, entity=None):
                  "peru", "philippines", "namibia", "nigeria", "latvia", "slovenia", "uae",
                  "sweden", "indonesia", "bulgaria", "chile", "turkey", "turkiye",
                  "georgia", "vietnam", "bangladesh", "burundi", "oman", "slovakia",
-                 "lithuania"}
+                 "lithuania", "mozambique", "zambia", "niger", "mali", "ethiopia",
+                 "tunisia", "albania", "bosnia and herzegovina", "cote d ivoire",
+                 "botswana", "zimbabwe", "guinea", "liberia", "gabon", "togo",
+                 "malawi", "somalia", "eritrea", "mauritius", "madagascar"}
     countries.update({"rwanda", "tanzania"})
     if len(parts) > 1 and parts[-1] in countries: parts.pop()
     return " ".join(parts)

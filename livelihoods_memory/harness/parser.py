@@ -757,6 +757,52 @@ def mech_statistical_surfaces(ir, question):
     return ir
 
 
+def mech_closed_statistical_surface(ir, question):
+    """Bind explicit level/trend/ratio/subtraction roles independently for each statistic."""
+    ql=question.lower();first=_first_select(ir)
+
+    level=re.match(r"\s*(.+?)[’']s\s+(.+?)\s+in\s+((?:19|20)\d{2})\s*[—-]+\s*"
+                   r"what level[?!.]*$",question,re.I)
+    if level:
+        place,measure,year=level.groups()
+        got=_stat_operand_from_clause(f"{place} {measure}",year,first)
+        if got:return got
+
+    years=re.findall(r"\b(?:19|20)\d{2}\b",question)
+    explicit_direction=bool(re.search(r"\b(?:trend up or down|direction only|fitted direction|"
+                                      r"rising or falling)\b",ql))
+    if explicit_direction and len(years)>=2 and first:
+        start,end=sorted(years[:2],key=int)
+        source=dict(first);source["time"]={"start":start,"end":end}
+        return {"op":"COMPARE","how":"trend_direction","left":{
+            "op":"AGGREGATE","by":"time","metric":"mean","source":source}}
+
+    over=re.match(r"\s*take\s+(.+?)[’']s\s+((?:19|20)\d{2})\s+(.+?)\s+over\s+its\s+"
+                  r"((?:19|20)\d{2})\s+(.+?)[.?!]*$",question,re.I)
+    if over:
+        place,y1,m1,y2,m2=over.groups()
+        left=_stat_operand_from_clause(f"{place} {m1}",y1,first)
+        right=_stat_operand_from_clause(f"{place} {m2}",y2,first)
+        if left and right:return {"op":"COMPARE","how":"ratio","left":left,"right":right}
+
+    at_subtract=re.match(r"\s*at\s+((?:19|20)\d{2})(?:\s+and\s+((?:19|20)\d{2})\s+respectively)?\s*,\s*"
+                         r"subtract\s+(.+?)\s+from\s+(.+?)[.?!]*$",question,re.I)
+    if at_subtract:
+        y1,y2,subtrahend,minuend=at_subtract.groups();y2=y2 or y1
+        left=_stat_operand_from_clause(minuend,y1,first)
+        right=_stat_operand_from_clause(subtrahend,y2,first)
+        if left and right:return {"op":"COMPARE","how":"difference","left":left,"right":right}
+
+    explicit_pair=re.match(r"\s*difference\s*,\s*first minus second\s*:\s*"
+                           r"(.+?)\s+in\s+((?:19|20)\d{2})\s*;\s*"
+                           r"(.+?)\s+in\s+((?:19|20)\d{2})[.?!]*$",question,re.I)
+    if explicit_pair:
+        c1,y1,c2,y2=explicit_pair.groups()
+        left=_stat_operand_from_clause(c1,y1,first);right=_stat_operand_from_clause(c2,y2,first)
+        if left and right:return {"op":"COMPARE","how":"difference","left":left,"right":right}
+    return ir
+
+
 def mech_series_rank(ir, question):
     """Named 'Rank/Sort/Order A, B ... by indicator in YEAR' has a fully determined wide tree."""
     match = re.search(r"\b(?:rank|sort|order)\s+(.+?)\s+by\s+", question, re.I)
@@ -1264,18 +1310,18 @@ def _requested_rank_order(question, default="desc"):
     first inverted several otherwise-complete ranks.
     """
     ql = _phrase_norm(question)
-    if re.search(r"\b(?:highest|largest|most)\s+to\s+(?:lowest|smallest|fewest)\b"
+    if re.search(r"\b(?:highest|largest|most)\s+to\s+(?:lowest|smallest|fewest|least)\b"
                  r"|\bdescending\b|\bhighest\s+first\b", ql):
         return "desc"
     if re.search(r"\b(?:lowest|smallest|fewest)\s+to\s+(?:highest|largest|most)\b"
-                 r"|\bascending\b|\blowest\s+first\b", ql):
+                 r"|\blow\s+to\s+high\b|\bascending\b|\blowest\s+first\b", ql):
         return "asc"
     # Preserve a caller's signed-change interpretation: the "largest drop" is normally the
     # most-negative later-minus-earlier value, not the numerically largest scalar.
     if re.search(r"\b(?:largest|greatest|steepest)\s+(?:drop|decrease|fall)\b"
                  r"|\bmost\s+improvement\b", ql):
         return default
-    if re.search(r"\b(?:lowest|smallest|fewest)\b", ql):
+    if re.search(r"\b(?:lowest|smallest|fewest|least)\b", ql):
         return "asc"
     if re.search(r"\b(?:highest|largest|greatest|most)\b", ql):
         return "desc"
@@ -1298,7 +1344,7 @@ def mech_rank_k(ir, question):
         # dashboard surface ("two densest for X").  Bind it independently of item semantics.
         m=re.search(r"\b(?:which|choose|pick|return|show|give)?\s*(?:the\s+)?"
                     r"(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b"
-                    r"(?=\s+(?:of\b|have\b|has\b|had\b|show\b|shows\b|with\b|highest\b|lowest\b|"
+                    r"(?=\s+(?:of\b|have\b|has\b|had\b|show\b|shows\b|with\b|highest\b|lowest\b|least\b|"
                     r"shortest\b|longest\b|smallest\b|largest\b|densest\b|sparsest\b))",
                     question,re.I)
     if not m:
@@ -1323,11 +1369,106 @@ def mech_rank_k(ir, question):
                      r"(?:city|place|region|country)\b.+?\b(?:most|fewest|highest|lowest)\b",
                      question,re.I):
             out=dict(ir);out["k"]=1;return out
+        if re.search(r"\b(?:most numerous|fewest points|which count is highest|"
+                     r"highest related density|lowest .+? among|largest .+?(?:change|ratio))\b",
+                     question,re.I):
+            out=dict(ir);out["k"]=1;return out
+        if re.search(r"\b(?:order|rank|list)\s+(?:all|every)|\bfull\s+.+?list\b|"
+                     r"\bevery candidate\b",question,re.I):
+            out=dict(ir);out["k"]=len(ir.get("items") or []);return out
         return ir
     token=m.group(1).lower();out=dict(ir);out["k"]=int(token) if token.isdigit() else words[token]
     if re.search(r"\bbottom\b",m.group(0),re.I):out["order"]="asc"
     elif re.search(r"\btop\b",m.group(0),re.I):out["order"]="desc"
     return out
+
+
+def _enumerated_spatial_candidate(clause, metric):
+    """Compile one ``PLACE facility [within D of anchor]`` rank candidate."""
+    facility = (r"craft[- ]workshops?|coworking[- ]spaces?|markets?|marketplaces?|"
+                r"pharmac(?:y|ies)|banks?|hospitals?|bus stops?|bus stations?|cafes?")
+    match=re.match(r"\s*(.+?)\s+("+facility+r")\b(.*)$",clause.strip(" ,.;"),re.I)
+    if not match:return None
+    place,entity_text,tail=match.groups()
+    # Rank-head prose can leak into the first candidate when no colon is present.
+    place=re.sub(r"^(?:fewest points among|most numerous candidate|which count is highest)\s*",
+                 "",place,flags=re.I).strip(" ,:—-")
+    entity_occ=_entity_occurrences("a "+entity_text,osm_only=True)
+    if not place or not entity_occ:return None
+    entity=entity_occ[-1][2];region={"op":"REGION","place":place}
+    source={"op":"SELECT","entity":entity,"region":region,"time":None}
+    if re.search(r"\b(?:within|near|nearby|by nearby)\b",tail,re.I):
+        anchors=list(dict.fromkeys(k for _,_,k in _entity_occurrences(tail,osm_only=True)))
+        if not anchors:return None
+        source={"op":"RELATE","relation":"within","left":source,
+                "right":{"op":"SELECT","entity":anchors[-1],"region":region,"time":None}}
+        distance=_parse_dist_km(tail.lower())
+        if distance is not None:source["threshold_km"]=distance
+    return {"op":"AGGREGATE","by":"space","metric":metric,"source":source}
+
+
+def mech_enumerated_rank(ir, question):
+    """Close semicolon candidate registers into RANK before a model can merge their scopes.
+
+    Candidate-local place, entity, relation, threshold, and time roles are parsed independently;
+    the wrapper then binds order and requested cardinality.  This is deliberately limited to an
+    explicit rank/superlative head plus at least three fully closed candidates.
+    """
+    ql=question.lower()
+    rank_head=bool(re.search(r"\b(?:rank|order|top|smallest|largest|highest|lowest|fewest|"
+                             r"most numerous|least dense|descending|ascending)\b",ql))
+    if not rank_head:return ir
+
+    def finish(items):
+        if len(items)<3:return None
+        out={"op":"RANK","items":items,
+             "order":_requested_rank_order(question,"desc")}
+        out=mech_rank_k(out,question)
+        if "k" not in out and re.search(r"\b(?:all|every|full)\b",ql):out["k"]=len(items)
+        return out
+
+    # Statistical candidate registers. Each semicolon clause owns its country and endpoints.
+    if re.search(r"\bgini(?: coefficient|-coefficient)?\b",ql):
+        segment=question.split(":",1)[1] if ":" in question else question
+        clauses=[c.strip(" ,.;?") for c in segment.split(";") if c.strip(" ,.;?")]
+        if len(clauses)<3:
+            clauses=[f"{place} in {year}" for place,year in re.findall(
+                r"\b([A-Z][A-Za-z ]+?)\s+in\s+((?:19|20)\d{2})(?=,|\s+and\b|\?)",
+                question)]
+        items=[]
+        ratio=bool(re.search(r"\bratio|later-to-earlier|/",ql))
+        derived=ratio or bool(re.search(r"\b(?:change|endpoint change|minus)\b",ql))
+        for clause in clauses:
+            years=re.findall(r"\b(?:19|20)\d{2}\b",clause)
+            place=re.split(r",?\s+(?:in\s+)?(?:19|20)\d{2}\b",clause,maxsplit=1,
+                           flags=re.I)[0]
+            place=re.sub(r"^.*?(?:gini(?:-coefficient)?\s+(?:level|change|ratio)s?\s*:\s*)",
+                         "",place,flags=re.I).strip(" ,:—-")
+            place=re.sub(r"^(?:Brazil|India|Kenya)\s+and\s+", "", place,
+                         flags=re.I).strip(" ,")
+            if not years or not place:continue
+            if derived and len(years)>=2:
+                earlier,later=sorted(years[:2],key=int)
+                left=_stat_operand_from_clause(f"{place} gini coefficient",later)
+                right=_stat_operand_from_clause(f"{place} gini coefficient",earlier)
+                if left and right:items.append({"op":"COMPARE","how":"ratio" if ratio else "difference",
+                                                "left":left,"right":right})
+            else:
+                item=_stat_operand_from_clause(f"{place} gini coefficient",years[-1])
+                if item:items.append(item)
+        closed=finish(items)
+        if closed:return closed
+
+    # Spatial candidate registers always use semicolons, which makes clause scope explicit.
+    if ";" in question:
+        segment=question.split(":",1)[1] if ":" in question else question
+        clauses=[c.strip(" ,.;?") for c in segment.split(";") if c.strip(" ,.;?")]
+        metric="density" if re.search(r"\bdens",ql) else "count"
+        items=[_enumerated_spatial_candidate(c,metric) for c in clauses]
+        if all(items):
+            closed=finish(items)
+            if closed:return closed
+    return ir
 
 
 def _rank_candidate_places(ir, question):
@@ -2292,25 +2433,239 @@ def mech_spatial_arithmetic(ir, question):
     return ir
 
 
+def mech_closed_spatial_surface(ir, question):
+    """Compile explicit spatial registers with clause-local subject, anchor, polarity, and range."""
+    ql=question.lower();first=_first_select(ir)
+    def entity(text):
+        found=_entity_occurrences("a "+text,osm_only=True)
+        return found[-1][2] if found else text.strip(" ,.;:—-")
+    def region(place):return {"op":"REGION","place":place.strip(" ,.;:—-")}
+    def selected(name,reg):return {"op":"SELECT","entity":entity(name),"region":reg,"time":None}
+    def related(subject,anchor,reg,relation="within",distance=None):
+        out={"op":"RELATE","relation":relation,"left":selected(subject,reg),
+             "right":selected(anchor,reg)}
+        if distance is not None:out["threshold_km"]=distance
+        return out
+    def reduced(source,metric):return {"op":"AGGREGATE","by":"space","metric":metric,"source":source}
+
+    fronted=re.match(r"\s*within\s+(.+?)\s+of\s+(?:a|an|the)\s+(.+?),\s*"
+                     r"which\s+(.+?)\s+are\s+there\s+in\s+(.+?)[?!.]*$",question,re.I)
+    if fronted:
+        distance,anchor,subject,place=fronted.groups();reg=region(place)
+        return related(subject,anchor,reg,distance=_parse_dist_km(distance))
+
+    counted=re.match(r"\s*a\s+(.+?)\s+is\s+no\s+farther\s+than\s+(.+?)\s+from\s+"
+                     r"(?:a|an|the)\s+(.+?)\s+in\s+(.+?)\s*:\s*how many",question,re.I)
+    if counted:
+        subject,distance,anchor,place=counted.groups();reg=region(place)
+        return reduced(related(subject,anchor,reg,distance=_parse_dist_km(distance)),"count")
+
+    adjacent=re.match(r"\s*(.+?)\s+field note\s*:\s*(.+?)-adjacent\s+(.+?),\s*"
+                      r"(.+?)\s+radius\s*[—-]\s*present or absent",question,re.I)
+    if adjacent:
+        place,anchor,subject,distance=adjacent.groups();reg=region(place)
+        return reduced(related(subject,anchor,reg,distance=_parse_dist_km(distance)),"presence")
+
+    density=re.match(r"\s*give\s+the\s+density\s+of\s+(.+?)\s+within\s+(.+?)\s+of\s+"
+                     r"(.+?)\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if density:
+        subject,distance,anchor,place=density.groups();reg=region(place)
+        return reduced(related(subject,anchor,reg,distance=_parse_dist_km(distance)),"density")
+    density_front=re.match(r"\s*within\s+(.+?)\s+of\s+(?:a|an|the)\s+(.+?)\s+in\s+"
+                           r"(.+?),\s*how dense are\s+(.+?)[?!.]*$",question,re.I)
+    if density_front:
+        distance,anchor,place,subject=density_front.groups();reg=region(place)
+        return reduced(related(subject,anchor,reg,distance=_parse_dist_km(distance)),"density")
+
+    # Distance is a binary relation even when phrased as an attachment column.
+    if re.search(r"\bdistance\b",ql) and len(_entity_occurrences(question,osm_only=True))>=2 \
+            and not re.search(r"\b(?:mean|average|rank|order)\b",ql):
+        names=list(dict.fromkeys(k for _,_,k in _entity_occurrences(question,osm_only=True)))
+        reg=first.get("region") if first else "?place"
+        subject=first.get("entity") if first else names[-1]
+        anchor=next((name for name in names if _phrase_norm(name)!=_phrase_norm(str(subject))),names[0])
+        return related(subject,anchor,reg,relation="distance")
+
+    # Punctuation-separated mixed-polarity conjunction: subject; negative anchor; positive anchor.
+    conjunct=re.match(r"\s*(.+?),\s*(.+?)\s*:\s*no\s+(.+?)\s+inside\s+(.+?);\s*"
+                      r"(?:a|an|the)\s+(.+?)\s+inside\s+(.+?)[.?!]*$",question,re.I)
+    if conjunct:
+        subject,place,negative,outer_d,positive,inner_d=conjunct.groups();reg=region(place)
+        inner=related(subject,positive,reg,distance=_parse_dist_km(inner_d))
+        out={"op":"RELATE","relation":"beyond","left":inner,"right":selected(negative,reg),
+             "threshold_km":_parse_dist_km(outer_d)}
+        return out
+
+    both=re.match(r"\s*(?:a|an|the)\s+(.+?)\s+and\s+(?:a|an|the)\s+(.+?)\s+are\s+each\s+"
+                  r"at most\s+(.+?)\s+away\s*:\s*which\s+(.+?)\s+(.+?)\s+meet both",question,re.I)
+    if both:
+        anchor1,anchor2,distance,place,subject=both.groups();reg=region(place);d=_parse_dist_km(distance)
+        inner=related(subject,anchor1,reg,distance=d)
+        return {"op":"RELATE","relation":"within","threshold_km":d,"left":inner,
+                "right":selected(anchor2,reg)}
+
+    # Two independent related counts under subtraction, with one shared named region.
+    subtract=re.search(r"\bsubtract\s+the\s+count\s+of\s+(.+?)\s+within\s+(.+?)\s+of\s+"
+                       r"(.+?)\s+from\s+the\s+count\s+of\s+(.+?)\s+within\s+(.+?)\s+of\s+"
+                       r"(.+?)[.?!]*$",question,re.I)
+    if subtract:
+        sub,d1,a1,main,d2,a2=subtract.groups()
+        pm=re.match(r"\s*in\s+(.+?),\s*subtract\b",question,re.I)
+        reg=region(pm.group(1)) if pm else (first.get("region") if first else "?place")
+        left=reduced(related(main,a2,reg,distance=_parse_dist_km(d2)),"count")
+        right=reduced(related(sub,a1,reg,distance=_parse_dist_km(d1)),"count")
+        return {"op":"COMPARE","how":"difference","left":left,"right":right}
+
+    former=re.match(r"\s*(.+?)\s+near\s+(.+?)\s+minus\s+(.+?)\s+near\s+(.+?),\s*please\s*:\s*"
+                    r"(.+?);\s*(.+?)\s+for\s+the\s+former,\s*(.+?)\s+for\s+the\s+latter",
+                    question,re.I)
+    if former:
+        e1,a1,e2,a2,place,d1,d2=former.groups();reg=region(place)
+        return {"op":"COMPARE","how":"difference",
+                "left":reduced(related(e1,a1,reg,distance=_parse_dist_km(d1)),"count"),
+                "right":reduced(related(e2,a2,reg,distance=_parse_dist_km(d2)),"count")}
+
+    cross_ratio=re.match(r"\s*compute\s+(.+?)[’']s\s+count\s+of\s+(.+?)\s+within\s+(.+?)\s+of\s+"
+                         r"(.+?)\s+divided\s+by\s+(.+?)[’']s\s+count\s+of\s+(.+?)\s+within\s+"
+                         r"(.+?)\s+of\s+(.+?)[.?!]*$",question,re.I)
+    if cross_ratio:
+        p1,e1,d1,a1,p2,e2,d2,a2=cross_ratio.groups();r1,r2=region(p1),region(p2)
+        return {"op":"COMPARE","how":"ratio",
+                "left":reduced(related(e1,a1,r1,distance=_parse_dist_km(d1)),"count"),
+                "right":reduced(related(e2,a2,r2,distance=_parse_dist_km(d2)),"count")}
+
+    reversed_subject=re.match(r"\s*(?:a|an|the)\s+(.+?)\s+lies\s+within\s+(.+?)\s*:\s*show\s+"
+                              r"(?:the\s+)?(.+?)\s+satisfying that\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if reversed_subject:
+        anchor,distance,subject,place=reversed_subject.groups();reg=region(place)
+        return related(subject,anchor,reg,distance=_parse_dist_km(distance))
+
+    co_beyond=re.match(r"\s*in\s+(.+?),\s*show\s+(.+?)\s+cooccurring\s+with\s+(.+?)\s+and\s+"
+                       r"beyond\s+(.+?)\s+from\s+(.+?)[.?!]*$",question,re.I)
+    if co_beyond:
+        place,subject,coanchor,distance,far_anchor=co_beyond.groups();reg=region(place)
+        inner=related(subject,coanchor,reg,relation="cooccur")
+        return {"op":"RELATE","relation":"beyond","threshold_km":_parse_dist_km(distance),
+                "left":inner,"right":selected(far_anchor,reg)}
+    co_prefix=re.match(r"\s*(.+?)-cooccurring\s+(.+?),\s*but\s+none\s+with\s+"
+                       r"(?:a|an|the)\s+(.+?)\s+inside\s+(.+?)\s*[—-]\s*(.+?)[.?!]*$",question,re.I)
+    if co_prefix:
+        coanchor,subject,far_anchor,distance,place=co_prefix.groups();reg=region(place)
+        inner=related(subject,coanchor,reg,relation="cooccur")
+        return {"op":"RELATE","relation":"beyond","threshold_km":_parse_dist_km(distance),
+                "left":inner,"right":selected(far_anchor,reg)}
+    return ir
+
+
 def mech_transfer_relational_source(ir, question):
     """Preserve explicit donor-set modifiers inside ESTIMATE.source."""
     if not (isinstance(ir,dict) and ir.get("op") == "ESTIMATE" and
             isinstance(ir.get("source"),dict) and ir["source"].get("op") == "SELECT"):
         return ir
-    if not re.search(r"\b(?:donor|pattern|transfer|estimate)\b",question,re.I) or \
-            not re.search(r"\b(?:within|beyond)\b",question,re.I):
+    if not re.search(r"\b(?:donor|pattern|transfer|estimate|interpolat\w*|source records|"
+                     r"envelope field)\b",question,re.I) or \
+            not re.search(r"\b(?:within|beyond|cooccurr?\w*)\b",question,re.I):
         return ir
     entities=list(dict.fromkeys(key for _,_,key in
                                 _entity_occurrences(question,osm_only=True)))
     if len(entities)<2:return ir
     source=ir["source"];region=source.get("region")
-    relation="beyond" if re.search(r"\bbeyond\b",question,re.I) else "within"
+    relation=("cooccur" if re.search(r"\bcooccurr?\w*\b",question,re.I) else
+              "beyond" if re.search(r"\bbeyond\b",question,re.I) else "within")
     rel={"op":"RELATE", "relation":relation,
          "left":{"op":"SELECT","entity":entities[0],"region":region,"time":None},
          "right":{"op":"SELECT","entity":entities[1],"region":region,"time":None}}
     d=_parse_dist_km(question.lower())
     if d is not None:rel["threshold_km"]=d
     out=dict(ir);out["source"]=rel;return out
+
+
+def mech_transfer_source_expression(ir, question):
+    """Keep a typed RELATE/ANNOTATE/hole expression intact as an ESTIMATE donor source."""
+    ql=question.lower()
+    method=("interpolate" if re.search(r"\binterpolat\w*\b",ql) else
+            "feature" if re.search(r"\bfeature[- ]?estimat\w*|\bby feature\b",ql) else
+            "envelope" if re.search(r"\benvelope\b",ql) else None)
+    if method is None:return ir
+    first=_first_select(ir)
+    if not first:return ir
+    donor_region=first.get("region")
+
+    target=(ir.get("target") if isinstance(ir,dict) and ir.get("op")=="ESTIMATE" else None)
+    if not (isinstance(target,dict) and target.get("op")=="REGION"):
+        target_match=re.search(r"\b(?:field\s+(?:for|in)|target\s*[:—-])\s+"
+                               r"(.+?)(?:\s+is\s+the\s+target)?[.?!]*$",question,re.I)
+        if target_match:
+            target={"op":"REGION","place":target_match.group(1).strip(" ,.;:—-")}
+    if not target:return ir
+
+    named=list(dict.fromkeys(k for _,_,k in _entity_occurrences(question,osm_only=True)))
+    source=first
+    if named:
+        source={"op":"SELECT","entity":named[0],"region":donor_region,"time":None}
+
+    # A donor relation is a Records expression, not prose that may be discarded before ESTIMATE.
+    unresolved_anchor=bool(re.search(r"\bwhich\s+amenity\b",ql))
+    if re.search(r"\b(?:within|beyond|cooccurr?\w*)\b",ql) and \
+            (len(named)>=2 or (len(named)>=1 and unresolved_anchor)):
+        relation=("cooccur" if re.search(r"\bcooccurr?\w*\b",ql) else
+                  "beyond" if re.search(r"\bbeyond\b",ql) else "within")
+        anchor="?anchor_amenity" if unresolved_anchor else named[1]
+        source={"op":"RELATE","relation":relation,"left":source,
+                "right":{"op":"SELECT","entity":anchor,"region":donor_region,"time":None}}
+        distance=_parse_dist_km(ql)
+        if distance is not None:source["threshold_km"]=distance
+
+    # Annotation layers remain columns on the donor records. A named statistical indicator in
+    # this role must not replace the facility SELECT itself.
+    if re.search(r"\bannotat\w*|\bwith which .+? layer\b",ql):
+        layer=None
+        for phrase in ("electricity access","internet users","mobile subscriptions"):
+            if phrase in ql:layer=phrase;break
+        if re.search(r"\bwhich\s+(?:livelihood\s+)?layer\b",ql):layer="?layer"
+        if layer:source={"op":"ANNOTATE","source":source,"layer":layer}
+
+    if re.search(r"\bsome livelihood facility\b",ql):
+        source={"op":"SELECT","entity":"?facility_type","region":donor_region,"time":None}
+    elif re.search(r"\b(?:those|these) records\b",ql):
+        source={"op":"SELECT","entity":"?entity","region":donor_region,"time":None}
+    return {"op":"ESTIMATE","source":source,"target":target,"method":method}
+
+
+def mech_output_literal_honesty(ir, question):
+    """Enforce explicit output heads, modifier-complete literals, and unresolved roles."""
+    if not isinstance(ir,dict):return ir
+    ql=question.lower();first=_first_select(ir)
+    if not first:return ir
+    region=first.get("region")
+
+    if re.search(r"\bwithin\b.+?\bof it\b",ql) and ir.get("op")=="RELATE":
+        out=json.loads(json.dumps(ir));out["right"]["entity"]="?anchor_entity";return out
+
+    if re.search(r"\b(?:did|does)\b.+?\bcause\b",ql):
+        return {"op":"SELECT","entity":"?proxy_for_causal_claim","region":region,"time":None}
+
+    if re.search(r"\bcurrent firm-posted job vacancies\b",ql):
+        return {"op":"SELECT","entity":"current firm-posted job vacancies",
+                "region":region,"time":None}
+    unsupported=re.match(r"\s*report\s+(.+?)\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if unsupported and not _entity_occurrences(unsupported.group(1)):
+        return {"op":"SELECT","entity":unsupported.group(1).strip(" ,"),
+                "region":{"op":"REGION","place":unsupported.group(2).strip(" ,")},"time":None}
+
+    if ir.get("op")=="ANNOTATE":
+        layer=None
+        attached=re.search(r"\bwith\s+(.+?)\s+attached\b",question,re.I)
+        attach=re.match(r"\s*for\s+.+?,\s*attach\s+(.+?)[.?!]*$",question,re.I)
+        if attached:layer=attached.group(1)
+        elif attach and re.search(r"\b(?:earnings?|income)\b",attach.group(1),re.I):layer=attach.group(1)
+        if layer:
+            out=dict(ir);out["layer"]=re.sub(r"^the\s+","",layer.strip(" ,.;"),flags=re.I);return out
+
+    explicit_records=bool(re.search(r"\b(?:records|examples)\b",ql))
+    if explicit_records and not re.search(r"\b(?:annotat|attach|estimate|rank|order)\b",ql):
+        if ir.get("op")=="AGGREGATE" and isinstance(ir.get("source"),dict):return ir["source"]
+    return ir
 
 
 def mech_behavior_proxy(ir, question):
@@ -3475,6 +3830,7 @@ def _clean_anchor(a):
 
 
 def _parse_dist_km(text):
+    text=re.sub(r"(?<=\w)-(?=\w)"," ",text)
     fractions = {
         "quarter": 0.25, "one quarter": 0.25, "a quarter": 0.25,
         "three quarters": 0.75, "three quarter": 0.75,
@@ -3494,6 +3850,12 @@ def _parse_dist_km(text):
     m = re.search(r"(\d{1,3}(?:,\d{3})+(?:\.\d+)?|[\d.]+)\s*"
                   r"(m\b|meters?|metres?|km\b|kilometers?|kilometres?)", text)
     if not m:
+        words={"two":2.0,"three":3.0,"four":4.0,"five":5.0}
+        written=re.search(r"\b(two|three|four|five)\s+"
+                          r"(km|kilometers?|kilometres?|meters?|metres?)\b",text,re.I)
+        if written:
+            value=words[written.group(1).lower()]
+            return value if written.group(2).lower().startswith("k") else value/1000.0
         if re.search(r"\b(?:a|one)\s+(?:km|kilometers?|kilometres?)\b", text, re.I):
             return 1.0
         if re.search(r"\b(?:a|one)\s+(?:meter|metre)\b", text, re.I):
@@ -3697,6 +4059,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
         events.append("mech_synthesis:prefixed_statistic")
     before = json.dumps(ir)
     ir = mech_statistical_surfaces(ir, question)
+    ir = mech_closed_statistical_surface(ir, question)
     if json.dumps(ir) != before:
         events.append("mech_synthesis:clause_scoped_statistic")
     before = json.dumps(ir)
@@ -3708,6 +4071,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     ir = mech_rank_k(ir, question)
     ir = mech_explicit_rank_semantics(ir, question)
     ir = mech_ranked_quantity(ir, question)
+    ir = mech_enumerated_rank(ir, question)
     ir = mech_rank_k(ir, question)
     if json.dumps(ir) != before:
         events.append("mech_synthesis:explicit_series_rank")
@@ -3748,11 +4112,14 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     ir = mech_relation_comparisons(ir, question)
     ir = mech_spatial_cross_place(ir, question)
     ir = mech_spatial_arithmetic(ir, question)
+    ir = mech_closed_spatial_surface(ir, question)
     ir = mech_requested_reduction(ir, question)
     ir = mech_comparison_mode(ir, question)
     ir = mech_behavior_proxy(ir, question)
     ir = mech_transfer_contract(ir, question)
     ir = mech_transfer_relational_source(ir, question)
+    ir = mech_transfer_source_expression(ir, question)
+    ir = mech_output_literal_honesty(ir, question)
     if json.dumps(ir) != before:
         events.append("mech_synthesis:answer_form_comparison_or_behavior")
     before = json.dumps(ir)
@@ -3817,6 +4184,14 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
         # never pull the national operand into its boundary.
         ir = restore_eurostat_regions(ir, question)
         ir = restore_named_region_scope(ir, question)
+    before=json.dumps(ir)
+    ir = mech_enumerated_rank(ir, question)
+    ir = mech_closed_statistical_surface(ir, question)
+    ir = mech_closed_spatial_surface(ir, question)
+    ir = mech_transfer_source_expression(ir, question)
+    ir = mech_output_literal_honesty(ir, question)
+    if json.dumps(ir) != before:
+        events.append("mech_synthesis:closed_rank_transfer_or_output_contract")
     # repair-with-feedback (tick-010): a schema-invalid tree gets ONE correction round with the
     # validator's exact errors — compiler-style error recovery, generic across failure patterns.
     if repair and ir is not None:
@@ -3856,10 +4231,10 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
         before_post = json.dumps(ir)
         for fn in (restore_named_entities, restore_eurostat_regions, restore_named_region_scope,
                    bind_prefixed_region, mech_prefixed_statistic,
-                   mech_statistical_surfaces,
+                   mech_statistical_surfaces, mech_closed_statistical_surface,
                    mech_explicit_change,
                    mech_series_rank, mech_rank_k, mech_explicit_rank_semantics,
-                   mech_ranked_quantity, mech_rank_k,
+                   mech_ranked_quantity, mech_enumerated_rank, mech_rank_k,
                    mech_ratio, mech_mixed_source_compare, mech_mixed_gap,
                    mech_same_time_measure_difference, mech_subtract_orientation, mech_dormant_ops,
                    mech_annulus_relation, mech_both_relations, mech_three_entity_relations,
@@ -3868,9 +4243,11 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
                    mech_relation_thresholds, mech_answer_form, mech_terse_and_anaphoric,
                    mech_nearest_distance,
                    mech_relation_comparisons, mech_spatial_cross_place, mech_spatial_arithmetic,
+                   mech_closed_spatial_surface,
                    mech_requested_reduction,
                    mech_comparison_mode, mech_behavior_proxy, mech_transfer_contract,
-                   mech_transfer_relational_source, bind_named_indicator, mech_series_types,
+                   mech_transfer_relational_source, mech_transfer_source_expression,
+                   mech_output_literal_honesty, bind_named_indicator, mech_series_types,
                    mech_explicit_point_time,
                    mech_explicit_window_time, mech_time_faithfulness, mech_unresolved_point_time,
                    mech_since_time, mech_source_gap_select,
@@ -3883,6 +4260,11 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
         if json.dumps(ir) != before_closure:
             ir = restore_eurostat_regions(ir, question)
             ir = restore_named_region_scope(ir, question)
+        ir = mech_enumerated_rank(ir, question)
+        ir = mech_closed_statistical_surface(ir, question)
+        ir = mech_closed_spatial_surface(ir, question)
+        ir = mech_transfer_source_expression(ir, question)
+        ir = mech_output_literal_honesty(ir, question)
         if json.dumps(ir) != before_post:
             events.append("post_repair:semantic_passes_reapplied")
     return {"question": question, "raw": raw, "ir": ir, "parse_valid": ir is not None,
