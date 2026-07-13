@@ -56,3 +56,8 @@ After the machine-readable certification artifact and its freeze-registry entry 
 wall v3 repeated all 1,382 rows from scratch with the same exact ordinary, strict, and synthesis
 result. The final certification metadata update is itself checksummed evidence; one last v4 replay
 will bind the exact content before generating the epoch-020 manifest.
+
+Wall v4 is again exact on 1,379/1,379 eligible ordinary and strict rows and 1,382/1,382 synthesis
+rows. `freezes/epoch-020.json` hashes 58 active inputs with zero mismatch. This establishes a new
+start line only: the untouched saturation counter is zero, and H28 must be generated after the
+freeze commit to be eligible.

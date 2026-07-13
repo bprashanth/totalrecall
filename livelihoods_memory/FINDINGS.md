@@ -622,3 +622,9 @@ v2 is exact on every one of 1,379 eligible ordinary and strict rows; synthesis i
 Source, dialogue, regression, coverage, and corpus gates all pass, with 100 H27 parses admitted.
 Judge decision: this is a candidate freeze boundary, not saturation. The certification artifact
 and freeze-registry update require a full confirmation wall before checksumming epoch 020.
+
+## 2026-07-13 — Epoch 020 frozen after two post-artifact confirmations [BENCHMARK/FREEZE]
+
+Walls v3 and v4 repeat the exact v2 result on all 1,382 rows. The 58-file epoch-020 manifest has
+zero checksum mismatch. Judge decision: this is the new eligible start line, not a saturation
+pass. H27 remains disclosed development and the counter is zero pending a fresh post-commit H28.
