@@ -55,7 +55,7 @@ Leaf/support nodes:
 - Values are plain JSON (strings, numbers, `{start,end}` for time).
 
 Field vocabularies:
-- `relation` ∈ `distance | within | cooccur`
+- `relation` ∈ `distance | within | beyond | cooccur`
 - `by` ∈ `space | time`
 - `metric` ∈ `count | density | mean | presence`
 - `how` ∈ `difference | ratio | trend_direction`
