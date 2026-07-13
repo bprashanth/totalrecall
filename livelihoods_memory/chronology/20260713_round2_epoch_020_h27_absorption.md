@@ -33,3 +33,14 @@ H27 also found a scorer-only defect: separator punctuation made `population-dens
 
 Replay the entire historical wall, source census, dialogue suites, corpus, coverage, synthesis, and
 freeze checksum. Only a fresh post-epoch-020 bank may begin the untouched three-bank sequence.
+
+## Expanded wall v1 rejection
+
+The first 1,382-row wall rejected the candidate boundary. Ordinary scoring had three eligible
+misses and strict audit had seven; synthesis remained 1,382/1,382. The seven rows reduce to two
+scope regressions introduced by H27 closure: a “more than” cue flipped every RELATE in a mixed
+positive/negative conjunction, and modifier-preserving annotation reconstruction overwrote already
+canonical `name`, `opening_hours`, and `operator` fields. The repair now flips only a single-relation
+tree and rebuilds annotation literals only for explicitly modifier-bearing unsupported fields.
+Regression tests cover both transfer boundaries. Wall v1 is development evidence and v2 must replay
+all banks from scratch.
