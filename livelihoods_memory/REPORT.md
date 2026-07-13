@@ -460,7 +460,7 @@ development wording is generated reproducibly in `questions/round2-h27-dev.json`
 
 The second immutable replay is strict 96/100 with exactly those four declared defects remaining.
 It also exposed and fixed a late mixed-geography regression and a false coarse-score disagreement
-between hyphenated and spaced annotation layers (`BUG-010`). The disclosed replay then reached
-strict 98/100 before exact unsupported train-station literals were preserved; a final replay is
-required before the expanded historical wall. Every repair and scorer change keeps the counter at
-zero and moves the next possible start line to epoch 020.
+between hyphenated and spaced annotation layers (`BUG-010`). The disclosed final replay is ordinary
+1.000, strict 100/100, and synthesis 100/100 after exact unsupported train-station literals were
+preserved. Every repair and scorer change keeps the counter at zero and moves the next possible
+start line to epoch 020; the expanded historical wall is now mandatory.
