@@ -1,0 +1,1588 @@
+{
+ "spec_version": "v2.1",
+ "note": "post-freeze Cursor-authored candidates; unexposed to qwen",
+ "source_generated": "coverage/raw/epoch009-holdout-candidates.json",
+ "questions": [
+  {
+   "id": "h11-001",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Where are the coworking spaces in Nairobi, Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "coworking space",
+    "region": {
+     "op": "REGION",
+     "place": "Nairobi, Kenya"
+    },
+    "time": null
+   },
+   "gold_shape": "SELECT"
+  },
+  {
+   "id": "h11-002",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "How many coworking spaces are in Nairobi, Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": "AGGREGATE(SELECT)"
+  },
+  {
+   "id": "h11-003",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Are there coworking spaces in Accra, Ghana?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "presence",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": "AGGREGATE(SELECT)"
+  },
+  {
+   "id": "h11-004",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Where are the craft workshops in Accra, Ghana?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "craft workshop",
+    "region": {
+     "op": "REGION",
+     "place": "Accra, Ghana"
+    },
+    "time": null
+   },
+   "gold_shape": "SELECT"
+  },
+  {
+   "id": "h11-005",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "How many markets are in Bengaluru, India?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Bengaluru, India"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": "AGGREGATE(SELECT)"
+  },
+  {
+   "id": "h11-006",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Are there water points in Accra, Ghana?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "presence",
+    "source": {
+     "op": "SELECT",
+     "entity": "water point",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": "AGGREGATE(SELECT)"
+  },
+  {
+   "id": "h11-007",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Where are the community centres in Nairobi, Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "community centre",
+    "region": {
+     "op": "REGION",
+     "place": "Nairobi, Kenya"
+    },
+    "time": null
+   },
+   "gold_shape": "SELECT"
+  },
+  {
+   "id": "h11-008",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "How many bus stops are in Bengaluru, India?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Bengaluru, India"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": "AGGREGATE(SELECT)"
+  },
+  {
+   "id": "h11-009",
+   "sector": "livelihoods",
+   "type": "VALUE",
+   "q": "What are the names of the coworking spaces in Nairobi, Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "layer": "name"
+   },
+   "gold_shape": "ANNOTATE(SELECT)"
+  },
+  {
+   "id": "h11-010",
+   "sector": "livelihoods",
+   "type": "VALUE",
+   "q": "What are the names of the craft workshops in Accra, Ghana?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    },
+    "layer": "name"
+   },
+   "gold_shape": "ANNOTATE(SELECT)"
+  },
+  {
+   "id": "h11-011",
+   "sector": "livelihoods",
+   "type": "VALUE",
+   "q": "What are the names of the markets in Bengaluru, India?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Bengaluru, India"
+     },
+     "time": null
+    },
+    "layer": "name"
+   },
+   "gold_shape": "ANNOTATE(SELECT)"
+  },
+  {
+   "id": "h11-012",
+   "sector": "livelihoods",
+   "type": "VALUE",
+   "q": "What are the names of the community centres in Nairobi, Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "community centre",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "layer": "name"
+   },
+   "gold_shape": "ANNOTATE(SELECT)"
+  },
+  {
+   "id": "h11-013",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Which craft workshops in Accra, Ghana are within 1 km of a market?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    },
+    "relation": "within",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(SELECT,SELECT)"
+  },
+  {
+   "id": "h11-014",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "How many craft workshops in Accra, Ghana are within 1 km of a market?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "craft workshop",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "market",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+  },
+  {
+   "id": "h11-015",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Which coworking spaces in Nairobi, Kenya are within 1 km of a bus stop?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "relation": "within",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(SELECT,SELECT)"
+  },
+  {
+   "id": "h11-016",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "How many coworking spaces in Nairobi, Kenya are beyond 1 km of a bus stop?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+  },
+  {
+   "id": "h11-017",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Are there water points in Accra, Ghana within 1 km of a market?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "presence",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "water point",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "market",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+  },
+  {
+   "id": "h11-018",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Which markets in Bengaluru, India are within 1 km of a bank?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Bengaluru, India"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Bengaluru, India"
+     },
+     "time": null
+    },
+    "relation": "within",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(SELECT,SELECT)"
+  },
+  {
+   "id": "h11-019",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "How many post offices in Nairobi, Kenya are within 1 km of a community centre?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "post office",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "community centre",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+  },
+  {
+   "id": "h11-020",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Which toilets in Accra, Ghana are beyond 1 km of a bus stop?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "toilet",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    },
+    "relation": "beyond",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(SELECT,SELECT)"
+  },
+  {
+   "id": "h11-021",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Which craft workshops in Accra, Ghana are within 1 km of bus stops that are within 1 km of a market?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "market",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 1
+    },
+    "relation": "within",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(SELECT,RELATE(SELECT,SELECT))"
+  },
+  {
+   "id": "h11-022",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How many craft workshops in Accra, Ghana are within 1 km of bus stops that are within 1 km of a market?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "craft workshop",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     },
+     "relation": "within",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(RELATE(SELECT,RELATE(SELECT,SELECT)))"
+  },
+  {
+   "id": "h11-023",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Which coworking spaces in Nairobi, Kenya are within 1 km of banks that are within 1 km of a park?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "park",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 1
+    },
+    "relation": "within",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(SELECT,RELATE(SELECT,SELECT))"
+  },
+  {
+   "id": "h11-024",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How many toilets in Accra, Ghana are beyond 1 km of bus stops that are within 1 km of a market?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "toilet",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     },
+     "relation": "beyond",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(RELATE(SELECT,RELATE(SELECT,SELECT)))"
+  },
+  {
+   "id": "h11-025",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Which water points in Accra, Ghana are within 1 km of community centres that are within 1 km of a market?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "water point",
+     "region": {
+      "op": "REGION",
+      "place": "Accra, Ghana"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "community centre",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "market",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 1
+    },
+    "relation": "within",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(SELECT,RELATE(SELECT,SELECT))"
+  },
+  {
+   "id": "h11-026",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How many bus stops in Bengaluru, India are within 1 km of markets that are within 1 km of a bank?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru, India"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     },
+     "relation": "within",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(RELATE(SELECT,RELATE(SELECT,SELECT)))"
+  },
+  {
+   "id": "h11-027",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of craft workshops within 1 km of a market to craft workshops in Accra, Ghana?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "craft workshop",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-028",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of coworking spaces within 1 km of a bus stop to coworking spaces in Nairobi, Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-029",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the difference between bus stops within 1 km of a bank and markets within 1 km of a bank in Bengaluru, India?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(RELATE(SELECT,SELECT)))"
+  },
+  {
+   "id": "h11-030",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of post offices within 1 km of a community centre to post offices in Nairobi, Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "post office",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "community centre",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "post office",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-031",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the difference between water points within 1 km of a market and toilets within 1 km of a market in Accra, Ghana?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "water point",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "toilet",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(RELATE(SELECT,SELECT)))"
+  },
+  {
+   "id": "h11-032",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of bus stops within 1 km of a market to bus stops in Bengaluru, India?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru, India"
+      },
+      "time": null
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-033",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Berlin, Germany, Paris, France, and Madrid, Spain by coworking space count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Berlin, Germany"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Paris, France"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Madrid, Spain"
+       },
+       "time": null
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-034",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Accra, Ghana, Nairobi, Kenya, and Bengaluru, India by craft workshop count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-035",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Accra, Ghana, Nairobi, Kenya, and Bengaluru, India by market count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-036",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Accra, Ghana, Nairobi, Kenya, and Bengaluru, India by bus stop count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-037",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Accra, Ghana, Nairobi, Kenya, and Bengaluru, India by water point count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "water point",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "water point",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "water point",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-038",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Accra, Ghana, Nairobi, Kenya, and Bengaluru, India by community centre count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "community centre",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "community centre",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "community centre",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      }
+     }
+    ],
+    "order": "asc"
+   },
+   "gold_shape": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h11-039",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Are there coworking spaces here?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "presence",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "?place"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": "AGGREGATE(SELECT)",
+   "must_hole": true
+  },
+  {
+   "id": "h11-040",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Which workshops are in Nairobi, Kenya?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?workplace_type",
+    "region": {
+     "op": "REGION",
+     "place": "Nairobi, Kenya"
+    },
+    "time": null
+   },
+   "gold_shape": "SELECT",
+   "must_hole": true
+  },
+  {
+   "id": "h11-041",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "What are the names of the markets there?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "ANNOTATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "?place"
+     },
+     "time": null
+    },
+    "layer": "name"
+   },
+   "gold_shape": "ANNOTATE(SELECT)",
+   "must_hole": true
+  },
+  {
+   "id": "h11-042",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Which craft workshops are within 1 km of a market there?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "?place"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "?place"
+     },
+     "time": null
+    },
+    "relation": "within",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(SELECT,SELECT)",
+   "must_hole": true
+  }
+ ]
+}

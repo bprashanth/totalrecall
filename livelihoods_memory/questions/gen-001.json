@@ -1,0 +1,627 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-live-01",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "How many marketplaces are there in Curitiba, Brazil?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "marketplace",
+     "region": {
+      "op": "REGION",
+      "place": "Curitiba, Brazil"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-02",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "Where are the craft workshops located in Lyon, France?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "craft workshop",
+    "region": {
+     "op": "REGION",
+     "place": "Lyon, France"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-03",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "How many banks are there in Auckland, New Zealand?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Auckland, New Zealand"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-04",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Are there any ATMs near the craft workshops in Guadalajara, Mexico?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-05",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "By how much did the unemployment rate change in Nigeria between 2010 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Nigeria"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Nigeria"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-06",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "What was the change in labor-force participation in Japan from 2005 to 2015?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "labor force participation",
+     "region": {
+      "op": "REGION",
+      "place": "Japan"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "labor force participation",
+     "region": {
+      "op": "REGION",
+      "place": "Japan"
+     },
+     "time": {
+      "start": "2005",
+      "end": "2005"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-07",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Is self-employment rising or falling in Germany?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "self-employment",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-08",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "I need data on coworking spaces in Braga, Portugal, but you only have records for Porto \u2014 can you estimate from there?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Braga, Portugal"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-09",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "What facilities are around here that could help me find work?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?facility_type",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-10",
+   "sector": "livelihoods",
+   "type": "BEHAVIOUR",
+   "q": "Do people in Bogot\u00e1 prefer using ATMs over going to bank tellers?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Bogot\u00e1, Colombia"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-11",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How many craft workshops in Marrakech are within 1 kilometer of a marketplace but have no bank within 500 meters?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "beyond",
+     "threshold_km": 0.5,
+     "left": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Marrakech, Morocco"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "marketplace",
+       "region": {
+        "op": "REGION",
+        "place": "Marrakech, Morocco"
+       },
+       "time": null
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Marrakech, Morocco"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-12",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Does Valencia, Spain, have more coworking spaces than Seville?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Valencia, Spain"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Seville, Spain"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-13",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Which of these three cities \u2014 Nairobi, Accra, and Lagos \u2014 has the most banks?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Lagos, Nigeria"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-14",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank the United States, Canada, and Australia by their youth unemployment rate in 2020.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "youth unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "United States"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "youth unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "Canada"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "youth unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "Australia"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-15",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "How many ATMs are there in Osaka, Japan?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Osaka, Japan"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-16",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "Of the coworking spaces in Cape Town, how many have a bank within 1 kilometer?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 1.0,
+     "left": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Cape Town, South Africa"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Cape Town, South Africa"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-17",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Which marketplaces in Medell\u00edn have no craft workshop within 2 kilometers?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 2.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Medell\u00edn, Colombia"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Medell\u00edn, Colombia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  }
+ ]
+}

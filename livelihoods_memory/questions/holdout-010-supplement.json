@@ -1,0 +1,62 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-supplement-generated.json",
+  "pre_run_exclusions": [
+    "h8s-001",
+    "h8s-002",
+    "h8s-003",
+    "h8s-004",
+    "h8s-006",
+    "h8s-007",
+    "h8s-008"
+  ],
+  "questions": [
+    {
+      "id": "h8s-005",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did self employment in Ghana change from 2010 to 2020?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2010",
+              "end": "2010"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2020"
+            }
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "spec_version": "v2",
+  "note": "transport sector seed bank — hand-written gold IRs, entities/cities verified by the 2026-07-12 data census (FINDINGS.md)",
+  "questions": [
+    {
+      "id": "tr-state-01", "sector": "transport", "type": "STATE",
+      "q": "How many bus stops are there in Rosario, Argentina?",
+      "expect": "answer",
+      "gold_ir": {"op": "AGGREGATE", "by": "space", "metric": "count",
+                  "source": {"op": "SELECT", "entity": "bus stop",
+                             "region": {"op": "REGION", "place": "Rosario, Argentina"}, "time": null}},
+      "gold_shape": ["AGGREGATE", "SELECT"]
+    },
+    {
+      "id": "tr-state-02", "sector": "transport", "type": "STATE",
+      "q": "Where are the ferry terminals in Mombasa, Kenya?",
+      "expect": "answer",
+      "gold_ir": {"op": "SELECT", "entity": "ferry terminal",
+                  "region": {"op": "REGION", "place": "Mombasa, Kenya"}, "time": null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "tr-state-03", "sector": "transport", "type": "STATE",
+      "q": "How many tram stops does Brno, Czechia have?",
+      "expect": "answer",
+      "gold_ir": {"op": "AGGREGATE", "by": "space", "metric": "count",
+                  "source": {"op": "SELECT", "entity": "tram stop",
+                             "region": {"op": "REGION", "place": "Brno, Czechia"}, "time": null}},
+      "gold_shape": ["AGGREGATE", "SELECT"]
+    },
+    {
+      "id": "tr-state-04", "sector": "transport", "type": "STATE",
+      "q": "How many bus lines serve Brno, Czechia?",
+      "expect": "answer",
+      "gold_ir": {"op": "AGGREGATE", "by": "space", "metric": "count",
+                  "source": {"op": "SELECT", "entity": "bus lines",
+                             "region": {"op": "REGION", "place": "Brno, Czechia"}, "time": null}},
+      "gold_shape": ["AGGREGATE", "SELECT"]
+    },
+    {
+      "id": "tr-rel-01", "sector": "transport", "type": "RELATION",
+      "q": "Which fuel stations in Da Nang, Vietnam are within 2 km of a parking lot?",
+      "expect": "answer",
+      "gold_ir": {"op": "RELATE", "relation": "within", "threshold_km": 2.0,
+                  "left": {"op": "SELECT", "entity": "fuel stations",
+                           "region": {"op": "REGION", "place": "Da Nang, Vietnam"}, "time": null},
+                  "right": {"op": "SELECT", "entity": "parking lot",
+                            "region": {"op": "REGION", "place": "Da Nang, Vietnam"}, "time": null}},
+      "gold_shape": ["RELATE", "SELECT", "SELECT"]
+    },
+    {
+      "id": "tr-rel-02", "sector": "transport", "type": "RELATION",
+      "q": "Which bus stops in Brno, Czechia have no fuel station within 500 meters?",
+      "expect": "answer",
+      "gold_ir": {"op": "RELATE", "relation": "beyond", "threshold_km": 0.5,
+                  "left": {"op": "SELECT", "entity": "bus stop",
+                           "region": {"op": "REGION", "place": "Brno, Czechia"}, "time": null},
+                  "right": {"op": "SELECT", "entity": "fuel station",
+                            "region": {"op": "REGION", "place": "Brno, Czechia"}, "time": null}},
+      "gold_shape": ["RELATE", "SELECT", "SELECT"]
+    },
+    {
+      "id": "tr-rel-03", "sector": "transport", "type": "RELATION",
+      "q": "Which railway stations in Mombasa, Kenya are within 2 km of a bus station?",
+      "expect": "answer",
+      "gold_ir": {"op": "RELATE", "relation": "within", "threshold_km": 2.0,
+                  "left": {"op": "SELECT", "entity": "railway station",
+                           "region": {"op": "REGION", "place": "Mombasa, Kenya"}, "time": null},
+                  "right": {"op": "SELECT", "entity": "bus station",
+                            "region": {"op": "REGION", "place": "Mombasa, Kenya"}, "time": null}},
+      "gold_shape": ["RELATE", "SELECT", "SELECT"]
+    },
+    {
+      "id": "tr-chg-01", "sector": "transport", "type": "CHANGE",
+      "q": "How much did the number of air passengers carried change between 2010 and 2019 in Vietnam?",
+      "expect": "answer",
+      "gold_ir": {"op": "COMPARE", "how": "difference",
+                  "left": {"op": "SELECT", "entity": "air passengers carried",
+                           "region": {"op": "REGION", "place": "Vietnam"},
+                           "time": {"start": "2019", "end": "2019"}},
+                  "right": {"op": "SELECT", "entity": "air passengers carried",
+                            "region": {"op": "REGION", "place": "Vietnam"},
+                            "time": {"start": "2010", "end": "2010"}}},
+      "gold_shape": ["COMPARE", "SELECT", "SELECT"]
+    },
+    {
+      "id": "tr-chg-02", "sector": "transport", "type": "CHANGE",
+      "q": "How did the total length of rail lines in Czechia change between 2000 and 2020?",
+      "expect": "answer",
+      "gold_ir": {"op": "COMPARE", "how": "difference",
+                  "left": {"op": "SELECT", "entity": "rail lines",
+                           "region": {"op": "REGION", "place": "Czechia"},
+                           "time": {"start": "2020", "end": "2020"}},
+                  "right": {"op": "SELECT", "entity": "rail lines",
+                            "region": {"op": "REGION", "place": "Czechia"},
+                            "time": {"start": "2000", "end": "2000"}}},
+      "gold_shape": ["COMPARE", "SELECT", "SELECT"]
+    },
+    {
+      "id": "tr-trend-01", "sector": "transport", "type": "TREND",
+      "q": "Are air passengers carried in Kenya rising or falling?",
+      "expect": "answer",
+      "gold_ir": {"op": "COMPARE", "how": "trend_direction",
+                  "left": {"op": "AGGREGATE", "by": "time", "metric": "mean",
+                           "source": {"op": "SELECT", "entity": "air passengers carried",
+                                      "region": {"op": "REGION", "place": "Kenya"}, "time": null}}},
+      "gold_shape": ["COMPARE", "AGGREGATE", "SELECT"]
+    },
+    {
+      "id": "tr-trend-02", "sector": "transport", "type": "TREND",
+      "q": "Is container port traffic in Vietnam growing?",
+      "expect": "answer",
+      "gold_ir": {"op": "COMPARE", "how": "trend_direction",
+                  "left": {"op": "AGGREGATE", "by": "time", "metric": "mean",
+                           "source": {"op": "SELECT", "entity": "container port traffic",
+                                      "region": {"op": "REGION", "place": "Vietnam"}, "time": null}}},
+      "gold_shape": ["COMPARE", "AGGREGATE", "SELECT"]
+    },
+    {
+      "id": "tr-tra-01", "sector": "transport", "type": "TRANSFER",
+      "q": "We have no bus stop data for Kilifi, Kenya - estimate access there from Mombasa.",
+      "expect": "answer_or_data_request", "must_estimate": true,
+      "gold_ir": {"op": "ESTIMATE", "method": "envelope",
+                  "target": {"op": "REGION", "place": "Kilifi, Kenya"},
+                  "source": {"op": "SELECT", "entity": "bus stop",
+                             "region": {"op": "REGION", "place": "Mombasa, Kenya"}, "time": null}},
+      "gold_shape": ["ESTIMATE", "SELECT"]
+    },
+    {
+      "id": "tr-tra-02", "sector": "transport", "type": "TRANSFER",
+      "q": "There is no fuel station data mapped for Hoi An - estimate availability from nearby Da Nang.",
+      "expect": "answer_or_data_request", "must_estimate": true,
+      "gold_ir": {"op": "ESTIMATE", "method": "envelope",
+                  "target": {"op": "REGION", "place": "Hoi An"},
+                  "source": {"op": "SELECT", "entity": "fuel station",
+                             "region": {"op": "REGION", "place": "Da Nang"}, "time": null}},
+      "gold_shape": ["ESTIMATE", "SELECT"]
+    },
+    {
+      "id": "tr-amb-01", "sector": "transport", "type": "AMBIGUOUS",
+      "q": "How many bus stops are there around here?",
+      "expect": "data_request", "must_hole": true,
+      "gold_ir": {"op": "AGGREGATE", "by": "space", "metric": "count",
+                  "source": {"op": "SELECT", "entity": "bus stop", "region": "?place", "time": null}},
+      "gold_shape": ["AGGREGATE", "SELECT"]
+    },
+    {
+      "id": "tr-amb-02", "sector": "transport", "type": "AMBIGUOUS",
+      "q": "Tell me about the transport options in this area.",
+      "expect": "data_request", "must_hole": true,
+      "gold_ir": {"op": "SELECT", "entity": "?transport_type", "region": "?place", "time": null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "tr-beh-01", "sector": "transport", "type": "BEHAVIOUR",
+      "q": "Why do people here prefer driving to taking the bus?",
+      "expect": "data_request", "must_hole": true, "behaviour": true,
+      "gold_ir": {"op": "SELECT", "entity": "?proxy", "region": "?place", "time": null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "tr-beh-02", "sector": "transport", "type": "BEHAVIOUR",
+      "q": "Do residents around here actually use the cycle lanes, or do they still drive?",
+      "expect": "data_request", "must_hole": true, "behaviour": true,
+      "gold_ir": {"op": "SELECT", "entity": "?proxy", "region": "?place", "time": null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "tr-comp-01", "sector": "transport", "type": "COMPOSITE",
+      "q": "Of the bus stops in Rosario, Argentina, how many are within 1 km of a railway station?",
+      "expect": "answer",
+      "gold_ir": {"op": "AGGREGATE", "by": "space", "metric": "count",
+                  "source": {"op": "RELATE", "relation": "within", "threshold_km": 1.0,
+                             "left": {"op": "SELECT", "entity": "bus stop",
+                                      "region": {"op": "REGION", "place": "Rosario, Argentina"}, "time": null},
+                             "right": {"op": "SELECT", "entity": "railway station",
+                                       "region": {"op": "REGION", "place": "Rosario, Argentina"}, "time": null}}},
+      "gold_shape": ["AGGREGATE", "RELATE", "SELECT", "SELECT"]
+    },
+    {
+      "id": "tr-comp-02", "sector": "transport", "type": "COMPOSITE",
+      "q": "Does Brno, Czechia have more fuel stations than Rosario, Argentina?",
+      "expect": "answer",
+      "gold_ir": {"op": "COMPARE", "how": "difference",
+                  "left": {"op": "AGGREGATE", "by": "space", "metric": "count",
+                           "source": {"op": "SELECT", "entity": "fuel stations",
+                                      "region": {"op": "REGION", "place": "Brno, Czechia"}, "time": null}},
+                  "right": {"op": "AGGREGATE", "by": "space", "metric": "count",
+                            "source": {"op": "SELECT", "entity": "fuel stations",
+                                       "region": {"op": "REGION", "place": "Rosario, Argentina"}, "time": null}}},
+      "gold_shape": ["COMPARE", "AGGREGATE", "SELECT", "AGGREGATE", "SELECT"]
+    },
+    {
+      "id": "tr-comp-03", "sector": "transport", "type": "COMPOSITE",
+      "q": "Which bus stops in Brno, Czechia are within 1 km of a tram stop but not within 300 meters of a parking lot?",
+      "expect": "answer",
+      "gold_ir": {"op": "RELATE", "relation": "beyond", "threshold_km": 0.3,
+                  "left": {"op": "RELATE", "relation": "within", "threshold_km": 1.0,
+                           "left": {"op": "SELECT", "entity": "bus stop",
+                                    "region": {"op": "REGION", "place": "Brno, Czechia"}, "time": null},
+                           "right": {"op": "SELECT", "entity": "tram stop",
+                                     "region": {"op": "REGION", "place": "Brno, Czechia"}, "time": null}},
+                  "right": {"op": "SELECT", "entity": "parking lot",
+                            "region": {"op": "REGION", "place": "Brno, Czechia"}, "time": null}},
+      "gold_shape": ["RELATE", "RELATE", "SELECT", "SELECT", "SELECT"]
+    },
+    {
+      "id": "tr-rank-01", "sector": "transport", "type": "RANKING",
+      "q": "Of Brno, Rosario and Da Nang, which city has the most fuel stations?",
+      "expect": "answer",
+      "gold_ir": {"op": "RANK", "order": "desc", "items": [
+        {"op": "AGGREGATE", "by": "space", "metric": "count",
+         "source": {"op": "SELECT", "entity": "fuel stations",
+                    "region": {"op": "REGION", "place": "Brno"}, "time": null}},
+        {"op": "AGGREGATE", "by": "space", "metric": "count",
+         "source": {"op": "SELECT", "entity": "fuel stations",
+                    "region": {"op": "REGION", "place": "Rosario"}, "time": null}},
+        {"op": "AGGREGATE", "by": "space", "metric": "count",
+         "source": {"op": "SELECT", "entity": "fuel stations",
+                    "region": {"op": "REGION", "place": "Da Nang"}, "time": null}}]},
+      "gold_shape": ["RANK", "AGGREGATE", "SELECT", "AGGREGATE", "SELECT", "AGGREGATE", "SELECT"]
+    },
+    {
+      "id": "tr-rank-02", "sector": "transport", "type": "RANKING",
+      "q": "Rank Kenya, Vietnam and Argentina by air passengers carried.",
+      "expect": "answer",
+      "gold_ir": {"op": "RANK", "order": "desc", "items": [
+        {"op": "SELECT", "entity": "air passengers carried",
+         "region": {"op": "REGION", "place": "Kenya"}, "time": null},
+        {"op": "SELECT", "entity": "air passengers carried",
+         "region": {"op": "REGION", "place": "Vietnam"}, "time": null},
+        {"op": "SELECT", "entity": "air passengers carried",
+         "region": {"op": "REGION", "place": "Argentina"}, "time": null}]},
+      "gold_shape": ["RANK", "SELECT", "SELECT", "SELECT"]
+    }
+  ]
+}

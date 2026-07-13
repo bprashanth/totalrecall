@@ -1,0 +1,131 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-supplement-generated.json",
+  "pre_run_exclusions": [
+    "h8s-002",
+    "h8s-005",
+    "h8s-006",
+    "h8s-007",
+    "h8s-008"
+  ],
+  "questions": [
+    {
+      "id": "h8s-001",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Which craft workshops in Accra are within 1 km of a bus station?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Accra"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bus station",
+          "region": {
+            "op": "REGION",
+            "place": "Accra"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 1
+      },
+      "gold_shape": "RELATE(within, SELECT, SELECT)"
+    },
+    {
+      "id": "h8s-003",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many craft workshops in Nairobi are within 1 km of a post office?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "post office",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(count, RELATE(within, SELECT, SELECT))"
+    },
+    {
+      "id": "h8s-004",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Are there craft workshops in Accra within 1 km of a bus station but beyond 1 km from a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Accra"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bus station",
+              "region": {
+                "op": "REGION",
+                "place": "Accra"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Accra"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(presence, RELATE(beyond, RELATE(within, SELECT, SELECT), SELECT))"
+    }
+  ]
+}

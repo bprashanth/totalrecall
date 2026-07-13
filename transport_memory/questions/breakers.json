@@ -1,0 +1,126 @@
+[
+ {
+  "sector": "transport",
+  "type": "STATE",
+  "q": "I'm moving to Lyon without a car \u2013 will I manage?",
+  "gold_attempt": {
+   "op": "SELECT",
+   "entity": "?proxy",
+   "region": {
+    "op": "REGION",
+    "place": "Lyon, France"
+   },
+   "time": null
+  },
+  "reject_reason": "gold exec: data_request (unbound_holes) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "RELATION",
+  "q": "Which bus stops in Buenos Aires are within 500 meters of a railway station?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "threshold_km": 0.5,
+   "left": {
+    "op": "SELECT",
+    "entity": "bus stop",
+    "region": {
+     "op": "REGION",
+     "place": "Buenos Aires, Argentina"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "railway station",
+    "region": {
+     "op": "REGION",
+     "place": "Buenos Aires, Argentina"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "TRANSFER",
+  "q": "I'm moving to Gyeongju, a small city in South Korea. I can't find any data on bus stops there \u2013 could I use the stats from Busan, which is nearby, as a rough estimate?",
+  "gold_attempt": {
+   "op": "ESTIMATE",
+   "method": "envelope",
+   "source": {
+    "op": "SELECT",
+    "entity": "bus",
+    "region": {
+     "op": "REGION",
+     "place": "Busan, South Korea"
+    },
+    "time": null
+   },
+   "target": {
+    "op": "REGION",
+    "place": "Gyeongju, South Korea"
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer_or_data_request"
+ },
+ {
+  "sector": "transport",
+  "type": "COMPOSITE",
+  "q": "I'm deciding between moving to Buenos Aires or Santiago \u2013 which one has a better bus network?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "?indicator",
+    "region": {
+     "op": "REGION",
+     "place": "Buenos Aires, Argentina"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "?indicator",
+    "region": {
+     "op": "REGION",
+     "place": "Santiago, Chile"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (unbound_holes) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "RELATION",
+  "q": "Which scheduled transit stops in Winnipeg are not within 500 meters of any railway station?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "beyond",
+   "threshold_km": 0.5,
+   "left": {
+    "op": "SELECT",
+    "entity": "scheduled transit stop",
+    "region": {
+     "op": "REGION",
+     "place": "Winnipeg, Canada"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "railway station",
+    "region": {
+     "op": "REGION",
+     "place": "Winnipeg, Canada"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer \u2014 RE-ADMITTED to gen-003 (transient Overpass failure at admission; gold verified answer 3873x3->3853; FINDINGS 2026-07-13)"
+ }
+]

@@ -1,0 +1,1496 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-005-generated.json",
+  "pre_run_exclusions": [
+    "h5-009",
+    "h5-013",
+    "h5-023",
+    "h5-024",
+    "h5-026"
+  ],
+  "questions": [
+    {
+      "id": "h5-001",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Coworking in Pune?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "coworking space",
+        "region": {
+          "op": "REGION",
+          "place": "Pune, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-002",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Any banks in Mombasa?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Mombasa, Kenya"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-003",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Count craft workshops, Tashkent.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Tashkent, Uzbekistan"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-004",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "ATMs for Cluj-Napoca, where?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "ATM",
+        "region": {
+          "op": "REGION",
+          "place": "Cluj-Napoca, Romania"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-005",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How many marketplaces does Ibadan have?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Ibadan, Nigeria"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-006",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Addresses of the coworking spaces in Yogyakarta.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Yogyakarta, Indonesia"
+          },
+          "time": null
+        },
+        "layer": "address"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-007",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Which banks in Chiang Mai are within 1 km of a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Chiang Mai, Thailand"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Chiang Mai, Thailand"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-008",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Any craft workshops in Split within 500 m of a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Split, Croatia"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Split, Croatia"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-010",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Which coworking spaces in Dakar are within 1.5 km of a bank but beyond 300 m from a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 0.3,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1.5,
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Dakar, Senegal"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Dakar, Senegal"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Dakar, Senegal"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-011",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Count the craft workshops in Cusco within 200 m of a marketplace but not within 200 m of an ATM.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.2,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.2,
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Cusco, Peru"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Cusco, Peru"
+              },
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "ATM",
+            "region": {
+              "op": "REGION",
+              "place": "Cusco, Peru"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-012",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Which banks in Thessaloniki are near a coworking space but beyond 1 km from a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Thessaloniki, Greece"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Thessaloniki, Greece"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Thessaloniki, Greece"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-014",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "List the marketplaces in Iloilo City beyond 1 km from any bank.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Iloilo City, Philippines"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Iloilo City, Philippines"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-015",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Count the banks in Medellin within 150 m of an ATM.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.15,
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Medellin, Colombia"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "ATM",
+            "region": {
+              "op": "REGION",
+              "place": "Medellin, Colombia"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-016",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Which ATMs in Naha are within 400 m of a bank but beyond 400 m from a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 0.4,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.4,
+          "left": {
+            "op": "SELECT",
+            "entity": "ATM",
+            "region": {
+              "op": "REGION",
+              "place": "Naha, Japan"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Naha, Japan"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Naha, Japan"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-017",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Are any craft workshops in Tbilisi within 1 km of both a bank and a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Tbilisi, Georgia"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Tbilisi, Georgia"
+              },
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Tbilisi, Georgia"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-018",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Which coworking spaces in Palermo are within 2 km of a bank but more than 1 km from an ATM?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 2.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Palermo, Italy"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Palermo, Italy"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "ATM",
+          "region": {
+            "op": "REGION",
+            "place": "Palermo, Italy"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-019",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Which banks in Accra are beyond 500 m from an ATM but within 2 km of a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 2.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "ATM",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-020",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Any coworking spaces in Timisoara beyond 1 km from a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Timisoara, Romania"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Timisoara, Romania"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-021",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Addresses for banks in Braga within 300 m of a marketplace.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.3,
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Braga, Portugal"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Braga, Portugal"
+            },
+            "time": null
+          }
+        },
+        "layer": "address"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-022",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Where are the craft workshops in Jaipur that are beyond 1 km from a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Jaipur, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Jaipur, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-025",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Map the banks in Izmir beyond 1 km from a marketplace.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Izmir, Turkey"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Izmir, Turkey"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-027",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank Cuenca, Loja, and Manta by bank count.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Cuenca, Ecuador"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Loja, Ecuador"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Manta, Ecuador"
+              },
+              "time": null
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-028",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Does Tallinn have more ATMs within 500 m of banks than Riga?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.5,
+            "left": {
+              "op": "SELECT",
+              "entity": "ATM",
+              "region": {
+                "op": "REGION",
+                "place": "Tallinn, Estonia"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Tallinn, Estonia"
+              },
+              "time": null
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.5,
+            "left": {
+              "op": "SELECT",
+              "entity": "ATM",
+              "region": {
+                "op": "REGION",
+                "place": "Riga, Latvia"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Riga, Latvia"
+              },
+              "time": null
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-029",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Are there more marketplaces in Kano than in Kaduna?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Kano, Nigeria"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Kaduna, Nigeria"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-030",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Do banks near marketplaces outnumber banks away from marketplaces in Kumasi?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "left": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Kumasi, Ghana"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Kumasi, Ghana"
+              },
+              "time": null
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "beyond",
+            "left": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Kumasi, Ghana"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Kumasi, Ghana"
+              },
+              "time": null
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-031",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Any of those near the market here?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "?facility_type",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-032",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Count those around here.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "?facility_type",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-033",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Which of those are more than 1 km from a bank here?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "?facility_type",
+          "region": "?place",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-034",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Addresses for those in this city.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "?facility_type",
+          "region": "?place",
+          "time": null
+        },
+        "layer": "address"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-035",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Any near a coworking space in that city?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "?facility_type",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-036",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "How many of those are within 200 m of a marketplace here?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.2,
+          "left": {
+            "op": "SELECT",
+            "entity": "?facility_type",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-037",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Which banks are near the market there?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "left": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": "?place",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-038",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Any coworking spaces around there but far from banks?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-039",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Count nearby craft workshops not near a bank.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-040",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Show the addresses of banks in that city.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": "?place",
+          "time": null
+        },
+        "layer": "address"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-041",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Which of those are within 1 km of a bank in this place?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "?facility_type",
+          "region": "?place",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-042",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Are any of those beyond 2 km from a marketplace around here?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 2.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "?facility_type",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-043",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Where are those facilities in this country?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?facility_type",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-044",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Any ATMs in this city?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "ATM",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h5-045",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Which facilities are in this city?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?facility_type",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    }
+  ]
+}

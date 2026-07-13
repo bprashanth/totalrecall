@@ -1,0 +1,4647 @@
+[
+ {
+  "sector": "livelihoods",
+  "type": "RELATION",
+  "q": "Which banks in Marseille are within 1 kilometer of a marketplace?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "threshold_km": 1.0,
+   "left": {
+    "op": "SELECT",
+    "entity": "bank",
+    "region": {
+     "op": "REGION",
+     "place": "Marseille, France"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "marketplace",
+    "region": {
+     "op": "REGION",
+     "place": "Marseille, France"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "I'm comparing cities for a pop-up shop tour \u2014 which of Le\u00f3n, Quito, and Belo Horizonte has the most marketplaces?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "marketplace",
+      "region": {
+       "op": "REGION",
+       "place": "Le\u00f3n"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "marketplace",
+      "region": {
+       "op": "REGION",
+       "place": "Quito"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "marketplace",
+      "region": {
+       "op": "REGION",
+       "place": "Belo Horizonte"
+      },
+      "time": null
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "STATE",
+  "q": "I need to find a bank branch in Accra \u2014 how many are there in the city center?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "SELECT",
+    "entity": "bank branch",
+    "region": {
+     "op": "REGION",
+     "place": "Accra city center, Ghana"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "Does Marrakech have more marketplaces than Fes, and how many of those in Marrakech are within 1 km of a bank?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Marrakech, Morocco"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Fes, Morocco"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "manual judge: multi-part question; gold silently answers only the comparison and drops the within-1-km clause"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RELATION",
+  "q": "I'm a potter looking for a studio near a supply store \u2014 are there any craft workshops in Valencia that are not near a marketplace?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "beyond",
+   "left": {
+    "op": "SELECT",
+    "entity": "craft workshop",
+    "region": {
+     "op": "REGION",
+     "place": "Valencia, Spain"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "marketplace",
+    "region": {
+     "op": "REGION",
+     "place": "Valencia, Spain"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "manual judge: contradictory/half-gold context asks for a studio near a supply store while gold answers only craft workshops not near a marketplace"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RELATION",
+  "q": "Are there any banks in Bologna, Italy that are not within 500 meters of an ATM?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "presence",
+   "source": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Bologna, Italy"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Bologna, Italy"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "CHANGE",
+  "q": "What was the change in the informal employment rate in agriculture in Germany from 2016 to 2020?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "informal employment rate in agriculture",
+    "region": {
+     "op": "REGION",
+     "place": "Germany"
+    },
+    "time": {
+     "start": "2020",
+     "end": "2020"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "informal employment rate in agriculture",
+    "region": {
+     "op": "REGION",
+     "place": "Germany"
+    },
+    "time": {
+     "start": "2016",
+     "end": "2016"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "CHANGE",
+  "q": "What was the change in the number of employed persons in Catalonia between 2021 and 2023?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "employed persons",
+     "region": {
+      "op": "REGION",
+      "place": "Catalonia, Spain"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    }
+   },
+   "right": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "employed persons",
+     "region": {
+      "op": "REGION",
+      "place": "Catalonia, Spain"
+     },
+     "time": {
+      "start": "2021",
+      "end": "2021"
+     }
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "Which coworking spaces in Lyon, France are within 500 meters of a bank but not near an ATM?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "beyond",
+   "threshold_km": 0.5,
+   "left": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Lyon, France"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Lyon, France"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "ATM",
+    "region": {
+     "op": "REGION",
+     "place": "Lyon, France"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "In Berlin, are there more ATMs near marketplaces or near craft workshops?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "ATM",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "marketplace",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": null
+     }
+    }
+   },
+   "right": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "ATM",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "craft workshop",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": null
+     }
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Ile de France, Berlin, and Lombardy had the highest employment rate in 2023?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Ile de France, France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order Madrid region, Catalonia, and Warsaw capital region by their female employment rate in 2022, from highest to lowest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Madrid, Spain"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Catalonia, Spain"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Warsaw, Poland"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of France, Germany, and Spain had the highest youth unemployment in 2020?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank Ile de France, Catalonia, and Warsaw capital region by their female employment rate in 2022, from highest to lowest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Ile de France, France"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Catalonia, Spain"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Warsaw capital region, Poland"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order Catalonia, Lombardy, and Warsaw capital region by their female employment rate in 2023, from lowest to highest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw capital region, Poland"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank France, Spain, and Germany by their informal employment rate in 2020, from lowest to highest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order Ile de France, Catalonia, and Lombardy by their unemployment rate in 2023, from lowest to highest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Ile de France, France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Ile de France, Catalonia, and Lombardy had the most employed persons in 2023?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed persons",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele-de-France, France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed persons",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed persons",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Ile de France, Madrid region, and Catalonia had the most employed persons in 2022?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele-de-France, France"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Community of Madrid, Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank Valencia, Lyon, and Krakow by number of ATMs, from most to fewest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "ATM",
+      "region": {
+       "op": "REGION",
+       "place": "Valencia, Spain"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "ATM",
+      "region": {
+       "op": "REGION",
+       "place": "Lyon, France"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "ATM",
+      "region": {
+       "op": "REGION",
+       "place": "Krakow, Poland"
+      },
+      "time": null
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of France, Spain, and Germany had the highest informal employment rate in agriculture in 2019?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate in agriculture",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate in agriculture",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate in agriculture",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order Berlin, Lombardy, and Warsaw capital region by their unemployment rate in 2024, from lowest to highest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw capital region, Poland"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Ile de France, Berlin, and Madrid region had the most employed persons in 2024?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed persons",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele-de-France, France"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed persons",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed persons",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid, Spain"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of France, Spain, and Germany had the highest female average weekly hours worked in 2021?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Ile de France, Berlin, and Madrid region had the highest female employment rate in 2024?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele-de-France, France"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid, Spain"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank Kenya, France, and Spain by their female average weekly hours worked in 2021, from most to least.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order France, Germany, and Spain by their youth unemployment rate in 2022, from highest to lowest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Ile de France, Berlin, and Madrid region had the highest male employment rate in 2023?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "male employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Ile de France, France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "male employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "male employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid, Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Catalonia, Lombardy, and Warsaw capital region had the lowest female employment rate in 2024?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw, Poland"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank France, Spain, and Germany by their average weekly hours worked in 2021, from most to least.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order Ile de France, Berlin, and Madrid region by their female employment rate in 2024, from highest to lowest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Ile-de-France, France"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid, Spain"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of France, Spain, and Germany had the highest time-related underemployment rate in 2021?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "time-related underemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "time-related underemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "time-related underemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Kenya, France, and Germany had the highest average weekly hours worked in 2021?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "AMBIGUOUS",
+  "q": "Which ones are near the train station?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "left": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.3,
+    "left": {
+     "op": "SELECT",
+     "entity": "hotel",
+     "region": {
+      "op": "REGION",
+      "place": "Vilnius, Lithuania"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "restaurant",
+     "region": {
+      "op": "REGION",
+      "place": "Vilnius, Lithuania"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "train station",
+    "region": {
+     "op": "REGION",
+     "place": "Vilnius, Lithuania"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold must have holes"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "BEHAVIOUR",
+  "q": "Do residents of Valencia use ATMs more than online banking?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "ATM use",
+    "region": {
+     "op": "REGION",
+     "place": "Valencia, Spain"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "online banking use",
+    "region": {
+     "op": "REGION",
+     "place": "Valencia, Spain"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold must have holes"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "I'm opening a bakery in Bologna \u2014 how many existing bakeries are near the city center?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "bakery",
+     "region": {
+      "op": "REGION",
+      "place": "Bologna, Italy"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "city center",
+     "region": {
+      "op": "REGION",
+      "place": "Bologna, Italy"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "My daughter starts school next year in Lyon \u2014 what are my options for schools near the center?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "left": {
+    "op": "SELECT",
+    "entity": "school",
+    "region": {
+     "op": "REGION",
+     "place": "Lyon, France"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "center",
+    "region": {
+     "op": "REGION",
+     "place": "Lyon, France"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order Catalonia, Lombardy and Warsaw capital region by their female employment rate in 2022.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw capital region, Poland"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Among Berlin, Madrid region and Ile de France, which had the highest number of employed persons in 2021?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid region, Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele-de-France, France"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "List the top three NUTS-2 regions (from the set) with the lowest unemployment rate in 2024.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "k": 3,
+   "items": [
+    {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "?region1"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "?region2"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "?region3"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (unbound_holes) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Compare the number of coworking spaces in Gda\u0144sk, Durban and Osaka \u2014 which has the fewest?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Gda\u0144sk, Poland"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Durban, South Africa"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Osaka, Japan"
+      },
+      "time": null
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "AMBIGUOUS",
+  "q": "Which ones are near the train station?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "left": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.3,
+    "left": {
+     "op": "SELECT",
+     "entity": "hotel",
+     "region": {
+      "op": "REGION",
+      "place": "Vilnius, Lithuania"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "restaurant",
+     "region": {
+      "op": "REGION",
+      "place": "Vilnius, Lithuania"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "train station",
+    "region": {
+     "op": "REGION",
+     "place": "Vilnius, Lithuania"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold must have holes"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "BEHAVIOUR",
+  "q": "Do residents of Valencia use ATMs more than online banking?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "ATM use",
+    "region": {
+     "op": "REGION",
+     "place": "Valencia, Spain"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "online banking use",
+    "region": {
+     "op": "REGION",
+     "place": "Valencia, Spain"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold must have holes"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "I'm opening a bakery in Bologna \u2014 how many existing bakeries are near the city center?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "bakery",
+     "region": {
+      "op": "REGION",
+      "place": "Bologna, Italy"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "city center",
+     "region": {
+      "op": "REGION",
+      "place": "Bologna, Italy"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "My daughter starts school next year in Lyon \u2014 what are my options for schools near the center?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "left": {
+    "op": "SELECT",
+    "entity": "school",
+    "region": {
+     "op": "REGION",
+     "place": "Lyon, France"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "center",
+    "region": {
+     "op": "REGION",
+     "place": "Lyon, France"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order Catalonia, Lombardy and Warsaw capital region by their female employment rate in 2022.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw capital region, Poland"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Among Berlin, Madrid region and Ile de France, which had the highest number of employed persons in 2021?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid region, Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele-de-France, France"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "List the top three NUTS-2 regions (from the set) with the lowest unemployment rate in 2024.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "k": 3,
+   "items": [
+    {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "?region1"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "?region2"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "?region3"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (unbound_holes) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Compare the number of coworking spaces in Gda\u0144sk, Durban and Osaka \u2014 which has the fewest?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Gda\u0144sk, Poland"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Durban, South Africa"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Osaka, Japan"
+      },
+      "time": null
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "STATE",
+  "q": "How many coworking spaces exist in Casablanca?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "SELECT",
+    "entity": "coworking space",
+    "region": {
+     "op": "REGION",
+     "place": "Casablanca, Morocco"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RELATION",
+  "q": "Which marketplaces in Ho Chi Minh City are within 1 kilometer of a bank?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "threshold_km": 1,
+   "left": {
+    "op": "SELECT",
+    "entity": "marketplace",
+    "region": {
+     "op": "REGION",
+     "place": "Ho Chi Minh City, Vietnam"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "bank",
+    "region": {
+     "op": "REGION",
+     "place": "Ho Chi Minh City, Vietnam"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RELATION",
+  "q": "Which coworking spaces in Munich are within 300 meters of a craft workshop?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "threshold_km": 0.3,
+   "left": {
+    "op": "SELECT",
+    "entity": "coworking space",
+    "region": {
+     "op": "REGION",
+     "place": "Munich, Germany"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "craft workshop",
+    "region": {
+     "op": "REGION",
+     "place": "Munich, Germany"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "AMBIGUOUS",
+  "q": "Are there any coworking spaces within walking distance?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "threshold_km": "?walking_distance_km",
+   "left": {
+    "op": "SELECT",
+    "entity": "coworking space",
+    "region": "?place",
+    "time": null
+   },
+   "right": {
+    "op": "REGION",
+    "place": "?place"
+   }
+  },
+  "reject_reason": "gold schema: ['root: RELATE.threshold_km must be numeric']"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "What is the ratio of ATMs to banks in Krakow?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "ratio",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Krakow, Poland"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Krakow, Poland"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "Count the marketplaces in Ho Chi Minh City that have at least one bank within 200 meters and no craft workshop within 500 meters.",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 0.2,
+     "left": {
+      "op": "SELECT",
+      "entity": "market",
+      "region": {
+       "op": "REGION",
+       "place": "Ho Chi Minh City, Vietnam"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Ho Chi Minh City, Vietnam"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Ho Chi Minh City, Vietnam"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of Germany, France, and Spain had the lowest unemployment rate in 2022?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "k": 1,
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank the NUTS-2 regions Ile de France, Berlin, and Madrid by their 2023 employment rate.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele-de-France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order Catalonia, Lombardy, and Warsaw capital region by the number of employed persons in 2022.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "employed person",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw capital region, Poland"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "CHANGE",
+  "q": "What was the change in the employment rate in Ile de France between 2021 and 2024?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "employment rate",
+    "region": {
+     "op": "REGION",
+     "place": "\u00cele-de-France, France"
+    },
+    "time": {
+     "start": "2024",
+     "end": "2024"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "employment rate",
+    "region": {
+     "op": "REGION",
+     "place": "\u00cele-de-France, France"
+    },
+    "time": {
+     "start": "2021",
+     "end": "2021"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "TREND",
+  "q": "Is the labor force participation rate in Germany rising or falling since 2019?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "labor force participation rate",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2019",
+      "end": null
+     }
+    }
+   }
+  },
+  "reject_reason": "gold exec: error (TypeError) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "TREND",
+  "q": "Is the employment rate in Catalonia trending upward since 2021?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Catalonia, Spain"
+     },
+     "time": {
+      "start": "2021",
+      "end": null
+     }
+    }
+   }
+  },
+  "reject_reason": "gold exec: error (TypeError) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "AMBIGUOUS",
+  "q": "How many of those places are near the center of the city?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": "?threshold_km",
+    "left": {
+     "op": "SELECT",
+     "entity": "marketplace",
+     "region": "?place",
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "city center",
+     "region": "?place",
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold schema: ['root.source: RELATE.threshold_km must be numeric']"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "In which of these cities \u2014 Bilbao, Valladolid, Pamplona \u2014 is the unemployment rate lowest?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Bilbao, Spain"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Valladolid, Spain"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Pamplona, Spain"
+      },
+      "time": null
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "Show me coworking spaces in Hanover that are within 1 km of a craft workshop but not within 500 m of a bank.",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "beyond",
+   "threshold_km": 0.5,
+   "left": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Hanover, Germany"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Hanover, Germany"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "bank",
+    "region": {
+     "op": "REGION",
+     "place": "Hanover, Germany"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank France, Germany, and Spain by their unemployment rate in 2023 from lowest to highest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order these regions \u2014 Ile de France, Lombardy, Madrid region \u2014 by employment rate in 2024.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Ile de France"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid, Spain"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which country had the highest youth unemployment rate in 2022: Spain, Italy, or France?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Italy"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank Kenya, Germany, and Spain by their informal employment rate in 2021.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Among Berlin, Warsaw capital region, and Catalonia, which had the highest female employment rate in 2023?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw, Poland"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank the average weekly hours worked in Kenya, France, and Spain for the most recent year available.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": null
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Of the NUTS-2 regions Berlin, Madrid region, and Lombardy, which had the highest unemployment rate in 2023?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "SELECT",
+     "entity": "unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin, Germany"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "Madrid region, Spain"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    {
+     "op": "SELECT",
+     "entity": "unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "Lombardy, Italy"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "In Osaka, which craft workshops are within 500 m of a marketplace but not within 1 km of a bank?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "beyond",
+   "threshold_km": 1.0,
+   "left": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Osaka, Japan"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "marketplace",
+     "region": {
+      "op": "REGION",
+      "place": "Osaka, Japan"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "bank",
+    "region": {
+     "op": "REGION",
+     "place": "Osaka, Japan"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank the employment rates of Ile de France, Berlin, and Madrid region in 2023 from highest to lowest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele-de-France, France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid, Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "TREND",
+  "q": "Is the informal employment rate in Kenya going up?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "informal employment",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "In Casablanca, which banks are within 1 km of an ATM and also within 2 km of a coworking space?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "threshold_km": 2.0,
+   "left": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Casablanca, Morocco"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Casablanca, Morocco"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "coworking space",
+    "region": {
+     "op": "REGION",
+     "place": "Casablanca, Morocco"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank France, Germany, and Spain by their unemployment rate in 2023, from lowest to highest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which country \u2013 Kenya, Brazil, or Italy \u2013 had the highest informal employment rate in 2020?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Brazil"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Italy"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of the cities Medell\u00edn, Porto, and Casablanca has the highest number of banks?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Medell\u00edn, Colombia"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Porto, Portugal"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Casablanca, Morocco"
+      },
+      "time": null
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (source_truncated) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Among the NUTS-2 regions Catalonia, Lombardy, and Warsaw capital region, which had the lowest unemployment rate in 2023?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw capital region, Poland"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "CHANGE",
+  "q": "What was the change in agricultural employment in Turkey from 2018 to 2023?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "agricultural employment",
+    "region": {
+     "op": "REGION",
+     "place": "Turkey"
+    },
+    "time": {
+     "start": "2023",
+     "end": "2023"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "agricultural employment",
+    "region": {
+     "op": "REGION",
+     "place": "Turkey"
+    },
+    "time": {
+     "start": "2018",
+     "end": "2018"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "TREND",
+  "q": "Are informal employment rates in Spain decreasing in recent years?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "informal employment",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "Which ATMs in Cartagena, Colombia are within 500 meters of a marketplace but not near a bank?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "beyond",
+   "threshold_km": 0.5,
+   "left": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Cartagena, Colombia"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "marketplace",
+     "region": {
+      "op": "REGION",
+      "place": "Cartagena, Colombia"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "bank",
+    "region": {
+     "op": "REGION",
+     "place": "Cartagena, Colombia"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank France, Germany, and Spain by unemployment rate in 2022, from lowest to highest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order \u00cele de France, Catalonia, and Lombardy by employment rate in 2024, highest first.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele de France, France"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Among Poland, Italy, and Spain, which had the highest youth unemployment in 2021?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Poland"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Italy"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "CHANGE",
+  "q": "What was the change in agricultural employment in Turkey from 2018 to 2023?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "agricultural employment",
+    "region": {
+     "op": "REGION",
+     "place": "Turkey"
+    },
+    "time": {
+     "start": "2023",
+     "end": "2023"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "agricultural employment",
+    "region": {
+     "op": "REGION",
+     "place": "Turkey"
+    },
+    "time": {
+     "start": "2018",
+     "end": "2018"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "TREND",
+  "q": "Are informal employment rates in Spain decreasing in recent years?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "informal employment",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "COMPOSITE",
+  "q": "Which ATMs in Cartagena, Colombia are within 500 meters of a marketplace but not near a bank?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "beyond",
+   "threshold_km": 0.5,
+   "left": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Cartagena, Colombia"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "marketplace",
+     "region": {
+      "op": "REGION",
+      "place": "Cartagena, Colombia"
+     },
+     "time": null
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "bank",
+    "region": {
+     "op": "REGION",
+     "place": "Cartagena, Colombia"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank France, Germany, and Spain by unemployment rate in 2022, from lowest to highest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Order \u00cele de France, Catalonia, and Lombardy by employment rate in 2024, highest first.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "\u00cele de France, France"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy, Italy"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Among Poland, Italy, and Spain, which had the highest youth unemployment in 2021?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Poland"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Italy"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (aggregate_type_mismatch) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Rank Kenya, Colombia, and Mexico by informal employment rate in 2021, from highest to lowest.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment",
+      "region": {
+       "op": "REGION",
+       "place": "Colombia"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment",
+      "region": {
+       "op": "REGION",
+       "place": "Mexico"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "livelihoods",
+  "type": "RANKING",
+  "q": "Which of France, Germany, and Spain had the highest average weekly hours worked in 2022?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ }
+]

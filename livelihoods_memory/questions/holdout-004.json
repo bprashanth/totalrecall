@@ -1,0 +1,1490 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-004-generated.json",
+  "pre_run_exclusions": [
+    "h4-009",
+    "h4-017"
+  ],
+  "questions": [
+    {
+      "id": "h4-001",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How many marketplaces are there in León, Nicaragua?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "León, Nicaragua"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-002",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Where are the coworking spaces located in Gdańsk, Poland?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "coworking space",
+        "region": {
+          "op": "REGION",
+          "place": "Gdańsk, Poland"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-003",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Count the craft workshops in Fez, Morocco.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Fez, Morocco"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-004",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Are there any banks in Osh, Kyrgyzstan?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Osh, Kyrgyzstan"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-005",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "List the ATMs in Belém, Brazil.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "ATM",
+        "region": {
+          "op": "REGION",
+          "place": "Belém, Brazil"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-006",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Which banks in Porto, Portugal are within 1 km of a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1,
+        "left": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Porto, Portugal"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Porto, Portugal"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-007",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Are there any coworking spaces near the craft workshops in Ljubljana, Slovenia?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Ljubljana, Slovenia"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Ljubljana, Slovenia"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-008",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Which ATMs in Córdoba, Argentina are within 500 meters of a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 0.5,
+        "left": {
+          "op": "SELECT",
+          "entity": "ATM",
+          "region": {
+            "op": "REGION",
+            "place": "Córdoba, Argentina"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Córdoba, Argentina"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-010",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How much did unemployment change in France between 2019 and 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-011",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "By how many people did the total labor force in Spain increase from 2018 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "labor force",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labor force",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2018",
+            "end": "2018"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-012",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What was the change in self-employment rate in Germany from 2015 to 2021?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "self-employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "self-employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2015",
+            "end": "2015"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-013",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did vulnerable employment in Kenya shift between 2019 and 2021?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "vulnerable employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "vulnerable employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-014",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "Did the labor-force participation rate in Mexico go up or down from 2020 to 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "labor force participation",
+            "region": {
+              "op": "REGION",
+              "place": "Mexico"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-015",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What was the change in youth unemployment in Italy between 2017 and 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Italy"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Italy"
+          },
+          "time": {
+            "start": "2017",
+            "end": "2017"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-016",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How much did wage and salaried workers as a share of employment change in Poland from 2016 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "wage and salaried workers as a share of employment",
+          "region": {
+            "op": "REGION",
+            "place": "Poland"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "wage and salaried workers as a share of employment",
+          "region": {
+            "op": "REGION",
+            "place": "Poland"
+          },
+          "time": {
+            "start": "2016",
+            "end": "2016"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-018",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did the informal employment rate in Colombia change between 2019 and 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Colombia"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-019",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What was the change in female informal employment rate in Spain from 2020 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "female informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-020",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "By how many hours did the average weekly hours worked in Kenya change from 2019 to 2021?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-021",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did the labor underutilization rate in France evolve between 2021 and 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "labor underutilization rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2023"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-022",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What was the change in the employment rate in Île de France from 2021 to 2024?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Île de France, France"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Île de France, France"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-023",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did the female employment rate in Berlin change between 2022 and 2024?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin, Germany"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-024",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "By how many employed persons did Lombardy change from 2021 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "employed persons",
+          "region": {
+            "op": "REGION",
+            "place": "Lombardy, Italy"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employed persons",
+          "region": {
+            "op": "REGION",
+            "place": "Lombardy, Italy"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-025",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Is unemployment in Germany rising or falling between 2020 and 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2020",
+              "end": "2023"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-026",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Is the labor-force participation rate in France trending upward from 2019 onward?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "labor-force participation rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2026"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-027",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "I need to know how many craft workshops are in Montauban, France, but you don't have data – can you estimate from Toulouse?",
+      "expect": "answer_or_data_request",
+      "must_estimate": true,
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "target": {
+          "op": "REGION",
+          "place": "Montauban, France"
+        },
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Toulouse, France"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-028",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "How many of those facilities are around here?",
+      "expect": "data_request",
+      "must_hole": true,
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "?facility_type",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-029",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Are there any banks near the market?",
+      "expect": "data_request",
+      "must_hole": true,
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-030",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "What's the unemployment trend like in this country?",
+      "expect": "data_request",
+      "must_hole": true,
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-031",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "Why do people in Marseille prefer coworking spaces over cafes?",
+      "expect": "data_request",
+      "must_hole": true,
+      "behaviour": true,
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy",
+        "region": {
+          "op": "REGION",
+          "place": "Marseille, France"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-032",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "Are craft workshops in Kraków popular with tourists?",
+      "expect": "data_request",
+      "must_hole": true,
+      "behaviour": true,
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy",
+        "region": {
+          "op": "REGION",
+          "place": "Kraków, Poland"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-033",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Does Valencia, Spain have more marketplaces than Málaga, Spain?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Valencia, Spain"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Málaga, Spain"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-034",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Of the craft workshops in Bologna, Italy, how many are within 1 km of a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Bologna, Italy"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Bologna, Italy"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-035",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Is the unemployment rate in Madrid region higher than in Catalonia in 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Madrid, Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia, Spain"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-036",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Does France have more wage and salaried workers as a share than Germany in 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "wage and salaried workers",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "wage and salaried workers",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-037",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "How many coworking spaces in Munich, Germany are within walking distance (200 m) of a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.2,
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Munich, Germany"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Munich, Germany"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-038",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Is the female employment rate in Warsaw capital region higher than the male employment rate in 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Warsaw capital region"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "male employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Warsaw capital region"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-039",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which of Lyon, Toulouse, and Nice has the most marketplaces?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Lyon, France"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Toulouse, France"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Nice, France"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-040",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which of these three cities – Seville, Zaragoza, and Bilbao – has the fewest banks?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Seville, Spain"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Zaragoza, Spain"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Bilbao, Spain"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-041",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which of Berlin, Madrid region, and Warsaw capital region had the lowest unemployment rate in 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw capital region"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h4-042",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Among Lyon, Marseille, and Bordeaux, which city has the most craft workshops?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Lyon, France"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Marseille, France"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Bordeaux, France"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    }
+  ]
+}

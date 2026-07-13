@@ -1,0 +1,283 @@
+{
+  "schema_version": "round2-source-census-v1",
+  "ts": 1783886979.99128,
+  "families_adopted": [
+    "city-open-data-ridership",
+    "gtfs-mobility-database",
+    "osm-points",
+    "osm-routes",
+    "world-bank"
+  ],
+  "all_ok": true,
+  "probes": [
+    {
+      "family": "osm-points",
+      "place": "Brno, Czechia",
+      "entity": "bus stop",
+      "n_rows": 200,
+      "checks": {
+        "nonempty": true,
+        "ids_unique": true,
+        "geometry": true
+      },
+      "ok": true,
+      "grain": "city-bbox/point-record (current snapshot)",
+      "evidence": "observed (community-mapped; coverage varies by city \u2014 structured thinness, not randomness)",
+      "source": "osm-overpass",
+      "note": "200 bus_stop in bbox",
+      "label": "observed"
+    },
+    {
+      "family": "osm-points",
+      "place": "Rosario, Argentina",
+      "entity": "railway station",
+      "n_rows": 15,
+      "checks": {
+        "nonempty": true,
+        "ids_unique": true,
+        "geometry": true
+      },
+      "ok": true,
+      "grain": "city-bbox/point-record (current snapshot)",
+      "evidence": "observed (community-mapped; coverage varies by city \u2014 structured thinness, not randomness)",
+      "source": "osm-overpass",
+      "note": "15 railway_station in bbox",
+      "label": "observed"
+    },
+    {
+      "family": "osm-routes",
+      "place": "Brno, Czechia",
+      "entity": "bus lines",
+      "n_rows": 125,
+      "checks": {
+        "nonempty": true,
+        "ids_unique": true,
+        "geometry": true
+      },
+      "ok": true,
+      "grain": "city-bbox/route-relation (lines deduped by ref; no geometry)",
+      "evidence": "observed (community-mapped relations)",
+      "source": "osm-overpass-routes",
+      "note": "125 bus lines (280 route relations; direction variants deduped by ref); rows carry no geometry \u2014 countable, not spatially relatable",
+      "label": "observed"
+    },
+    {
+      "family": "osm-routes",
+      "place": "Da Nang, Vietnam",
+      "entity": "bus routes",
+      "n_rows": 22,
+      "checks": {
+        "nonempty": true,
+        "ids_unique": true,
+        "geometry": true
+      },
+      "ok": true,
+      "grain": "city-bbox/route-relation (lines deduped by ref; no geometry)",
+      "evidence": "observed (community-mapped relations)",
+      "source": "osm-overpass-routes",
+      "note": "22 bus lines (49 route relations; direction variants deduped by ref); rows carry no geometry \u2014 countable, not spatially relatable",
+      "label": "observed"
+    },
+    {
+      "family": "world-bank",
+      "place": "Vietnam",
+      "entity": "air passengers",
+      "n_rows": 50,
+      "checks": {
+        "nonempty": true,
+        "years_ordered_unique": true,
+        "numeric_bounded": true
+      },
+      "ok": true,
+      "grain": "country/annual-series",
+      "evidence": "observed-administrative WITH upstream estimation: ICAO/UNCTAD compilations include staff estimates for gap years (see WB_EVIDENCE_NOTES; Round-2 audit finding)",
+      "source": "worldbank",
+      "note": "50 yearly points of air passengers for VNM [upstream: ICAO Civil Aviation Statistics + ICAO staff estimates (partially estimated)]",
+      "label": "observed"
+    },
+    {
+      "family": "world-bank",
+      "place": "Argentina",
+      "entity": "aircraft departures",
+      "n_rows": 54,
+      "checks": {
+        "nonempty": true,
+        "years_ordered_unique": true,
+        "numeric_bounded": true
+      },
+      "ok": true,
+      "grain": "country/annual-series",
+      "evidence": "observed-administrative WITH upstream estimation: ICAO/UNCTAD compilations include staff estimates for gap years (see WB_EVIDENCE_NOTES; Round-2 audit finding)",
+      "source": "worldbank",
+      "note": "54 yearly points of aircraft departures for ARG [upstream: ICAO Civil Aviation Statistics + ICAO staff estimates (partially estimated)]",
+      "label": "observed"
+    },
+    {
+      "family": "world-bank",
+      "place": "Kenya",
+      "entity": "container port traffic",
+      "n_rows": 15,
+      "checks": {
+        "nonempty": true,
+        "years_ordered_unique": true,
+        "numeric_bounded": true
+      },
+      "ok": true,
+      "grain": "country/annual-series",
+      "evidence": "observed-administrative WITH upstream estimation: ICAO/UNCTAD compilations include staff estimates for gap years (see WB_EVIDENCE_NOTES; Round-2 audit finding)",
+      "source": "worldbank",
+      "note": "15 yearly points of container port traffic for KEN [upstream: UNCTAD/Containerisation International derivations (partially estimated)]",
+      "label": "observed"
+    },
+    {
+      "family": "gtfs-mobility-database",
+      "place": "Winnipeg, Canada",
+      "entity": "transit stops",
+      "n_rows": 3873,
+      "checks": {
+        "nonempty": true,
+        "ids_unique": true,
+        "geometry": true
+      },
+      "ok": true,
+      "grain": "city-feed/stop-point (stops) or route-row (no geometry); agency snapshot, no time axis",
+      "evidence": "observed (operator-published schedule data)",
+      "source": "gtfs-mobility-database",
+      "note": "3873 scheduled transit stops (GTFS stops.txt, mdb-717 Winnipeg Transit; agency-published snapshot)",
+      "label": "observed"
+    },
+    {
+      "family": "gtfs-mobility-database",
+      "place": "Christchurch, New Zealand",
+      "entity": "transit stops",
+      "n_rows": 2060,
+      "checks": {
+        "nonempty": true,
+        "ids_unique": true,
+        "geometry": true
+      },
+      "ok": true,
+      "grain": "city-feed/stop-point (stops) or route-row (no geometry); agency snapshot, no time axis",
+      "evidence": "observed (operator-published schedule data)",
+      "source": "gtfs-mobility-database",
+      "note": "2060 scheduled transit stops (GTFS stops.txt, mdb-1313 Metro Christchurch; agency-published snapshot)",
+      "label": "observed"
+    },
+    {
+      "family": "gtfs-mobility-database",
+      "place": "Oulu, Finland",
+      "entity": "transit stops",
+      "n_rows": 1659,
+      "checks": {
+        "nonempty": true,
+        "ids_unique": true,
+        "geometry": true
+      },
+      "ok": true,
+      "grain": "city-feed/stop-point (stops) or route-row (no geometry); agency snapshot, no time axis",
+      "evidence": "observed (operator-published schedule data)",
+      "source": "gtfs-mobility-database",
+      "note": "1659 scheduled transit stops (GTFS stops.txt, mdb-869 Waltti - Oulu; agency-published snapshot)",
+      "label": "observed"
+    },
+    {
+      "family": "gtfs-mobility-database",
+      "place": "Tampere, Finland",
+      "entity": "scheduled routes",
+      "n_rows": 113,
+      "checks": {
+        "nonempty": true,
+        "ids_unique": true,
+        "geometry": true
+      },
+      "ok": true,
+      "grain": "city-feed/stop-point (stops) or route-row (no geometry); agency snapshot, no time axis",
+      "evidence": "observed (operator-published schedule data)",
+      "source": "gtfs-mobility-database",
+      "note": "113 scheduled routes (GTFS routes.txt, mdb-866 Tampereen joukkoliikenne (JOLI)); rows carry no geometry \u2014 countable, not spatially relatable",
+      "label": "observed"
+    },
+    {
+      "family": "gtfs-mobility-database",
+      "place": "Rosario, Argentina",
+      "entity": "transit stops",
+      "n_rows": 0,
+      "checks": {
+        "empty_as_expected": true
+      },
+      "ok": true,
+      "grain": "city-feed/stop-point",
+      "evidence": "n/a \u2014 negative control (unregistered city -> empty -> DataRequest)",
+      "source": "gtfs-mobility-database",
+      "note": "no registered GTFS feed for 'Rosario, Argentina' (registered: christchurch, oulu, tampere, winnipeg)",
+      "label": "observed"
+    },
+    {
+      "family": "city-open-data-ridership",
+      "place": "Chicago",
+      "entity": "bus ridership",
+      "n_rows": 38,
+      "checks": {
+        "nonempty": true,
+        "years_ordered_unique": true,
+        "numeric_bounded": true
+      },
+      "ok": true,
+      "grain": "city-system/annual-series (1988-)",
+      "evidence": "observed (CTA administrative boarding totals)",
+      "source": "city-open-data-ridership",
+      "note": "38 yearly points of bus ridership for chicago [unlinked boardings/year; Chicago Transit Authority annual boarding totals (data.cityofchicago.org Socrata w8km-9pzd); evidence: observed]",
+      "label": "observed"
+    },
+    {
+      "family": "city-open-data-ridership",
+      "place": "New York City",
+      "entity": "subway ridership",
+      "n_rows": 4,
+      "checks": {
+        "nonempty": true,
+        "years_ordered_unique": true,
+        "numeric_bounded": true
+      },
+      "ok": true,
+      "grain": "city-system/annual-series (2021-; partial years dropped <360 days)",
+      "evidence": "MODELLED \u2014 upstream fields are '..._total_estimated_ridership'; label 'modelled' propagates as taint (Round-2 audit finding)",
+      "source": "city-open-data-ridership",
+      "note": "4 yearly points of subway ridership for new york [estimated riders/year (MTA daily estimates summed); NY MTA daily ridership, aggregated to years in-query (data.ny.gov Socrata vxuj-8kew); evidence: modelled] (partial year(s) 2020,2025 dropped: <300 days of data)",
+      "label": "modelled"
+    },
+    {
+      "family": "city-open-data-ridership",
+      "place": "Oslo, Norway",
+      "entity": "transit ridership",
+      "n_rows": 0,
+      "checks": {
+        "empty_as_expected": true
+      },
+      "ok": true,
+      "grain": "city-system/annual-series",
+      "evidence": "n/a \u2014 negative control (unregistered city -> empty -> DataRequest)",
+      "source": "city-open-data-ridership",
+      "note": "no city open-data ridership source registered for 'Oslo, Norway' (registered: chicago, new york)",
+      "label": "observed"
+    }
+  ],
+  "rejected": [
+    {
+      "candidate": "Transitland API v2 (api.transit.land)",
+      "why": "requires an api_key parameter \u2014 fails the keyless requirement"
+    },
+    {
+      "candidate": "Mobility Database API v1 (api.mobilitydatabase.org)",
+      "why": "302 to an auth flow; keyless access is via the public catalog CSV + mdb-latest GCS mirror, which is what the connector uses"
+    },
+    {
+      "candidate": "NY MTA vxuj-8kew year 2020 (and any year with <360 days of data)",
+      "why": "dataset starts 2020-03-01 (306 days) \u2014 a partial annual sum would poison CHANGE/TREND answers; dropped in-connector with a provenance note"
+    },
+    {
+      "candidate": "IS.VEH.NVEH.P3 / IS.ROD.PAVE.ZS (World Bank)",
+      "why": "Round-1 phantom rejection stands: codes look ideal, rows are dead outside Kenya/pre-2010"
+    }
+  ]
+}

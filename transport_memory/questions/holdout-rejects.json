@@ -1,0 +1,569 @@
+[
+ {
+  "sector": "transport",
+  "type": "STATE",
+  "q": "List the charging stations for electric vehicles in Oslo.",
+  "gold_attempt": {
+   "op": "SELECT",
+   "entity": "electric vehicle charging station",
+   "region": {
+    "op": "REGION",
+    "place": "Oslo, Norway"
+   },
+   "time": null
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "RELATION",
+  "q": "Which fuel stations in Brussels are near a tram stop?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "left": {
+    "op": "SELECT",
+    "entity": "fuel station",
+    "region": {
+     "op": "REGION",
+     "place": "Brussels, Belgium"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "tram stop",
+    "region": {
+     "op": "REGION",
+     "place": "Brussels, Belgium"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "TREND",
+  "q": "Is container port traffic growing in Turkey?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "container port traffic",
+     "region": {
+      "op": "REGION",
+      "place": "Turkey"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "TRANSFER",
+  "q": "I can't find data for bus stops in Bunbury \u2014 can you estimate it from Perth?",
+  "gold_attempt": {
+   "op": "ESTIMATE",
+   "method": "envelope",
+   "target": {
+    "op": "REGION",
+    "place": "Bunbury, Australia"
+   },
+   "source": {
+    "op": "SELECT",
+    "entity": "bus stop",
+    "region": {
+     "op": "REGION",
+     "place": "Perth, Australia"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer_or_data_request"
+ },
+ {
+  "sector": "transport",
+  "type": "COMPOSITE",
+  "q": "Of the bus stops in Dublin, how many are near a railway station?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Dublin, Ireland"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "railway station",
+     "region": {
+      "op": "REGION",
+      "place": "Dublin, Ireland"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "RANKING",
+  "q": "Rank South Korea, Japan, and China by railway passengers in 2019.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "railway passenger",
+      "region": {
+       "op": "REGION",
+       "place": "South Korea"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "railway passenger",
+      "region": {
+       "op": "REGION",
+       "place": "Japan"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "railway passenger",
+      "region": {
+       "op": "REGION",
+       "place": "China"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "STATE",
+  "q": "I'm moving to Oslo without a car \u2014 will I manage?",
+  "gold_attempt": {
+   "op": "SELECT",
+   "entity": "?indicator",
+   "region": {
+    "op": "REGION",
+    "place": "Oslo, Norway"
+   },
+   "time": null
+  },
+  "reject_reason": "gold exec: data_request (unbound_holes) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "STATE",
+  "q": "Thinking of an EV for my commute in Berlin \u2014 realistic yet?",
+  "gold_attempt": {
+   "op": "SELECT",
+   "entity": "electric vehicle charging station",
+   "region": {
+    "op": "REGION",
+    "place": "Berlin, Germany"
+   },
+   "time": null
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "STATE",
+  "q": "I'm planning a ferry trip in Sydney \u2014 how many ferry terminals are there?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "SELECT",
+    "entity": "ferry terminal",
+    "region": {
+     "op": "REGION",
+     "place": "Sydney, Australia"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "STATE",
+  "q": "I'm a bus traveler in Medell\u00edn \u2014 how many bus stations does the city have?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "SELECT",
+    "entity": "bus station",
+    "region": {
+     "op": "REGION",
+     "place": "Medell\u00edn, Colombia"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "STATE",
+  "q": "I'm moving to Tampere and rely on trams \u2014 how many tram lines are there?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "SELECT",
+    "entity": "tram line",
+    "region": {
+     "op": "REGION",
+     "place": "Tampere, Finland"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "CHANGE",
+  "q": "I'm interested in railway expansion in India \u2014 how many kilometers of rail lines were added between 1995 and 2015?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "railway length",
+    "region": {
+     "op": "REGION",
+     "place": "India"
+    },
+    "time": {
+     "start": "2015",
+     "end": "2015"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "railway length",
+    "region": {
+     "op": "REGION",
+     "place": "India"
+    },
+    "time": {
+     "start": "1995",
+     "end": "1995"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "TREND",
+  "q": "I'm wondering if rail lines are being built in Turkey \u2014 is the total rail length increasing?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "rail length",
+     "region": {
+      "op": "REGION",
+      "place": "Turkey"
+     },
+     "time": {
+      "start": "2000",
+      "end": "2023"
+     }
+    }
+   }
+  },
+  "reject_reason": "gold exec: answer but ungrounded (no rows, value None)"
+ },
+ {
+  "sector": "transport",
+  "type": "RANKING",
+  "q": "Which of these three cities has the fewest bus stops: Nairobi, Accra, and Cape Town?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "asc",
+   "items": [
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Accra, Ghana"
+      },
+      "time": null
+     }
+    },
+    {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Cape Town, South Africa"
+      },
+      "time": null
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "RANKING",
+  "q": "I'm analyzing rail line density \u2014 rank these countries by total rail length: India, Germany, and France.",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "SELECT",
+     "entity": "rail length",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": null
+    },
+    {
+     "op": "SELECT",
+     "entity": "rail length",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": null
+    },
+    {
+     "op": "SELECT",
+     "entity": "rail length",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": null
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "RELATION",
+  "q": "List fuel stations in Le\u00f3n, Mexico that are near a bus station.",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "left": {
+    "op": "SELECT",
+    "entity": "fuel station",
+    "region": {
+     "op": "REGION",
+     "place": "Le\u00f3n, Mexico"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "bus station",
+    "region": {
+     "op": "REGION",
+     "place": "Le\u00f3n, Mexico"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "RELATION",
+  "q": "charging stations in cape town near a tram stop?",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "left": {
+    "op": "SELECT",
+    "entity": "charging station",
+    "region": {
+     "op": "REGION",
+     "place": "Cape Town, South Africa"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "tram stop",
+    "region": {
+     "op": "REGION",
+     "place": "Cape Town, South Africa"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "TREND",
+  "q": "how are railway passenger numbers doing in Turkey?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "railway passenger numbers",
+     "region": {
+      "op": "REGION",
+      "place": "Turkey"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "TREND",
+  "q": "container traffic at venezuelan ports trending up?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "container traffic",
+     "region": {
+      "op": "REGION",
+      "place": "Venezuela"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "transport",
+  "type": "COMPOSITE",
+  "q": "of the bus stops in quito, how many are near a tram stop",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Quito, Ecuador"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "tram stop",
+     "region": {
+      "op": "REGION",
+      "place": "Quito, Ecuador"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ }
+]

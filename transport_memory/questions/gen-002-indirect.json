@@ -1,0 +1,344 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-tran-01",
+   "sector": "transport",
+   "type": "STATE",
+   "q": "I'm moving to Curitiba and won't own a car \u2013 will I be able to get around using the bus system?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "bus system",
+    "region": {
+     "op": "REGION",
+     "place": "Curitiba, Brazil"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-02",
+   "sector": "transport",
+   "type": "STATE",
+   "q": "I'm planning to live in Lyon and love trams \u2013 is the tram network extensive enough for daily commuting?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "tram",
+    "region": {
+     "op": "REGION",
+     "place": "Lyon, France"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-03",
+   "sector": "transport",
+   "type": "RELATION",
+   "q": "I have a rental car at Nairobi airport and need to fill up before returning it \u2013 will there be a fuel station close to the airport?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "fuel station",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "airport",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-04",
+   "sector": "transport",
+   "type": "RELATION",
+   "q": "I'm taking the train from Lisbon and want to park my car nearby \u2013 are there parking lots within a short walk of the main railway station?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "parking lot",
+     "region": {
+      "op": "REGION",
+      "place": "Lisbon, Portugal"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "main railway station",
+     "region": {
+      "op": "REGION",
+      "place": "Lisbon, Portugal"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-05",
+   "sector": "transport",
+   "type": "CHANGE",
+   "q": "I'm considering investing in Indian railways \u2013 has passenger traffic grown significantly between 2010 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "railway passenger traffic",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2020"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-06",
+   "sector": "transport",
+   "type": "TREND",
+   "q": "I'm thinking of starting a low-cost airline in Brazil \u2013 is the air travel market expanding?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "air passengers carried",
+      "region": {
+       "op": "REGION",
+       "place": "Brazil"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2023"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-07",
+   "sector": "transport",
+   "type": "AMBIGUOUS",
+   "q": "Are there good public transport options around here?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "public transport stop",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-08",
+   "sector": "transport",
+   "type": "BEHAVIOUR",
+   "q": "Why do people in Portland seem to prefer driving over taking the bus?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Portland, Oregon, USA"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-09",
+   "sector": "transport",
+   "type": "RANKING",
+   "q": "I'm an EV enthusiast \u2013 which city has the best charging infrastructure: San Francisco, Oslo, or Amsterdam?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "ev charging station",
+       "region": {
+        "op": "REGION",
+        "place": "San Francisco, California, USA"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "ev charging station",
+       "region": {
+        "op": "REGION",
+        "place": "Oslo, Norway"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "ev charging station",
+       "region": {
+        "op": "REGION",
+        "place": "Amsterdam, Netherlands"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-10",
+   "sector": "transport",
+   "type": "RANKING",
+   "q": "I'm a cycling fan planning a trip to Europe \u2013 which of Amsterdam, Copenhagen, and Berlin has the most bike rental stations?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bike rental station",
+       "region": {
+        "op": "REGION",
+        "place": "Amsterdam, Netherlands"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bike rental station",
+       "region": {
+        "op": "REGION",
+        "place": "Copenhagen, Denmark"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bike rental station",
+       "region": {
+        "op": "REGION",
+        "place": "Berlin, Germany"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,382 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-live-01",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "I'm looking for a place to sell my handmade crafts in Medell\u00edn \u2014 where are the craft workshops?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "craft workshop",
+    "region": {
+     "op": "REGION",
+     "place": "Medell\u00edn, Colombia"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-02",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "I need to deposit cash quickly in Kampala \u2014 which ATMs are within a kilometer of the main marketplace?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Kampala, Uganda"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "main marketplace",
+     "region": {
+      "op": "REGION",
+      "place": "Kampala, Uganda"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-03",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "My family is thinking of moving to Vietnam \u2014 has the unemployment rate there changed much between 2015 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-04",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "I'm worried about job security in South Africa \u2014 is the share of vulnerable employment going up or down?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "vulnerable employment",
+      "region": {
+       "op": "REGION",
+       "place": "South Africa"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-05",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "I'm considering setting up a co-working space in Gweru, but I can't find any data on them there \u2014 what's the situation in nearby Bulawayo?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Gweru, Zimbabwe"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Bulawayo, Zimbabwe"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-06",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "Are there any places around here where I can rent a desk for a day?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?amenity_type",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-07",
+   "sector": "livelihoods",
+   "type": "BEHAVIOUR",
+   "q": "Do people in Porto prefer working from home or from coworking spaces?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Porto, Portugal"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-08",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "In Guadalajara, which marketplaces have no bank or ATM within 500 meters?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "RELATE",
+     "relation": "beyond",
+     "threshold_km": 0.5,
+     "left": {
+      "op": "SELECT",
+      "entity": "marketplace",
+      "region": {
+       "op": "REGION",
+       "place": "Guadalajara, Mexico"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Guadalajara, Mexico"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-10",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "My son is about to enter the job market in Spain \u2014 how has youth unemployment changed there from 2010 to 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "youth unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "youth unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-11",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "I'm a freelance consultant \u2014 is self-employment on the rise in Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "self-employment",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-live-13",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "I'm choosing a city for a digital nomad hub \u2014 rank Chiang Mai, Medell\u00edn, and Lisbon by number of coworking spaces.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Chiang Mai, Thailand"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Medell\u00edn, Colombia"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "coworking space",
+       "region": {
+        "op": "REGION",
+        "place": "Lisbon, Portugal"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  }
+ ]
+}
