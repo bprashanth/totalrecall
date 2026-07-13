@@ -485,3 +485,19 @@ and 1,382/1,382 synthesis result. `freezes/epoch-020.json` hashes 58 active comp
 coverage, source, corpus, and certification inputs with zero mismatch. H27 is fully absorbed, but
 it supplies no saturation pass. The next eligible evidence is a completely new H28 bank authored
 after the freeze commit; any valid discovery again retires the epoch and resets the sequence.
+
+### Round 2 checkpoint 17 — practical-saturation stopping rule chosen before H28 contact
+
+For the first benchmark pass across sectors, the judge adopts the tiered `SAT-004` proposal. Hard
+saturation still means three consecutive untouched banks of at least 40 rows. Practical saturation
+requires the already-certified broad wall plus one parser-blind post-freeze bank of at least 80
+rows (or two of at least 40), at least half adversarial, spanning every major compiler and evidence
+family, and clean immutable first contact without a valid change. Any discovery is absorbed and
+requires a new freeze and new practical exam.
+
+This is a cost-aware claim, not a relaxed green-suite label. It was selected before H28 admission or
+qwen contact. H28 has 100 unique rows and 55 adversarial rows across spatial, statistical, RANK,
+ESTIMATE, ambiguity, evidence, contrastive, and output-head pressure. If it passes all admission,
+ordinary, strict, execution, and synthesis gates, livelihoods may stop at practical saturation
+while explicitly reporting hard `3/3` as pending. The harder protocol is deferred to a second LoRA
+round or deployment-strength evaluation.
