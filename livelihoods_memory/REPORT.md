@@ -351,3 +351,24 @@ Because parser, connector, schema, executor, and audit code changed, the prior 1
 retired. The next required step is another complete all-bank wall, corpus/dialogue/source
 certification, and an epoch-017 checksum freeze. Only banks newly generated after that freeze may
 start the three-contact saturation sequence.
+
+### Round 2 checkpoint 10 — epoch 017 certified, counter still zero
+
+After two rejected full walls, two later candidate walls invalidated by corpus/freeze-core changes,
+and the final v8 rerun, epoch 017 is certified. The wall contains 1,156 questions across 27 runnable
+banks and 37 unique skeletons. All 1,153 eligible rows pass both the ordinary harness and strict
+canonical audit. The three excluded active rows are exact immutable defects, not tolerated compiler
+residue. Deterministic regressions pass 120/120, the expanded source census passes 14/14, and model
+plus mechanical dialogue binding each pass 5/5.
+
+The training corpus is now bank-scoped. A freeze audit caught an old H10 proxy trace re-entering
+through global text membership even though its development row had been superseded. Exact active
+bank+ID+text admission removes it and yields 1,148 unique parse rows plus five clarification rows
+with zero immutable-defect leakage. `BUG-006` makes that rule reviewable for automatic bootstrap
+adoption.
+
+The 51-file checksum manifest is `freezes/epoch-017.json`; machine-readable gate evidence is
+`coverage/epoch-017-certification.json`. This is a start line, not a saturation claim. H23/H24 and
+all repaired walls are development evidence, so the untouched counter remains zero. Three entirely
+new post-freeze cross-family banks of at least 40 rows each are still required, with any valid new
+family, repair, connector, or core change retiring the sequence and forcing a new boundary.

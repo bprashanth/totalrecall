@@ -39,6 +39,7 @@ EVIDENCE = ["coverage/matrix.json", "coverage/source-census.json",
             "coverage/epoch-013-certification.json", "coverage/epoch-014-certification.json"]
 EVIDENCE.append("coverage/epoch-015-certification.json")
 EVIDENCE.append("coverage/epoch-016-certification.json")
+EVIDENCE.append("coverage/epoch-017-certification.json")
 
 
 def digest(path):

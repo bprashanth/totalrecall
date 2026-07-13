@@ -521,3 +521,23 @@ overwriting Madrid's reviewed regional unemployment interpretation. Both were gu
 replays are exact. Judge decision: v3 and v5 are rejected evidence, never certification. The
 breakers file remains checksummed proposal/coverage evidence but is not a runnable bank schema.
 Full narrative: `chronology/20260713_round2_epoch_017_wall_rejections.md`.
+
+## 2026-07-13 — Epoch 017 certified and frozen at 1,153 eligible rows [BENCHMARK/CORPUS]
+
+Final wall v8 covers 1,156 questions across 27 runnable banks and 37 skeletons. Ordinary and strict
+audits pass all 1,153 eligible rows. The three active exclusions are exact registered defects: two
+legacy `gen-001` structural golds and `gen-002`'s unsafe expected Answer for “main marketplace.”
+Strict raw matching is 1,154/1,156 because the latter tree is correctly literal and question-faithful
+despite its stale outcome expectation. Regression tests are 120/120, source census 14/14, and both
+dialogue binders 5/5.
+
+Pre-freeze corpus audit found a superseded H10 “coworking access” trace admitted through global
+question-text membership. Judge decision: activity is the tuple `(active bank, bank-local id,
+current text)`, not the existence of the same text anywhere under `questions/`. Bank-scoped
+admission plus the composite defect registry produces 1,148 unique parse rows and five clarification
+rows, with zero immutable-defect leaks and the superseded proxy absent. Governance record:
+`BUG-006`.
+
+`coverage/epoch-017-certification.json` records the full gate. `freezes/epoch-017.json` hashes 51
+files. Saturation counter remains zero: all H23/H24 and wall evidence is disclosed development;
+only newly generated post-freeze banks can count.

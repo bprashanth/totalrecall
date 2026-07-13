@@ -460,3 +460,22 @@ an observed best location.
 
 **Evidence:** excluded raw pressure probe `h23-079` in
 `questions/holdout-h23-generated.json`. Governance record: `ALG-010`.
+
+## 2026-07-13 — Corpus admission must use the active bank identity
+
+**Failure that forced it:** after the 1,156-row epoch-017 wall, corpus compilation still included
+the old H10 “coworking access” question from an earlier trace. Its development row had been
+corrected to an explicit coworking-space-count question, but the immutable/raw JSON files kept the
+old text globally “active.” The compiler keyed activity only by question string and therefore
+admitted a trace whose source bank name matched an active bank even though that bank's current row
+no longer contained the text.
+
+**Proposed implementation requirement:** corpus admission uses the exact tuple `(active bank,
+bank-local id, current question text)`, followed by the composite `(bank,id)` gold-defect check.
+Immutable holdouts, raw candidate banks, pressure files, and superseded row text cannot authorize a
+training example merely by remaining on disk. Corrected disclosed copies may retain the same text
+only through their own active bank identity. Publish a zero-leak audit at every freeze.
+
+**Evidence:** pre-freeze epoch-017 corpus audit of `h10-042`; fixed implementation and deterministic
+guard in `harness/compile_corpus.py` and `harness/test_parser_regressions.py`. Governance record:
+`BUG-006`.
