@@ -73,6 +73,15 @@ def _operand_label(node):
                selected.get("entity") or "")
 
 
+def _number_mentioned(value,text,tolerance=1e-4):
+    if not isinstance(value,(int,float)) or isinstance(value,bool):return str(value) in text
+    found=[]
+    for hit in re.findall(r"(?<![a-z])[-+]?\d[\d,]*(?:\.\d+)?(?![a-z])",text.lower()):
+        try:found.append(float(hit.replace(",","")))
+        except ValueError:pass
+    return any(abs(float(value)-item)<=tolerance for item in found)
+
+
 def audit_trace(trace):
     """Return stable issue codes for one trace; an empty list is a pass."""
     issues=[]
@@ -139,11 +148,13 @@ def audit_trace(trace):
                     and not re.match(r"\s*(?:yes|no)\b",lower):
                 issues.append("direct_compare_not_answered")
             if choice and scalar!=0:
-                expected=_operand_label(ir.get("left") if scalar>0 else ir.get("right"))
+                wants_smaller=bool(re.search(r"\b(?:fewer|lower|less|smaller|smallest)\b",ql))
+                choose_left=(scalar<0) if wants_smaller else (scalar>0)
+                expected=_operand_label(ir.get("left") if choose_left else ir.get("right"))
                 if expected and expected.lower() not in lower:
                     # Same-place choices are distinguished by a differing entity rather than place.
-                    chosen=ir.get("left") if scalar>0 else ir.get("right")
-                    other=ir.get("right") if scalar>0 else ir.get("left")
+                    chosen=ir.get("left") if choose_left else ir.get("right")
+                    other=ir.get("right") if choose_left else ir.get("left")
                     ce=[x.get("entity") for x in _walk(chosen) if x.get("op")=="SELECT"]
                     oe=[x.get("entity") for x in _walk(other) if x.get("op")=="SELECT"]
                     differing=next((str(a) for a,b in zip(ce,oe) if str(a).lower()!=str(b).lower()),"")
@@ -151,6 +162,15 @@ def audit_trace(trace):
                         issues.append("compare_winner_not_named")
         if value.get("kind")=="scalar" and scalar is None:
             issues.append("null_scalar_answer")
+        if value.get("kind")=="series" and value.get("rows"):
+            rows=value["rows"]
+            # The renderer cites both endpoints for multi-row series. They must remain in the
+            # persisted compact trace, not merely in transient pre-compaction memory.
+            if len(rows)>1:
+                for row in (rows[0],rows[-1]):
+                    if str(row.get("t")) not in prose or not _number_mentioned(row.get("value"),prose):
+                        issues.append("series_endpoint_not_persisted")
+                        break
         if ir.get("op")=="ANNOTATE" and str(ir.get("layer","")).lower() not in lower:
             issues.append("annotation_layer_omitted")
         if value.get("kind")=="records" and value.get("n_rows",len(value.get("rows") or []))>3:
