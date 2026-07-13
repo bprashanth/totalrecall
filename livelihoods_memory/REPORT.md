@@ -477,3 +477,11 @@ rows plus five clarifications, including all 100 disclosed H27 rows.
 artifact to the freeze registry changes checksummed core state, a complete post-artifact wall must
 repeat before the epoch-020 checksum is valid. The saturation counter remains zero: H27 and every
 wall are disclosed development, and H28 can count only if generated after the exact freeze commit.
+
+### Round 2 checkpoint 16 — epoch 020 frozen, untouched counter zero
+
+Post-artifact walls v3 and v4 each repeat the exact 1,379/1,379 eligible ordinary and strict result
+and 1,382/1,382 synthesis result. `freezes/epoch-020.json` hashes 58 active compiler, harness, bank,
+coverage, source, corpus, and certification inputs with zero mismatch. H27 is fully absorbed, but
+it supplies no saturation pass. The next eligible evidence is a completely new H28 bank authored
+after the freeze commit; any valid discovery again retires the epoch and resets the sequence.
