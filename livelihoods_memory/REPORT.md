@@ -372,3 +372,36 @@ The 51-file checksum manifest is `freezes/epoch-017.json`; machine-readable gate
 all repaired walls are development evidence, so the untouched counter remains zero. Three entirely
 new post-freeze cross-family banks of at least 40 rows each are still required, with any valid new
 family, repair, connector, or core change retiring the sequence and forcing a new boundary.
+
+### Round 2 checkpoint 11 — H25 invalidates compiler-only saturation and establishes epoch 018
+
+H25 was the first countable post-epoch-017 bank and immediately rejected that boundary: ordinary
+0.918 and strict 29/40. All eleven exact mismatches were compiler-bearing. General repairs close
+existential output heads, worded fractions, exact indicator aliases, winner cardinality, complete
+rank candidates, direction, relational rank recovery, transfer roles, and unresolved anaphora.
+The disclosed replay is ordinary 1.000 and strict 40/40, but contributes zero saturation passes.
+
+More importantly, H25 forced an audit of the delivered answer rather than only the internal IR.
+The supposedly certified epoch-017 wall contained systemic truth failures: 43 of 44 true Boolean
+results were narrated as no/zero, 45 observed results were called modelled, modelled estimates lost
+local-corroboration warnings, and prose invented aggregates and source attributions. Epoch 017 is
+therefore invalid independently of its H25 compiler failures.
+
+The solver now renders common typed values and failures deterministically and freezes a separate
+all-row synthesis/evidence audit. Six candidate walls were rejected for progressively subtler
+issues: stale scoring, temporal language on cross-sectional differences, incomplete comparison
+answers, null arithmetic, omitted annotations, scope taxonomy, partial-list evidence, nonspecific
+DataRequests, coordinate precision, and compact traces that omitted cited series endpoints. V7
+passed independent review; v8 repeated the full wall after the certification artifact entered the
+freeze evidence.
+
+Epoch 018 covers 1,196 questions across 28 runnable banks and 38 skeletons. Ordinary and strict
+audits pass all 1,193 eligible rows; synthesis faithfulness passes 1,196/1,196. Regressions pass
+143/143, source census 14/14, dialogue 5/5 on both binders, and corpus compilation produces 1,188
+unique parse rows plus five clarification rows. The 54-file manifest is `freezes/epoch-018.json`.
+
+This is a stronger start line, not saturation. `BUG-007`, `SAT-003`, and `BNCH-002` are explicit
+Fable-review proposals for deterministic answer truth, prose/evidence saturation gates, and
+executable pre-contact gold/source warrants. The untouched counter is zero; only fresh H26–H28
+banks generated after the epoch-018 checksum may advance it, and any valid repair at any layer
+resets the sequence.
