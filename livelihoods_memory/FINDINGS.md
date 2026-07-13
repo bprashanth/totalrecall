@@ -541,3 +541,30 @@ rows, with zero immutable-defect leaks and the superseded proxy absent. Governan
 `coverage/epoch-017-certification.json` records the full gate. `freezes/epoch-017.json` hashes 51
 files. Saturation counter remains zero: all H23/H24 and wall evidence is disclosed development;
 only newly generated post-freeze banks can count.
+
+## 2026-07-13 — H25 rejects epoch 017 and exposes the answer-truth boundary [PARSER/SYNTHESIS/AUDIT]
+
+H25 first contact scored strict 29/40; all eleven mismatches were genuine compiler discoveries.
+The independent prose audit then found that epoch 017's exact eligible IR wall did not imply safe
+answers: Boolean polarity, observed/modelled labels, source attribution, numeric derivation, rank
+language, failure taxonomy, and modelled-field cardinality were systematically unprotected.
+
+Judge decision: epoch 017 is invalid and the saturation counter remains zero. Typed results and
+failure reasons now render deterministically; arbitrary record attributes cannot enter the answer
+boundary; explicit question/IR contracts fail closed; and synthesis/evidence audit is mandatory.
+Governance records `BUG-007`, `SAT-003`, and `BNCH-002` expose the framework changes for Fable
+review.
+
+## 2026-07-13 — Epoch 018 certified only after six rejected truth walls [BENCHMARK/EVIDENCE]
+
+Candidate walls v1–v6 were rejected for real answer or replay defects despite green compiler rows.
+The sequence discovered cross-sectional differences narrated as temporal changes, choice questions
+without winners, undefined ratios rendered as `None`, omitted annotations, wrong source-versus-scope
+taxonomy, unsupported claims from compact samples, nonspecific asks, coordinate precision loss, and
+series endpoints omitted from persisted traces.
+
+V7 passes independent all-row replay. Final v8 confirms the exact certification boundary:
+1,193/1,193 eligible ordinary and strict rows, 1,196/1,196 synthesis rows, 143/143 regressions,
+14/14 source probes, dialogue 5/5 through both binders, and 1,188 unique parse plus five clarification
+corpus rows. `freezes/epoch-018.json` hashes 54 inputs with zero replay mismatch. Counter remains
+zero pending three new post-freeze untouched banks.
