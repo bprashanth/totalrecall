@@ -346,8 +346,19 @@ def _entity_occurrences(question, osm_only=False):
     for mapping in mappings:
         for key in mapping:
             kn = _phrase_norm(key)
-            for match in re.finditer(r"(?<![a-z0-9])" + re.escape(kn) + r"(?:s|es)?(?![a-z0-9])", qn):
+            suffix = re.escape(kn[:-1]) + r"(?:y|ies)" if kn.endswith("y") else \
+                re.escape(kn) + r"(?:s|es)?"
+            for match in re.finditer(r"(?<![a-z0-9])" + suffix + r"(?![a-z0-9])", qn):
                 found.append((match.start(), match.end(), key))
+    # `market` is excluded from the generic mapping because "job market" is abstract. Restore it
+    # only in unambiguously spatial/facility syntax; this also covers the common plural "markets".
+    if osm_only or any(mapping is osm_phrases for mapping in mappings):
+        spatial_market = re.search(r"\b(?:within|near|beyond|from|of)\b.+?\bmarkets?\b", qn) or \
+            re.search(r"\b(?:a|the|any)\s+markets?\b", qn)
+        if spatial_market:
+            for match in re.finditer(r"\bmarkets?\b", qn):
+                if qn[max(0, match.start() - 4):match.start()] != "job ":
+                    found.append((match.start(), match.end(), "marketplace"))
     # keep the longest phrase at a shared start, then discard wholly nested aliases
     found.sort(key=lambda x: (x[0], -(x[1] - x[0])))
     out = []
@@ -487,10 +498,13 @@ def mech_series_rank(ir, question):
     if not match or re.search(r"\b(?:these|those|the)\s+regions\b", match.group(1), re.I):
         return ir
     head = re.sub(r"^(?:the\s+)?countries\s+", "", match.group(1), flags=re.I)
+    head = re.sub(r"\s+from\s+(?:lowest|highest)\s+to\s+(?:highest|lowest)\s*$", "", head,
+                  flags=re.I)
     places = [p.strip(" ,") for p in re.split(r",|\band\b", head, flags=re.I) if p.strip(" ,")]
     country_words={"ghana","kenya","india","ecuador","morocco","france","germany","spain",
                    "italy","poland","portugal","brazil","mexico","colombia","romania",
-                   "thailand","japan","nigeria","peru"}
+                   "thailand","japan","nigeria","peru","nepal","uganda","namibia",
+                   "senegal","latvia","austria","belgium","netherlands"}
     if len(places)>=6 and len(places)%2==0 and all(_phrase_norm(places[i]) in country_words for i in range(1,len(places),2)):
         places=[places[i]+", "+places[i+1] for i in range(0,len(places),2)]
     if len(places) < 3: return ir
@@ -555,7 +569,7 @@ def mech_dormant_ops(ir, question):
     first = _first_select(ir)
     if not first: return ir
     ql = question.lower()
-    if re.search(r"\bare\s+there\s+(?:any\s+)?(?!more\b)", ql) or re.match(r"\s*(?:are\s+(?:there\s+)?any|any)", ql):
+    if re.search(r"\b(?:are|is)\s+there\s+(?:any\s+)?(?!more\b)", ql) or re.match(r"\s*(?:are\s+(?:there\s+)?any|any)", ql):
       if isinstance(ir, dict):
         if ir.get("op") == "SELECT":
             return {"op":"AGGREGATE","by":"space","metric":"presence","source":ir}
@@ -690,6 +704,7 @@ def mech_relation_thresholds(ir, question):
     if not isinstance(ir, dict) or '"RELATE"' not in json.dumps(ir): return ir
     ql = question.lower()
     if "and also" in ql or re.search(r"\bbut\s+(?:(?:have|has)\s+no|beyond|more than|within)\b", ql) \
+            or re.search(r"\band\s+(?:beyond|more than)\b", ql) \
             or (re.search(r"\band\s+within\b",ql) and "both" not in ql):
         return ir
     def dist(text): return _parse_dist_km(text)
@@ -787,6 +802,16 @@ def mech_relation_comparisons(ir, question):
     if not first:return ir
     # Ratio of a related subset to its total, or difference between two related subsets.
     ents=list(dict.fromkeys(key for _,_,key in _entity_occurrences(question,osm_only=True)))
+    # "How many more X are there than X within D of Y" compares the total to a filtered subset.
+    if re.search(r"\bhow many more\b", ql) and ql.count(" within ") == 1 and len(ents) >= 2:
+        region=first.get("region");d=_parse_dist_km(ql);entity,anchor=ents[0],ents[-1]
+        total={"op":"AGGREGATE","by":"space","metric":"count","source":{
+            "op":"SELECT","entity":entity,"region":region,"time":None}}
+        subset={"op":"AGGREGATE","by":"space","metric":"count","source":{
+            "op":"RELATE","relation":"within","threshold_km":d,
+            "left":{"op":"SELECT","entity":entity,"region":region,"time":None},
+            "right":{"op":"SELECT","entity":anchor,"region":region,"time":None}}}
+        return {"op":"COMPARE","how":"difference","left":total,"right":subset}
     if "ratio of" in ql and ql.count(" within ")==1:
         region=first.get("region");d=_parse_dist_km(ql);pa=proximity_anchor(question)
         anchor=ents[1] if len(ents)>=2 else ((pa or {}).get("anchor"))
@@ -797,13 +822,23 @@ def mech_relation_comparisons(ir, question):
                 "right":{"op":"SELECT","entity":anchor,"region":region,"time":None}}}
         total={"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":ents[0],"region":region,"time":None}}
         return {"op":"COMPARE","how":"ratio","left":subset,"right":total}
-    if "difference between" in ql and ql.count(" within ")>=2 and len(ents)>=2:
-        region=first.get("region");d=_parse_dist_km(ql);pa=proximity_anchor(question);anchor=ents[-1] if len(ents)>=3 else (pa or {}).get("anchor")
-        if not anchor:return ir
-        def side(entity):return {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"RELATE","relation":"within","threshold_km":d,
-            "left":{"op":"SELECT","entity":entity,"region":region,"time":None},
-            "right":{"op":"SELECT","entity":anchor,"region":region,"time":None}}}
-        return {"op":"COMPARE","how":"difference","left":side(ents[0]),"right":side(ents[1])}
+    if "difference between" in ql and ql.count(" within ")>=2:
+        # Each side is an independent relation clause.  A global de-duplicated entity list
+        # loses repeated anchors ("X within D of market and Y within D of market") and can
+        # therefore bind Y as the first clause's anchor.  Split the literal clauses first.
+        head=question[ql.index("difference between")+len("difference between"):]
+        clauses=re.split(r"\band\b",head,maxsplit=1,flags=re.I)
+        clause_entities=[]
+        for clause in clauses:
+            occ=list(dict.fromkeys(key for _,_,key in _entity_occurrences(clause,osm_only=True)))
+            if len(occ)>=2: clause_entities.append((occ[0],occ[-1],_parse_dist_km(clause.lower())))
+        if len(clause_entities)==2:
+            region=first.get("region")
+            def side(entity,anchor,d):return {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"RELATE","relation":"within","threshold_km":d,
+                "left":{"op":"SELECT","entity":entity,"region":region,"time":None},
+                "right":{"op":"SELECT","entity":anchor,"region":region,"time":None}}}
+            left,right=clause_entities
+            return {"op":"COMPARE","how":"difference","left":side(*left),"right":side(*right)}
     if " than within " in ql or ("ratio of" in ql and ql.count(" within ")>=2):
         ents=list(dict.fromkeys(key for _,_,key in _entity_occurrences(question,osm_only=True)))
         if len(ents)>=3:
@@ -837,7 +872,8 @@ def mech_relation_comparisons(ir, question):
 def mech_behavior_proxy(ir, question):
     """Preference/motivation/usage-likelihood claims need a proxy, never facility arithmetic."""
     ql=question.lower()
-    personal_goal=bool(re.search(r"\bwhere\b.+\bcould\s+i\b.+\b(?:sell|meet|withdraw|work)\b",ql))
+    personal_goal=bool(re.search(r"\bwhere\b.+\bcould\s+i\b.+\b(?:sell|meet|withdraw|work)\b",ql) or
+                       re.search(r"\bto\s+(?:start\s+earning|sell\s+things)\b.+\bwhere\s+should\s+i\s+go\b",ql))
     if not (personal_goal or (re.search(r"\b(?:people|residents|freelancers|owners|workers|tourists|visitors)\b",ql) and
             re.search(r"\b(?:why|prefer|choose|likely|popular|satisfied|motivat\w*|habits?|transactions?|networking)\b",ql))):
         return ir
@@ -873,12 +909,24 @@ def mech_three_entity_relations(ir, question):
     if len(entities)==2 and re.search(r"\bthat are within\b.+?\bof\s+(?:a\s+|the\s+)?market\b",ql):entities.append("marketplace")
     if len(entities)<3:return ir
     first=_first_select(ir)
-    if not first:return ir
-    region=first.get("region")
+    if first:
+        region=first.get("region")
+    else:
+        place=re.search(r"\bin\s+(.+?)\s+(?:are\s+)?within\b",question,re.I)
+        if not place:return ir
+        region={"op":"REGION","place":place.group(1).strip(" ,.;:—-")}
     distances=[]
     for m in re.finditer(r"[\d.]+\s*(?:km|kilometers?|kilometres?|m\b|meters?|metres?)",ql):
         value=_parse_dist_km(m.group(0));distances.append(value)
     def s(entity):return {"op":"SELECT","entity":entity,"region":region,"time":None}
+    def answer_form(source):
+        if re.search(r"\b(?:what are the names of|names of)\b",ql):
+            return {"op":"ANNOTATE","source":source,"layer":"name"}
+        if re.match(r"\s*(?:are\s+(?:there\s+)?any|any|are\s+there\s+(?!more\b))", ql):
+            return {"op":"AGGREGATE","by":"space","metric":"presence","source":source}
+        if re.search(r"\b(?:how many|count)\b",ql):
+            return {"op":"AGGREGATE","by":"space","metric":"count","source":source}
+        return source
     if re.search(r"\bwithin\b.+?\bof\b.+?\bthat are within\b",ql):
         ds=distances or [None]
         right={"op":"RELATE","relation":"within","left":s(entities[1]),"right":s(entities[2])}
@@ -886,7 +934,7 @@ def mech_three_entity_relations(ir, question):
         if ds[0] is not None:outer["threshold_km"]=ds[0]
         if len(ds)>1:right["threshold_km"]=ds[1]
         elif ds[0] is not None:right["threshold_km"]=ds[0]
-        return {"op":"AGGREGATE","by":"space","metric":"count","source":outer} if re.search(r"\bhow many\b",ql) else outer
+        return answer_form(outer)
     if (" but not " in ql or re.search(r"\bbut\s+(?:have|has)\s+no\b", ql)
             or re.search(r"\bbut\s+(?:beyond|more than|within)\b", ql)):
         parts = re.split(r"\bbut\s+(?:(?:have|has)\s+no|not)\b", ql, maxsplit=1)
@@ -906,11 +954,15 @@ def mech_three_entity_relations(ir, question):
         if distances:inner["threshold_km"]=distances[0]
         if len(distances)>1:outer["threshold_km"]=distances[1]
         elif distances:outer["threshold_km"]=distances[0]
+    elif re.search(r"\band\s+(?:beyond|more than)\b",ql):
+        before,after=re.split(r"\band\b",ql,maxsplit=1)
+        inner={"op":"RELATE","relation":"within","left":s(entities[0]),"right":s(entities[1])}
+        outer={"op":"RELATE","relation":"beyond","left":inner,"right":s(entities[2])}
+        d1,d2=_parse_dist_km(before),_parse_dist_km(after)
+        if d1 is not None:inner["threshold_km"]=d1
+        if d2 is not None:outer["threshold_km"]=d2
     else:return ir
-    if re.match(r"\s*(?:are\s+(?:there\s+)?any|any|are\s+there\s+(?!more\b))", ql):
-        return {"op":"AGGREGATE","by":"space","metric":"presence","source":outer}
-    return {"op":"AGGREGATE","by":"space","metric":"count","source":outer} \
-        if re.search(r"\b(?:how many|count)\b",ql) else outer
+    return answer_form(outer)
 
 
 def mech_negative_relation(ir, question):
@@ -980,11 +1032,22 @@ def mech_transfer_contract(ir, question):
         target,donor=(x.strip(" ,.;:—-") for x in siting.groups());entity=(_first_select(out) or {}).get("entity","?facility_type")
         out={"op":"ESTIMATE","method":"envelope","source":{"op":"SELECT","entity":entity,
              "region":{"op":"REGION","place":donor},"time":None},"target":{"op":"REGION","place":target}}
-    unknown_target=re.search(r"\bestimate\s+.+?\s+from\s+(.+?)(?:[.?]|$)",question,re.I) if "nearby" in question.lower() else None
-    target_now=out.get("target") if isinstance(out,dict) else None
-    target_is_hole=(isinstance(target_now,str) and target_now.startswith("?")) or \
-        (isinstance(target_now,dict) and str(target_now.get("place","")).startswith("?"))
-    if unknown_target and target_is_hole and not (using or trailing) and isinstance(out,dict) and out.get("op")=="ESTIMATE":
+    donor_only=re.search(r"\bestimate\s+.+?\s+from\s+(.+?)(?:[.?]|$)",question,re.I)
+    current_source=_first_select(out)
+    current_source_region=current_source.get("region") if current_source else None
+    current_target=out.get("target") if isinstance(out,dict) and out.get("op")=="ESTIMATE" else None
+    target_is_hole=(isinstance(current_target,str) and current_target.startswith("?")) or \
+        (isinstance(current_target,dict) and str(current_target.get("place","")).startswith("?"))
+    source_is_hole=(isinstance(current_source_region,str) and current_source_region.startswith("?")) or \
+        (isinstance(current_source_region,dict) and str(current_source_region.get("place","")).startswith("?"))
+    donor_prefix=question[:donor_only.start()] if donor_only else ""
+    target_missing_surface=bool(re.search(
+        r"\b(?:nearby|here|elsewhere|somewhere else|an unspecified place)\b", donor_prefix, re.I))
+    # If provenance has left both roles unbound, the literal `from PLACE` still determines the
+    # donor role regardless of the purpose preamble (siting/planning/etc.).
+    unknown_target=donor_only if donor_only and (target_missing_surface or
+        (target_is_hole and source_is_hole)) else None
+    if unknown_target and not (using or trailing) and isinstance(out,dict) and out.get("op")=="ESTIMATE":
         donor=unknown_target.group(1).strip(" ,.;:—-");entity=(_first_select(out) or {}).get("entity","?facility_type")
         out={"op":"ESTIMATE","method":"envelope","source":{"op":"SELECT","entity":entity,
              "region":{"op":"REGION","place":donor},"time":None},"target":"?place"}
@@ -1159,6 +1222,11 @@ def mech_generic_entity_hole(ir, question):
             if pa.get("threshold_km") is not None:rel["threshold_km"]=pa["threshold_km"]
             return rel
         return left
+    vague_workplace = re.search(r"\b(?:work hubs?|the workplaces?)\b", ql)
+    named_facilities = list(dict.fromkeys(key for _, _, key in _entity_occurrences(question, osm_only=True)))
+    import connectors as C
+    named_tags = {C.osm_resolve_tag(key)[0] for key in named_facilities}
+    suitable_place = re.search(r"\bis there\s+(?:a|any)\s+suitable place\b", ql)
     generic_places = re.search(
         r"\b(?:what|which|any|are there any)\s+(?:kind of\s+)?(?:places|facilities|options)\s+"
         r"(?:are\s+)?(?:around|near)\s+here\b", ql)
@@ -1168,7 +1236,7 @@ def mech_generic_entity_hole(ir, question):
     anaphoric_workplace = re.search(r"\b(?:those|these)\s+workplaces\b", ql)
     anaphoric_facility = re.search(r"\b(?:those|these)\s+facilities\b", ql)
     bare_those = re.search(r"\baddresses?\s+for\s+those\b", ql)
-    if not isinstance(ir, dict) or not (generic_places or generic_facilities or anaphoric_workplace or anaphoric_facility or bare_those):
+    if not isinstance(ir, dict) or not (vague_workplace or suitable_place or generic_places or generic_facilities or anaphoric_workplace or anaphoric_facility or bare_those):
         return ir
     def walk(v):
         if isinstance(v, list):
@@ -1177,7 +1245,9 @@ def mech_generic_entity_hole(ir, question):
             return v
         out = {k: walk(x) for k, x in v.items()}
         if out.get("op") == "SELECT" and not str(out.get("entity", "")).startswith("?"):
-            out["entity"] = "?workplace_type" if anaphoric_workplace else "?facility_type"
+            tag=C.osm_resolve_tag(str(out.get("entity", "")))[0]
+            if not tag or tag not in named_tags:
+                out["entity"] = "?workplace_type" if anaphoric_workplace else "?facility_type"
         return out
     out = walk(ir)
     # A deictic generic request is first a clarification request. Presence over an unknown
@@ -1186,6 +1256,22 @@ def mech_generic_entity_hole(ir, question):
             and isinstance(out.get("source"), dict) and out["source"].get("op") == "SELECT":
         return out["source"]
     return out
+
+
+def mech_abstract_rate_hole(ir, question):
+    """A bare livelihood/work 'rate' does not name a measurable indicator."""
+    ql=_phrase_norm(question)
+    if not re.search(r"\b(?:livelihoods?|work)\b",ql) or " rate" not in ql:
+        return ir
+    if re.search(r"\b(?:employment|unemployment|participation|earnings|hours|income|wage)\b",ql):
+        return ir
+    def walk(value):
+        if isinstance(value,list):return [walk(x) for x in value]
+        if not isinstance(value,dict):return value
+        out={k:walk(v) for k,v in value.items()}
+        if out.get("op")=="SELECT":out["entity"]="?indicator"
+        return out
+    return walk(ir)
 
 
 def bind_named_behavior_place(ir, question):
@@ -1478,6 +1564,10 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     if json.dumps(ir) != before:
         events.append("binder:generic_entity_hole")
     before = json.dumps(ir)
+    ir = mech_abstract_rate_hole(ir, question)
+    if json.dumps(ir) != before:
+        events.append("binder:abstract_rate_indicator_hole")
+    before = json.dumps(ir)
     ir = bind_named_behavior_place(ir, question)
     if json.dumps(ir) != before:
         events.append("binder:named_behavior_place")
@@ -1526,7 +1616,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
                    mech_relation_comparisons, mech_comparison_mode,
                    mech_behavior_proxy, mech_transfer_contract, mech_series_types, mech_explicit_point_time,
                    mech_explicit_window_time, mech_time_faithfulness, mech_since_time,
-                   mech_generic_entity_hole, bind_named_behavior_place):
+                   mech_generic_entity_hole, mech_abstract_rate_hole, bind_named_behavior_place):
             ir = fn(ir, question)
         if json.dumps(ir) != before_post:
             events.append("post_repair:semantic_passes_reapplied")
