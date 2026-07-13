@@ -632,8 +632,11 @@ def mech_series_rank(ir, question):
             osm=list(dict.fromkeys(key for _,_,key in _entity_occurrences(tail,osm_only=True)))
             source=item
             if len(osm)>=2 and re.search(r"\b(?:within|near)\b",tail,re.I):
-                source={"op":"RELATE","relation":"within","threshold_km":_parse_dist_km(tail.lower()),
-                        "left":item,"right":{"op":"SELECT","entity":osm[1],"region":item["region"],"time":None}}
+                source={"op":"RELATE","relation":"within", "left":item,
+                        "right":{"op":"SELECT","entity":osm[1],
+                                 "region":item["region"],"time":None}}
+                threshold = _parse_dist_km(tail.lower())
+                if threshold is not None: source["threshold_km"] = threshold
             metric = "density" if re.search(r"\bdensit(?:y|ies)\b", tail, re.I) else "count"
             item = {"op":"AGGREGATE","by":"space","metric":metric,"source":source}
         items.append(item)
@@ -1578,7 +1581,7 @@ def mech_source_gap_select(ir, question):
 def mech_explicit_change(ir, question):
     """Explicit 'changed ... YEAR ... YEAR' means endpoint difference, not unary trend.
     The two snapshots are fully determined by the question and the parsed SELECT."""
-    explicit_change = re.search(r"\b(?:chang(?:e|ed|ing)|increas\w*|decreas\w*)\b",
+    explicit_change = re.search(r"\b(?:chang(?:e|ed|ing)|increas(?:e|ed)|decreas(?:e|ed))\b",
                                 question.lower())
     endpoint_difference = re.search(
         r"\b(?:19|20)\d{2}\s*(?:(?:-|–|—)\s*|(?:-|–|—)?\s*to\s*(?:-|–|—)?\s*)"
