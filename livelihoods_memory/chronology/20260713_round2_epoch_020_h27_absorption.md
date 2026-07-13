@@ -22,6 +22,8 @@ row-ID patches. Deterministic regressions cover each plan family and late-pass p
   Argentina; Cebu City, Philippines; and train station where the gold previously invented those
   roles. Fix 3 reached strict 98/100 and synthesis 100/100; the two remaining rows showed that exact
   unsupported train-station leaves must be preserved even when no connector resolves them.
+- Fix 4 after literal preservation is ordinary 1.000, strict 100/100, and synthesis 100/100.
+  `questions/round2-h27-dev.json` is therefore admitted to the active historical registry.
 
 H27 also found a scorer-only defect: separator punctuation made `population-density` disagree with
 `population density` despite strict semantic equality. The corrected shared normalization is
@@ -29,6 +31,5 @@ H27 also found a scorer-only defect: separator punctuation made `population-dens
 
 ## Next gate
 
-Run the disclosed bank again after unsupported-literal closure, then add it to the active registry
-and replay the entire historical wall, source census, dialogue suites, corpus, coverage, synthesis,
-and freeze checksum. Only a fresh post-epoch-020 bank may begin the untouched three-bank sequence.
+Replay the entire historical wall, source census, dialogue suites, corpus, coverage, synthesis, and
+freeze checksum. Only a fresh post-epoch-020 bank may begin the untouched three-bank sequence.
