@@ -1,0 +1,911 @@
+{
+  "schema_version": "round2-semantic-audit-v1",
+  "questions": "questions/holdout-018.json",
+  "traces": "runs/epoch012-holdout-018/traces.jsonl",
+  "n": 40,
+  "all_match": false,
+  "counts": {
+    "match": 24,
+    "canonical_ir_mismatch": 16
+  },
+  "rows": [
+    {
+      "id": "h18-001",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-002",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 2,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "guadalajara",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"marketplace\"]",
+              "region": "guadalajara",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"marketplace\"]",
+            "region": "guadalajara",
+            "time": null
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 2.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"craft\"]",
+            "region": "guadalajara",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"marketplace\"]",
+            "region": "guadalajara",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h18-003",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"hospital\"]",
+              "region": "nairobi",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"university\"]",
+              "region": "nairobi",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"marketplace\"]",
+            "region": "nairobi",
+            "time": null
+          }
+        },
+        "layer": "name"
+      },
+      "actual": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"hospital\"]",
+            "region": "nairobi",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"university\"]",
+            "region": "nairobi",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"marketplace\"]",
+          "region": "nairobi",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h18-004",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "lyon",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"university\"]",
+              "region": "lyon",
+              "time": null
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "porto",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"university\"]",
+              "region": "porto",
+              "time": null
+            }
+          }
+        }
+      },
+      "actual": {
+        "op": "RANK",
+        "order": "desc",
+        "k": null,
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "lyon",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "porto",
+              "time": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "h18-005",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-006",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-007",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-008",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+          "region": "nuts2:ITC4",
+          "time": {
+            "end": "2019",
+            "start": "2019"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+          "region": "nuts2:ITC4",
+          "time": {
+            "end": "2012",
+            "start": "2012"
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "time",
+        "metric": "mean",
+        "source": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+          "region": "nuts2:ITC4",
+          "time": {
+            "end": "2012",
+            "start": "2012"
+          }
+        }
+      }
+    },
+    {
+      "id": "h18-009",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-010",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-011",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RANK",
+        "order": "desc",
+        "k": 3,
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:DE30",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ES30",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ES51",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:FR10",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ITC4",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:PL91",
+            "time": null
+          }
+        ]
+      },
+      "actual": {
+        "op": "RANK",
+        "order": "desc",
+        "k": 3,
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:DE30",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ES30",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ES51",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ITC4",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "our six candidate regions ile de",
+            "time": null
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "warsaw capital region",
+            "time": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "h18-012",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-013",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-014",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 2,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"library\"]",
+            "region": "porto",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"hospital\"]",
+            "region": "porto",
+            "time": null
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 2.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"library\"]",
+            "region": "porto",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"hospital\"]",
+            "region": "porto",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h18-015",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-016",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"office\"=\"coworking\"]",
+            "region": "lyon",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"university\"]",
+            "region": "lyon",
+            "time": null
+          }
+        },
+        "layer": "addr street"
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"office\"=\"coworking\"]",
+          "region": "lyon",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h18-017",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-018",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-019",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-020",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": null,
+        "left": {
+          "op": "SELECT",
+          "entity": "osm:[\"office\"=\"coworking\"]",
+          "region": "porto",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"university\"]",
+          "region": "porto",
+          "time": null
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": null,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"office\"=\"coworking\"]",
+            "region": "porto",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"university\"]",
+            "region": "porto",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h18-021",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": null,
+        "left": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"library\"]",
+          "region": "ljubljana slovenia",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"cafe\"]",
+          "region": "ljubljana slovenia",
+          "time": null
+        }
+      },
+      "actual": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": null,
+        "left": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"library\"]",
+          "region": "?",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"cafe\"]",
+          "region": "?",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h18-022",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "distance",
+        "threshold_km": null,
+        "left": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"marketplace\"]",
+          "region": "mysuru",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"bank\"]",
+          "region": "mysuru",
+          "time": null
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"bank\"]",
+          "region": "mysuru",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h18-023",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"university\"]",
+            "region": "auckland",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"library\"]",
+            "region": "auckland",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"community_centre\"]",
+          "region": "auckland",
+          "time": null
+        }
+      },
+      "actual": null
+    },
+    {
+      "id": "h18-024",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-025",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-026",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-029",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-033",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-034",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-035",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-039",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"library\"]",
+          "region": "lyon",
+          "time": null
+        },
+        "target": "?"
+      },
+      "actual": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"library\"]",
+          "region": "lyon",
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "lyon"
+        }
+      }
+    },
+    {
+      "id": "h18-040",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-044",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "ilo:{\"classif1\": \"ECO_SECTOR_TOTAL\", \"code\": \"SDG_0831_SEX_ECO_RT_A\", \"sex\": \"SEX_T\", \"unit\": \"percent\"}",
+          "region": "?",
+          "time": {
+            "end": "?",
+            "start": "?"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "ilo:{\"classif1\": \"ECO_SECTOR_TOTAL\", \"code\": \"SDG_0831_SEX_ECO_RT_A\", \"sex\": \"SEX_T\", \"unit\": \"percent\"}",
+          "region": "?",
+          "time": {
+            "end": "?",
+            "start": "?"
+          }
+        }
+      },
+      "actual": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "literal:informal employment",
+            "region": "?",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "literal:informal employment",
+            "region": "?",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h18-045",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "SELECT",
+        "entity": "literal:informal worker headcount",
+        "region": "ghana",
+        "time": null
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "literal:informal worker",
+          "region": "ghana",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h18-046",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-048",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "SELECT",
+        "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+        "region": "nuts2:ES30",
+        "time": {
+          "end": "?",
+          "start": "?"
+        }
+      },
+      "actual": {
+        "op": "SELECT",
+        "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+        "region": "nuts2:ES30",
+        "time": null
+      }
+    },
+    {
+      "id": "h18-049",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-050",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "SELECT",
+        "entity": "wb:SL.UEM.1524.ZS",
+        "region": "ghana",
+        "time": {
+          "end": "?",
+          "start": "?"
+        }
+      },
+      "actual": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "source": {
+          "op": "SELECT",
+          "entity": "wb:SL.UEM.1524.ZS",
+          "region": "ghana",
+          "time": null
+        },
+        "target": {
+          "op": "SELECT",
+          "entity": "wb:SL.UEM.1524.ZS",
+          "region": "ghana",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h18-051",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h18-052",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    }
+  ]
+}
