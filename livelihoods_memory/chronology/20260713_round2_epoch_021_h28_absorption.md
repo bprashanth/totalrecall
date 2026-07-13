@@ -58,3 +58,16 @@ treated structural completeness as warrant to retain the invented anchor, losing
 hole. Explicit unresolved role language now overrides a composite donor source and rewrites only
 the named anchor slot to `?anchor_amenity`. Three fresh targeted parses are strict-exact and the
 suite remains 168/168. Wall v2 is rejected; v3 must replay all banks.
+
+## Candidate certification
+
+Wall v3 is exact on all 1,479 eligible ordinary and strict rows; synthesis is 1,482/1,482. The
+source census is 14/14, dialogue binding is 5/5 through both model and mechanical paths,
+regressions are 168/168, coverage contains 1,482 rows across 31 runnable banks and 39 skeletons,
+and the corpus contains 1,473 unique parse questions plus five clarifications. All 100 H28 rows are
+present in the active corpus with no immutable-defect leakage.
+
+`coverage/epoch-021-certification.json` records the candidate boundary and both rejected walls.
+It is itself a freeze input, so the certification artifact and registry change must be committed
+before the epoch-021 manifest is generated. A post-commit confirmation wall will then bind the
+exact checksummed content before any new practical-saturation exam is authored.
