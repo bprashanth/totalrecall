@@ -608,3 +608,51 @@ new practical bank. Reports must disclose that hard 3/3 was not run.
 sector corpora and proposals. Hard saturation becomes the default before a second-round LoRA merge,
 deployment-strength claims, or when later cross-sector training changes the parser distribution.
 Governance record: `SAT-004`.
+
+## 2026-07-13 — Full-cardinality RANK is a canonical identity
+
+**Wall finding:** H28 required `RANK(items=5,k=5)` for an explicit “rank all five” surface, while
+an older bank used the same five candidates and complete ordering with `k` absent. The executor
+returns every item in both cases, but ordinary and strict contracts treated them as different.
+
+**Proposed canonical rule:** when `k == len(items)`, normalize `k` to absent for equality, caching,
+and answer contracts. Retain the written `k` in provenance if desired. `k < len(items)` remains
+meaning-bearing; `k > len(items)` should be rejected or normalized only by an explicit schema rule.
+This is the RANK analogue of documented identity coercions and does not add an op.
+
+**Evidence:** epoch-021 wall v1 `h26-081`, H28 full-list ranks, shared ordinary/strict regression.
+Governance record: `ALG-011`.
+
+## 2026-07-13 — Renderer and synthesis audit share one failure-language contract
+
+**Failure that forced it:** the deterministic `source_unavailable` renderer said “temporarily
+unavailable” and “availability gap,” exactly distinguishing outage from absence. Its mechanical
+scorer recognized neither phrase and rejected 30 H28 responses. Thirteen strict-gold parse controls
+proved this was independent of parser correctness, while the stricter audit already accepted the
+same language.
+
+**Proposed implementation requirement:** each typed answer/failure renderer publishes or directly
+shares the predicates used by its mechanical audit. The scorer must test renderer fixtures for
+every reason code; audit vocabularies may widen independently only when they remain consistent with
+the canonical typed distinction. A stock renderer must never fail its own stock audit.
+
+**Evidence:** immutable H28 synthesis triage, repaired `gap_stated` contract, all-row wall.
+Governance record: `BUG-011`.
+
+## 2026-07-13 — Repair passes preserve typed subexpressions and explicit holes
+
+**Failure that forced it:** H28 and the epoch-021 walls showed late deterministic repairs replacing
+valid RELATE/ANNOTATE donor expressions with a convenient SELECT, changing proximity into distance,
+or retaining an invented self-relation because the tree was structurally complete even though the
+question explicitly said “which amenity.” Each tree remained plausible and often executable.
+
+**Proposed implementation requirement:** repair passes declare the slots they may rewrite and must
+not delete an already type-valid child expression without a question-licensed semantic rule.
+Explicit unresolved-role language has precedence over structural completeness and reinstates a
+typed hole in the exact slot. Candidate/operand-local frames are closed before RANK, COMPARE, or
+ESTIMATE wrappers, and post-repair invariants check subtree preservation, role warrant, and
+self-relation invention.
+
+**Evidence:** H28 failure families, epoch-021 wall v1/v2 rejections, 168 deterministic regressions.
+This further supports recursive hole safety in `BUG-004` but adds the compiler-repair preservation
+contract not covered by executor-only hole traversal. Governance record: `BUG-012`.
