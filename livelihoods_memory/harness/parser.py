@@ -2478,8 +2478,9 @@ def mech_closed_spatial_surface(ir, question):
         return reduced(related(subject,anchor,reg,distance=_parse_dist_km(distance)),"density")
 
     # Distance is a binary relation even when phrased as an attachment column.
-    if re.search(r"\bdistance\b",ql) and len(_entity_occurrences(question,osm_only=True))>=2 \
-            and not re.search(r"\b(?:mean|average|rank|order)\b",ql):
+    explicit_distance=bool(re.search(r"\battach\s+.+?\bdistance\b",ql) or
+                           re.match(r"\s*.+?\bdistance\s*,?\s*please\s*,?\s*for each\b",ql))
+    if explicit_distance and len(_entity_occurrences(question,osm_only=True))>=2:
         names=list(dict.fromkeys(k for _,_,k in _entity_occurrences(question,osm_only=True)))
         reg=first.get("region") if first else "?place"
         subject=first.get("entity") if first else names[-1]
@@ -2599,14 +2600,38 @@ def mech_transfer_source_expression(ir, question):
             target={"op":"REGION","place":target_match.group(1).strip(" ,.;:—-")}
     if not target:return ir
 
+    def donor_entity(text):
+        found=_entity_occurrences("a "+text,osm_only=True)
+        return found[-1][2] if found else text.strip(" ,.;:—-")
+    explicit_donor_relation=re.search(
+        r"\busing\s+(.+?)\s+(.+?)\s+within\s+(.+?)\s+of\s+(.+?),\s*"
+        r"(?:interpolat\w*|feature|envelope)",question,re.I)
+    trained_relation=re.search(
+        r"\btrained\s+on\s+(.+?)\s+(.+?)\s+co[- ]located\s+with\s+(.+?)[.?!]*$",
+        question,re.I)
+    if explicit_donor_relation:
+        place,subject,distance,anchor=explicit_donor_relation.groups();reg={"op":"REGION","place":place}
+        source={"op":"RELATE","relation":"within","threshold_km":_parse_dist_km(distance),
+                "left":{"op":"SELECT","entity":donor_entity(subject),"region":reg,"time":None},
+                "right":{"op":"SELECT","entity":donor_entity(anchor),"region":reg,"time":None}}
+        return {"op":"ESTIMATE","source":source,"target":target,"method":method}
+    if trained_relation:
+        place,subject,anchor=trained_relation.groups();reg={"op":"REGION","place":place}
+        source={"op":"RELATE","relation":"cooccur",
+                "left":{"op":"SELECT","entity":donor_entity(subject),"region":reg,"time":None},
+                "right":{"op":"SELECT","entity":donor_entity(anchor),"region":reg,"time":None}}
+        return {"op":"ESTIMATE","source":source,"target":target,"method":method}
+
+    existing=(ir.get("source") if isinstance(ir,dict) and ir.get("op")=="ESTIMATE" else None)
+    composite=bool(isinstance(existing,dict) and existing.get("op") in ("RELATE","ANNOTATE"))
     named=list(dict.fromkeys(k for _,_,k in _entity_occurrences(question,osm_only=True)))
-    source=first
-    if named:
+    source=existing if composite else first
+    if named and not composite:
         source={"op":"SELECT","entity":named[0],"region":donor_region,"time":None}
 
     # A donor relation is a Records expression, not prose that may be discarded before ESTIMATE.
     unresolved_anchor=bool(re.search(r"\bwhich\s+amenity\b",ql))
-    if re.search(r"\b(?:within|beyond|cooccurr?\w*)\b",ql) and \
+    if not composite and re.search(r"\b(?:within|beyond|cooccurr?\w*)\b",ql) and \
             (len(named)>=2 or (len(named)>=1 and unresolved_anchor)):
         relation=("cooccur" if re.search(r"\bcooccurr?\w*\b",ql) else
                   "beyond" if re.search(r"\bbeyond\b",ql) else "within")
@@ -2618,16 +2643,16 @@ def mech_transfer_source_expression(ir, question):
 
     # Annotation layers remain columns on the donor records. A named statistical indicator in
     # this role must not replace the facility SELECT itself.
-    if re.search(r"\bannotat\w*|\bwith which .+? layer\b",ql):
+    if not composite and re.search(r"\bannotat\w*|\bwith which .+? layer\b",ql):
         layer=None
         for phrase in ("electricity access","internet users","mobile subscriptions"):
             if phrase in ql:layer=phrase;break
         if re.search(r"\bwhich\s+(?:livelihood\s+)?layer\b",ql):layer="?layer"
         if layer:source={"op":"ANNOTATE","source":source,"layer":layer}
 
-    if re.search(r"\bsome livelihood facility\b",ql):
+    if not composite and re.search(r"\bsome livelihood facility\b",ql):
         source={"op":"SELECT","entity":"?facility_type","region":donor_region,"time":None}
-    elif re.search(r"\b(?:those|these) records\b",ql):
+    elif not composite and re.search(r"\b(?:those|these) records\b",ql):
         source={"op":"SELECT","entity":"?entity","region":donor_region,"time":None}
     return {"op":"ESTIMATE","source":source,"target":target,"method":method}
 
@@ -2648,7 +2673,8 @@ def mech_output_literal_honesty(ir, question):
     if re.search(r"\bcurrent firm-posted job vacancies\b",ql):
         return {"op":"SELECT","entity":"current firm-posted job vacancies",
                 "region":region,"time":None}
-    unsupported=re.match(r"\s*report\s+(.+?)\s+in\s+(.+?)[.?!]*$",question,re.I)
+    unsupported=re.match(r"\s*report\s+(.+?(?:earnings?|income))\s+in\s+(.+?)[.?!]*$",
+                         question,re.I)
     if unsupported and not _entity_occurrences(unsupported.group(1)):
         return {"op":"SELECT","entity":unsupported.group(1).strip(" ,"),
                 "region":{"op":"REGION","place":unsupported.group(2).strip(" ,")},"time":None}

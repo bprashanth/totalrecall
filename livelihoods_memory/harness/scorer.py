@@ -64,7 +64,10 @@ def _answer_contract(ir):
         if op == "COMPARE":
             contract.append(("compare",node.get("how")))
         elif op == "RANK":
-            contract.append(("rank",node.get("order"),node.get("k"),len(node.get("items",[]))))
+            size=len(node.get("items",[]));k=node.get("k")
+            # Taking all N items is denotationally identical to leaving k open on an N-item rank.
+            if k == size:k=None
+            contract.append(("rank",node.get("order"),k,size))
         elif op == "ANNOTATE":
             # Layer labels are literals. Separator punctuation and underscores do not change
             # their denotation (``population-density`` == ``population density``), matching the

@@ -1560,6 +1560,45 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual(P._parse_dist_km("0.6-kilometre radius"),0.6)
         self.assertEqual(P._parse_dist_km("within two kilometres"),2.0)
 
+    def test_distance_attachment_closure_does_not_override_proximity_meta_language(self):
+        region={"op":"REGION","place":"Austin"}
+        left={"op":"RELATE","relation":"within","threshold_km":1.0,
+              "left":select("bank",region),"right":select("coworking space",region)}
+        right={"op":"RELATE","relation":"within","threshold_km":1.0,
+               "left":select("ATM",region),"right":select("coworking space",region)}
+        compared={"op":"COMPARE","how":"difference","left":left,"right":right}
+        q=("In Austin, are there more banks within 1 kilometer of a coworking space than "
+           "ATMs within the same distance?")
+        self.assertEqual(P.mech_closed_spatial_surface(compared,q),compared)
+
+    def test_transfer_closure_preserves_existing_typed_source_and_literal_donor(self):
+        annotated={"op":"ESTIMATE","method":"envelope","source":{
+            "op":"ANNOTATE","source":select("bank",{"op":"REGION","place":"Dakar"}),
+            "layer":"population density"},"target":{"op":"REGION","place":"Thies"}}
+        self.assertEqual(P.mech_transfer_source_expression(annotated,
+            "Take Dakar's population-density-annotated banks and envelope them onto Thies."),
+            annotated)
+        rebuilt=P.mech_transfer_source_expression(
+            {"op":"ESTIMATE","method":"envelope","source":select("bank"),
+             "target":{"op":"REGION","place":"Mohammedia"}},
+            "Using Casablanca food vendors within 0.6 km of banks, envelope an estimate for Mohammedia.")
+        self.assertEqual((rebuilt["source"]["op"],rebuilt["source"]["left"]["entity"]),
+                         ("RELATE","food vendors"))
+
+    def test_full_rank_k_is_canonical_identity(self):
+        items=[select("bank",{"op":"REGION","place":p}) for p in ("A","B","C")]
+        open_rank={"op":"RANK","items":items,"order":"desc"}
+        full_rank={**open_rank,"k":3}
+        self.assertEqual(S.canonical(open_rank),S.canonical(full_rank))
+        self.assertEqual(SC._answer_contract(open_rank),SC._answer_contract(full_rank))
+
+    def test_literal_honesty_does_not_swallow_explicit_year_into_region(self):
+        ir={"op":"SELECT","entity":"share of home-based women workers",
+            "region":{"op":"REGION","place":"Ghana"},
+            "time":{"start":"2022","end":"2022"}}
+        q="Report the share of home-based women workers in Ghana for 2022."
+        self.assertEqual(P.mech_output_literal_honesty(ir,q),ir)
+
 
 if __name__ == "__main__":
     unittest.main()
