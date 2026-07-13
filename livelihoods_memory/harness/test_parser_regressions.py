@@ -864,6 +864,10 @@ class ParserRegressionTests(unittest.TestCase):
         ratio=P.mech_mixed_source_compare(select("self employment"),
             "2020 — India's self-employment is how many times Kenya's?")
         self.assertEqual((ratio["how"],ratio["right"]["region"]["place"]),("ratio","Kenya"))
+        possessive=P.mech_mixed_source_compare(select("self employment"),
+            "What is Kenya's 2023 self-employment rate divided by France's 2023 informal-employment rate?")
+        self.assertEqual((possessive["left"]["region"]["place"],
+                          possessive["right"]["region"]["place"]),("kenya","france"))
 
     def test_half_kilometre_is_clause_local(self):
         self.assertEqual(P._parse_dist_km("beyond half a kilometre"),0.5)
@@ -898,6 +902,84 @@ class ParserRegressionTests(unittest.TestCase):
         all_years=P.mech_prefixed_statistic(select("internet users"),
             "Vietnam — over all the years you've got, are internet users trending up?")
         self.assertEqual((all_years["op"],all_years["left"]["time"]),("COMPARE",None))
+
+    def test_prefixed_statistics_refuse_discourse_preambles(self):
+        seed={"op":"COMPARE","how":"trend_direction","left":select(
+            "self employment",{"op":"REGION","place":"Kenya"})}
+        got=P.mech_prefixed_statistic(seed,
+            "I'm a freelance consultant — is self-employment on the rise in Kenya?")
+        self.assertIs(got,seed)
+        change=P.mech_prefixed_statistic(select("employment rate"),
+            "Analyst note: Lombardy employment rate — give me the 2012-to-2019 difference.")
+        self.assertEqual((change["op"],change["left"]["region"]["place"]),
+                         ("COMPARE","lombardy"))
+
+    def test_late_source_gap_never_erases_complete_compositions(self):
+        region={"op":"REGION","place":"Dakar"}
+        inner={"op":"RELATE","relation":"within","threshold_km":1.5,
+               "left":select("coworking space",region),"right":select("bank",region)}
+        tree={"op":"RELATE","relation":"beyond","threshold_km":0.3,
+              "left":inner,"right":select("marketplace",region)}
+        got=P.mech_source_gap_select(tree,
+            "Which coworking spaces in Dakar are within 1.5 km of a bank but beyond 300 m from a marketplace?")
+        self.assertIs(got,tree)
+        gap={"op":"COMPARE","how":"difference","left":select("self employment"),
+             "right":select("informal employment rate")}
+        self.assertIs(P.mech_source_gap_select(gap,
+            "What was the numerical percentage-point gap between self employment in France and informal employment rate in France in 2022?"),gap)
+        self.assertIs(P.mech_source_gap_select(tree,
+            "In Porto, which marketplaces are within 1 km of a bank but not within 500m of a craft workshop?"),tree)
+
+    def test_unique_named_statistic_repairs_wrong_leaf_family(self):
+        region={"op":"REGION","place":"Spain"}
+        seed={"op":"RANK","order":"desc","items":[select(
+            "labor force participation",region) for _ in range(3)]}
+        got=P.bind_named_indicator(seed,
+            "Rank France, Germany, and Spain by labour-underutilization rate in 2023.")
+        self.assertTrue(all(item["entity"]=="labour underutilization rate"
+                            for item in got["items"]))
+        faceted={"op":"COMPARE","how":"ratio",
+                 "left":select("female employment rate",region),
+                 "right":select("male employment rate",region)}
+        kept=P.bind_named_indicator(faceted,
+            "What was the female-to-male employment-rate ratio in Madrid region in 2024?")
+        self.assertEqual((kept["left"]["entity"],kept["right"]["entity"]),
+                         ("female employment rate","male employment rate"))
+        regional={"op":"COMPARE","how":"trend_direction","left":select(
+            "unemployment rate",{"op":"REGION","place":"Madrid region"})}
+        regional=P.bind_named_indicator(regional,
+            "Madrid region — over 2022 to 2024, which way is unemployment heading?")
+        self.assertEqual(regional["left"]["entity"],"unemployment rate")
+
+    def test_restrictive_anchor_is_preserved_and_deictic_suffix_is_not_entity(self):
+        region={"op":"REGION","place":"Kampala"}
+        seed={"op":"RELATE","relation":"within","left":select("ATM",region),
+              "right":select("marketplace",region),"threshold_km":1.0}
+        got=P.mech_source_gap_select(seed,
+            "I need cash — which ATMs are within a kilometer of the main marketplace?")
+        self.assertEqual(got["right"]["entity"],"main marketplace")
+        there={"op":"RELATE","relation":"within","left":select("craft workshop","?place"),
+               "right":select("marketplace","?place"),"threshold_km":1.0}
+        self.assertIs(P.mech_source_gap_select(there,
+            "Which craft workshops are within 1 km of a market there?"),there)
+        deictic={"op":"RELATE","relation":"within","left":select("coworking space",region),
+                 "right":select("market by me",region),"threshold_km":1.0}
+        bound=P.mech_deictic_roles(deictic,
+            "In Accra, list coworking spaces within 1 km of the market by me.")
+        self.assertEqual((bound["right"]["entity"],bound["right"]["region"]["place"]),
+                         ("marketplace","?anchor_place"))
+
+    def test_nearest_possessive_anchor_is_not_part_of_entity(self):
+        region={"op":"REGION","place":"Bengaluru"}
+        got=P.mech_nearest_distance(select("craft workshop",region),
+            "What is the mean distance from Bengaluru craft workshops to their nearest markets?")
+        self.assertEqual(C.osm_resolve_tag(got["right"]["entity"])[0],
+                         C.osm_resolve_tag("marketplace")[0])
+
+    def test_reviewed_share_aliases_are_bounded(self):
+        self.assertEqual(C.wb_resolve_indicator(
+            "wage and salaried workers as a share of employment")[0],"SL.EMP.WORK.ZS")
+        self.assertIsNone(C.wb_resolve_indicator("trade training opportunity")[0])
 
 
 if __name__ == "__main__":

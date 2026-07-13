@@ -275,6 +275,8 @@ WB_INDICATORS = {
     "youth unemployment": "SL.UEM.1524.ZS",
     "wage and salaried workers": "SL.EMP.WORK.ZS", "wage and salaried": "SL.EMP.WORK.ZS",
     "salaried workers": "SL.EMP.WORK.ZS",
+    "wage and salaried workers share": "SL.EMP.WORK.ZS",
+    "wage and salaried workers as a share of employment": "SL.EMP.WORK.ZS",
     "employment in services": "SL.SRV.EMPL.ZS", "service employment": "SL.SRV.EMPL.ZS",
     "employment in agriculture": "SL.AGR.EMPL.ZS", "agricultural employment": "SL.AGR.EMPL.ZS",
     # Verified through the World Bank v2 API for Brazil, India, and Kenya (40/8/8 rows).
