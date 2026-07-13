@@ -15,7 +15,8 @@ cp "$HERE"/kit/algebra/*.md "$DEST/algebra/"
 cp "$HERE"/kit/PROMPT.md "$DEST/PROMPT.md"
 cp "$HERE"/kit/AGENTS.md "$DEST/AGENTS.md"
 cp "$HERE"/kit/SATURATION.md "$DEST/SATURATION.md"
-cp "$HERE"/governance/framework-manifest.json "$DEST/framework-lock.json"
+python3 -c "import json,sys; d=json.load(open(sys.argv[1])); d['saturation_tier']='none'; json.dump(d,open(sys.argv[2],'w'),indent=2)" \
+  "$HERE/governance/framework-manifest.json" "$DEST/framework-lock.json"
 cat > "$DEST/sector.json" <<EOF
 { "sector": "$SECTOR", "created": "$(date -Iseconds)", "spec_version": "$SPEC_VERSION",
   "parser_under_test": "qwen2b", "reference_run": "heartwood/docs/architecture/memory/benchmarks" }
