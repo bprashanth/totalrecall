@@ -50,3 +50,8 @@ artifact and its freeze-registry entry alter checksummed state, so a complete po
 required before the epoch-022 manifest is generated. A further post-freeze wall must then confirm
 the exact checksummed artifact. Neither wall can advance saturation; both are disclosed boundary
 evidence.
+
+Post-artifact wall v3 repeats the exact candidate result: eligible ordinary and strict are each
+1,573/1,573 and synthesis is 1,576/1,576. The certification artifact is now part of the tested
+freeze input set. Epoch 022 is ready for checksum generation, but the manifest itself still needs
+an independent hash verification and a complete post-freeze confirmation wall.
