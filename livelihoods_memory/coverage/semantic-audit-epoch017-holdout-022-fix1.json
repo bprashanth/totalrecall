@@ -1,0 +1,608 @@
+{
+  "schema_version": "round2-semantic-audit-v1",
+  "questions": "questions/holdout-022.json",
+  "traces": "runs/epoch017-holdout-022-fix1/traces.jsonl",
+  "n": 40,
+  "all_match": false,
+  "counts": {
+    "match": 35,
+    "canonical_ir_mismatch": 5
+  },
+  "rows": [
+    {
+      "id": "h22-001",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-004",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-007",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-008",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-009",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-010",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RANK",
+        "order": "asc",
+        "k": 2,
+        "items": [
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "RELATE",
+              "relation": "within",
+              "threshold_km": 1,
+              "left": {
+                "op": "SELECT",
+                "entity": "osm:[\"craft\"]",
+                "region": "accra",
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "osm:[\"amenity\"=\"marketplace\"]",
+                "region": "accra",
+                "time": null
+              }
+            },
+            "right": {
+              "op": "RELATE",
+              "relation": "within",
+              "threshold_km": 1,
+              "left": {
+                "op": "SELECT",
+                "entity": "osm:[\"craft\"]",
+                "region": "accra",
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "osm:[\"amenity\"=\"bank\"]",
+                "region": "accra",
+                "time": null
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "RELATE",
+              "relation": "within",
+              "threshold_km": 1,
+              "left": {
+                "op": "SELECT",
+                "entity": "osm:[\"craft\"]",
+                "region": "bengaluru",
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "osm:[\"amenity\"=\"marketplace\"]",
+                "region": "bengaluru",
+                "time": null
+              }
+            },
+            "right": {
+              "op": "RELATE",
+              "relation": "within",
+              "threshold_km": 1,
+              "left": {
+                "op": "SELECT",
+                "entity": "osm:[\"craft\"]",
+                "region": "bengaluru",
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "osm:[\"amenity\"=\"bank\"]",
+                "region": "bengaluru",
+                "time": null
+              }
+            }
+          },
+          {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "RELATE",
+              "relation": "within",
+              "threshold_km": 1,
+              "left": {
+                "op": "SELECT",
+                "entity": "osm:[\"craft\"]",
+                "region": "nairobi",
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "osm:[\"amenity\"=\"marketplace\"]",
+                "region": "nairobi",
+                "time": null
+              }
+            },
+            "right": {
+              "op": "RELATE",
+              "relation": "within",
+              "threshold_km": 1,
+              "left": {
+                "op": "SELECT",
+                "entity": "osm:[\"craft\"]",
+                "region": "nairobi",
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "osm:[\"amenity\"=\"bank\"]",
+                "region": "nairobi",
+                "time": null
+              }
+            }
+          }
+        ]
+      },
+      "actual": {
+        "op": "RANK",
+        "order": "asc",
+        "k": 2,
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"bank\"]",
+              "region": "accra",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"bank\"]",
+              "region": "bengaluru",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"bank\"]",
+              "region": "nairobi",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "accra",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "bengaluru",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "nairobi",
+              "time": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "h22-011",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-012",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-013",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-016",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-021",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-022",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-023",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"F\", \"unit\": \"PC\"}",
+          "region": "nuts2:DE30",
+          "time": {
+            "end": "2023",
+            "start": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "ilo:{\"classif1\": \"ECO_SECTOR_TOTAL\", \"code\": \"SDG_0831_SEX_ECO_RT_A\", \"sex\": \"SEX_F\", \"unit\": \"percent\"}",
+          "region": "germany",
+          "time": {
+            "end": "2023",
+            "start": "2023"
+          }
+        }
+      },
+      "actual": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "ilo:{\"classif1\": \"ECO_SECTOR_TOTAL\", \"code\": \"SDG_0831_SEX_ECO_RT_A\", \"sex\": \"SEX_F\", \"unit\": \"percent\"}",
+          "region": "berlin",
+          "time": {
+            "end": "2023",
+            "start": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "ilo:{\"classif1\": \"ECO_SECTOR_TOTAL\", \"code\": \"SDG_0831_SEX_ECO_RT_A\", \"sex\": \"SEX_F\", \"unit\": \"percent\"}",
+          "region": "germany",
+          "time": {
+            "end": "2023",
+            "start": "2023"
+          }
+        }
+      }
+    },
+    {
+      "id": "h22-024",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "ilo:{\"classif1\": \"ECO_SECTOR_TOTAL\", \"code\": \"SDG_0831_SEX_ECO_RT_A\", \"sex\": \"SEX_F\", \"unit\": \"percent\"}",
+          "region": "germany",
+          "time": {
+            "end": "2023",
+            "start": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"F\", \"unit\": \"PC\"}",
+          "region": "nuts2:DE30",
+          "time": {
+            "end": "2023",
+            "start": "2023"
+          }
+        }
+      },
+      "actual": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "ilo:{\"classif1\": \"ECO_SECTOR_TOTAL\", \"code\": \"SDG_0831_SEX_ECO_RT_A\", \"sex\": \"SEX_F\", \"unit\": \"percent\"}",
+          "region": "germany",
+          "time": {
+            "end": "2023",
+            "start": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "ilo:{\"classif1\": \"ECO_SECTOR_TOTAL\", \"code\": \"SDG_0831_SEX_ECO_RT_A\", \"sex\": \"SEX_F\", \"unit\": \"percent\"}",
+          "region": "berlin",
+          "time": {
+            "end": "2023",
+            "start": "2023"
+          }
+        }
+      }
+    },
+    {
+      "id": "h22-027",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-028",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-031",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-032",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-039",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-040",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-041",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-043",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-045",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-047",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"craft\"]",
+          "region": "bengaluru",
+          "time": null
+        },
+        "layer": "name"
+      },
+      "actual": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"craft\"]",
+          "region": "bengaluru",
+          "time": null
+        },
+        "layer": "source name"
+      }
+    },
+    {
+      "id": "h22-051",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-052",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-054",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-055",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-063",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-065",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-066",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-068",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-069",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-073",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-074",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"F\", \"unit\": \"PC\"}",
+          "region": "nuts2:DE30",
+          "time": {
+            "end": "2024",
+            "start": "2022"
+          }
+        }
+      },
+      "actual": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"F\", \"unit\": \"PC\"}",
+          "region": "nuts2:DE30",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h22-076",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-077",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-078",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-079",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h22-080",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    }
+  ]
+}

@@ -444,3 +444,22 @@ Judge decision: the v1 and v2 wall attempts do not count. V1 revealed H19's late
 source-truncation expectation defect after geocoder correction. V2 revealed a late source-gap pass
 overwriting correct arithmetic. Each change reset the wall and forced all banks to rerun. Epoch 016
 starts with saturation counter zero; only post-freeze H22+ contacts may increment it.
+
+## 2026-07-13 — H22 rejects epoch 016 and exposes execution-grounding defects [PARSER/HARNESS/SCORING]
+
+H22 first contact was ordinary 0.924 but strict 17/40. Independent adjudication found genuine
+compiler divergence in all 23 mismatches, grouped into five families: computed-rank planning and
+cardinality, operand-local spatial arithmetic, answer-head preservation, exact lexical/time source
+semantics, and transfer donor composition. Four rows also have unsafe wording/spec ambiguity and
+are registered as immutable defects rather than tuning targets (`h22-010`, `023`, `024`, `047`).
+
+Direct gold execution found four harness defects: spatial mean returned row count, all-null
+ANNOTATE appeared grounded, a REGION-wrapped ESTIMATE target hole reached geocoding, and a
+one-point trend returned a null Answer. These now fail closed or compute the declared distance
+mean. BUG-004 and EXEC-001 record the framework-level recursive-slot and typed-value contracts;
+SRC-002 and SCR-001 receive further empirical support.
+
+Fix2 is strict 36/36 on eligible H22 rows, with only the four registered defects mismatching the
+immutable bank; 104 deterministic guards pass. This disclosed replay cannot count as saturation.
+H23/H24 were authored against the now-retired epoch and are therefore development pressure only.
+Full rationale: `chronology/20260713_round2_epoch_017_h22_absorption.md`.

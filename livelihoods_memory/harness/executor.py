@@ -133,6 +133,10 @@ def _ev(node, prov, region_ctx):
         prov.append({"op": "ANNOTATE", "layer": node["layer"],
                      "note": (f"annotated {len(src.get('rows',[]))} rows from existing record "
                               f"attributes with {node['layer']}; {nonnull} non-null")})
+        if src.get("rows") and nonnull == 0:
+            raise DataRequest("annotation_unavailable",
+                              {"layer": node["layer"],
+                               "hint": "the requested field is absent from every source record"})
         return src
 
     if op == "RELATE":
@@ -314,6 +318,18 @@ def _aggregate(src, by, metric, region=None):
         return {"kind": "scalar", "value": value,
                 "note": (f"density={value:.6g} records/km^2 from {len(rows)} records over "
                          f"{area_km2:.3f} km^2 bbox (bbox-area approximation)")}
+    if metric == "mean":
+        # RELATE(distance) declares its measured column as dist_km.  Do not average arbitrary
+        # numeric record fields (ids/coordinates are numeric too), and never fall through to a
+        # row count: that silently answered "mean distance" with N in H22.
+        values = [r.get("dist_km") for r in rows if isinstance(r.get("dist_km"), (int, float))]
+        if not values:
+            raise DataRequest("mean_value_missing",
+                              {"field": "dist_km",
+                               "hint": "spatial mean requires a numeric distance relation"})
+        value = statistics.mean(values)
+        return {"kind": "scalar", "value": value,
+                "note": f"mean dist_km={value:.6g} from {len(values)} records"}
     return {"kind": "scalar", "value": len(rows), "note": f"n={len(rows)}"}
 
 
@@ -321,7 +337,9 @@ def _compare(left, right, how):
     if how == "trend_direction":
         rows = left.get("rows", [])
         if len(rows) < 2:
-            return {"kind": "scalar", "value": None, "note": "insufficient points for trend"}
+            raise DataRequest("insufficient_series",
+                              {"points": len(rows),
+                               "hint": "trend direction requires at least two observations"})
         xs = list(range(len(rows)))
         ys = [r["value"] for r in rows]
         # simple least-squares slope sign
