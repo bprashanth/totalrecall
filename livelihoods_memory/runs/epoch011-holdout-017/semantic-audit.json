@@ -1,0 +1,1057 @@
+{
+  "schema_version": "round2-semantic-audit-v1",
+  "questions": "questions/holdout-017.json",
+  "traces": "runs/epoch011-holdout-017/traces.jsonl",
+  "n": 40,
+  "all_match": false,
+  "counts": {
+    "canonical_ir_mismatch": 17,
+    "match": 23
+  },
+  "rows": [
+    {
+      "id": "h17-001",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.4,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "nairobi",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"highway\"=\"bus_stop\"]",
+              "region": "nairobi",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "nairobi",
+            "time": null
+          }
+        },
+        "layer": "name"
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"office\"=\"coworking\"]",
+            "region": "nairobi",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"highway\"=\"bus_stop\"]",
+            "region": "nairobi",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h17-002",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.3,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.8,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "cape town",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"marketplace\"]",
+              "region": "cape town",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bus_station\"]",
+            "region": "cape town",
+            "time": null
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.8,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.8,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "cape town",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"marketplace\"]",
+              "region": "cape town",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bus_station\"]",
+            "region": "cape town",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h17-003",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.2,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.6,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "porto",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"leisure\"=\"park\"]",
+              "region": "porto",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"cafe\"]",
+            "region": "porto",
+            "time": null
+          }
+        }
+      },
+      "actual": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 0.6,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.6,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"office\"=\"coworking\"]",
+            "region": "porto",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"leisure\"=\"park\"]",
+            "region": "porto",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"amenity\"=\"cafe\"]",
+          "region": "porto",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h17-005",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-006",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.4,
+          "left": {
+            "op": "RELATE",
+            "relation": "beyond",
+            "threshold_km": 0.9,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"library\"]",
+              "region": "lyon",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"university\"]",
+              "region": "lyon",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"cafe\"]",
+            "region": "lyon",
+            "time": null
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.9,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"library\"]",
+            "region": "lyon",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"university\"]",
+            "region": "lyon",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h17-008",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "cape town",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"highway\"=\"bus_stop\"]",
+              "region": "cape town",
+              "time": null
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "beyond",
+            "threshold_km": 1.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "cape town",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"highway\"=\"bus_stop\"]",
+              "region": "cape town",
+              "time": null
+            }
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"office\"=\"coworking\"]",
+          "region": "cape town",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h17-009",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-010",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RANK",
+        "order": "desc",
+        "k": 2,
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "cape town",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "nairobi",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "porto",
+              "time": null
+            }
+          }
+        ]
+      },
+      "actual": {
+        "op": "RANK",
+        "order": "desc",
+        "k": null,
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "cape town",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "nairobi",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "porto",
+              "time": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "h17-012",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.3,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.5,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"drinking_water\"]",
+              "region": "accra",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"amenity\"=\"marketplace\"]",
+              "region": "accra",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"highway\"=\"bus_stop\"]",
+            "region": "accra",
+            "time": null
+          }
+        },
+        "layer": "name"
+      },
+      "actual": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 0.3,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"drinking_water\"]",
+            "region": "accra",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"marketplace\"]",
+            "region": "accra",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "osm:[\"highway\"=\"bus_stop\"]",
+          "region": "accra",
+          "time": null
+        }
+      }
+    },
+    {
+      "id": "h17-013",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.2,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 0.6,
+            "left": {
+              "op": "SELECT",
+              "entity": "osm:[\"craft\"]",
+              "region": "bengaluru",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "osm:[\"office\"=\"coworking\"]",
+              "region": "bengaluru",
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"amenity\"=\"bank\"]",
+            "region": "bengaluru",
+            "time": null
+          }
+        }
+      },
+      "actual": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.6,
+          "left": {
+            "op": "SELECT",
+            "entity": "osm:[\"craft\"]",
+            "region": "bengaluru",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "osm:[\"office\"=\"coworking\"]",
+            "region": "bengaluru",
+            "time": null
+          }
+        }
+      }
+    },
+    {
+      "id": "h17-015",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-016",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-017",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-018",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-019",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "wb:SL.EMP.SELF.ZS",
+          "region": "bangladesh",
+          "time": {
+            "end": "2020",
+            "start": "2020"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "wb:SL.EMP.SELF.ZS",
+          "region": "india",
+          "time": {
+            "end": "2020",
+            "start": "2020"
+          }
+        }
+      },
+      "actual": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "wb:SL.EMP.SELF.ZS",
+          "region": "bangladesh",
+          "time": {
+            "end": "2020",
+            "start": "2020"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "wb:SL.EMP.SELF.ZS",
+          "region": "bangladesh",
+          "time": {
+            "end": "2020",
+            "start": "2020"
+          }
+        }
+      }
+    },
+    {
+      "id": "h17-020",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-021",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-022",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-024",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-025",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-026",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-027",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RANK",
+        "order": "asc",
+        "k": null,
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:DE30",
+            "time": {
+              "end": "2021",
+              "start": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ES30",
+            "time": {
+              "end": "2021",
+              "start": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:FR10",
+            "time": {
+              "end": "2021",
+              "start": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ITC4",
+            "time": {
+              "end": "2021",
+              "start": "2021"
+            }
+          }
+        ]
+      },
+      "actual": {
+        "op": "REGION",
+        "place": "berlin"
+      }
+    },
+    {
+      "id": "h17-028",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-029",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"M\", \"unit\": \"PC\"}",
+          "region": "nuts2:DE30",
+          "time": {
+            "end": "2022",
+            "start": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"F\", \"unit\": \"PC\"}",
+          "region": "nuts2:DE30",
+          "time": {
+            "end": "2022",
+            "start": "2022"
+          }
+        }
+      },
+      "actual": {
+        "op": "SELECT",
+        "entity": "euro:{\"age\": \"Y20-64\", \"dataset\": \"lfst_r_lfe2emprt\", \"measure\": \"percent\", \"sex\": \"M\", \"unit\": \"PC\"}",
+        "region": "nuts2:DE30",
+        "time": {
+          "end": "2022",
+          "start": "2022"
+        }
+      }
+    },
+    {
+      "id": "h17-030",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RANK",
+        "order": "desc",
+        "k": 2,
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y15-74\", \"dataset\": \"lfst_r_lfu3rt\", \"isced11\": \"TOTAL\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ES51",
+            "time": {
+              "end": "2022",
+              "start": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y15-74\", \"dataset\": \"lfst_r_lfu3rt\", \"isced11\": \"TOTAL\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:FR10",
+            "time": {
+              "end": "2022",
+              "start": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y15-74\", \"dataset\": \"lfst_r_lfu3rt\", \"isced11\": \"TOTAL\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:PL91",
+            "time": {
+              "end": "2022",
+              "start": "2022"
+            }
+          }
+        ]
+      },
+      "actual": {
+        "op": "RANK",
+        "order": "desc",
+        "k": null,
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y15-74\", \"dataset\": \"lfst_r_lfu3rt\", \"isced11\": \"TOTAL\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:ES51",
+            "time": {
+              "end": "2022",
+              "start": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y15-74\", \"dataset\": \"lfst_r_lfu3rt\", \"isced11\": \"TOTAL\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:FR10",
+            "time": {
+              "end": "2022",
+              "start": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "euro:{\"age\": \"Y15-74\", \"dataset\": \"lfst_r_lfu3rt\", \"isced11\": \"TOTAL\", \"measure\": \"percent\", \"sex\": \"T\", \"unit\": \"PC\"}",
+            "region": "nuts2:PL91",
+            "time": {
+              "end": "2022",
+              "start": "2022"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "h17-033",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"office\"=\"coworking\"]",
+          "region": "porto",
+          "time": null
+        },
+        "layer": "name"
+      },
+      "actual": {
+        "op": "SELECT",
+        "entity": "osm:[\"office\"=\"coworking\"]",
+        "region": "porto",
+        "time": null
+      }
+    },
+    {
+      "id": "h17-036",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-037",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-038",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-039",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-040",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-041",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-042",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-043",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-044",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"office\"=\"coworking\"]",
+          "region": "porto",
+          "time": null
+        },
+        "target": "?"
+      },
+      "actual": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "source": {
+          "op": "SELECT",
+          "entity": "osm:[\"office\"=\"coworking\"]",
+          "region": "porto",
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "porto"
+        }
+      }
+    },
+    {
+      "id": "h17-045",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    },
+    {
+      "id": "h17-046",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "SELECT",
+        "entity": "?",
+        "region": "accra",
+        "time": null
+      },
+      "actual": {
+        "op": "REGION",
+        "place": "accra"
+      }
+    },
+    {
+      "id": "h17-047",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "?",
+          "region": "india",
+          "time": {
+            "end": "2020",
+            "start": "2020"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "?",
+          "region": "kenya",
+          "time": {
+            "end": "2020",
+            "start": "2020"
+          }
+        }
+      },
+      "actual": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "wb:NY.GDP.MKTP.CD",
+          "region": "india",
+          "time": {
+            "end": "2020",
+            "start": "2020"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "wb:NY.GDP.MKTP.CD",
+          "region": "kenya",
+          "time": {
+            "end": "2020",
+            "start": "2020"
+          }
+        }
+      }
+    },
+    {
+      "id": "h17-049",
+      "match": false,
+      "reason": "canonical_ir_mismatch",
+      "expected": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": null,
+        "left": {
+          "op": "SELECT",
+          "entity": "osm:[\"shop\"]",
+          "region": "curitiba",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "?",
+          "region": "curitiba",
+          "time": null
+        }
+      },
+      "actual": {
+        "op": "SELECT",
+        "entity": "osm:[\"shop\"]",
+        "region": "curitiba",
+        "time": null
+      }
+    },
+    {
+      "id": "h17-050",
+      "match": true,
+      "reason": null,
+      "expected": null,
+      "actual": null
+    }
+  ]
+}
