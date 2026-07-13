@@ -26,11 +26,13 @@ BANKS = [
     "questions/round2-h11-dev.json", "questions/round2-h12-dev.json",
     "questions/round2-h13-dev.json", "questions/round2-h14-dev.json",
     "questions/round2-h15-dev.json", "questions/round2-h16-dev.json",
-    "questions/round2-h17-dev.json",
+    "questions/round2-h17-dev.json", "questions/round2-h18-dev.json",
     "questions/round2-breakers.json",
 ]
 EVIDENCE = ["coverage/matrix.json", "coverage/source-census.json",
-            "coverage/epoch-011-certification.json", "coverage/epoch-012-certification.json"]
+            "coverage/gold-defects.json",
+            "coverage/epoch-011-certification.json", "coverage/epoch-012-certification.json",
+            "coverage/epoch-013-certification.json"]
 
 
 def digest(path):

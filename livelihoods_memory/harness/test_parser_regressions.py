@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 
 import parser as P
+import semantic_audit as S
 
 
 def select(entity, region="?place"):
@@ -144,6 +145,129 @@ class ParserRegressionTests(unittest.TestCase):
         got = P.mech_transfer_contract(seed, question)
         self.assertEqual(got["source"]["region"]["place"], "Accra, Ghana")
         self.assertEqual(got["target"], "?place")
+    def test_same_anchor_annulus_preserves_both_bounds(self):
+        q=("Count craft workshops within 2 km of a marketplace yet still more than "
+           "500 m from the nearest one.")
+        region={"op":"REGION","place":"Guadalajara, Mexico"}
+        seed={"op":"AGGREGATE","by":"space","metric":"count","source":
+              {"op":"RELATE","relation":"within","threshold_km":2,
+               "left":select("craft workshop",region),"right":select("marketplace",region)}}
+        got=P.mech_annulus_relation(seed,q)
+        self.assertEqual((got["source"]["relation"],got["source"]["threshold_km"]),("beyond",0.5))
+        self.assertEqual((got["source"]["left"]["relation"],got["source"]["left"]["threshold_km"]),("within",2.0))
+
+    def test_final_name_request_overrides_initial_existential(self):
+        q=("Are there hospitals within 1 km of both a university and a marketplace? "
+           "If any turn up, I want them listed by name.")
+        region={"op":"REGION","place":"Nairobi, Kenya"}
+        got=P.mech_both_relations(select("hospital",region),q)
+        self.assertEqual((got["op"],got["layer"],got["source"]["op"]),("ANNOTATE","name","RELATE"))
+
+    def test_multipart_two_city_request_is_not_rewritten_to_half_answer(self):
+        q=("In each city, how many coworking spaces are within 1 km of a university, "
+           "and what is the gap?")
+        seed={"op":"RANK","order":"desc","items":[
+            {"op":"AGGREGATE","by":"space","metric":"count","source":select("coworking space",{"op":"REGION","place":"Lyon"})},
+            {"op":"AGGREGATE","by":"space","metric":"count","source":select("coworking space",{"op":"REGION","place":"Porto"})}]}
+        self.assertEqual(P.mech_answer_form(seed,q),seed)
+
+    def test_year_to_year_difference_builds_two_snapshots(self):
+        q="Lombardy employment rate — give me the 2012-to-2019 difference."
+        seed={"op":"AGGREGATE","by":"time","metric":"mean","source":
+              select("employment rate",{"op":"REGION","place":"Lombardy"})}
+        got=P.mech_explicit_change(seed,q)
+        self.assertEqual((got["left"]["time"]["start"],got["right"]["time"]["start"]),("2019","2012"))
+
+    def test_rank_candidate_region_preamble_is_not_a_place(self):
+        q=("Rank our six candidate regions — Île-de-France, Berlin, Comunidad de Madrid, "
+           "Catalonia, Lombardy, and the Warsaw capital region — by employment rate; top three.")
+        got=P.mech_series_rank(select("employment rate"),q)
+        places=[item["region"]["place"] for item in got["items"]]
+        self.assertEqual(places[0],"ile de france")
+        self.assertEqual(places[-1],"warsaw capital region")
+
+    def test_affirmative_within_flips_single_beyond_parse(self):
+        q="Is there even a single library within 2 km of a hospital in Porto?"
+        region={"op":"REGION","place":"Porto"}
+        seed={"op":"RELATE","relation":"beyond","threshold_km":2,
+              "left":select("library",region),"right":select("hospital",region)}
+        self.assertTrue(P.semantic_lints(seed,q))
+        self.assertEqual(P.mech_add_relate(seed,q)["relation"],"within")
+
+    def test_explicit_tag_field_survives_relation_wrap(self):
+        q=("Take the coworking spaces within 1 km of a university and tag each one with "
+           "its street address (the addr:street field).")
+        region={"op":"REGION","place":"Lyon"}
+        annotated=P.mech_dormant_ops(select("coworking space",region),q)
+        got=P.mech_add_relate(annotated,q)
+        self.assertEqual((got["op"],got["layer"],got["source"]["op"]),("ANNOTATE","addr:street","RELATE"))
+        self.assertEqual(P.mech_dormant_ops(got,q),got)
+
+    def test_just_the_ones_overrides_any_presence(self):
+        q="Any coworking spots near a university? Just the ones clearly close."
+        region={"op":"REGION","place":"Porto"}
+        rel={"op":"RELATE","relation":"within","left":select("coworking space",region),
+             "right":select("university",region)}
+        seed={"op":"AGGREGATE","by":"space","metric":"presence","source":rel}
+        self.assertEqual(P.mech_answer_form(seed,q),rel)
+
+    def test_explicit_yes_no_keeps_presence(self):
+        q="Any coworking spots near a university? A yes/no is fine; just the ones is not needed."
+        region={"op":"REGION","place":"Porto"}
+        rel={"op":"RELATE","relation":"within","left":select("coworking space",region),
+             "right":select("university",region)}
+        seed={"op":"AGGREGATE","by":"space","metric":"presence","source":rel}
+        self.assertEqual(P.mech_answer_form(seed,q),seed)
+
+    def test_place_heading_binds_relation_holes(self):
+        q="Ljubljana — show me the libraries that have no cafe nearby."
+        seed={"op":"RELATE","relation":"beyond","left":select("library"),"right":select("cafe")}
+        got=P.bind_prefixed_region(seed,q)
+        self.assertEqual(got["left"]["region"]["place"],"Ljubljana")
+        self.assertEqual(got["right"]["region"]["place"],"Ljubljana")
+
+    def test_canonical_region_drops_supported_country_qualifier(self):
+        self.assertEqual(S.region_key({"op":"REGION","place":"Ljubljana, Slovenia"}),
+                         S.region_key({"op":"REGION","place":"Ljubljana"}))
+
+    def test_nearest_distance_preserves_left_output_entity(self):
+        q="For each marketplace, how far is the nearest bank?"
+        region={"op":"REGION","place":"Mysuru"}
+        got=P.mech_nearest_distance(select("bank",region),q)
+        self.assertEqual((got["relation"],got["left"]["entity"],got["right"]["entity"]),
+                         ("distance","marketplace","bank"))
+
+    def test_both_relation_can_recover_from_null_model_tree(self):
+        q=("Auckland: are there universities within 1 km of both a library and a community centre? "
+           "I want the list.")
+        got=P.mech_both_relations(None,q)
+        self.assertEqual(got["op"],"RELATE")
+        self.assertEqual(got["left"]["left"]["region"]["place"],"Auckland")
+
+    def test_over_there_transfer_target_remains_a_hole(self):
+        q="Use Lyon's libraries as the donor and transfer that pattern over there."
+        region={"op":"REGION","place":"Lyon"}
+        seed={"op":"ESTIMATE","method":"envelope","source":select("library",region),"target":region}
+        self.assertEqual(P.mech_transfer_contract(seed,q)["target"],"?place")
+
+    def test_explicit_unsupported_headcount_is_literal_not_record_count(self):
+        q=("For Ghana I need the actual headcount of informal-sector workers — the number "
+           "of people, not the percentage rate.")
+        seed={"op":"AGGREGATE","by":"space","metric":"count","source":
+              select("informal worker",{"op":"REGION","place":"Ghana"})}
+        got=P.mech_source_gap_select(seed,q)
+        self.assertEqual((got["op"],got["entity"],got["region"]["place"]),
+                         ("SELECT","informal worker headcount","Ghana"))
+
+    def test_unresolved_referenced_year_binds_time_hole(self):
+        q="What was the employment rate in Madrid for that year again?"
+        seed=select("employment rate",{"op":"REGION","place":"Madrid"})
+        got=P.mech_unresolved_point_time(seed,q)
+        self.assertEqual(got["time"],{"start":"?year","end":"?year"})
+
+    def test_no_year_reference_does_not_invent_time_hole(self):
+        seed=select("employment rate",{"op":"REGION","place":"Madrid"})
+        self.assertIs(P.mech_unresolved_point_time(seed,"Show Madrid employment rate."),seed)
 
 
 if __name__ == "__main__":

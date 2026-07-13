@@ -479,6 +479,36 @@ def restore_eurostat_regions(ir, question):
     return out
 
 
+def bind_prefixed_region(ir, question):
+    """Bind terse `PLACE — ...` / `PLACE: ...` prefixes when every parsed region is a hole."""
+    if not isinstance(ir, dict): return ir
+    match = re.match(
+        r"\s*([A-ZÀ-ÖØ-Ý][\wÀ-ÿ-]*(?:\s+[A-ZÀ-ÖØ-Ý][\wÀ-ÿ-]*)?"
+        r"(?:,\s*[A-ZÀ-ÖØ-Ý][\wÀ-ÿ-]*)?)\s*(?:—|:)\s+", question)
+    if not match: return ir
+    place = match.group(1).strip()
+    regions = []
+    def collect(value):
+        if isinstance(value, list):
+            for item in value: collect(item)
+        elif isinstance(value, dict):
+            if value.get("op") == "SELECT": regions.append(value.get("region"))
+            for child in value.values():
+                if isinstance(child, (dict, list)): collect(child)
+    collect(ir)
+    if not regions or any(not (isinstance(r, str) and r.startswith("?")) for r in regions):
+        return ir
+    def walk(value):
+        if isinstance(value, list): return [walk(item) for item in value]
+        if not isinstance(value, dict): return value
+        out = {key: walk(child) for key, child in value.items()}
+        if out.get("op") == "SELECT" and isinstance(out.get("region"), str) \
+                and out["region"].startswith("?"):
+            out["region"] = {"op": "REGION", "place": place}
+        return out
+    return walk(ir)
+
+
 def _first_select(ir):
     if isinstance(ir, dict):
         if ir.get("op") == "SELECT": return ir
@@ -531,9 +561,15 @@ def mech_series_rank(ir, question):
     if not match or re.search(r"\b(?:these|those|the)\s+regions\b", match.group(1), re.I):
         return ir
     head = re.sub(r"^(?:the\s+)?countries\s+", "", match.group(1), flags=re.I)
+    head = re.sub(r"^(?:(?:our|the)\s+)?(?:\d+|one|two|three|four|five|six|seven|eight)?\s*"
+                  r"candidate\s+regions?\s*(?:—|:|-)\s*", "", head, flags=re.I)
     head = re.sub(r"\s+from\s+(?:lowest|highest)\s+to\s+(?:highest|lowest)\s*$", "", head,
                   flags=re.I)
-    places = [p.strip(" ,") for p in re.split(r",|\band\b", head, flags=re.I) if p.strip(" ,")]
+    places = [re.sub(r"^the\s+", "", p.strip(" ,—"), flags=re.I)
+              for p in re.split(r",|\band\b", head, flags=re.I) if p.strip(" ,—")]
+    import connectors as C
+    places = [next((alias for alias in C.EUROSTAT_GEOS
+                    if _phrase_norm(alias) == _phrase_norm(place)), place) for place in places]
     country_words={"ghana","kenya","india","ecuador","morocco","france","germany","spain",
                    "italy","poland","portugal","brazil","mexico","colombia","romania",
                    "thailand","japan","nigeria","peru","nepal","uganda","namibia",
@@ -548,7 +584,6 @@ def mech_series_rank(ir, question):
     entity = max(candidates)[1]
     years = re.findall(r"\b(?:19|20)\d{2}\b", question)
     time = {"start": years[-1], "end": years[-1]} if years else None
-    import connectors as C
     items = []
     for place in places:
         item = {"op":"SELECT","entity":entity,"region":{"op":"REGION","place":place},
@@ -673,8 +708,14 @@ def mech_dormant_ops(ir, question):
                     and (duplicate or _phrase_norm(str(right.get("entity", ""))) not in _phrase_norm(question)):
                 right=dict(right);right["entity"]=pa["anchor"];rel["right"]=right
             out["metric"]="presence";out["source"]=rel;return out
-    if re.search(r"\b(?:what are the names of|what are the .+? names|names of|named .+? records)\b",ql):
-        return {"op":"ANNOTATE","source":first,"layer":"name"}
+    if re.search(r"\b(?:what are the names of|what are the .+? names|names of|named .+? records|"
+                 r"listed? by name)\b",ql):
+        source = ir
+        if ir.get("op") == "AGGREGATE" and isinstance(ir.get("source"), dict):
+            source = ir["source"]
+        if not isinstance(source, dict) or source.get("op") not in ("SELECT", "RELATE"):
+            source = first
+        return {"op":"ANNOTATE","source":source,"layer":"name"}
     if re.search(r"\bof the .+?,\s*how many have\b.+\bwithin\b", ql):
         entities = [key for _, _, key in _entity_occurrences(question, osm_only=True)]
         if len(entities) >= 2:
@@ -693,6 +734,21 @@ def mech_dormant_ops(ir, question):
         if m:
             layer = "_".join(m.group(1).strip().split())
             return {"op": "ANNOTATE", "source": first, "layer": layer}
+    if re.search(r"\b(?:tag|label)\s+(?:each|every|them|those|the results?)\b.+?\bwith\b", ql):
+        field = re.search(r"\bthe\s+([a-z][a-z0-9_:.-]+)\s+field\b", ql)
+        attribute = re.search(r"\bwith\s+(?:its|their)\s+(.+?)(?:\s*\(|[,.?]|$)", ql)
+        if field or attribute:
+            layer = (field.group(1) if field else attribute.group(1)).strip().replace(" ", "_")
+            if ir.get("op") == "ANNOTATE" and str(ir.get("layer", "")).replace(" ", "_") == layer \
+                    and isinstance(ir.get("source"), dict) \
+                    and ir["source"].get("op") in ("SELECT", "RELATE"):
+                return ir
+            source = ir
+            if ir.get("op") == "AGGREGATE" and isinstance(ir.get("source"), dict):
+                source = ir["source"]
+            if not isinstance(source, dict) or source.get("op") not in ("SELECT", "RELATE"):
+                source = first
+            return {"op": "ANNOTATE", "source": source, "layer": layer}
     if re.search(r"\baddresses?\s+(?:of|for)\b|\bshow\s+(?:the\s+)?addresses?\b", ql):
         if ir.get("op")=="ANNOTATE" and ir.get("layer")=="address": return ir
         source=ir
@@ -845,13 +901,64 @@ def mech_answer_form(ir, question):
     if not isinstance(ir, dict): return ir
     ql=question.lower()
     count=bool(re.search(r"\b(?:how many|count(?: the| of)?|what is the count)\b",ql))
-    listing=bool(re.match(r"\s*(?:list|which|identify|where)\b",ql))
+    listing=bool(re.match(r"\s*(?:list|which|identify|where)\b",ql) or
+                 re.search(r"\b(?:just|only)\s+the ones\b|\bi (?:want|need) (?:them|the results?) listed\b",ql))
     if count and ir.get("op")=="RELATE":
         return {"op":"AGGREGATE","by":"space","metric":"count","source":ir}
-    if listing and ir.get("op")=="AGGREGATE" and ir.get("metric")=="count" \
+    if listing and ir.get("op")=="AGGREGATE" and ir.get("metric") in ("count", "presence") \
             and isinstance(ir.get("source"),dict) and ir["source"].get("op")=="RELATE":
+        if re.search(r"\byes\s*/\s*no\b|\ba yes-or-no\b|\ba yes/no\b", ql): return ir
         return ir["source"]
     return ir
+
+
+def mech_annulus_relation(ir, question):
+    """Compile a same-anchor ring: within an outer radius but beyond an inner radius."""
+    ql = question.lower()
+    if not (re.search(r"\bwithin\b", ql) and
+            re.search(r"\b(?:yet|but|and)\s+(?:still\s+)?(?:more than|beyond|outside)\b", ql) and
+            re.search(r"\bnearest\s+(?:one|it|the same|market\w*|facilit\w*)\b", ql)):
+        return ir
+    entities = list(dict.fromkeys(key for _, _, key in _entity_occurrences(question, osm_only=True)))
+    distances = [_parse_dist_km(match.group(0)) for match in re.finditer(
+        r"[\d.]+\s*(?:km|kilometers?|kilometres?|m\b|meters?|metres?)", ql)]
+    first = _first_select(ir)
+    if len(entities) != 2 or len(distances) < 2 or not first: return ir
+    region = first.get("region")
+    def select(entity):
+        return {"op":"SELECT","entity":entity,"region":region,"time":None}
+    inner = {"op":"RELATE","relation":"within","threshold_km":distances[0],
+             "left":select(entities[0]),"right":select(entities[1])}
+    outer = {"op":"RELATE","relation":"beyond","threshold_km":distances[1],
+             "left":inner,"right":select(entities[1])}
+    if re.search(r"\b(?:how many|count)\b", ql):
+        return {"op":"AGGREGATE","by":"space","metric":"count","source":outer}
+    return outer
+
+
+def mech_nearest_distance(ir, question):
+    """Compile `for each X, how far is the nearest Y?` as RELATE(distance)."""
+    if not re.search(r"\bfor each\b.+?\bhow far\b.+?\bnearest\b", question, re.I): return ir
+    entities = list(dict.fromkeys(key for _, _, key in _entity_occurrences(question, osm_only=True)))
+    first = _first_select(ir)
+    if len(entities) < 2 or not first: return ir
+    region = first.get("region")
+    return {"op":"RELATE","relation":"distance",
+            "left":{"op":"SELECT","entity":entities[0],"region":region,"time":None},
+            "right":{"op":"SELECT","entity":entities[1],"region":region,"time":None}}
+
+
+def mech_unresolved_point_time(ir, question):
+    """A deictic or explicitly undecided single year is a time slot, never null or ESTIMATE."""
+    if re.search(r"\b(?:19|20)\d{2}\b", question): return ir
+    if not (re.search(r"\bthat year\b", question, re.I) or
+            re.search(r"\b(?:which|what) year\b", question, re.I)):
+        return ir
+    first = _first_select(ir)
+    if not first: return ir
+    out = dict(first)
+    out["time"] = {"start":"?year","end":"?year"}
+    return out
 
 
 def mech_terse_and_anaphoric(ir, question):
@@ -994,12 +1101,24 @@ def mech_both_relations(ir, question):
     entities=list(dict.fromkeys(entities))
     if len(entities)<3:return ir
     first=_first_select(ir)
-    if not first:return ir
-    region=first.get("region");threshold=_parse_dist_km(question.lower())
+    if first:
+        region=first.get("region")
+    else:
+        prefix = re.match(
+            r"\s*([A-ZÀ-ÖØ-Ý][\wÀ-ÿ-]*(?:\s+[A-ZÀ-ÖØ-Ý][\wÀ-ÿ-]*)?"
+            r"(?:,\s*[A-ZÀ-ÖØ-Ý][\wÀ-ÿ-]*)?)\s*(?:—|:)\s+", question)
+        if not prefix:return ir
+        region={"op":"REGION","place":prefix.group(1).strip()}
+    threshold=_parse_dist_km(question.lower())
     def s(entity):return {"op":"SELECT","entity":entity,"region":region,"time":None}
     rel={"op":"RELATE","relation":"within","threshold_km":threshold,
          "left":{"op":"RELATE","relation":"within","threshold_km":threshold,
                  "left":s(entities[0]),"right":s(entities[1])},"right":s(entities[2])}
+    if re.search(r"\b(?:listed? by name|names? (?:listed|requested)|want (?:them|the results?) listed)\b",
+                 question, re.I):
+        return {"op":"ANNOTATE","source":rel,"layer":"name"}
+    if re.search(r"\b(?:i want|give me|show me)\s+(?:the\s+)?list\b", question, re.I):
+        return rel
     if re.search(r"\bare\s+(?:there\s+)?any\b", question, re.I):
         return {"op":"AGGREGATE","by":"space","metric":"presence","source":rel}
     return {"op":"AGGREGATE","by":"space","metric":"count","source":rel} \
@@ -1023,7 +1142,7 @@ def mech_three_entity_relations(ir, question):
         value=_parse_dist_km(m.group(0));distances.append(value)
     def s(entity):return {"op":"SELECT","entity":entity,"region":region,"time":None}
     def answer_form(source):
-        if re.search(r"\b(?:what are the names of|names of|named\b|names?\s+(?:are|if))",ql):
+        if re.search(r"\b(?:what are the names of|names of|named\b|names?\s+(?:are|if)|listed? by name)",ql):
             return {"op":"ANNOTATE","source":source,"layer":"name"}
         if re.match(r"\s*(?:are\s+(?:there\s+)?any|any|are\s+there\s+(?!more\b))", ql) \
                 or re.search(r"\b(?:presence answer|presence result|yes/no presence)\b",ql):
@@ -1193,6 +1312,11 @@ def mech_transfer_contract(ir, question):
                     and (str(old_source_place).lower().startswith("nearby ") or
                          donor.lower() not in str(old_source_place).lower()):
                 src = dict(src); src["region"] = {"op":"REGION", "place":donor}; out["source"] = src
+    # A named donor followed only by a deictic destination does not bind the target. In
+    # particular, never copy the donor place into "over there".
+    if isinstance(out, dict) and out.get("op") == "ESTIMATE" \
+            and re.search(r"\b(?:over there|to there|somewhere else)\b", question, re.I):
+        out = dict(out); out["target"] = "?place"
     return out
 
 
@@ -1273,6 +1397,17 @@ def mech_time_faithfulness(ir, question):
 
 def mech_source_gap_select(ir, question):
     """Preserve the full requested entity on an explicit unsupported 'Show X for PLACE' ask."""
+    headcount = re.match(
+        r"\s*for\s+(.+?)\s+i need the actual headcount of\s+(.+?)\s*(?:—|\s-\s|,\s)",
+        question, re.I)
+    if headcount:
+        place, subject = headcount.groups()
+        subject = _phrase_norm(subject)
+        subject = re.sub(r"\bsector\b", "", subject)
+        subject = re.sub(r"\bworkers\b", "worker", subject)
+        subject = " ".join(subject.split())
+        return {"op":"SELECT","entity":f"{subject} headcount",
+                "region":{"op":"REGION","place":place.strip(" ,.;:—-")},"time":None}
     match = re.match(r"\s*show\s+(.+?)\s+for\s+(.+?)\s+in\s+((?:19|20)\d{2})[.?!]?\s*$",
                      question, re.I)
     if not match: return ir
@@ -1291,7 +1426,11 @@ def mech_source_gap_select(ir, question):
 def mech_explicit_change(ir, question):
     """Explicit 'changed ... YEAR ... YEAR' means endpoint difference, not unary trend.
     The two snapshots are fully determined by the question and the parsed SELECT."""
-    if not isinstance(ir, dict) or not re.search(r"\bchang(?:e|ed|ing)\b", question.lower()):
+    explicit_change = re.search(r"\bchang(?:e|ed|ing)\b", question.lower())
+    endpoint_difference = re.search(
+        r"\b(?:19|20)\d{2}\s*(?:(?:-|–|—)\s*|(?:-|–|—)?\s*to\s*(?:-|–|—)?\s*)"
+        r"(?:19|20)\d{2}\s+difference\b", question, re.I)
+    if not isinstance(ir, dict) or not (explicit_change or endpoint_difference):
         return ir
     years = re.findall(r"\b(?:19|20)\d{2}\b", question)
     if len(years) != 2:
@@ -1495,7 +1634,10 @@ def proximity_anchor(question):
     if m:
         return {"anchor": _clean_anchor(m.group(1)), "negated": True,
                 "threshold_km": _parse_dist_km(ql)}
-    m = re.search(r"(?:near|close to|next to|beside)\s+(?:the|a|an)\s+([a-z][a-z ]{2,40})[^a-z ]",
+    m = re.search(r"within\s+(?:walking distance|[\d.]+\s*(?:m|km|meters?|metres?|kilometers?|minutes?))\s+"
+                  r"(?:of|from)\s+(?:the|a|an)\s+([a-z][a-z ]{1,40}?)(?=\s+(?:and|but|then)\b|[?,.;:(])",
+                  ql) or \
+        re.search(r"(?:near|close to|next to|beside)\s+(?:the|a|an)\s+([a-z][a-z ]{2,40})[^a-z ]",
                   ql) or \
         re.search(r"within\s+(?:walking distance|[\d.]+\s*(?:m|km|meters?|metres?|kilometers?|minutes?))\s+"
                   r"(?:of|from)\s+(?:the|a|an)\s+([a-z][a-z ]{2,40})[^a-z ]", ql)
@@ -1540,6 +1682,10 @@ def semantic_lints(ir, question):
     if pa["negated"] and '"beyond"' not in tree and '"within"' in tree:
         return [f"The question NEGATES the proximity ('no {pa['anchor']} within range') but the "
                 f"tree uses relation \"within\" — that selects the OPPOSITE set. Use \"beyond\"."]
+    if not pa["negated"] and tree.count('"RELATE"') == 1 and '"beyond"' in tree \
+            and re.search(r"\b(?:within|near|close to)\b", question, re.I):
+        return [f"The question AFFIRMS proximity to '{pa['anchor']}', but the tree uses relation "
+                '"beyond" — that selects the complement. Use "within".']
     return []
 
 
@@ -1600,15 +1746,18 @@ def mech_add_relate(ir, question):
         return ir
 
     # polarity flip — only when exactly one RELATE (conjunctions are left to gold/corpus)
-    if pa["negated"] and tree.count('"RELATE"') == 1 and '"within"' in tree:
+    polarity_flip = ((pa["negated"] and '"within"' in tree) or
+                     (not pa["negated"] and '"beyond"' in tree and
+                      re.search(r"\b(?:within|near|close to)\b", question, re.I)))
+    if polarity_flip and tree.count('"RELATE"') == 1:
         def flip(n):
             if isinstance(n, list):
                 return [flip(x) for x in n]
             if not isinstance(n, dict):
                 return n
             out = {k: flip(v) for k, v in n.items()}
-            if out.get("op") == "RELATE" and out.get("relation") == "within":
-                out["relation"] = "beyond"
+            if out.get("op") == "RELATE" and out.get("relation") in ("within", "beyond"):
+                out["relation"] = "beyond" if pa["negated"] else "within"
                 if pa["threshold_km"] and "threshold_km" not in out:
                     out["threshold_km"] = pa["threshold_km"]
             return out
@@ -1651,6 +1800,10 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     if json.dumps(ir) != before:
         events.append("binder:nuts2_phrase_from_question")
     before = json.dumps(ir)
+    ir = bind_prefixed_region(ir, question)
+    if json.dumps(ir) != before:
+        events.append("binder:prefixed_region_heading")
+    before = json.dumps(ir)
     ir = mech_explicit_change(ir, question)
     if json.dumps(ir) != before:
         events.append("mech_synthesis:explicit_two_snapshot_change")
@@ -1677,6 +1830,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     if json.dumps(ir) != before:
         events.append("mech_synthesis:explicit_presence_cooccur_or_annotate")
     before = json.dumps(ir)
+    ir = mech_annulus_relation(ir, question)
     ir = mech_both_relations(ir, question)
     ir = mech_three_entity_relations(ir, question)
     ir = mech_negative_relation(ir, question)
@@ -1690,6 +1844,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     before = json.dumps(ir)
     ir = mech_answer_form(ir, question)
     ir = mech_terse_and_anaphoric(ir, question)
+    ir = mech_nearest_distance(ir, question)
     ir = mech_relation_comparisons(ir, question)
     ir = mech_comparison_mode(ir, question)
     ir = mech_behavior_proxy(ir, question)
@@ -1712,6 +1867,10 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     ir = mech_time_faithfulness(ir, question)
     if json.dumps(ir) != before:
         events.append("provenance:invented_time_removed")
+    before = json.dumps(ir)
+    ir = mech_unresolved_point_time(ir, question)
+    if json.dumps(ir) != before:
+        events.append("binder:unresolved_point_time")
     before = json.dumps(ir)
     ir = mech_since_time(ir, question)
     if json.dumps(ir) != before:
@@ -1773,15 +1932,19 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
         # An accepted schema-repair response is a fresh model tree. Reapply deterministic semantic
         # passes so the correction round cannot erase explicit endpoints or answer-form rules.
         before_post = json.dumps(ir)
-        for fn in (restore_named_entities, restore_eurostat_regions, mech_explicit_change,
+        for fn in (restore_named_entities, restore_eurostat_regions, bind_prefixed_region,
+                   mech_explicit_change,
                    mech_series_rank, mech_rank_k, mech_ratio, mech_mixed_gap,
                    mech_same_time_measure_difference, mech_subtract_orientation, mech_dormant_ops,
-                   mech_both_relations, mech_three_entity_relations, mech_negative_relation,
+                   mech_annulus_relation, mech_both_relations, mech_three_entity_relations,
+                   mech_negative_relation,
                    mech_shared_distance_compare,
                    mech_relation_thresholds, mech_answer_form, mech_terse_and_anaphoric,
+                   mech_nearest_distance,
                    mech_relation_comparisons, mech_comparison_mode,
                    mech_behavior_proxy, mech_transfer_contract, mech_series_types, mech_explicit_point_time,
-                   mech_explicit_window_time, mech_time_faithfulness, mech_since_time,
+                   mech_explicit_window_time, mech_time_faithfulness, mech_unresolved_point_time,
+                   mech_since_time, mech_source_gap_select,
                    mech_generic_entity_hole, mech_abstract_rate_hole,
                    mech_rejected_indicator_hole, bind_named_behavior_place):
             ir = fn(ir, question)
