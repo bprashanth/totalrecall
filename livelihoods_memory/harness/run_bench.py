@@ -25,7 +25,14 @@ def trim_exec(res):
     if isinstance(v, dict) and isinstance(v.get("rows"), list):
         v = dict(v)
         v["n_rows"] = len(v["rows"])
-        v["rows"] = v["rows"][:3]
+        rows=v["rows"]
+        # Keep annotation evidence auditable in a compact trace.  Source order can put all
+        # non-null requested fields after the first three rows even when many values exist.
+        layers=[p.get("layer") for p in r.get("provenance",[]) if p.get("op")=="ANNOTATE"]
+        if layers:
+            layer=layers[-1]
+            rows=sorted(rows,key=lambda row: row.get(layer) is None)
+        v["rows"] = rows[:3]
         r["value"] = v
     return r
 
@@ -57,7 +64,7 @@ def run(model, questions_path, out_dir, fewshot_path=None, judge=None, limit=Non
             syn, syn_scores = None, None
             if synth:
                 import synthesize as SYN
-                syn = SYN.synthesize(q["q"], exec_res, role=model)
+                syn = SYN.synthesize(q["q"], exec_res, role=model, ir=ir)
                 syn_scores = SYN.score_synthesis(q["q"], exec_res, syn)
             rec = {
                 "id": q["id"], "sector": q["sector"], "type": q["type"],

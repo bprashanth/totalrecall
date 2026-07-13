@@ -31,7 +31,8 @@ def main() -> None:
     payload = {
         "spec_version": data.get("spec_version", "v2.1"),
         "note": (f"Disclosed development release from {args.bank}: {len(rows)} independently "
-                 f"adjudicated valid rows; immutable defects {', '.join(sorted(defects))} excluded"),
+                 f"adjudicated valid rows; immutable defects "
+                 f"{', '.join(sorted(defects)) if defects else 'none'} excluded"),
         "source_holdout": args.bank,
         "excluded_gold_defects": sorted(defects),
         "questions": rows,
