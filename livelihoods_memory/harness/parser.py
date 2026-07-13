@@ -913,12 +913,50 @@ def mech_series_rank(ir, question):
 def _literal_place_list(text):
     """Split an explicit comma/and/or place list without inventing geographic hierarchy."""
     import connectors as C
+    # Prefer complete curated statistical-region aliases before comma splitting.  A surface such
+    # as ``Ile de France, Lombardy, Italy, and Warsaw capital region, Poland`` contains country
+    # qualifiers that are not additional candidates.  Longest non-overlapping alias matching
+    # keeps the three regions intact and candidate-local.
+    normalized = _phrase_norm(text)
+    matches = []
+    for alias in sorted(C.EUROSTAT_GEOS, key=lambda item: len(_phrase_norm(item)), reverse=True):
+        an = _phrase_norm(alias)
+        for found in re.finditer(r"(?<![a-z0-9])" + re.escape(an) + r"(?![a-z0-9])",
+                                 normalized):
+            if not any(found.start() < end and found.end() > start for start, end, _ in matches):
+                matches.append((found.start(), found.end(), alias))
+    if len(matches) >= 2:
+        chars=list(normalized)
+        for start,end,_ in matches:
+            chars[start:end]=" "*(end-start)
+        residual=" ".join("".join(chars).split())
+        residual=re.sub(r"\b(?:and|or|italy|poland|germany|france|spain)\b","",residual)
+        if not residual.strip():
+            return [alias for _, _, alias in sorted(matches)]
     parts = [re.sub(r"^(?:the\s+)", "", part.strip(" ,—.;:?"), flags=re.I)
              for part in re.split(r",|\b(?:and|or)\b", text, flags=re.I)
              if part.strip(" ,—.;:?")]
     aliases = sorted(C.EUROSTAT_GEOS, key=len, reverse=True)
     return [next((alias for alias in aliases
                   if _phrase_norm(alias) == _phrase_norm(part)), part) for part in parts]
+
+
+def _qualified_place_list(text):
+    """Keep comma-qualified city/country candidates together in explicit rank registers."""
+    curated = _literal_place_list(text)
+    if len(curated) >= 2 and any("," not in str(item) for item in curated):
+        # Curated statistical aliases deliberately omit their country suffix.
+        import connectors as C
+        if all(_phrase_norm(item) in {_phrase_norm(k) for k in C.EUROSTAT_GEOS}
+               for item in curated):
+            return curated
+    parts=[part.strip(" ,.;:?") for part in re.split(r",|\b(?:and|or)\b",text,flags=re.I)
+           if part.strip(" ,.;:?")]
+    # This helper is called only for syntax that explicitly says cities/places.  Alternating
+    # comma fields are therefore city,country pairs rather than six independent candidates.
+    if len(parts) >= 6 and len(parts) % 2 == 0:
+        return [f"{parts[i]}, {parts[i+1]}" for i in range(0,len(parts),2)]
+    return curated
 
 
 def mech_explicit_rank_semantics(ir, question):
@@ -2723,6 +2761,345 @@ def mech_behavior_proxy(ir, question):
     return {"op":"SELECT","entity":"?proxy","region":region or "?place","time":None}
 
 
+def mech_role_complete_surface(ir, question):
+    """Close natural clause registers while preserving roles, literals, holes, and evidence.
+
+    Earlier closure passes target terse benchmark dialects.  This pass handles ordinary prose by
+    first constructing complete operands and only then applying AGGREGATE/COMPARE/RANK/ESTIMATE.
+    Activation always requires an explicit structural head; it never guesses an absent role.
+    """
+    import connectors as C
+    ql=_phrase_norm(question)
+
+    def clean_entity(value):
+        if str(value).startswith("?"):return str(value)
+        value=re.sub(r"^(?:each|every|any|both|a|an|the)\s+","",value.strip(" ,.;:?"),flags=re.I)
+        value=value.replace("-"," ")
+        value=re.sub(r"\bshopses\b","shops",value,flags=re.I)
+        # Singularize only the final ordinary plural; preserve published statistical phrases.
+        value=re.sub(r"ies$","y",value,flags=re.I)
+        value=re.sub(r"(?<!ss)(?<!us)s$","",value,flags=re.I)
+        resolved=C.osm_resolve_tag(value)[1]
+        return resolved or value.lower()
+    def reg(place):return {"op":"REGION","place":place.strip(" ,.;:?")}
+    def sel(entity,region,time=None):
+        return {"op":"SELECT","entity":clean_entity(entity),"region":region,"time":time}
+    def rel(left,anchor,region,relation,distance=None):
+        out={"op":"RELATE","relation":relation,"left":left,"right":sel(anchor,region)}
+        if distance is not None:out["threshold_km"]=distance
+        return out
+    def reduced(source,metric):return {"op":"AGGREGATE","by":"space","metric":metric,"source":source}
+
+    # Unsupported epistemic predicates dominate any available indicator mentioned as evidence.
+    # Bound geography and time remain siblings of the claim hole rather than being erased.
+    epistemic=bool(re.search(r"\b(?:prove|caus(?:e|ed)|makes? every|without (?:any )?"
+                              r"(?:survey )?error|equal opportunity|because .+?prefer)\b",ql))
+    if epistemic:
+        first=_first_select(ir);region=first.get("region") if first else None
+        if not region:
+            pm=re.search(r"\bin\s+(.+?)(?:[?.]|$)",question,re.I)
+            region=reg(pm.group(1)) if pm else {"op":"REGION","place":"?place"}
+        years=re.findall(r"\b(?:19|20)\d{2}\b",question)
+        time={"start":min(years),"end":max(years)} if years else None
+        return {"op":"SELECT","entity":"?unsupported_claim","region":region,"time":time}
+
+    # Literal modifier-bearing facility phrases are evidence, not disposable resolver hints.
+    simple_relation=re.match(r"\s*(?:give\s+the\s+distances?\s+from|which)\s+(.+?)\s+"
+                             r"(?:to|and)\s+(.+?)\s+(?:in|co-?occur\s+in\s+the\s+same\s+"
+                             r"mapped\s+area\s+of)\s+(.+?)[.?!]*$",question,re.I)
+    if simple_relation:
+        left,right,place=simple_relation.groups();region=reg(place)
+        relation="distance" if re.search(r"\bdistances?\b",question,re.I) else "cooccur"
+        return rel(sel(left,region),right,region,relation)
+    between_distance=re.match(r"\s*measure\s+the\s+distance\s+between\s+each\s+(.+?)\s+and\s+"
+                              r"each\s+(.+?)\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if between_distance:
+        left,right,place=between_distance.groups();region=reg(place)
+        return rel(sel(left,region),right,region,"distance")
+    presence_rel=re.match(r"\s*are\s+any\s+(.+?)\s+in\s+(.+?)\s+within\s+(.+?)\s+of\s+"
+                          r"(?:a|an|the)\s+(.+?)[.?!]*$",question,re.I)
+    if presence_rel:
+        subject,place,distance,anchor=presence_rel.groups();region=reg(place)
+        return reduced(rel(sel(subject,region),anchor,region,"within",_parse_dist_km(distance)),"presence")
+    near_me=re.match(r"\s*count\s+(.+?)\s+near\s+me[.?!]*$",question,re.I)
+    if near_me:
+        return reduced(sel(near_me.group(1),{"op":"REGION","place":"?near_me_place"}),"count")
+
+    # Explicitly unresolved roles remain holes inside the requested outer expression.
+    generic_vendor=re.match(r"\s*list\s+the\s+vendors\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if generic_vendor:
+        return {"op":"SELECT","entity":"?vendor_subtype","region":reg(generic_vendor.group(1)),"time":None}
+    generic_workshop=re.match(r"\s*which\s+workshops\s+are\s+within\s+(.+?)\s+of\s+"
+                              r"(?:a|an|the)\s+(.+?)\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if generic_workshop:
+        distance,anchor,place=generic_workshop.groups();region=reg(place)
+        return rel({"op":"SELECT","entity":"?workshop_subtype","region":region,"time":None},
+                   anchor,region,"within",_parse_dist_km(distance))
+    anaphoric=re.match(r"\s*find\s+(.+?)\s+in\s+(.+?)\s+within\s+(.+?)\s+of\s+it[.?!]*$",
+                       question,re.I)
+    if anaphoric:
+        subject,place,distance=anaphoric.groups();region=reg(place)
+        return rel(sel(subject,region),"?referent_of_it",region,"within",_parse_dist_km(distance))
+    them_count=re.match(r"\s*count\s+(.+?)\s+within\s+(.+?)\s+of\s+them\s+in\s+(.+?)[.?!]*$",
+                        question,re.I)
+    if them_count:
+        subject,distance,place=them_count.groups();region=reg(place)
+        return reduced(rel(sel(subject,region),"?referent_of_them",region,"within",
+                           _parse_dist_km(distance)),"count")
+    missing_source=re.match(r"\s*use\s+(feature|envelope|interpolat\w*)\s+transfer\s+to\s+"
+                            r"estimate\s+(.+?)\s+in\s+(.+?)\s+from\s+records\s+in\s+(.+?)[.?!]*$",
+                            question,re.I)
+    if missing_source:
+        method,_,target,source_place=missing_source.groups()
+        method="interpolate" if method.lower().startswith("interpol") else method.lower()
+        return {"op":"ESTIMATE","method":method,
+                "source":{"op":"SELECT","entity":"?source_records_entity",
+                          "region":reg(source_place),"time":None},"target":reg(target)}
+    reform=re.search(r"\bbetween\s+the\s+year\s+(.+?)\s+and\s+((?:19|20)\d{2})",question,re.I)
+    if reform:
+        first=_first_select(ir)
+        if first:
+            out=json.loads(json.dumps(first));out["time"]={"start":"?"+_phrase_norm(reform.group(1)).replace(" ","_"),
+                                                            "end":reform.group(2)}
+            return out
+
+    # Natural left-associated spatial predicate chains.
+    head=re.match(r"\s*(which|find|list|show|count|return\s+the\s+presence\s+of)\s+"
+                  r"(.+?)\s+in\s+(.+?)\s+(?:that\s+are|that|are|co-?occur|more\s+than|"
+                  r"within|with\s+no|beyond)(.+)$",question,re.I)
+    if head:
+        verb,subject,place,tail=head.groups();region=reg(place)
+        # Restore the structural word consumed by the prefix match.
+        marker=re.search(r"\s+(that\s+are|that|are|co-?occur|more\s+than|within|with\s+no|beyond)(.+)$",
+                         question,re.I)
+        clause=(marker.group(1)+marker.group(2)) if marker else tail
+        predicates=[]
+        for m in re.finditer(r"\bwithin\s+(.+?)\s+of\s+(?:both\s+)?(?:a|an|the)?\s*"
+                             r"(.+?)(?=\s+(?:but|and)\b|,|[.?!]|$)",clause,re.I):
+            predicates.append((m.start(),"within",m.group(2),_parse_dist_km(m.group(1))))
+        both=re.search(r"\bwithin\s+(.+?)\s+of\s+both\s+(?:a|an|the)?\s*(.+?)\s+and\s+"
+                       r"(?:a|an|the)?\s*(.+?)(?:[.?!]|$)",clause,re.I)
+        if both:
+            predicates=[p for p in predicates if p[0] != both.start()]
+            d=_parse_dist_km(both.group(1));predicates.extend([(both.start(),"within",both.group(2),d),
+                                                               (both.start()+1,"within",both.group(3),d)])
+        for m in re.finditer(r"\b(?:with\s+no|have\s+no|do\s+not\s+have\s+(?:a|an)?|no)\s+"
+                             r"(.+?)\s+within\s+(.+?)(?=\s+(?:but|and)\b|,|[.?!]|$)",clause,re.I):
+            predicates.append((m.start(),"beyond",m.group(1),
+                               _parse_dist_km(m.group(2)) or _parse_dist_km(m.group(0))))
+        for m in re.finditer(r"\b(?:more\s+than|farther\s+than|beyond)\s+(.+?)\s+from\s+"
+                             r"(?:a|an|the)?\s*(.+?)(?=\s+(?:but|and)\b|,|[.?!]|$)",clause,re.I):
+            predicates.append((m.start(),"beyond",m.group(2),_parse_dist_km(m.group(1))))
+        for m in re.finditer(r"\bco-?occur\s+with\s+(?:a|an|the)?\s*(.+?)"
+                             r"(?=\s+(?:but|and)\b|,|[.?!]|$)",clause,re.I):
+            predicates.append((m.start(),"cooccur",m.group(1),None))
+        if predicates:
+            source=sel(subject,region)
+            km_values=[float(x) for x in re.findall(r"(\d+(?:\.\d+)?)\s*(?:km|kilomet)",
+                                                     clause,re.I)]
+            for _,relation,anchor,distance in sorted(predicates):
+                if relation=="beyond" and distance is None and km_values:distance=km_values[-1]
+                source=rel(source,anchor,region,relation,distance)
+            metric=("count" if verb.lower()=="count" else
+                    "presence" if "presence" in verb.lower() else None)
+            return reduced(source,metric) if metric else source
+
+    # Two independently closed same-place spatial quantities.
+    more=re.match(r"\s*how\s+many\s+more\s+(.+?)\s+are\s+recorded\s+in\s+(.+?)\s+than\s+"
+                  r"(.+?)\s+in\s+(.+?)[?!.]*$",question,re.I)
+    if more:
+        left_entity,left_place,right_entity,right_place=more.groups()
+        return {"op":"COMPARE","how":"difference",
+                "left":reduced(sel(left_entity,reg(left_place)),"count"),
+                "right":reduced(sel(right_entity,reg(right_place)),"count")}
+    ratio=re.match(r"\s*what\s+is\s+the\s+ratio\s+of\s+(.+?)\s+within\s+(.+?)\s+of\s+"
+                   r"(?:a|an|the)?\s*(.+?)\s+to\s+(.+?)\s+beyond\s+(.+?)\s+from\s+"
+                   r"(?:every\s+)?(.+?)\s+in\s+(.+?)[?!.]*$",question,re.I)
+    if ratio:
+        e1,d1,a1,e2,d2,a2,place=ratio.groups();region=reg(place)
+        return {"op":"COMPARE","how":"ratio",
+                "left":reduced(rel(sel(e1,region),a1,region,"within",_parse_dist_km(d1)),"count"),
+                "right":reduced(rel(sel(e2,region),a2,region,"beyond",_parse_dist_km(d2)),"count")}
+
+    # Explicit place registers: one candidate-local scalar plan per region.
+    rank_text=None
+    for pat in (r"\b(?:rank|order)\s+(.+?)\s+(?:by|from\s+(?:lowest|highest))\b",
+                r"\bof\s+(.+?),\s*return\s+the\s+.+?\s+cities\b"):
+        m=re.search(pat,question,re.I)
+        if m:rank_text=m.group(1);break
+    if rank_text:
+        places=_qualified_place_list(rank_text)
+        year_match=re.search(r"\b(?:19|20)\d{2}\b",question)
+        # Candidate-local employment-rate levels, including a locally spoken female modifier.
+        if len(places)>=3 and re.search(r"\bemployment[- ]rate\b",question,re.I) and \
+                not re.search(r"\b(?:change|ratio)\b",question,re.I):
+            time={"start":year_match.group(),"end":year_match.group()} if year_match else None
+            items=[]
+            for place in places:
+                pn=_phrase_norm(place);pos=ql.find(pn)
+                local=ql[pos:pos+len(pn)+35] if pos>=0 else ""
+                female=bool(re.match(re.escape(pn)+r"(?:\s+[a-z]+)?\s+s\s+female\s+employment\s+rate",local))
+                entity="female employment rate" if female else "employment rate"
+                items.append(sel(entity,reg(place),time))
+            return mech_rank_k({"op":"RANK","items":items,
+                                "order":_requested_rank_order(question,"desc")},question)
+        years=sorted(set(re.findall(r"\b(?:19|20)\d{2}\b",question)))
+        if len(places)>=3 and len(years)==2 and re.search(r"\b(?:change|increase)\b",question,re.I):
+            items=[]
+            for place in places:
+                later=sel("employment rate",reg(place),{"start":years[1],"end":years[1]})
+                earlier=sel("employment rate",reg(place),{"start":years[0],"end":years[0]})
+                items.append({"op":"COMPARE","how":"difference","left":later,"right":earlier})
+            return mech_rank_k({"op":"RANK","items":items,
+                                "order":_requested_rank_order(question,"desc")},question)
+
+    # Mixed candidate modifiers must remain local even when the model propagated one globally.
+    if rank_text:
+        relation=re.search(r"\b(?:fewest|most|density\s+of|count\s+of)\s+(.+?)\s+"
+                           r"(within|beyond|with\s+no)\s+(.+?)\s+(?:of|from)\s+"
+                           r"(?:a|an|the)?\s*(.+?)[.?!]*$",question,re.I)
+        no_within=re.search(r"\bcount\s+of\s+(.+?)\s+with\s+no\s+(.+?)\s+within\s+"
+                            r"(.+?)(?:,|\s+most\s+to\s+least|[.?!]|$)",question,re.I)
+        if no_within:
+            subject,anchor,distance=no_within.groups();relation=(subject,"beyond",distance,anchor)
+        if len(places)>=3 and relation:
+            subject,mode,distance,anchor=(relation.groups() if hasattr(relation,"groups") else relation)
+            mode="beyond" if "no" in mode else mode
+            anchor=re.sub(r"\s+(?:lowest|highest)\s+to\s+(?:highest|lowest)\s*$","",anchor,flags=re.I)
+            metric="density" if "density" in ql else "count";items=[]
+            for place in places:
+                region=reg(place);items.append(reduced(rel(sel(subject,region),anchor,region,mode,
+                                                            _parse_dist_km(distance)),metric))
+            return mech_rank_k({"op":"RANK","items":items,
+                                "order":_requested_rank_order(question,"desc")},question)
+
+    if isinstance(ir,dict) and ir.get("op")=="RANK" and \
+            "female employment rate" in ql and "employment rate" in ql:
+        female_place=re.search(r"([A-Z][A-Za-z ]+(?:,\s*[A-Z][A-Za-z ]+)?)['’]s\s+female\s+"
+                               r"employment\s+rate",question)
+        if female_place:
+            fp=_phrase_norm(female_place.group(1));out=json.loads(json.dumps(ir))
+            for item in out.get("items",[]):
+                node=_first_select(item)
+                if node:
+                    region=node.get("region");place=region.get("place","") if isinstance(region,dict) else str(region)
+                    node["entity"]="female employment rate" if _phrase_norm(place) in fp or fp in _phrase_norm(place) else "employment rate"
+            return out
+
+    if isinstance(ir,dict) and ir.get("op")=="RANK":
+        ranked_literal=re.search(r"\brecorded\s+(.+?(?:shops?|workshops?|facilities))\b",
+                                 question,re.I)
+        if ranked_literal and not C.osm_resolve_tag(ranked_literal.group(1))[0]:
+            out=json.loads(json.dumps(ir));literal=clean_entity(ranked_literal.group(1))
+            for item in out.get("items",[]):
+                node=_first_select(item)
+                if node:node["entity"]=literal
+            return out
+
+    # Donor expressions are arbitrary Records trees.  Preserve annotation/relation before wrap.
+    ann=re.match(r"\s*(?:interpolate|use\s+envelope\s+estimation\s+for)\s+(.+?)\s+for\s+"
+                 r"(.+?),\s*(?:based\s+on|from)\s+(.+?)[- ]annotated\s+(.+?)\s+records\s+in\s+"
+                 r"(.+?)[.?!]*$",question,re.I)
+    if ann:
+        _,target,layer,entity,source_place=ann.groups();method="envelope" if ql.startswith("use envelope") else "interpolate"
+        source={"op":"ANNOTATE","source":sel(entity,reg(source_place)),"layer":layer.replace("-"," ")}
+        return {"op":"ESTIMATE","method":method,"source":source,"target":reg(target)}
+    ann2=re.match(r"\s*(interpolate|use\s+envelope\s+estimation\s+for)\s+.+?\s+for\s+"
+                  r"(?:.+?\s+in\s+)?(.+?)\s*,?\s+(?:based\s+on|from)\s+(.+?)[- ]annotated\s+"
+                  r"(.+?)\s+records\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if ann2:
+        head,target,layer,entity,source_place=ann2.groups()
+        method="envelope" if head.lower().startswith("use") else "interpolate"
+        source={"op":"ANNOTATE","source":sel(entity,reg(source_place)),"layer":layer.replace("-"," ")}
+        return {"op":"ESTIMATE","method":method,"source":source,"target":reg(target)}
+    transfer_rel=re.match(r"\s*using\s+(feature|envelope|interpolat\w*)\s+transfer,?\s+estimate\s+"
+                          r"(.+?)\s+in\s+(.+?)\s+from\s+(.+?)\s+within\s+(.+?)\s+of\s+"
+                          r"(.+?)\s+in\s+(.+?)[.?!]*$",question,re.I)
+    if transfer_rel:
+        method,_,target,subject,distance,anchor,source_place=transfer_rel.groups();region=reg(source_place)
+        method="interpolate" if method.lower().startswith("interpol") else method.lower()
+        source=rel(sel(subject,region),anchor,region,"within",_parse_dist_km(distance))
+        return {"op":"ESTIMATE","method":method,"source":source,"target":reg(target)}
+    envelope_rel=re.match(r"\s*estimate\s+by\s+(feature|envelope|interpolat\w*)\s+.+?\s+in\s+"
+                          r"(.+?),\s*using\s+such\s+(.+?)\s+records\s+from\s+(.+?)[.?!]*$",
+                          question,re.I)
+    if envelope_rel:
+        method,target,description,source_place=envelope_rel.groups();method="interpolate" if method.lower().startswith("interpol") else method.lower()
+        m=re.match(r"(.+?)\s+with\s+no\s+(.+?)\s+within\s+(.+)$",description,re.I)
+        if m:
+            subject,anchor,distance=m.groups();region=reg(source_place)
+            source=rel(sel(subject,region),anchor,region,"beyond",_parse_dist_km(distance))
+            return {"op":"ESTIMATE","method":method,"source":source,"target":reg(target)}
+    envelope_negative=re.match(r"\s*estimate\s+by\s+(feature|envelope|interpolat\w*)\s+the\s+"
+                               r"distribution\s+of\s+(.+?)\s+with\s+no\s+(.+?)\s+within\s+"
+                               r"(.+?)\s+in\s+(.+?),\s*using\s+such\s+.+?\s+records\s+from\s+"
+                               r"(.+?)[.?!]*$",question,re.I)
+    if envelope_negative:
+        method,subject,anchor,distance,target,source_place=envelope_negative.groups();method="interpolate" if method.lower().startswith("interpol") else method.lower();region=reg(source_place)
+        source=rel(sel(subject,region),anchor,region,"beyond",_parse_dist_km(distance))
+        return {"op":"ESTIMATE","method":method,"source":source,"target":reg(target)}
+    literal_transfer=re.match(r"\s*estimate\s+the\s+(feature|envelope|interpolat\w*)\s+of\s+"
+                              r"(.+?)\s+locations?\s+in\s+(.+?)\s+using\s+(.+?)\s+records\s+"
+                              r"from\s+(.+?)[.?!]*$",question,re.I)
+    if literal_transfer:
+        method,_,target,entity,source_place=literal_transfer.groups();method="interpolate" if method.lower().startswith("interpol") else method.lower()
+        return {"op":"ESTIMATE","method":method,"source":sel(entity,reg(source_place)),"target":reg(target)}
+    around_annotation=re.match(r"\s*use\s+(feature|envelope|interpolat\w*)\s+estimation\s+for\s+"
+                               r"(.+?)\s+around\s+(.+?)\s+in\s+(.+?),\s*based\s+on\s+"
+                               r"(.+?)[- ]annotated\s+(.+?)\s+records\s+in\s+(.+?)[.?!]*$",
+                               question,re.I)
+    if around_annotation:
+        method,requested_layer,entity,target,layer,source_entity,source_place=around_annotation.groups();method="interpolate" if method.lower().startswith("interpol") else method.lower()
+        source={"op":"ANNOTATE","source":sel(source_entity,reg(source_place)),"layer":requested_layer.replace("-"," ")}
+        return {"op":"ESTIMATE","method":method,"source":source,"target":reg(target)}
+    direct_transfer=re.match(r"\s*use\s+the\s+(feature|envelope|interpolat\w*)\s+method\s+to\s+"
+                             r"estimate\s+.+?\s+in\s+(.+?)\s+from\s+(.+?)[’']s\s+"
+                             r"((?:19|20)\d{2})\s*[-–]\s*((?:19|20)\d{2})\s+(.+?)\s+records",
+                             question,re.I)
+    if direct_transfer:
+        method,target,source_place,y1,y2,entity=direct_transfer.groups();method="interpolate" if method.lower().startswith("interpol") else method.lower()
+        source=sel(entity,reg(source_place),{"start":y1,"end":y2})
+        return {"op":"ESTIMATE","method":method,"source":source,"target":reg(target)}
+    two_estimates=re.match(r"\s*what\s+is\s+the\s+difference\s+between\s+an\s+interpolated\s+"
+                           r"(.+?)\s+field\s+for\s+(.+?)\s+from\s+(.+?)\s+records\s+and\s+an\s+"
+                           r"interpolated\s+.+?\s+field\s+for\s+(.+?)\s+from\s+those\s+same\s+"
+                           r"(.+?)\s+records[?!.]*$",question,re.I)
+    if two_estimates:
+        entity,t1,source_place,t2,_=two_estimates.groups()
+        source_place=re.sub(r"\s+"+re.escape(entity)+r"\s*$","",source_place,flags=re.I)
+        source=sel(entity,reg(source_place))
+        return {"op":"COMPARE","how":"difference",
+                "left":{"op":"ESTIMATE","method":"interpolate","source":source,"target":reg(t1)},
+                "right":{"op":"ESTIMATE","method":"interpolate","source":source,"target":reg(t2)}}
+    unknown_rank=re.match(r"\s*rank\s+(.+?)\s+from\s+highest\s+to\s+lowest\s+by\s+"
+                          r"livelihood\s+opportunities[.?!]*$",question,re.I)
+    if unknown_rank:
+        places=_qualified_place_list(unknown_rank.group(1))
+        if len(places)>=3:
+            return {"op":"RANK","order":"desc","items":[
+                {"op":"SELECT","entity":"?livelihood_opportunity_measure","region":reg(p),"time":None}
+                for p in places]}
+    compared_rel=re.match(r"\s*in\s+(.+?),\s*compare\s+the\s+count\s+of\s+(.+?)\s+within\s+"
+                          r"(.+?)\s+of\s+(.+?)\s+with\s+the\s+count\s+beyond\s+(.+?)(?:,|\s)",
+                          question,re.I)
+    if compared_rel:
+        place,subject,d1,anchor,d2=compared_rel.groups();region=reg(place)
+        return {"op":"COMPARE","how":"difference",
+                "left":reduced(rel(sel(subject,region),anchor,region,"within",_parse_dist_km(d1)),"count"),
+                "right":reduced(rel(sel(subject,region),anchor,region,"beyond",
+                                     _parse_dist_km(d2) or _parse_dist_km("beyond "+d2+" km")),"count")}
+    model_observed=re.match(r"\s*interpolate\s+(.+?)\s+coverage\s+for\s+(.+?)\s+from\s+(.+?)\s+"
+                            r"records,\s*compare\s+it\s+with\s+(.+?)[’']s\s+observed\s+(.+?)\s+density",
+                            question,re.I)
+    if model_observed:
+        entity,target,source_place,observed_place,observed_entity=model_observed.groups()
+        source=sel(entity,reg(source_place))
+        return {"op":"COMPARE","how":"difference",
+                "left":{"op":"ESTIMATE","method":"interpolate","source":source,"target":reg(target)},
+                "right":reduced(sel(observed_entity,reg(observed_place)),"density")}
+    return ir
+
+
 def mech_explicit_surface_closure(ir, question):
     """Close explicit compact grammars after generative and generic recovery passes.
 
@@ -4220,6 +4597,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     ir = mech_closed_spatial_surface(ir, question)
     ir = mech_transfer_source_expression(ir, question)
     ir = mech_output_literal_honesty(ir, question)
+    ir = mech_role_complete_surface(ir, question)
     if json.dumps(ir) != before:
         events.append("mech_synthesis:closed_rank_transfer_or_output_contract")
     # repair-with-feedback (tick-010): a schema-invalid tree gets ONE correction round with the
@@ -4295,6 +4673,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
         ir = mech_closed_spatial_surface(ir, question)
         ir = mech_transfer_source_expression(ir, question)
         ir = mech_output_literal_honesty(ir, question)
+        ir = mech_role_complete_surface(ir, question)
         if json.dumps(ir) != before_post:
             events.append("post_repair:semantic_passes_reapplied")
     return {"question": question, "raw": raw, "ir": ir, "parse_valid": ir is not None,

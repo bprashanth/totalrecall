@@ -1607,6 +1607,64 @@ class ParserRegressionTests(unittest.TestCase):
         q="Report the share of home-based women workers in Ghana for 2022."
         self.assertEqual(P.mech_output_literal_honesty(ir,q),ir)
 
+    def test_role_complete_surface_closes_natural_spatial_chains(self):
+        got=P.mech_role_complete_surface(None,
+            "Find street vendors in Dakar, Senegal within 0.5 km of a bus station but "
+            "with no bank within 1 km.")
+        self.assertEqual((got["relation"],got["threshold_km"]),("beyond",1.0))
+        self.assertEqual((got["left"]["relation"],got["left"]["threshold_km"]),
+                         ("within",0.5))
+        self.assertEqual(got["left"]["left"]["entity"],"street vendor")
+
+    def test_role_complete_surface_keeps_rank_candidates_and_local_modifiers(self):
+        q=("Return the two lowest 2022 values among Ile de France's employment rate, "
+           "Berlin, Germany's female employment rate, Lombardy, Italy's employment rate, "
+           "and Warsaw capital region, Poland's employment rate.")
+        seed={"op":"RANK","order":"asc","k":2,"items":[
+            select("female employment rate",{"op":"REGION","place":place})
+            for place in ("Ile de France","Berlin, Germany","Lombardy, Italy",
+                          "Warsaw capital region, Poland")]}
+        got=P.mech_role_complete_surface(seed,q)
+        entities=[item["entity"] for item in got["items"]]
+        self.assertEqual(entities.count("female employment rate"),1)
+        self.assertEqual(entities.count("employment rate"),3)
+
+    def test_role_complete_surface_keeps_nested_transfer_sources(self):
+        got=P.mech_role_complete_surface(None,
+            "Using feature transfer, estimate food-vendor coverage in Kampala, Uganda from "
+            "food vendors within 1 km of markets in Nairobi, Kenya.")
+        self.assertEqual((got["op"],got["source"]["op"],got["source"]["relation"]),
+                         ("ESTIMATE","RELATE","within"))
+        self.assertEqual(got["target"]["place"],"Kampala, Uganda")
+
+    def test_role_complete_surface_preserves_epistemic_holes_and_bound_time(self):
+        seed=select("average weekly hours worked",{"op":"REGION","place":"Kenya"})
+        got=P.mech_role_complete_surface(seed,
+            "Did the fall in Kenya's average weekly hours worked from 2019 to 2021 cause "
+            "household poverty to rise?")
+        self.assertTrue(got["entity"].startswith("?"))
+        self.assertEqual(got["time"],{"start":"2019","end":"2021"})
+
+    def test_role_complete_surface_plans_binary_counts_before_compare(self):
+        got=P.mech_role_complete_surface(None,
+            "How many more metro stations are recorded in Bengaluru, India than bicycle "
+            "shops in Bengaluru, India?")
+        self.assertEqual((got["op"],got["how"]),("COMPARE","difference"))
+        self.assertTrue(all(got[side]["metric"]=="count" for side in ("left","right")))
+
+    def test_role_complete_surface_keeps_full_modifier_bearing_literals(self):
+        got=P.mech_role_complete_surface(None,
+            "Give the distances from tailoring shops to banks in Kampala, Uganda.")
+        self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
+                         ("tailoring shop","bank"))
+
+    def test_modelled_field_renderer_satisfies_its_own_finding_contract(self):
+        result={"status":"answer","label":"modelled","value":{"kind":"field","rows":[
+            {"t":"2022","value":1.0}],"n_rows":1}}
+        prose=("A modelled field was generated from 1 source record; 1 is not an observed "
+               "target count and local corroboration is required.")
+        self.assertTrue(SYN.score_synthesis("Estimate a field",result,prose)["states_finding"])
+
 
 if __name__ == "__main__":
     unittest.main()
