@@ -588,6 +588,13 @@ class ParserRegressionTests(unittest.TestCase):
         q="What was the self employment rate in India in 2023?"
         self.assertIs(P.mech_source_gap_select(seed,q),seed)
 
+    def test_supported_arithmetic_tree_is_not_rewritten_as_literal_source_gap(self):
+        region={"op":"REGION","place":"Berlin"}
+        seed={"op":"COMPARE","how":"ratio","left":select("female employment rate",region),
+              "right":select("male employment rate",region)}
+        q="What was the female-to-male employment-rate ratio in Berlin in 2024?"
+        self.assertIs(P.mech_source_gap_select(seed,q),seed)
+
     def test_subtract_from_binds_mixed_source_operands_and_orientation(self):
         q=("In percentage points, subtract France's 2024 labour-force-participation rate "
            "from Ile de France's 2024 employment rate.")

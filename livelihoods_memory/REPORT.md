@@ -291,3 +291,10 @@ SRC-003 proposes general native-grain scope certificates for Fable review.
 Epoch 015 remains permanently failed. A complete epoch-016 wall/corpus/dialogue certification and
 new checksum freeze are required before H22; no H21 replay contributes to the three-bank stopping
 sequence.
+
+Epoch 016 subsequently certifies 1,040 questions across 24 banks and 34 skeletons: ordinary
+1,040/1,040, strict 1,038/1,038 eligible, dialogue 5/5, source census 10/10, and deterministic
+regressions 92/92. Two earlier wall attempts were rejected rather than averaged away: one exposed a
+Warsaw source-truncation expectation that unsafe geocoding had hidden, and one exposed a late-pass
+arithmetic regression. The corpus now contains 1,052 unique parse rows and five clarification rows.
+The untouched saturation counter remains zero until a post-freeze H22 contact.

@@ -1,0 +1,95 @@
+{
+  "schema_version": "round2-wall-certification-v1",
+  "epoch": "epoch-016",
+  "status": "certified_for_new_holdouts",
+  "trigger": "H21 rejected epoch 015; 23 compiler-bearing failures across six families were absorbed with no gold or audit defects, and connector scope/geocoder failures were hardened",
+  "active_questions": 1040,
+  "banks": 24,
+  "unique_skeletons": 34,
+  "ordinary_harness": {
+    "matched": 1040,
+    "total": 1040,
+    "score": 1.0,
+    "run_prefix": "runs/epoch016-wall-v3-"
+  },
+  "strict_canonical_audit": {
+    "matched": 1038,
+    "total": 1040,
+    "eligible_matched": 1038,
+    "eligible_total": 1038,
+    "active_declared_gold_defects": [
+      "questions/gen-001.json::gen-live-04",
+      "questions/gen-001.json::gen-live-14"
+    ],
+    "excluded_immutable_holdout_gold_defects": 12,
+    "latent_development_gold_repairs": [
+      "questions/seed.json::lv-rank-01",
+      "questions/round2-h2-dev.json::h2-037",
+      "questions/round2-h3-dev.json::h3-046",
+      "questions/round2-h4-dev.json::h4-014",
+      "questions/round2-h4-dev.json::h4-042",
+      "questions/round2-h19-dev.json::h19-008"
+    ]
+  },
+  "h21_disclosed_absorption": {
+    "strict_first_contact_matched": 17,
+    "strict_first_contact_total": 40,
+    "strict_replay_matched": 40,
+    "strict_replay_total": 40,
+    "ordinary_replay_matched": 40,
+    "ordinary_replay_total": 40,
+    "strict_replay": "runs/epoch016-holdout-021-fix2",
+    "final_wall_run": "runs/epoch016-wall-v3-round2-h21-dev",
+    "compiler_bearing_rows": 23,
+    "discovery_families": 6,
+    "gold_defects": 0,
+    "audit_defects": 0
+  },
+  "rejected_wall_attempts": [
+    {
+      "run_prefix": "runs/epoch016-wall-v1-",
+      "reason": "correct Warsaw regional geocoding exposed a latent source_truncated expectation defect in immutable H19"
+    },
+    {
+      "run_prefix": "runs/epoch016-wall-v2-",
+      "reason": "late unsupported-source preservation overwrote already-correct arithmetic COMPARE trees; negative guard added and full wall restarted"
+    }
+  ],
+  "connector_evidence_guards": {
+    "national_scope_requires_explicit_country": true,
+    "curated_region_geocoding_qualified": true,
+    "region_failures_are_data_requests": true,
+    "source_census_passed": 10,
+    "source_census_total": 10,
+    "proposal": "SRC-003"
+  },
+  "multiturn": {
+    "cases": 5,
+    "model_bind_matched": 5,
+    "mechanical_bind_matched": 5,
+    "run": "runs/epoch016-multiturn-v1"
+  },
+  "regression_tests": {
+    "passed": 92,
+    "total": 92,
+    "module": "harness/test_parser_regressions.py"
+  },
+  "training_corpus": {
+    "parse_rows": 1052,
+    "clarify_rows": 5,
+    "immutable_defect_rows_absent": 9,
+    "corrected_development_copies_retained": 5,
+    "unique_parse_questions": true,
+    "registry": "coverage/gold-defects.json"
+  },
+  "governance": {
+    "proposals": 25,
+    "validated": 4,
+    "accepted": 1,
+    "proposed": 20,
+    "new_proposals": ["SRC-003"],
+    "validated_by_h21": ["SAT-002", "BNCH-001"]
+  },
+  "saturation_counter": 0,
+  "saturation_effect": "H21 is disclosed development. A new three-bank cross-family untouched sequence begins only after the epoch-016 freeze."
+}
