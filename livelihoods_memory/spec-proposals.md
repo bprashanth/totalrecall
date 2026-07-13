@@ -300,3 +300,53 @@ wrapper from the requested root contract.
 
 **Evidence:** H20 ordinary score 0.917 versus strict 18/40 at first contact; `h20-070` is the minimal
 record-versus-count counterexample.
+
+## 2026-07-13 — Connector-declared annotation-layer admissibility
+
+**Questions that forced it:** H21 candidates asked to attach daily customer footfall and daily
+electricity-outage duration to mapped records.
+
+**Why the current contract is unsafe:** `ANNOTATE` accepts an arbitrary layer string. The executor
+can return an Answer whose added field is absent/null rather than a typed source-gap DataRequest.
+Schema validity therefore masquerades as evidence availability.
+
+**Proposed change:** connectors declare supported annotation fields, field type/unit, missingness,
+and coverage. ANNOTATE must fail closed when the requested field has no declared provider or when
+coverage cannot support the requested records. Provenance records provider, matched-row count, and
+null count. This is connector/executor admissibility, not a new parser op.
+
+**Evidence:** pre-contact exclusions `h21-034` and `h21-064` from
+`questions/holdout-h21-generated.json`; both explicit unsupported layers executed as answers.
+
+## 2026-07-13 — Resolver morphology must not become lexical prefix guessing
+
+**Question that forced it:** “Give me the registered gig-work platforms operating in Nairobi.”
+
+**Why the current resolver is unsafe:** prefix-tolerant token matching can equate `work` with
+`workshop`, routing an explicit unsupported gig-platform request to OSM craft records. The result
+is a grounded-looking answer from the wrong entity family instead of a source-gap DataRequest.
+
+**Proposed change:** replace uncontrolled token-prefix equality with declared aliases or bounded
+morphological normalization. Every fallback match carries a resolver certificate (matched alias,
+token transform, alternatives); cross-lexeme prefix matches fail closed. Add adversarial source-gap
+tests whose words are prefixes of supported entities.
+
+**Evidence:** pre-contact exclusion `h21-035`; its gold SELECT on the complete unsupported literal
+executed as an OSM answer.
+
+## 2026-07-13 — Bounded direction wording needs a stable endpoint/trend convention
+
+**Questions that forced it:** “From 2010 to 2019, did vulnerable employment go up or down?” versus
+“Across the explicit 2022–2024 window, did employed persons trend upward or downward?”
+
+**Why v2.1 needs clarification:** both surfaces name a bounded window and a direction, but endpoint
+sign and fitted series trend can disagree. Independent adjudication disagreed on whether the first
+is CHANGE or TREND.
+
+**Proposed convention:** explicit `from A to B` event wording (`did X go up/down`, `increase or
+decrease`) denotes endpoint CHANGE; progressive/trajectory wording (`was X increasing`, `did X
+trend upward`, `over/across the window`) denotes unary TREND. If neither cue determines the
+quantity, admission must reject or allow explicit alternative golds rather than silently choosing.
+
+**Evidence:** `h20-011`, corrected development row `h4-014`, deterministic adjacent negative
+guards, and H21 control `h21-078`.
