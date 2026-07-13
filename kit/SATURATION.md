@@ -38,3 +38,24 @@ residue may remain only when repeated, classified, evidence-backed, and explicit
 The final report must name the tested distribution, all excluded or defective golds, model and
 generator provenance, freeze hashes, discovery curve, residual blind spots, and the precise claim.
 This is empirical operational saturation, never a mathematical proof of general correctness.
+
+
+## Tiered saturation (SAT-004, adopted 2026-07-13; framework 2.3.0)
+**Practical saturation** (default target for a sector's first pass): certified foundation
+(verified sources, coverage matrix, breaker pressure ≥30, active wall, audits, freeze manifest) +
+a stopping target recorded BEFORE final holdout contact + ONE parser-blind post-freeze exam of
+≥80 unique questions (or 2×40 independently generated; the 1×80 variant requires an independent
+gold author, else use 2×40) with ≥50% adversarial rows across the capability families. Any
+legitimate solver/framework change during the exam = exam failed: absorb, rerun the wall,
+refreeze, new exam. The report MUST state `practical saturation`, name the tested distribution,
+and say verbatim that hard 3/3 was not completed.
+**Hard saturation** (SAT-001, unchanged): three consecutive untouched post-freeze banks ≥40.
+Required before: LoRA merges/second-round training claims, cross-sector model integration,
+deployment-strength claims, residual-tail estimation.
+`framework-lock.json` and the sector REPORT must record `saturation_tier: practical|hard|none`;
+cross-sector tables never mix tiers unlabeled.
+
+## Budget defaults (stop-point tuning for new sectors)
+Dev wall ≤ ~300 questions, generation driven by EMPTY coverage-matrix cells not counts; breaker
+quota ~30; then freeze + the one pre-registered exam. If the exam fails or discovery rate stays
+≥1/50: file the failure classes and REQUEST another epoch from the human — never default-continue.
