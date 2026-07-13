@@ -65,7 +65,7 @@ def region_key(region, entity=None):
                  "california", "florida", "belgium", "colombia", "morocco", "uganda",
                  "estonia", "czechia", "austria", "netherlands", "mongolia", "japan",
                  "thailand", "ecuador", "romania", "croatia", "greece", "senegal",
-                 "peru", "philippines", "namibia", "nigeria", "latvia"}
+                 "peru", "philippines", "namibia", "nigeria", "latvia", "slovenia"}
     if len(parts) > 1 and parts[-1] in countries: parts.pop()
     return " ".join(parts)
 
