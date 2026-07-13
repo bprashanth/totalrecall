@@ -24,6 +24,11 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertNotIn(("questions/round2-h20-dev.json","h20-019"),defects)
         self.assertEqual(CC.normalize_bank_path("../questions/gen-001.json"),
                          "questions/gen-001.json")
+        active=CC.active_bank_rows()
+        self.assertEqual(active[("questions/round2-h10-dev.json","h10-042")],
+                         "Which city has the most coworking spaces: Nairobi, Kenya, Accra, Ghana, or Bengaluru, India?")
+        self.assertNotIn("Which city should I check first for coworking access, Nairobi, Kenya, Accra, Ghana, or Bengaluru, India?",
+                         set(active.values()))
 
     def test_clause_scoped_nested_relation_preserves_output_and_distances(self):
         question = ("List the named coworking spaces in Nairobi, Kenya that are within 1 km "

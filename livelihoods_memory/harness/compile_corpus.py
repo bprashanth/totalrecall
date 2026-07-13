@@ -19,6 +19,7 @@ import os
 
 from ir_schema import validate
 import parser as P
+from freeze import BANKS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS = os.path.join(HERE, "..", "runs")
@@ -26,15 +27,26 @@ OUT = os.path.join(HERE, "..", "corpus")
 GOLD_DEFECTS = os.path.join(HERE, "..", "coverage", "gold-defects.json")
 
 
-def active_questions():
-    active = set()
-    for path in glob.glob(os.path.join(HERE, "..", "questions", "*.json")):
+def active_bank_rows():
+    """Return the exact (bank,id)->question identity admitted at the freeze boundary.
+
+    Question text alone is insufficient: immutable holdouts and generated candidates remain on
+    disk after a corrected development row supersedes them, and IDs are only bank-local.
+    """
+    active = {}
+    for rel in BANKS:
+        if "breaker" in rel:
+            continue
+        path = os.path.join(HERE, "..", rel)
         try:
-            d = json.load(open(path))
+            with open(path) as handle:
+                d = json.load(handle)
         except (json.JSONDecodeError, OSError):
             continue
         if isinstance(d, dict) and isinstance(d.get("questions"), list):
-            active.update(q.get("q", "").strip() for q in d["questions"] if q.get("q"))
+            for q in d["questions"]:
+                if q.get("id") and q.get("q"):
+                    active[(rel, q["id"])] = q["q"].strip()
     return active
 
 
@@ -66,7 +78,7 @@ def normalize_bank_path(value):
 
 def collect_parse_rows():
     best = {}  # question -> (mtime, row)
-    active = active_questions()
+    active = active_bank_rows()
     defects = declared_gold_defects()
     for path in sorted(glob.glob(os.path.join(RUNS, "*", "traces.jsonl"))):
         mtime = os.path.getmtime(path)
@@ -83,6 +95,9 @@ def collect_parse_rows():
                 continue  # frontier controls are evaluation, not parser-under-test self-training
             if (source_bank, r.get("id")) in defects:
                 continue  # executable/schema-valid trees can still have bank-local bad gold
+            active_question = active.get((source_bank, r.get("id")))
+            if active_question is None or r["question"].strip() != active_question:
+                continue  # stale, immutable, candidate, or superseded bank-local trace
             s = r["scores"]
             ir = None
             if s.get("overall", 0) >= 0.999 and r.get("ir"):
@@ -94,8 +109,6 @@ def collect_parse_rows():
             if ir is None:
                 continue
             q = r["question"].strip()
-            if q not in active:
-                continue  # superseded/rejected historical traces must not re-enter training
             if q not in best or mtime >= best[q][0]:
                 best[q] = (mtime, {"question": q, "ir": ir,
                                    "sector": r.get("sector"), "type": r.get("type"),
