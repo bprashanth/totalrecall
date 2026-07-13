@@ -365,3 +365,31 @@ arithmetic, right-nested relative clauses, anaphoric facility holes, comma city-
 rank direction, goal behavior proxies, and explicit/unknown transfer targets. H14–H16 nevertheless
 reopen wider-facility and compositional failures. Judge decision: report the negative result and
 continue from those banks; do not call the 727/727 development wall saturation.
+
+## 2026-07-13 — H14–H16 classified and absorbed [PARSER/HARNESS]
+
+All 38 strict mismatches from epoch 010 were valid compiler discoveries; no gold was quarantined.
+The failures clustered in spatial operand restoration/composition, rank-place span extraction,
+unknown transfer targets, purpose-preamble binding, existential presence, and cautious holes for
+abstract livelihood/work measures. A read-only GPT-5.5-high-fast clustering pass was advisory; the
+main judge verified each question/gold/execution pair under frozen v2.1 semantics.
+
+General mechanical repairs closed the disclosed banks at canonical H14 40/40, H15 40/40, and H16
+40/40. The original holdouts remain immutable; normalized development copies join the regression
+wall. This invalidates epoch 010 permanently and supplies no saturation passes. See
+`chronology/20260713_round2_epoch_011_absorption.md` for the repair taxonomy and admission decision.
+
+## 2026-07-13 — Epoch 011 certified development wall [PARSER/HARNESS/SCORING]
+
+The 847-question, 19-bank active wall is certified after three explicitly rejected candidate runs.
+The final v4 wall is 847/847 under the ordinary harness and 845/845 on strict canonical semantics
+for all eligible rows. Across all historical rows it is 845/847; the only exceptions are the two
+pre-declared `gen-001` legacy gold defects, which remain visible and ineligible rather than being
+used to distort the parser. Both model and mechanical dialogue binders pass 5/5, and six new
+deterministic parser regressions pass.
+
+The rejected wall attempts matter: the coarse score first hid three denotation defects; a second
+attempt passed observed rows but failed adversarial review of rule generality; a third generalized
+the rules but reopened six deictic-transfer cases. Only v4 is freezeable. This is development-wall
+closure, not saturation evidence. The untouched three-bank discovery-rate sequence restarts after
+the epoch-011 freeze. Machine-readable evidence is in `coverage/epoch-011-certification.json`.
