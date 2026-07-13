@@ -566,3 +566,22 @@ repair walls count as disclosed development and the untouched counter remains ze
 countable evidence must be a wholly new qualifying exam authored after commit `65924a8`.
 `../governance/review-packet-h29.md` is Fable's review entry point for `ALG-012` and the associated
 supporting evidence; no bootstrap policy changes until governance promotion completes.
+
+### Round 2 checkpoint 22 — explicit closeout before H30 contact
+
+The experiment stops by cost decision at the exact epoch-022 development boundary. This is not a
+`SAT-004` practical-saturation claim and not hard `3/3` saturation; the untouched counter is zero.
+The achieved boundary remains substantial and reproducible: 1,573/1,573 eligible ordinary and
+strict rows, 1,576/1,576 synthesis rows, 175/175 regressions, 14/14 source probes, both dialogue
+binders at 5/5, and 62 frozen inputs with no drift.
+
+H30 was authored after the freeze as 100 parser-blind rows and independently audited before any
+parser contact. The audit found 57 acceptable as written, 28 narrowly repairable before contact,
+13 unsuitable for frozen-v2.1 scoring, and two duplicates. No repairs were applied, no admitted
+bank was created, and no H30 tree was executed or scored. H30 therefore supplies neither a pass nor
+a failure. Its exclusions expose two coherent algebra gaps—global Field-to-Scalar reduction and
+semantic identity for same-place/entity rank candidates—registered as `ALG-013` and `ALG-014`.
+The admission lesson is registered as `BNCH-004`.
+
+`LIVELIHOODS-CLOSEOUT.md` is the authoritative stop claim and
+`../governance/review-packet-livelihoods-closeout.md` is the Fable/orchestrator handoff.

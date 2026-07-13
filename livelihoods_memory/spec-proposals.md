@@ -683,3 +683,47 @@ binding plus fail-closed holes.
 **Evidence:** H29 immutable 51/94 strict result, `coverage/h29-failure-map.md`, the exact 94/94
 disclosed replay, epoch-022 wall v1 rejection, and the clean 1,573-row eligible v2/v3/v4 walls.
 Governance record: `ALG-012`.
+
+## 2026-07-13 — Explicit global Field-to-Scalar reduction
+
+**Failure that exposed the gap:** independent H30 precontact audit found seven natural requests for
+one total count, a global spatial mean, a density ratio, or a comparison of two total
+cardinalities. Frozen v2.1 `AGGREGATE by:space` returns a `Field`; it has no lawful global reduction
+to `Scalar`. Treating those trees as scalar gold would hide a type error.
+
+**Proposed addition:** define an explicit typed global reduction from `Field` to `Scalar`, with a
+governed reduction head such as count/sum/mean and defined empty-support, unit, provenance, and
+missing-data behavior. Binary scalar operations may consume its result, but no renderer, scorer,
+or compiler pass may scalarize a `Field` implicitly.
+
+**Evidence:** H30 exclusions 002, 034, 035, 037, 042, 043, and 046. Governance record: `ALG-013`.
+
+## 2026-07-13 — Explicit semantic identity for RANK candidates
+
+**Failure that exposed the gap:** frozen v2.1 labels ranked values from their innermost region or
+entity. That is insufficient when candidates share both but differ by year, metric, relation,
+annotation layer, or composition. The numerical ordering could execute while its answer labels
+would be ambiguous or false.
+
+**Proposed addition:** permit each rank candidate to carry an explicit question-warranted semantic
+identity, canonically tied to its quantity expression. Identity must not be invented from compiler
+internals and must distinguish all candidates before execution.
+
+**Evidence:** clean breaker patterns H30-055, 058, 059, 063, and 092; H30-098 supplies weaker
+corroboration because its wording also contains several independent warrant defects. Governance
+record: `ALG-014`.
+
+## 2026-07-13 — Two-lane precontact admission
+
+**Protocol problem:** a blind generator can produce valuable questions that are ambiguous, contain
+unwarranted gold detail, duplicate another challenge, or exceed the frozen algebra. Mixing these
+with solver failures corrupts both saturation scoring and algebra discovery.
+
+**Proposed protocol:** preserve the raw bank; independently classify every row as accepted,
+repairable before contact, excluded, duplicate, or expressiveness breaker; apply narrow repairs
+reproducibly; re-audit; and commit the admitted bank before parser contact. Non-expressible rows go
+to a durable breaker lane rather than disappearing or counting against the solver.
+
+**Evidence:** H30 audit: 57 accepted, 28 repairable, 13 excluded, and two duplicates; an 85-row
+exam would remain after repair, but the experiment stopped before admission. Governance record:
+`BNCH-004`.
