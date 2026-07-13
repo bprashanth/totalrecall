@@ -586,3 +586,25 @@ audit and creating a false discovery signal.
 normalization from the same canonical authority as strict audit. Coarse scoring may intentionally
 omit detail, but must not impose a different equivalence relation. A scorer change retires the
 epoch under `SAT-003` and requires a complete wall replay. Governance record: `BUG-010`.
+
+## 2026-07-13 — Tiered saturation claims for multi-sector benchmark economics
+
+**Why the hard rule is not always the right first-pass stopping rule:** three consecutive untouched
+banks are a useful low-residue confidence protocol, but after a sector has a large certified wall,
+wide adversarial pressure, and a clean post-freeze exam, additional banks mainly reduce uncertainty
+about a small tail. Across many sectors, their authoring and independent-gold cost competes directly
+with testing a genuinely new domain. Quota exhaustion is not evidence of saturation, but marginal
+information per unit of judge/model work is a legitimate experimental-design constraint.
+
+**Proposed framework policy:** publish two non-interchangeable claims. `hard saturation` retains the
+existing three consecutive post-freeze banks of at least 40 questions, resetting on any valid
+change. `practical saturation` requires the complete broad wall/source/coverage/evidence/corpus
+gates plus either one parser-blind post-freeze bank of at least 80 rows or two of at least 40, at
+least half adversarial, with all major capability/evidence families represented and zero eligible
+first-contact failures requiring a change. A failure is absorbed and followed by a new freeze and
+new practical bank. Reports must disclose that hard 3/3 was not run.
+
+**Lifecycle:** practical saturation is sufficient for the first benchmark pass used to collect
+sector corpora and proposals. Hard saturation becomes the default before a second-round LoRA merge,
+deployment-strength claims, or when later cross-sector training changes the parser distribution.
+Governance record: `SAT-004`.

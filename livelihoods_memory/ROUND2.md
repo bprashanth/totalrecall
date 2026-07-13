@@ -41,6 +41,40 @@ Round 2 may claim operational saturation only when all of these hold:
 This is still empirical saturation, not a mathematical proof. The report must state the tested
 distribution and residual blind spots.
 
+## Practical saturation for first-pass sector benchmarks
+
+The three-untouched-bank rule above remains the **hard saturation** protocol. It is appropriate
+before a second-round LoRA merge, a deployment claim, or a focused attempt to estimate very small
+residual failure rates. It is not the default stopping rule for the first benchmark pass across
+many sectors: once discoveries are rare, repeatedly authoring and auditing near-duplicate banks can
+consume more judge/model quota than the extra confidence is worth.
+
+A sector may instead claim **practical saturation** when all of these hold:
+
+1. The broad prerequisites above are already real: verified sources, a published coverage matrix,
+   breaker pressure, a large active regression wall, strict semantic scoring, synthesis/evidence
+   auditing, dialogue guards, corpus-integrity checks, and an exact freeze manifest.
+2. The frozen solver passes one entirely post-freeze, parser-blind challenge bank of at least 80
+   unique questions, or two independently generated banks of at least 40 each. Across the bank(s),
+   at least half the rows are adversarial and the mix covers spatial, statistical, ranking,
+   transfer, ambiguity/hole, unsupported-source, output-form, and evidence-boundary families.
+3. Admission occurs before parser contact: literal gold warrant, schema/types, source compatibility,
+   executable outcome class, holes, and expected evidence are audited. The immutable first-contact
+   run must be clean on every eligible ordinary, strict-semantic, execution-class, and
+   synthesis/evidence gate. A valid solver or framework repair means the exam was not passed.
+4. The recent discovery curve supports stopping: the preceding development epoch added no new
+   algebra operation and no uncharacterized evidence class, and remaining proposals/residue are
+   explicitly documented. The judge records why another bank would mainly tighten confidence
+   rather than exercise a materially new family.
+5. The report says **practical**, names the exact frozen distribution and bank size, and states that
+   hard `3/3` saturation remains unrun. A clean practical bank is never relabeled as three banks,
+   and repaired development pressure never counts as an untouched pass.
+
+If the practical bank finds a material failure, absorb it, rerun the full wall, create a new freeze,
+and require one new qualifying practical bank. Do not grind through back-to-back banks merely to
+recover a counter. Hard saturation can be resumed later from any exact freeze, especially during a
+second LoRA round when cross-sector model changes justify the additional confidence.
+
 ## H20 refinement: two-axis novelty and admission quality
 
 H20 rejected epoch 014 with 22 strict mismatches, including six surfaces from one endpoint-rank
@@ -94,7 +128,8 @@ tree shape. Manually audit every sub-perfect row and a stratified sample of gree
 Development proceeds in named epochs. A freeze checkpoint records checksums for parser, schema,
 executor, connectors, scorer, synthesis, and active development banks. Any subsequent fix ends the
 epoch. Only three consecutive untouched holdouts with a flat discovery curve permit the Round 2
-saturation statement.
+saturation statement. For first-pass multi-sector work, the practical-saturation section above is
+the default cost-aware stopping rule; reports must keep the two claims distinct.
 
 ## Round 2 deliverables
 
