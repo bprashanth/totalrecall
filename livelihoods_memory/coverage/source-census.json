@@ -1,10 +1,12 @@
 {
-  "schema_version": "round2-source-census-v1",
-  "generated_at": "2026-07-13T08:15:21.058764+00:00",
+  "schema_version": "round2-source-census-v2",
+  "generated_at": "2026-07-13T09:04:57.891565+00:00",
   "all_passed": true,
   "families": [
     "eurostat",
-    "ilostat"
+    "ilostat",
+    "osm-metro",
+    "worldbank-gini"
   ],
   "tests": [
     {
@@ -326,6 +328,175 @@
       "source_code": null,
       "geo": "PL91",
       "note": "3 annual percent points of employment rate for Warszawski stołeczny (PL91); Eurostat lfst_r_lfe2emprt; flags ['b']; updated 2026-06-30T11:00:00+0200"
+    },
+    {
+      "family": "worldbank-gini",
+      "place": "Brazil",
+      "entity": "gini coefficient",
+      "passed": true,
+      "checks": {
+        "nonempty": true,
+        "unique_time": true,
+        "ordered_time": true,
+        "numeric": true,
+        "bounded_query": true
+      },
+      "row_count": 40,
+      "time_min": "1981",
+      "time_max": "2024",
+      "sample": [
+        {
+          "t": "1981",
+          "value": 57.9
+        },
+        {
+          "t": "1982",
+          "value": 58.4
+        }
+      ],
+      "source": "worldbank",
+      "unit": null,
+      "indicator": "SI.POV.GINI",
+      "source_code": null,
+      "geo": "BRA",
+      "note": "40 yearly points of gini coefficient for BRA"
+    },
+    {
+      "family": "worldbank-gini",
+      "place": "India",
+      "entity": "gini coefficient",
+      "passed": true,
+      "checks": {
+        "nonempty": true,
+        "unique_time": true,
+        "ordered_time": true,
+        "numeric": true,
+        "bounded_query": true
+      },
+      "row_count": 8,
+      "time_min": "1977",
+      "time_max": "2022",
+      "sample": [
+        {
+          "t": "1977",
+          "value": 29.7
+        },
+        {
+          "t": "1983",
+          "value": 27.2
+        }
+      ],
+      "source": "worldbank",
+      "unit": null,
+      "indicator": "SI.POV.GINI",
+      "source_code": null,
+      "geo": "IND",
+      "note": "8 yearly points of gini coefficient for IND"
+    },
+    {
+      "family": "worldbank-gini",
+      "place": "Kenya",
+      "entity": "gini coefficient",
+      "passed": true,
+      "checks": {
+        "nonempty": true,
+        "unique_time": true,
+        "ordered_time": true,
+        "numeric": true,
+        "bounded_query": true
+      },
+      "row_count": 8,
+      "time_min": "1992",
+      "time_max": "2022",
+      "sample": [
+        {
+          "t": "1992",
+          "value": 56.9
+        },
+        {
+          "t": "1994",
+          "value": 43.1
+        }
+      ],
+      "source": "worldbank",
+      "unit": null,
+      "indicator": "SI.POV.GINI",
+      "source_code": null,
+      "geo": "KEN",
+      "note": "8 yearly points of gini coefficient for KEN"
+    },
+    {
+      "family": "osm-metro",
+      "place": "Bengaluru, India",
+      "entity": "metro station",
+      "passed": true,
+      "checks": {
+        "nonempty": true,
+        "coordinates": true,
+        "not_truncated": true,
+        "bounded_query": true
+      },
+      "row_count": 81,
+      "sample": [
+        {
+          "id": 1576973953,
+          "lat": 13.0574214,
+          "lon": 77.4728055,
+          "name": "Madavara",
+          "time": null,
+          "attrs": {
+            "alt_name": "BIEC",
+            "code": "BIET",
+            "name": "Madavara",
+            "name:kn": "ಮದವರ",
+            "network": "Namma Metro",
+            "network:wikidata": "Q279343",
+            "note": "Contributors are requested to not edit the \"network\" and the \"operator\" tags. (2023/11/08)",
+            "operator": "Bangalore Metro Rail Corporation Limited",
+            "public_transport": "station",
+            "public_transport:version": "2",
+            "railway": "station",
+            "shelter": "yes",
+            "start_date": "2024-11-07",
+            "station": "subway",
+            "subway": "yes",
+            "website": "https://english.brmc.co.in",
+            "wheelchair": "yes",
+            "wikidata": "Q122143705",
+            "wikipedia": "en:Madavara metro station"
+          }
+        },
+        {
+          "id": 1576973954,
+          "lat": 13.0523616,
+          "lon": 77.4879154,
+          "name": "Chikkabidarakallu",
+          "time": null,
+          "attrs": {
+            "code": "JIDL",
+            "name": "Chikkabidarakallu",
+            "name:kn": "ಚಿಕ್ಕಬಿದರಕಲ್ಲು",
+            "network": "Namma Metro",
+            "network:wikidata": "Q279343",
+            "note": "Contributors are requested to not edit the \"network\" and the \"operator\" tags. (2023/11/08)",
+            "operator": "Bangalore Metro Rail Corporation Limited",
+            "public_transport": "station",
+            "public_transport:version": "2",
+            "railway": "station",
+            "shelter": "yes",
+            "start_date": "2024-11-07",
+            "station": "subway",
+            "subway": "yes",
+            "website": "https://english.brmc.co.in",
+            "wheelchair": "yes",
+            "wikidata": "Q122143708",
+            "wikipedia": "en:Chikkabidarakallu metro station"
+          }
+        }
+      ],
+      "source": "osm-overpass",
+      "resolved": "metro_station",
+      "note": "81 metro_station in bbox"
     }
   ]
 }

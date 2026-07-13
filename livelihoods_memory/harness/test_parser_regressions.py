@@ -361,12 +361,12 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual((got["op"],got["left"]["entity"],got["right"]["entity"]),
                          ("RELATE","craft_workshop","bank"))
 
-    def test_nearest_distance_keeps_unsupported_anchor_literal(self):
+    def test_nearest_distance_keeps_verified_metro_anchor(self):
         q="What is the distance to the nearest metro station from coworking spaces in Nairobi?"
         region={"op":"REGION","place":"Nairobi"}
         got=P.mech_nearest_distance(select("coworking space",region),q)
         self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
-                         ("coworking_space","metro station"))
+                         ("coworking_space","metro_station"))
 
     def test_near_also_near_builds_chained_relation(self):
         q="How many coworking spaces near a bus stop are also near a cafe in Berlin?"
@@ -460,12 +460,12 @@ class ParserRegressionTests(unittest.TestCase):
         self.assertEqual([x[2] for x in P._entity_occurrences(q,osm_only=True)],
                          ["marketplace","bank"])
 
-    def test_distance_between_keeps_unsupported_anchor_literal(self):
+    def test_distance_between_keeps_verified_metro_anchor(self):
         q="What is the distance between coworking spaces and metro stations in Bengaluru?"
         region={"op":"REGION","place":"Bengaluru"}
         got=P.mech_nearest_distance(select("coworking space",region),q)
         self.assertEqual((got["left"]["entity"],got["right"]["entity"]),
-                         ("coworking_space","metro station"))
+                         ("coworking_space","metro_station"))
 
     def test_deictic_neighbourhood_is_place_hole_not_self_relation(self):
         q="Any coworking spaces near this neighborhood?"
@@ -801,6 +801,103 @@ class ParserRegressionTests(unittest.TestCase):
             E._compare({"kind":"series","rows":[{"t":"2022","value":1.0}]},None,
                        "trend_direction")
         self.assertEqual(caught.exception.reason,"insufficient_series")
+
+    def test_entity_restoration_never_overwrites_zero_overlap_literal(self):
+        region={"op":"REGION","place":"Lagos"}
+        tree={"op":"RELATE","relation":"within","left":select("night market",region),
+              "right":select("cold storage depot",region)}
+        got=P.restore_named_entities(tree,
+            "Which night markets in Lagos are within 0.5 km of a cold-storage depot?")
+        self.assertEqual(got["right"]["entity"],"cold storage depot")
+        tree2={"op":"RELATE","relation":"distance","left":select("coworking",region),
+               "right":select("metro station",region)}
+        got2=P.restore_named_entities(tree2,
+            "From a coworking space, how far is the nearest metro station?")
+        self.assertEqual((got2["left"]["entity"],got2["right"]["entity"]),
+                         ("coworking_space","metro station"))
+
+    def test_resolver_refuses_prefix_lexemes_and_restrictive_subtypes(self):
+        self.assertIsNone(C.osm_resolve_tag("registered gig work platform")[0])
+        self.assertIsNone(C.osm_resolve_tag("main marketplace")[0])
+        self.assertIsNone(C.osm_resolve_tag("night market")[0])
+        self.assertIsNone(C.osm_resolve_tag("coworking access")[0])
+        self.assertIsNotNone(C.osm_resolve_tag("marketplaces")[0])
+        self.assertIsNotNone(C.osm_resolve_tag("police stations")[0])
+
+    def test_schema_enforces_record_inputs_and_region_estimate_target(self):
+        region={"op":"REGION","place":"Kigali"}
+        scalar={"op":"AGGREGATE","by":"space","metric":"count",
+                "source":select("craft workshop",region)}
+        bad_relate={"op":"RELATE","relation":"within",
+                    "left":select("coworking space",region),"right":scalar}
+        report=I.validate(bad_relate)
+        self.assertFalse(report["valid"])
+        self.assertTrue(any("requires Records" in error for error in report["errors"]))
+        bad_target={"op":"ESTIMATE","method":"feature",
+                    "source":select("craft workshop",region),"target":scalar}
+        report=I.validate(bad_target)
+        self.assertFalse(report["valid"])
+        self.assertTrue(any("target node must be REGION" in error for error in report["errors"]))
+
+    def test_verified_gini_and_metro_aliases_resolve(self):
+        self.assertEqual(C.wb_resolve_indicator("gini coefficient")[0],"SI.POV.GINI")
+        self.assertEqual(C.osm_resolve_tag("metro stations")[0],
+                         '["railway"="station"]["station"="subway"]')
+
+    def test_endpoint_rank_which_two_and_ratio_blueprints(self):
+        q=("Which two of France, Spain, Germany had the steepest 2019→2023 drop in "
+           "labour underutilization?")
+        got=P.mech_explicit_rank_semantics(select("labour underutilization"),q)
+        got=P.mech_rank_k(got,q)
+        self.assertEqual((got["order"],got["k"],len(got["items"])),("asc",2,3))
+        seed={"op":"RANK","order":"asc","items":[select("average weekly hours",
+              {"op":"REGION","place":p}) for p in ("France","Germany","Spain")]}
+        ratio=P.mech_ranked_quantity(seed,
+            "Among France, Germany, Spain — lowest 2023/2019 average-weekly-hours ratio; return one.")
+        self.assertEqual((ratio["k"],ratio["items"][0]["how"]),(1,"ratio"))
+
+    def test_mixed_stat_compact_surfaces_bind_each_operand(self):
+        got=P.mech_mixed_source_compare(select("self employment"),
+            "Orientation probe: Kenya 2023 self-employment minus India 2023 self-employment.")
+        self.assertEqual((got["left"]["region"]["place"],got["right"]["region"]["place"]),
+                         ("kenya","india"))
+        ratio=P.mech_mixed_source_compare(select("self employment"),
+            "2020 — India's self-employment is how many times Kenya's?")
+        self.assertEqual((ratio["how"],ratio["right"]["region"]["place"]),("ratio","Kenya"))
+
+    def test_half_kilometre_is_clause_local(self):
+        self.assertEqual(P._parse_dist_km("beyond half a kilometre"),0.5)
+        self.assertEqual(P._parse_dist_km("within a kilometre"),1.0)
+
+    def test_anaphoric_roles_compile_to_holes(self):
+        region={"op":"REGION","place":"Kenya"}
+        seed={"op":"COMPARE","how":"difference","left":select("self employment",region),
+              "right":select("self employment",region)}
+        got=P.mech_deictic_roles(seed,
+            "Compare Kenya's self-employment with the country being used as its comparator.")
+        self.assertTrue(got["right"]["region"]["place"].startswith("?"))
+        related=P.mech_terse_and_anaphoric(select("market"),
+            "In Accra, which of them sit within a kilometre of the market?")
+        self.assertTrue(related["left"]["entity"].startswith("?"))
+
+    def test_unsupported_relation_and_measure_phrases_remain_complete(self):
+        region={"op":"REGION","place":"Lagos"}
+        seed={"op":"RELATE","relation":"within","left":select("night market",region),
+              "right":select("cold storage",region)}
+        got=P.mech_source_gap_select(seed,
+            "Which night markets in Lagos are within 0.5 km of a cold-storage depot?")
+        self.assertEqual(got["right"]["entity"],"cold-storage depot")
+        median=P.mech_source_gap_select(select("income"),
+            "India, 2020 — what was the median household income?")
+        self.assertEqual(median["entity"],"median household income")
+
+    def test_prefixed_statistics_choose_regional_source_and_trend_head(self):
+        got=P.mech_prefixed_statistic(select("unemployment"),
+            "Madrid region — over 2022 to 2024, which way is unemployment heading?")
+        self.assertEqual((got["how"],got["left"]["entity"]),("trend_direction","unemployment rate"))
+        all_years=P.mech_prefixed_statistic(select("internet users"),
+            "Vietnam — over all the years you've got, are internet users trending up?")
+        self.assertEqual((all_years["op"],all_years["left"]["time"]),("COMPARE",None))
 
 
 if __name__ == "__main__":

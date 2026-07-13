@@ -130,6 +130,17 @@ def _walk(node, path, errs, holes, ops, depth):
             errs.append(f"{path}: {op} missing required child {f!r}")
         else:
             _walk(node[f], f"{path}.{f}", errs, holes, ops, depth + 1)
+    # Frozen v2.1 declares these inputs as Records. Shape-only validation let scalar
+    # AGGREGATE results enter RELATE and ESTIMATE, producing meaningless but executable trees.
+    record_ops = {"SELECT", "ANNOTATE", "RELATE"}
+    record_children = {
+        "ANNOTATE": ("source",), "RELATE": ("left", "right"),
+        "AGGREGATE": ("source",), "ESTIMATE": ("source",),
+    }
+    for field in record_children.get(op, ()):
+        child = node.get(field)
+        if isinstance(child, dict) and child.get("op") not in record_ops:
+            errs.append(f"{path}: {op}.{field} requires Records, got {child.get('op')!r}")
     # RANK takes a LIST of >=2 item nodes (the n-ary op the binary COMPARE cannot express;
     # tick-008: both models degraded 3-way rankings by dropping cities or nesting COMPAREs).
     if op == "RANK":
@@ -165,6 +176,9 @@ def _walk(node, path, errs, holes, ops, depth):
     if op == "ESTIMATE":
         target = node.get("target")
         if isinstance(target, dict):
+            if target.get("op") != "REGION":
+                errs.append(f"{path}: ESTIMATE.target node must be REGION, got "
+                            f"{target.get('op')!r}")
             _walk(target, f"{path}.target", errs, holes, ops, depth + 1)
         elif target is not None and not isinstance(target, str):
             errs.append(f"{path}: ESTIMATE.target must be a string or REGION node, got "

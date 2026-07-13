@@ -477,3 +477,32 @@ First contact is strict 8/40 for H23 and 25/40 for H24 (ordinary 0.823 and 0.919
 epoch 017 is not freezeable; the 47 exact divergences require full adjudication and generalized
 absorption. Neither pressure bank can increment the untouched saturation counter, regardless of
 its repaired replay score.
+
+## 2026-07-13 — H23/H24 absorption closes 46 compiler-bearing rows [PARSER/HARNESS/CONNECTOR]
+
+H23's 32 strict mismatches were all genuine compiler divergences. H24's 15 mismatches contained
+14 compiler/harness divergences and one strict-audit country-suffix equivalence. General repairs
+cover computed ranks, operand-local statistical arithmetic, nested spatial outputs/arithmetic,
+unresolved discourse roles, direct transfer/statistic forms, and complete source-gap literals.
+Fix1 reached strict 32/40 and 35/40; fix2 reaches 40/40 on both immutable banks, with 114/114
+deterministic guards. Separate disclosed development releases are also strict 40/40 and ordinary
+1.000. Judge decision: these are absorption results and add zero untouched passes.
+
+The most serious finding was false grounding. Named-entity restoration rewrote a zero-overlap
+`cold storage depot` leaf to `marketplace`; resolver subset/prefix behavior also broadened `main
+marketplace`, `night market`, and `coworking access`, and had previously equated `work` with
+`workshop`. Restoration now requires positive lexical overlap and resolvers use bounded plural
+normalization plus declared aliases. Unknown modifiers fail closed. The immutable `gen-002`
+main-marketplace and H10 coworking-access gold assumptions are registered as defects; H10's
+disclosed row now asks explicitly for coworking-space count. This further corroborates `BUG-003`.
+
+The schema now enforces frozen Records inputs and structured ESTIMATE target types before
+execution (`BUG-005`). H23's unresolved Indian focus city demonstrates that opaque hole names
+cannot retain machine-checkable parent constraints (`ASK-005`). Raw H23 probe 079 demonstrates a
+genuine absent capability for spatial candidate generation and constrained optimization
+(`ALG-010`); it was not forced into a phantom SELECT.
+
+Live/cache-backed verification added World Bank Gini (`SI.POV.GINI`) for Brazil, India, and Kenya
+and OSM metro stations in Bengaluru. Source census is 14/14 across ILOSTAT, Eurostat, World Bank
+Gini, and OSM metro families. H24's immutable DataRequest expectations remain preserved; its
+disclosed development metadata expects the two newly grounded Answers.

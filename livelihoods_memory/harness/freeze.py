@@ -30,6 +30,7 @@ BANKS = [
     "questions/round2-h17-dev.json", "questions/round2-h18-dev.json",
     "questions/round2-h19-dev.json", "questions/round2-h20-dev.json",
     "questions/round2-h21-dev.json",
+    "questions/round2-h23-dev.json", "questions/round2-h24-dev.json",
     "questions/round2-breakers.json",
 ]
 EVIDENCE = ["coverage/matrix.json", "coverage/source-census.json",

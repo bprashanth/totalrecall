@@ -17,6 +17,7 @@ import http.client
 import csv
 import io
 import os
+import re
 import time
 import urllib.parse
 import urllib.request
@@ -140,7 +141,8 @@ OSM_TAGS = {
     "college": '["amenity"="college"]', "kindergarten": '["amenity"="kindergarten"]',
     "library": '["amenity"="library"]',
     "restaurant": '["amenity"="restaurant"]', "cafe": '["amenity"="cafe"]',
-    "market": '["amenity"="marketplace"]', "shop": '["shop"]',
+    "market": '["amenity"="marketplace"]', "marketplace": '["amenity"="marketplace"]',
+    "shop": '["shop"]',
     "supermarket": '["shop"="supermarket"]', "bank": '["amenity"="bank"]',
     "atm": '["amenity"="atm"]', "hotel": '["tourism"="hotel"]', "fuel": '["amenity"="fuel"]',
     # -- livelihoods sector (verified across Bengaluru/Nairobi/Accra; FINDINGS.md 2026-07-12) --
@@ -156,8 +158,12 @@ OSM_TAGS = {
     "bus_station": '["amenity"="bus_station"]',
     "park": '["leisure"="park"]',
     "playground": '["leisure"="playground"]', "post_office": '["amenity"="post_office"]',
-    "police": '["amenity"="police"]', "place_of_worship": '["amenity"="place_of_worship"]',
+    "police": '["amenity"="police"]', "police_station": '["amenity"="police"]',
+    "place_of_worship": '["amenity"="place_of_worship"]',
     "community_centre": '["amenity"="community_centre"]',
+    # Verified in Bengaluru against current OSM data (81 rows, 2026-07-13).
+    "metro_station": '["railway"="station"]["station"="subway"]',
+    "subway_station": '["railway"="station"]["station"="subway"]',
 }
 
 
@@ -168,15 +174,24 @@ def _tokens(s):
 
 
 def _tok_eq(a, b):
-    """prefix-tolerant token equality: 'use'~'user', 'enrol'~'enrollment'."""
-    return a == b or (len(a) >= 3 and b.startswith(a)) or (len(b) >= 3 and a.startswith(b))
+    """Token equality after `_tokens` has performed bounded plural normalization.
+
+    Arbitrary prefixes made distinct lexemes equal (`work`/`workshop`, `bus`/`business`) and
+    silently routed source gaps. Morphological and lay variants belong in declared alias maps.
+    """
+    return a == b
 
 
 def _key_covered(key, entity_tokens):
-    """ALL of the key's tokens appear (prefix-tolerantly) in the entity. DIRECTIONAL on purpose:
-    entity⊆key matching let bare 'school' hit 'school enrollment' and silently route an amenity
-    count to an indicator series — wrong-source answers that score green (tick-008 finding)."""
-    return all(any(_tok_eq(kt, et) for et in entity_tokens) for kt in _tokens(key))
+    """A declared key covers the whole normalized entity phrase.
+
+    The earlier one-way subset admitted semantic modifiers such as `night market`, `main
+    marketplace`, and `coworking access` as the broader base entity. Exact aliases retain safe
+    plural/lay forms while unknown subtypes fail closed.
+    """
+    key_tokens = _tokens(key)
+    return (all(any(_tok_eq(kt, et) for et in entity_tokens) for kt in key_tokens) and
+            all(any(_tok_eq(et, kt) for kt in key_tokens) for et in entity_tokens))
 
 
 def osm_resolve_tag(entity):
@@ -262,6 +277,8 @@ WB_INDICATORS = {
     "salaried workers": "SL.EMP.WORK.ZS",
     "employment in services": "SL.SRV.EMPL.ZS", "service employment": "SL.SRV.EMPL.ZS",
     "employment in agriculture": "SL.AGR.EMPL.ZS", "agricultural employment": "SL.AGR.EMPL.ZS",
+    # Verified through the World Bank v2 API for Brazil, India, and Kenya (40/8/8 rows).
+    "gini coefficient": "SI.POV.GINI", "gini index": "SI.POV.GINI",
 }
 
 
@@ -276,12 +293,9 @@ def wb_resolve_indicator(entity):
     def _ambig(hits):
         # Multiple lay aliases of one code are synonyms, not source ambiguity.
         return hits if len({WB_INDICATORS[h] for h in hits}) > 1 else []
-    hits = [k for k in WB_INDICATORS if k in e]  # key phrase inside entity phrase only
-    if hits:
-        best = max(hits, key=len)
-        return WB_INDICATORS[best], best, _ambig(hits)
     et = _tokens(entity) - {"rate", "level", "number", "total"}
-    tok_hits = [k for k in WB_INDICATORS if _key_covered(k, et)]
+    tok_hits = [k for k in WB_INDICATORS
+                if _key_covered(k, et) or _key_covered(k, _tokens(entity))]
     if tok_hits:
         best = max(tok_hits, key=lambda k: len(_tokens(k) & et))
         return WB_INDICATORS[best], best, _ambig(tok_hits)
@@ -393,9 +407,23 @@ ILO_INDICATORS = {
         "code": "EMP_XTRU_SEX_RT_A", "sex": "SEX_T", "unit": "percent"},
 }
 
+# Reviewed lay-name aliases. These omit only a conventional unit/head word; source provenance
+# still reports the exact curated rate/hours slice. Source-defining modifiers remain mandatory.
+for alias, canonical in {
+    "informal employment": "informal employment rate",
+    "informal employment in agriculture": "informal employment rate in agriculture",
+    "average weekly hours": "average weekly hours worked",
+    "female average weekly hours": "female average weekly hours worked",
+    "male average weekly hours": "male average weekly hours worked",
+    "labour underutilization": "labour underutilization rate",
+    "labor underutilization": "labor underutilization rate",
+}.items():
+    ILO_INDICATORS[alias] = ILO_INDICATORS[canonical]
+
 
 def _entity_norm(s):
-    return " ".join(s.lower().replace("-", " ").replace("_", " ").split()).rstrip(" .?")
+    value = " ".join(s.lower().replace("-", " ").replace("_", " ").split()).rstrip(" .?")
+    return re.sub(r"\s+specifically$", "", value)
 
 
 def ilo_resolve_indicator(entity):
