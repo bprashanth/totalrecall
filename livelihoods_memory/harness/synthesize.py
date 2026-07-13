@@ -392,7 +392,10 @@ def score_synthesis(question, exec_result, prose):
         else:
             s["states_finding"] = True if status != "answer" else (
                 any(str(r.get("label", r.get("value", ""))).split(",")[0] in prose
-                    for r in rows) or v.get("kind") == "series")
+                    for r in rows) or v.get("kind") == "series" or
+                (v.get("kind") == "field" and bool(re.search(
+                    r"\b(?:modelled|modeled|estimated)\s+field\b|\bfield\s+was\s+generated\b",
+                    prose.lower()))))
     if exec_result.get("label") == "modelled":
         s["modelled_flagged"] = bool(re.search(r"model|estimat|approximat", prose.lower())) \
             and bool(re.search(r"local\s+corroborat|corroborat\w*\s+locally",prose.lower()))
