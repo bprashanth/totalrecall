@@ -1,0 +1,2468 @@
+{
+  "spec_version": "v2.1",
+  "note": "parser-blind H22 bank selected and repaired before contact from GPT-5.6 Sol generation with independent half audit",
+  "source_generated": "questions/holdout-h22-generated.json",
+  "pre_run_exclusions": [
+    "h22-002",
+    "h22-003",
+    "h22-005",
+    "h22-006",
+    "h22-014",
+    "h22-015",
+    "h22-017",
+    "h22-018",
+    "h22-019",
+    "h22-020",
+    "h22-025",
+    "h22-026",
+    "h22-029",
+    "h22-030",
+    "h22-033",
+    "h22-034",
+    "h22-035",
+    "h22-036",
+    "h22-037",
+    "h22-038",
+    "h22-042",
+    "h22-044",
+    "h22-046",
+    "h22-048",
+    "h22-049",
+    "h22-050",
+    "h22-053",
+    "h22-056",
+    "h22-057",
+    "h22-058",
+    "h22-059",
+    "h22-060",
+    "h22-061",
+    "h22-062",
+    "h22-064",
+    "h22-067",
+    "h22-070",
+    "h22-071",
+    "h22-072",
+    "h22-075"
+  ],
+  "questions": [
+    {
+      "id": "h22-001",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which two of India, Kenya, and Ghana had the highest self-employment rates in 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-004",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Give the bottom three 2024 employment rates among Ile de France, Berlin region, Madrid region, and Lombardy.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin region"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid region"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          }
+        ],
+        "order": "asc",
+        "k": 3
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-007",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which two of Bengaluru, Nairobi, and Accra have the most craft workshops within 1 km of a market?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "craft_workshop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "craft_workshop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi, Kenya"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi, Kenya"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "craft_workshop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra, Ghana"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra, Ghana"
+                },
+                "time": null
+              },
+              "relation": "within",
+              "threshold_km": 1
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-008",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which one of Bengaluru, Nairobi, and Accra has the highest density of pharmacies beyond 2 km from a hospital?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "pharmacy",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 2
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "pharmacy",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi, Kenya"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi, Kenya"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 2
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "pharmacy",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra, Ghana"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "hospital",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra, Ghana"
+                },
+                "time": null
+              },
+              "relation": "beyond",
+              "threshold_km": 2
+            },
+            "by": "space",
+            "metric": "density"
+          }
+        ],
+        "order": "desc",
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-009",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Return the top two coworking-to-craft count ratios among Bengaluru, Nairobi, and Accra.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "coworking_space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "craft_workshop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "coworking_space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi, Kenya"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "craft_workshop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi, Kenya"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "how": "ratio"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "coworking_space",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra, Ghana"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "SELECT",
+                "entity": "craft_workshop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra, Ghana"
+                },
+                "time": null
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "how": "ratio"
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-010",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Return the two smallest gaps between market-near workshops and bank-near workshops in Bengaluru, Nairobi, and Accra.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "craft_workshop",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "market",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 1
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "craft_workshop",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "bank",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Bengaluru, India"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 1
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "craft_workshop",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Nairobi, Kenya"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "market",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Nairobi, Kenya"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 1
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "craft_workshop",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Nairobi, Kenya"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "bank",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Nairobi, Kenya"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 1
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "how": "difference"
+          },
+          {
+            "op": "COMPARE",
+            "left": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "craft_workshop",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Accra, Ghana"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "market",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Accra, Ghana"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 1
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "right": {
+              "op": "AGGREGATE",
+              "source": {
+                "op": "RELATE",
+                "left": {
+                  "op": "SELECT",
+                  "entity": "craft_workshop",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Accra, Ghana"
+                  },
+                  "time": null
+                },
+                "right": {
+                  "op": "SELECT",
+                  "entity": "bank",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Accra, Ghana"
+                  },
+                  "time": null
+                },
+                "relation": "within",
+                "threshold_km": 1
+              },
+              "by": "space",
+              "metric": "count"
+            },
+            "how": "difference"
+          }
+        ],
+        "order": "asc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-011",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How much did France's informal employment rate change from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-012",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Was France's informal employment rate rising or falling over 2019–2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2023"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-013",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What was Germany's 2019-to-2023 change in female average weekly hours worked?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-016",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Did Ile de France's employment rate trend upward or downward during 2022–2024?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-021",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "What is Kenya's 2023 self-employment rate divided by France's 2023 informal-employment rate?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-022",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "What is France's 2023 informal-employment rate divided by Kenya's 2023 self-employment rate?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-023",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Berlin's 2023 female employment rate less Germany's 2023 female informal-employment rate?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin region"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-024",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Germany's 2023 female informal-employment rate less Berlin's 2023 female employment rate?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "female employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin region"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-027",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Count Bengaluru craft workshops within 2 km of a market and beyond 0.5 km from a bank.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft_workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 2
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 0.5
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-028",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Count Bengaluru craft workshops beyond 2 km from a market and within 0.5 km of a bank.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft_workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "beyond",
+            "threshold_km": 2
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.5
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-031",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Density of Accra water points within 3 km of a market and beyond 0.25 km from a toilet?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "water_point",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 3
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "toilet",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 0.25
+        },
+        "by": "space",
+        "metric": "density"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-032",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Density of Accra water points beyond 3 km from a market and within 0.25 km of a toilet?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "water_point",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "relation": "beyond",
+            "threshold_km": 3
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "toilet",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 0.25
+        },
+        "by": "space",
+        "metric": "density"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-039",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Bengaluru's count of market-near craft workshops minus its count of market-near coworking spaces, using 1 km?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft_workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-040",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Bengaluru's count of market-near coworking spaces minus its count of market-near craft workshops, using 1 km?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft_workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-041",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "In Accra, divide the density of water points within 1 km of markets by the density of toilets within 1 km of markets.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "water_point",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "density"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "toilet",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "density"
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-043",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "What is the mean distance from Bengaluru craft workshops to their nearest markets?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft_workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru, India"
+            },
+            "time": null
+          },
+          "relation": "distance"
+        },
+        "by": "space",
+        "metric": "mean"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-045",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which two have the shortest mean distance to their nearest bus stop: Bengaluru markets, Nairobi markets, or Accra markets?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bus_stop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Bengaluru, India"
+                },
+                "time": null
+              },
+              "relation": "distance"
+            },
+            "by": "space",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi, Kenya"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bus_stop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Nairobi, Kenya"
+                },
+                "time": null
+              },
+              "relation": "distance"
+            },
+            "by": "space",
+            "metric": "mean"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "RELATE",
+              "left": {
+                "op": "SELECT",
+                "entity": "market",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra, Ghana"
+                },
+                "time": null
+              },
+              "right": {
+                "op": "SELECT",
+                "entity": "bus_stop",
+                "region": {
+                  "op": "REGION",
+                  "place": "Accra, Ghana"
+                },
+                "time": null
+              },
+              "relation": "distance"
+            },
+            "by": "space",
+            "metric": "mean"
+          }
+        ],
+        "order": "asc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-047",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "q": "Attach the source name field to Bengaluru craft workshops.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft_workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "layer": "name"
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-051",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Around here, what is the ratio of craft-workshop count to coworking-space count?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "craft_workshop",
+            "region": "?here",
+            "time": null
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "coworking_space",
+            "region": "?here",
+            "time": null
+          },
+          "by": "space",
+          "metric": "count"
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-052",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Here, subtract market-near workshop density from bank-near workshop density, using 1 km.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft_workshop",
+              "region": "?here",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": "?here",
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "density"
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft_workshop",
+              "region": "?here",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": "?here",
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "by": "space",
+          "metric": "density"
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-054",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Choose the two highest coworking counts among Accra, Nairobi, and here.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": {
+                "op": "REGION",
+                "place": "Nairobi, Kenya"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "count"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": "?here",
+              "time": null
+            },
+            "by": "space",
+            "metric": "count"
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-055",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Count workshops here within 2 km of a market but beyond 1 km from a bank.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft_workshop",
+              "region": "?here",
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": "?here",
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 2
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": "?here",
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-063",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "Use Accra restaurants within 1 km of markets as the donor pattern for an unnamed target city, using the envelope method.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "restaurant",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "target": "?target_city",
+        "method": "envelope"
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": true,
+      "must_estimate": true
+    },
+    {
+      "id": "h22-065",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "What was Kenya's median daily earnings in 2023?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "median daily earnings",
+        "region": {
+          "op": "REGION",
+          "place": "Kenya"
+        },
+        "time": {
+          "start": "2023",
+          "end": "2023"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-066",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Did Ghana's street-vendor income rise or fall from 2019 through 2023?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "street vendor income",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2023"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-068",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "France's 2023 job-vacancy rate minus Germany's 2023 job-vacancy rate?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "job vacancy rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "job vacancy rate",
+          "region": {
+            "op": "REGION",
+            "place": "Germany"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-069",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which two had the lowest average commuting cost in 2023: India, Kenya, or Ghana?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "average commuting cost",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average commuting cost",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "average commuting cost",
+            "region": {
+              "op": "REGION",
+              "place": "Ghana"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        ],
+        "order": "asc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-073",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "Divide India self-employment percentage in 2023 by its 2019 percentage.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-074",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Berlin female employment-rate direction, 2022–24?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "source": {
+            "op": "SELECT",
+            "entity": "female employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin region"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2024"
+            }
+          },
+          "by": "time",
+          "metric": "mean"
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-076",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Two densest for coworking: Bengaluru, Nairobi, Accra, or Kisumu?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": {
+                "op": "REGION",
+                "place": "Nairobi, Kenya"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "density"
+          },
+          {
+            "op": "AGGREGATE",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking_space",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "by": "space",
+            "metric": "density"
+          }
+        ],
+        "order": "desc",
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-077",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many Accra craft workshops have no market within 1.5 km?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft_workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1.5
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-078",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "How many Accra craft workshops have a market within 1.5 km?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft_workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1.5
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-079",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Exact shop count for Bengaluru?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "shop",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "count"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    },
+    {
+      "id": "h22-080",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Any coworking spaces in Kisumu?",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking_space",
+          "region": {
+            "op": "REGION",
+            "place": "Kisumu, Kenya"
+          },
+          "time": null
+        },
+        "by": "space",
+        "metric": "presence"
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ],
+      "must_hole": false,
+      "must_estimate": false
+    }
+  ]
+}
