@@ -1,0 +1,539 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-tran-01",
+   "sector": "transport",
+   "type": "STATE",
+   "q": "How many tram stops are there in Melbourne?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "tram",
+     "region": {
+      "op": "REGION",
+      "place": "Melbourne, Australia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-02",
+   "sector": "transport",
+   "type": "RELATION",
+   "q": "Which fuel stations in Cape Town have no charging station within 1 km?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "fuel",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "charging station",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-03",
+   "sector": "transport",
+   "type": "CHANGE",
+   "q": "How much did the number of air passengers carried change in Brazil between 2015 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "air passengers carried",
+     "region": {
+      "op": "REGION",
+      "place": "Brazil"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "air passengers carried",
+     "region": {
+      "op": "REGION",
+      "place": "Brazil"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-04",
+   "sector": "transport",
+   "type": "CHANGE",
+   "q": "What was the change in container port traffic in Japan from 2010 to 2019?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "container port traffic",
+     "region": {
+      "op": "REGION",
+      "place": "Japan"
+     },
+     "time": {
+      "start": "2019",
+      "end": "2019"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "container port traffic",
+     "region": {
+      "op": "REGION",
+      "place": "Japan"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-05",
+   "sector": "transport",
+   "type": "TREND",
+   "q": "Is railway passenger volume in India rising or falling over the past 10 years?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "railway passenger volume",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2013",
+       "end": "2023"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-06",
+   "sector": "transport",
+   "type": "TRANSFER",
+   "q": "I'm moving to Tarragona and want to cycle around. Can you estimate how many bicycle rental stations are there from the data for Barcelona?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "feature",
+    "target": {
+     "op": "REGION",
+     "place": "Tarragona, Spain"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "bicycle rental station",
+     "region": {
+      "op": "REGION",
+      "place": "Barcelona, Spain"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-07",
+   "sector": "transport",
+   "type": "AMBIGUOUS",
+   "q": "How many charging stations are near this hotel?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "charging station",
+      "region": "?place",
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "hotel",
+      "region": "?place",
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-08",
+   "sector": "transport",
+   "type": "BEHAVIOUR",
+   "q": "Why do so many people in Copenhagen use bicycles instead of buses?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Copenhagen, Denmark"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-09",
+   "sector": "transport",
+   "type": "COMPOSITE",
+   "q": "Does Munich have more bus stops than Stuttgart? And of those bus stops, how many are within 1 km of a railway station in each city?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Munich, Germany"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Stuttgart, Germany"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-10",
+   "sector": "transport",
+   "type": "COMPOSITE",
+   "q": "Compare the number of railway stations in Oslo and Helsinki, and also tell me which has more tram stops?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "railway station",
+      "region": {
+       "op": "REGION",
+       "place": "Oslo, Norway"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "railway station",
+      "region": {
+       "op": "REGION",
+       "place": "Helsinki, Finland"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-11",
+   "sector": "transport",
+   "type": "RANKING",
+   "q": "Rank Denver, Seattle, and Vancouver by the number of bicycle rental stations.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bicycle rental station",
+       "region": {
+        "op": "REGION",
+        "place": "Denver, Colorado, USA"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bicycle rental station",
+       "region": {
+        "op": "REGION",
+        "place": "Seattle, Washington, USA"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bicycle rental station",
+       "region": {
+        "op": "REGION",
+        "place": "Vancouver, British Columbia, Canada"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-12",
+   "sector": "transport",
+   "type": "RANKING",
+   "q": "Which of these three countries\u2014Germany, France, Italy\u2014had the most rail lines (total km) in 2018?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "SELECT",
+      "entity": "rail lines",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2018",
+       "end": "2018"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "rail lines",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2018",
+       "end": "2018"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "rail lines",
+      "region": {
+       "op": "REGION",
+       "place": "Italy"
+      },
+      "time": {
+       "start": "2018",
+       "end": "2018"
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-tran-13",
+   "sector": "transport",
+   "type": "RANKING",
+   "q": "Among Barcelona, Valencia, and Seville, which has the fewest bus stops?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Barcelona, Spain"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Valencia, Spain"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Seville, Spain"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  }
+ ]
+}

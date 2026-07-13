@@ -1,0 +1,1519 @@
+{
+ "spec_version": "v2.1",
+ "note": "post-freeze Cursor-authored candidates; unexposed to qwen",
+ "source_generated": "coverage/raw/epoch008-holdout-candidates.json",
+ "questions": [
+  {
+   "id": "h9-001",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Kenya's self employment change from 2012 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "self employment",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2012",
+      "end": "2012"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "self employment",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-002",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did India's labor force participation change from 2014 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "labor force participation",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2014",
+      "end": "2014"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "labor force participation",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-003",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Ghana's vulnerable employment change from 2010 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "vulnerable employment",
+     "region": {
+      "op": "REGION",
+      "place": "Ghana"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "vulnerable employment",
+     "region": {
+      "op": "REGION",
+      "place": "Ghana"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-004",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Germany's self employment rising or falling from 2014 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "self employment",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2014",
+       "end": "2024"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-005",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Kenya's wage and salaried workers rising or falling from 2012 to 2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "wage and salaried workers",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2012",
+       "end": "2022"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-006",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was India's employment in agriculture rising or falling from 2011 to 2021?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment in agriculture",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2011",
+       "end": "2021"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-007",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of Kenya's self employment to wage and salaried workers in 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "self employment",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "wage and salaried workers",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-008",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of India's employment in services to employment in agriculture in 2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "employment in services",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "employment in agriculture",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-009",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How much higher was France's youth unemployment than Germany's in 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "youth unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "youth unemployment",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-010",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of Spain's labor force participation to France's in 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "labor force participation",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "labor force participation",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-011",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Kenya, India, and Ghana by vulnerable employment in 2023.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "SELECT",
+      "entity": "vulnerable employment",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "vulnerable employment",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "vulnerable employment",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(SELECT,SELECT,SELECT)"
+  },
+  {
+   "id": "h9-012",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank France, Germany, and Spain by youth unemployment in 2024.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "youth unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(SELECT,SELECT,SELECT)"
+  },
+  {
+   "id": "h9-013",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Ghana's employment in services change from 2012 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "employment in services",
+     "region": {
+      "op": "REGION",
+      "place": "Ghana"
+     },
+     "time": {
+      "start": "2012",
+      "end": "2012"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "employment in services",
+     "region": {
+      "op": "REGION",
+      "place": "Ghana"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-014",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was France's employment in services rising or falling from 2015 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment in services",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2015",
+       "end": "2024"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-015",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did France's informal employment rate change from 2010 to 2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "informal employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "informal employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-016",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Germany's female average weekly hours worked change from 2012 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "female average weekly hours worked",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2012",
+      "end": "2012"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "female average weekly hours worked",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-017",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Spain's labour underutilization rate change from 2011 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "labour underutilization rate",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": {
+      "start": "2011",
+      "end": "2011"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "labour underutilization rate",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-018",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was France's time related underemployment rate rising or falling from 2014 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "time related underemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2014",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-019",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Germany's average weekly hours worked rising or falling from 2015 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2015",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-020",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Spain's informal employment rate in agriculture rising or falling from 2013 to 2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate in agriculture",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2013",
+       "end": "2022"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-021",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of France's female average weekly hours worked to male average weekly hours worked in 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "female average weekly hours worked",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "male average weekly hours worked",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-022",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of Germany's informal employment rate to informal employment rate in agriculture in 2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "informal employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "informal employment rate in agriculture",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-023",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How much higher was Spain's labour underutilization rate than France's in 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "labour underutilization rate",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "labour underutilization rate",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-024",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of Germany's time related underemployment rate to Spain's in 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "time related underemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "time related underemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Spain"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-025",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank France, Germany, and Spain by informal employment rate in 2022.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(SELECT,SELECT,SELECT)"
+  },
+  {
+   "id": "h9-026",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank France, Germany, and Spain by time related underemployment rate in 2023.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "SELECT",
+      "entity": "time related underemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "time related underemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "time related underemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(SELECT,SELECT,SELECT)"
+  },
+  {
+   "id": "h9-027",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Germany's male informal employment rate change from 2010 to 2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "male informal employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "male informal employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-028",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Spain's female average weekly hours worked rising or falling from 2016 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2016",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-029",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Berlin's employment rate change from 2014 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin"
+     },
+     "time": {
+      "start": "2014",
+      "end": "2014"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-030",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Madrid region's unemployment rate change from 2015 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Madrid region"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Madrid region"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-031",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Ile de France's employed persons change from 2012 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "employed persons",
+     "region": {
+      "op": "REGION",
+      "place": "Ile de France"
+     },
+     "time": {
+      "start": "2012",
+      "end": "2012"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "employed persons",
+     "region": {
+      "op": "REGION",
+      "place": "Ile de France"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-032",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Berlin's female employment rate rising or falling from 2015 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin"
+      },
+      "time": {
+       "start": "2015",
+       "end": "2024"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-033",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Catalonia's male employment rate rising or falling from 2014 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "male employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia"
+      },
+      "time": {
+       "start": "2014",
+       "end": "2024"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-034",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Lombardy's unemployment rate rising or falling from 2016 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy"
+      },
+      "time": {
+       "start": "2016",
+       "end": "2024"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h9-035",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of Berlin's female employment rate to male employment rate in 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "male employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-036",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How much higher was Ile de France's employment rate than Madrid region's in 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Ile de France"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Madrid region"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-037",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "What is the ratio of Catalonia's unemployment rate to Lombardy's in 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Catalonia"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Lombardy"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-038",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How much higher was Warsaw capital region's male employment rate than Berlin's in 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "male employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Warsaw capital region"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "male employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-039",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Berlin, Madrid region, and Ile de France by employment rate in 2024.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Madrid region"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Ile de France"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(SELECT,SELECT,SELECT)"
+  },
+  {
+   "id": "h9-040",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Catalonia, Lombardy, and Warsaw capital region by unemployment rate in 2024.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Lombardy"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     },
+     {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw capital region"
+      },
+      "time": {
+       "start": "2024",
+       "end": "2024"
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(SELECT,SELECT,SELECT)"
+  },
+  {
+   "id": "h9-041",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did Catalonia's female employment rate change from 2014 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Catalonia"
+     },
+     "time": {
+      "start": "2014",
+      "end": "2014"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "female employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Catalonia"
+     },
+     "time": {
+      "start": "2024",
+      "end": "2024"
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(SELECT,SELECT)"
+  },
+  {
+   "id": "h9-042",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was Warsaw capital region's employment rate rising or falling from 2016 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Warsaw capital region"
+      },
+      "time": {
+       "start": "2016",
+       "end": "2024"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+  }
+ ]
+}

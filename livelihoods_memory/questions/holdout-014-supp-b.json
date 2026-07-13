@@ -1,0 +1,83 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-s15-generated.json",
+  "pre_run_exclusions": [
+    "h15s-01",
+    "h15s-02",
+    "h15s-03",
+    "h15s-04",
+    "h15s-05",
+    "h15s-06",
+    "h15s-07",
+    "h15s-08",
+    "h15s-09"
+  ],
+  "questions": [
+    {
+      "id": "h15s-10",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank Berlin, Ile de France, and Comunidad de Madrid from lowest to highest unemployment rate in 2023.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Comunidad de Madrid"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": "RANK(AGGREGATE(SELECT), AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    }
+  ]
+}

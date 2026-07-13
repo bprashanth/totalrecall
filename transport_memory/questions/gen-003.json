@@ -1,0 +1,681 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen3-tran-01",
+   "sector": "transport",
+   "type": "STATE",
+   "q": "I'm moving to Oulu without a car \u2014 will I manage? How many scheduled transit stops are there?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "scheduled transit stop",
+     "region": {
+      "op": "REGION",
+      "place": "Oulu, Finland"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-02",
+   "sector": "transport",
+   "type": "STATE",
+   "q": "How many railway stations are there in Tampere?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "railway station",
+     "region": {
+      "op": "REGION",
+      "place": "Tampere, Finland"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-03",
+   "sector": "transport",
+   "type": "RELATION",
+   "q": "How far is the nearest charging station from the central railway station in Berlin?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "distance",
+    "left": {
+     "op": "SELECT",
+     "entity": "charging station",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin, Germany"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "central railway station",
+     "region": {
+      "op": "REGION",
+      "place": "Berlin, Germany"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-04",
+   "sector": "transport",
+   "type": "CHANGE",
+   "q": "I'm thinking of taking the bus in Chicago instead of driving. How much did bus ridership change between 1999 and 2019?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "bus ridership",
+     "region": {
+      "op": "REGION",
+      "place": "Chicago, Illinois, USA"
+     },
+     "time": {
+      "start": "2019",
+      "end": "2019"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bus ridership",
+     "region": {
+      "op": "REGION",
+      "place": "Chicago, Illinois, USA"
+     },
+     "time": {
+      "start": "1999",
+      "end": "1999"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-05",
+   "sector": "transport",
+   "type": "CHANGE",
+   "q": "How much did container port traffic in Singapore change between 2015 and 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "container port traffic",
+     "region": {
+      "op": "REGION",
+      "place": "Singapore"
+     },
+     "time": {
+      "start": "2023",
+      "end": "2023"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "container port traffic",
+     "region": {
+      "op": "REGION",
+      "place": "Singapore"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-06",
+   "sector": "transport",
+   "type": "TREND",
+   "q": "Is rail transit in New York becoming more popular? What's the trend from 2021 to 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "rail ridership",
+      "region": {
+       "op": "REGION",
+       "place": "New York"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2024"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-07",
+   "sector": "transport",
+   "type": "TREND",
+   "q": "Is the total length of rail lines in Argentina increasing between 2000 and 2015?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "total length of rail lines",
+      "region": {
+       "op": "REGION",
+       "place": "Argentina"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2015"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-08",
+   "sector": "transport",
+   "type": "TRANSFER",
+   "q": "Can you estimate the number of bus stops in the small town of Gisborne, New Zealand based on data from Christchurch?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Gisborne, New Zealand"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Christchurch, New Zealand"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-09",
+   "sector": "transport",
+   "type": "AMBIGUOUS",
+   "q": "How many public transport facilities are there around here?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "public transport facility",
+     "region": "?place",
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-10",
+   "sector": "transport",
+   "type": "BEHAVIOUR",
+   "q": "Why do people in Copenhagen prefer cycling over taking the bus?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Copenhagen, Denmark"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-11",
+   "sector": "transport",
+   "type": "COMPOSITE",
+   "q": "In Chicago, which had higher ridership in 2019, bus or rail?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "bus ridership",
+     "region": {
+      "op": "REGION",
+      "place": "Chicago, Illinois"
+     },
+     "time": {
+      "start": "2019",
+      "end": "2019"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "rail ridership",
+     "region": {
+      "op": "REGION",
+      "place": "Chicago, Illinois"
+     },
+     "time": {
+      "start": "2019",
+      "end": "2019"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-12",
+   "sector": "transport",
+   "type": "COMPOSITE",
+   "q": "I'm trying to decide between tram and train in Berlin. Which has more stops: tram stops or railway stations?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "tram stop",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "railway station",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin, Germany"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-13",
+   "sector": "transport",
+   "type": "RANKING",
+   "q": "I'm comparing transit options in Oulu, Tampere, and Winnipeg. Which city has the most scheduled transit stops?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "transit stop",
+       "region": {
+        "op": "REGION",
+        "place": "Oulu, Finland"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "transit stop",
+       "region": {
+        "op": "REGION",
+        "place": "Tampere, Finland"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "transit stop",
+       "region": {
+        "op": "REGION",
+        "place": "Winnipeg, Canada"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-14",
+   "sector": "transport",
+   "type": "RANKING",
+   "q": "I'm a tram enthusiast. Which of Berlin, Vienna, and Zurich has the most tram lines?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "tram line",
+       "region": {
+        "op": "REGION",
+        "place": "Berlin, Germany"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "tram line",
+       "region": {
+        "op": "REGION",
+        "place": "Vienna, Austria"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "tram line",
+       "region": {
+        "op": "REGION",
+        "place": "Zurich, Switzerland"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-15",
+   "sector": "transport",
+   "type": "STATE",
+   "q": "How many bus routes are there in Lyon?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "bus route",
+     "region": {
+      "op": "REGION",
+      "place": "Lyon, France"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-16",
+   "sector": "transport",
+   "type": "STATE",
+   "q": "How many scheduled transit routes are there in Christchurch?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "scheduled transit route",
+     "region": {
+      "op": "REGION",
+      "place": "Christchurch, New Zealand"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-17",
+   "sector": "transport",
+   "type": "RANKING",
+   "q": "Rank the United States, China, and Germany by the number of air passengers carried in 2019.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "air passengers carried",
+       "region": {
+        "op": "REGION",
+        "place": "United States"
+       },
+       "time": {
+        "start": "2019",
+        "end": "2019"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "air passengers carried",
+       "region": {
+        "op": "REGION",
+        "place": "China"
+       },
+       "time": {
+        "start": "2019",
+        "end": "2019"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "air passengers carried",
+       "region": {
+        "op": "REGION",
+        "place": "Germany"
+       },
+       "time": {
+        "start": "2019",
+        "end": "2019"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen3-tran-18",
+   "sector": "transport",
+   "type": "RELATION",
+   "q": "Which scheduled transit stops in Winnipeg are not within 500 meters of any railway station?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "scheduled transit stop",
+     "region": {
+      "op": "REGION",
+      "place": "Winnipeg, Canada"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "railway station",
+     "region": {
+      "op": "REGION",
+      "place": "Winnipeg, Canada"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  }
+ ]
+}

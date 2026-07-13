@@ -1,0 +1,3907 @@
+{
+  "schema_version": "round2-coverage-v1",
+  "summary": {
+    "question_count": 117,
+    "by_bank": {
+      "breakers.json": 5,
+      "gen-001.json": 17,
+      "gen-002-indirect.json": 11,
+      "round2-breakers.json": 60,
+      "seed.json": 24
+    },
+    "by_type": {
+      "AMBIGUOUS": 4,
+      "BEHAVIOUR": 4,
+      "CHANGE": 6,
+      "COMPOSITE": 9,
+      "EXPRESSIVENESS": 60,
+      "RANKING": 6,
+      "RELATION": 8,
+      "STATE": 11,
+      "TRANSFER": 4,
+      "TREND": 5
+    },
+    "by_expect": {
+      "answer": 39,
+      "answer_or_data_request": 4,
+      "data_request": 9,
+      "rejected": 65
+    },
+    "by_source": {
+      "eurostat": 2,
+      "hole": 7,
+      "osm-overpass": 35,
+      "unknown": 1,
+      "world-bank": 12
+    },
+    "by_grain": {
+      "city-bbox/point-record": 35,
+      "country/annual-series": 12,
+      "none": 60,
+      "nuts2/annual-survey-series": 2,
+      "unknown": 1,
+      "unresolved": 7
+    },
+    "by_time_form": {
+      "point": 9,
+      "unspecified": 48
+    },
+    "by_relation": {
+      "beyond": 6,
+      "distance": 1,
+      "within": 8
+    },
+    "by_aggregate_metric": {
+      "count": 16,
+      "density": 1,
+      "mean": 6
+    },
+    "by_compare_mode": {
+      "difference": 9,
+      "ratio": 1,
+      "trend_direction": 5
+    },
+    "by_estimate_method": {
+      "envelope": 4
+    },
+    "by_rank_order": {
+      "desc": 6
+    },
+    "by_capability_family": {
+      "None": 57,
+      "attribute_filter": 6,
+      "causal_counterfactual": 6,
+      "derived_rate": 6,
+      "distribution": 6,
+      "group_partition": 6,
+      "multi_output": 6,
+      "record_set": 6,
+      "subgroup_filter": 6,
+      "temporal_alignment": 6,
+      "uncertainty_conflict": 6
+    },
+    "op_occurrences": {
+      "AGGREGATE": 36,
+      "COMPARE": 15,
+      "ESTIMATE": 4,
+      "RANK": 6,
+      "REGION": 93,
+      "RELATE": 16,
+      "SELECT": 95
+    },
+    "unique_skeletons": 13,
+    "adversarial_count": 65
+  },
+  "rows": [
+    {
+      "id": null,
+      "bank": "breakers.json",
+      "type": "RELATION",
+      "expect": "rejected",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bank",
+        "marketplace"
+      ],
+      "regions": [
+        "Marseille, France"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        1.0
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": true
+    },
+    {
+      "id": null,
+      "bank": "breakers.json",
+      "type": "RANKING",
+      "expect": "rejected",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "marketplace"
+      ],
+      "regions": [
+        "Belo Horizonte",
+        "León",
+        "Quito"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": true
+    },
+    {
+      "id": null,
+      "bank": "breakers.json",
+      "type": "STATE",
+      "expect": "rejected",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bank branch"
+      ],
+      "regions": [
+        "Accra city center, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": true
+    },
+    {
+      "id": null,
+      "bank": "breakers.json",
+      "type": "COMPOSITE",
+      "expect": "rejected",
+      "skeleton": "COMPARE(AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "market"
+      ],
+      "regions": [
+        "Fes, Morocco",
+        "Marrakech, Morocco"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": true
+    },
+    {
+      "id": null,
+      "bank": "breakers.json",
+      "type": "RELATION",
+      "expect": "rejected",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop",
+        "marketplace"
+      ],
+      "regions": [
+        "Valencia, Spain"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond"
+      ],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": true
+    },
+    {
+      "id": "gen-live-01",
+      "bank": "gen-001.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "marketplace"
+      ],
+      "regions": [
+        "Curitiba, Brazil"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-02",
+      "bank": "gen-001.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop"
+      ],
+      "regions": [
+        "Lyon, France"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-03",
+      "bank": "gen-001.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bank"
+      ],
+      "regions": [
+        "Auckland, New Zealand"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-04",
+      "bank": "gen-001.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "ATM",
+        "craft workshop"
+      ],
+      "regions": [
+        "Guadalajara, Mexico"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-05",
+      "bank": "gen-001.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "eurostat"
+      ],
+      "grain": [
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "unemployment rate"
+      ],
+      "regions": [
+        "Nigeria"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-06",
+      "bank": "gen-001.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "labor force participation"
+      ],
+      "regions": [
+        "Japan"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-07",
+      "bank": "gen-001.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "self-employment"
+      ],
+      "regions": [
+        "Germany"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "mean"
+      ],
+      "compare_modes": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-08",
+      "bank": "gen-001.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "Braga, Portugal",
+        "Porto, Portugal"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [
+        "envelope"
+      ],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-09",
+      "bank": "gen-001.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grain": [
+        "unresolved"
+      ],
+      "entities": [
+        "?facility_type"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?facility_type",
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-10",
+      "bank": "gen-001.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grain": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [
+        "Bogotá, Colombia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-11",
+      "bank": "gen-001.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(RELATE(RELATE(SELECT,SELECT),SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 3,
+        "RELATE": 2,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bank",
+        "craft workshop",
+        "marketplace"
+      ],
+      "regions": [
+        "Marrakech, Morocco"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond",
+        "within"
+      ],
+      "thresholds_km": [
+        0.5,
+        1.0
+      ],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-12",
+      "bank": "gen-001.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "Seville, Spain",
+        "Valencia, Spain"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-13",
+      "bank": "gen-001.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bank"
+      ],
+      "regions": [
+        "Accra, Ghana",
+        "Lagos, Nigeria",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-14",
+      "bank": "gen-001.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "youth unemployment"
+      ],
+      "regions": [
+        "Australia",
+        "Canada",
+        "United States"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "mean"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-15",
+      "bank": "gen-001.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "ATM"
+      ],
+      "regions": [
+        "Osaka, Japan"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-16",
+      "bank": "gen-001.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(RELATE(SELECT,SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bank",
+        "coworking space"
+      ],
+      "regions": [
+        "Cape Town, South Africa"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        1.0
+      ],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-17",
+      "bank": "gen-001.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop",
+        "market"
+      ],
+      "regions": [
+        "Medellín, Colombia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond"
+      ],
+      "thresholds_km": [
+        2.0
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-01",
+      "bank": "gen-002-indirect.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop"
+      ],
+      "regions": [
+        "Medellín, Colombia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-02",
+      "bank": "gen-002-indirect.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "ATM",
+        "main marketplace"
+      ],
+      "regions": [
+        "Kampala, Uganda"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        1.0
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-03",
+      "bank": "gen-002-indirect.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "eurostat"
+      ],
+      "grain": [
+        "nuts2/annual-survey-series"
+      ],
+      "entities": [
+        "unemployment rate"
+      ],
+      "regions": [
+        "Vietnam"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-04",
+      "bank": "gen-002-indirect.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "vulnerable employment"
+      ],
+      "regions": [
+        "South Africa"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "mean"
+      ],
+      "compare_modes": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-05",
+      "bank": "gen-002-indirect.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "Bulawayo, Zimbabwe",
+        "Gweru, Zimbabwe"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [
+        "envelope"
+      ],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-06",
+      "bank": "gen-002-indirect.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grain": [
+        "unresolved"
+      ],
+      "entities": [
+        "?amenity_type"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?amenity_type",
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-07",
+      "bank": "gen-002-indirect.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grain": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [
+        "Porto, Portugal"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-08",
+      "bank": "gen-002-indirect.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "RELATE(RELATE(SELECT,SELECT),SELECT)",
+      "ops": {
+        "REGION": 3,
+        "RELATE": 2,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "ATM",
+        "bank",
+        "marketplace"
+      ],
+      "regions": [
+        "Guadalajara, Mexico"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond"
+      ],
+      "thresholds_km": [
+        0.5
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-10",
+      "bank": "gen-002-indirect.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "youth unemployment"
+      ],
+      "regions": [
+        "Spain"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-11",
+      "bank": "gen-002-indirect.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "self-employment"
+      ],
+      "regions": [
+        "Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "mean"
+      ],
+      "compare_modes": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-live-13",
+      "bank": "gen-002-indirect.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "Chiang Mai, Thailand",
+        "Lisbon, Portugal",
+        "Medellín, Colombia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "r2-break-attribute_filter-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "attribute_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-attribute_filter-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "attribute_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-attribute_filter-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "attribute_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-attribute_filter-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "attribute_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-attribute_filter-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "attribute_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-attribute_filter-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "attribute_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-subgroup_filter-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "subgroup_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-subgroup_filter-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "subgroup_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-subgroup_filter-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "subgroup_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-subgroup_filter-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "subgroup_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-subgroup_filter-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "subgroup_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-subgroup_filter-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "subgroup_filter",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-group_partition-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "group_partition",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-group_partition-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "group_partition",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-group_partition-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "group_partition",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-group_partition-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "group_partition",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-group_partition-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "group_partition",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-group_partition-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "group_partition",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-record_set-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "record_set",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-record_set-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "record_set",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-record_set-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "record_set",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-record_set-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "record_set",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-record_set-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "record_set",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-record_set-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "record_set",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-derived_rate-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "derived_rate",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-derived_rate-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "derived_rate",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-derived_rate-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "derived_rate",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-derived_rate-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "derived_rate",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-derived_rate-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "derived_rate",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-derived_rate-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "derived_rate",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-distribution-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "distribution",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-distribution-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "distribution",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-distribution-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "distribution",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-distribution-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "distribution",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-distribution-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "distribution",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-distribution-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "distribution",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-temporal_alignment-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "temporal_alignment",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-temporal_alignment-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "temporal_alignment",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-temporal_alignment-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "temporal_alignment",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-temporal_alignment-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "temporal_alignment",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-temporal_alignment-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "temporal_alignment",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-temporal_alignment-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "temporal_alignment",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-uncertainty_conflict-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "uncertainty_conflict",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-uncertainty_conflict-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "uncertainty_conflict",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-uncertainty_conflict-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "uncertainty_conflict",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-uncertainty_conflict-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "uncertainty_conflict",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-uncertainty_conflict-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "uncertainty_conflict",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-uncertainty_conflict-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "uncertainty_conflict",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-multi_output-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "multi_output",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-multi_output-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "multi_output",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-multi_output-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "multi_output",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-multi_output-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "multi_output",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-multi_output-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "multi_output",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-multi_output-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "multi_output",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-causal_counterfactual-01",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "causal_counterfactual",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-causal_counterfactual-02",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "causal_counterfactual",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-causal_counterfactual-03",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "causal_counterfactual",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-causal_counterfactual-04",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "causal_counterfactual",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-causal_counterfactual-05",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "causal_counterfactual",
+      "adversarial": true
+    },
+    {
+      "id": "r2-break-causal_counterfactual-06",
+      "bank": "round2-breakers.json",
+      "type": "EXPRESSIVENESS",
+      "expect": "rejected",
+      "skeleton": "?",
+      "ops": {},
+      "sources": [],
+      "grain": [
+        "none"
+      ],
+      "entities": [],
+      "regions": [],
+      "time_forms": [],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": "causal_counterfactual",
+      "adversarial": true
+    },
+    {
+      "id": "lv-state-01",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "marketplace"
+      ],
+      "regions": [
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-state-02",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "Bengaluru, India"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-state-03",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop"
+      ],
+      "regions": [
+        "Accra, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-state-04",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "marketplace"
+      ],
+      "regions": [
+        "Accra, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "density"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-gap-01",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "unknown"
+      ],
+      "grain": [
+        "unknown"
+      ],
+      "entities": [
+        "job vacancies"
+      ],
+      "regions": [
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-rel-01",
+      "bank": "seed.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop",
+        "marketplace"
+      ],
+      "regions": [
+        "Accra, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        2.0
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-rel-02",
+      "bank": "seed.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space",
+        "marketplace"
+      ],
+      "regions": [
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond"
+      ],
+      "thresholds_km": [
+        2.0
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-rel-03",
+      "bank": "seed.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space",
+        "marketplace"
+      ],
+      "regions": [
+        "Bengaluru, India"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "distance"
+      ],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-change-01",
+      "bank": "seed.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "self employment"
+      ],
+      "regions": [
+        "India"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-change-02",
+      "bank": "seed.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "youth unemployment"
+      ],
+      "regions": [
+        "Ghana"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-trend-01",
+      "bank": "seed.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "vulnerable employment"
+      ],
+      "regions": [
+        "Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "mean"
+      ],
+      "compare_modes": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-trend-02",
+      "bank": "seed.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "labor force participation"
+      ],
+      "regions": [
+        "India"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "mean"
+      ],
+      "compare_modes": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-ratio-01",
+      "bank": "seed.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "self employment",
+        "wage and salaried workers"
+      ],
+      "regions": [
+        "Kenya"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [
+        "ratio"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-transfer-01",
+      "bank": "seed.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "marketplace"
+      ],
+      "regions": [
+        "Accra, Ghana",
+        "Kumasi, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [
+        "envelope"
+      ],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-transfer-02",
+      "bank": "seed.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space"
+      ],
+      "regions": [
+        "Mombasa, Kenya",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [
+        "envelope"
+      ],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-amb-01",
+      "bank": "seed.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "marketplace"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-amb-02",
+      "bank": "seed.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grain": [
+        "unresolved"
+      ],
+      "entities": [
+        "?livelihood_facility_type"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?livelihood_facility_type",
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-beh-01",
+      "bank": "seed.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grain": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?place",
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-beh-02",
+      "bank": "seed.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grain": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [
+        "?place",
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-comp-01",
+      "bank": "seed.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(RELATE(SELECT,SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "craft workshop",
+        "marketplace"
+      ],
+      "regions": [
+        "Accra, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        1.0
+      ],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-comp-02",
+      "bank": "seed.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "marketplace"
+      ],
+      "regions": [
+        "Accra, Ghana",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-comp-03",
+      "bank": "seed.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "RELATE(RELATE(SELECT,SELECT),SELECT)",
+      "ops": {
+        "REGION": 3,
+        "RELATE": 2,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "coworking space",
+        "craft workshop",
+        "marketplace"
+      ],
+      "regions": [
+        "Accra, Ghana"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond",
+        "within"
+      ],
+      "thresholds_km": [
+        0.5,
+        1.0
+      ],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [],
+      "rank_sizes": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-rank-01",
+      "bank": "seed.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-overpass"
+      ],
+      "grain": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "marketplace"
+      ],
+      "regions": [
+        "Accra, Ghana",
+        "Bengaluru, India",
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [
+        "count"
+      ],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "lv-rank-02",
+      "bank": "seed.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grain": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "self employment"
+      ],
+      "regions": [
+        "Ghana",
+        "India",
+        "Kenya"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "aggregate_metrics": [],
+      "compare_modes": [],
+      "estimate_methods": [],
+      "rank_orders": [
+        "desc"
+      ],
+      "rank_sizes": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    }
+  ]
+}

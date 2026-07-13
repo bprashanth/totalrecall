@@ -1,0 +1,327 @@
+{
+ "spec_version": "v2.1",
+ "note": "post-freeze Cursor-authored candidates; unexposed to qwen",
+ "source_generated": "coverage/raw/epoch008-supplement.json",
+ "questions": [
+  {
+   "id": "h8s-001",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Which craft workshops in Accra are within 1 km of a bus station?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "left": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Accra"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bus station",
+     "region": {
+      "op": "REGION",
+      "place": "Accra"
+     },
+     "time": null
+    },
+    "relation": "within",
+    "threshold_km": 1
+   },
+   "gold_shape": "RELATE(within, SELECT, SELECT)"
+  },
+  {
+   "id": "h8s-002",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Are there coworking spaces in Bengaluru beyond 2 km from a bus stop?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "presence",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 2
+    }
+   },
+   "gold_shape": "AGGREGATE(presence, RELATE(beyond, SELECT, SELECT))"
+  },
+  {
+   "id": "h8s-003",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "How many craft workshops in Nairobi are within 1 km of a post office?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "SELECT",
+      "entity": "craft workshop",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "post office",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi"
+      },
+      "time": null
+     },
+     "relation": "within",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(count, RELATE(within, SELECT, SELECT))"
+  },
+  {
+   "id": "h8s-004",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Are there craft workshops in Accra within 1 km of a bus station but beyond 1 km from a bank?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "presence",
+    "source": {
+     "op": "RELATE",
+     "left": {
+      "op": "RELATE",
+      "left": {
+       "op": "SELECT",
+       "entity": "craft workshop",
+       "region": {
+        "op": "REGION",
+        "place": "Accra"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "bus station",
+       "region": {
+        "op": "REGION",
+        "place": "Accra"
+       },
+       "time": null
+      },
+      "relation": "within",
+      "threshold_km": 1
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Accra"
+      },
+      "time": null
+     },
+     "relation": "beyond",
+     "threshold_km": 1
+    }
+   },
+   "gold_shape": "AGGREGATE(presence, RELATE(beyond, RELATE(within, SELECT, SELECT), SELECT))"
+  },
+  {
+   "id": "h8s-005",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did self employment in Ghana change from 2010 to 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "self employment",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2010"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "self employment",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h8s-006",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was the female informal employment rate in Kenya rising or falling from 2012 to 2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "female informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2012",
+       "end": "2022"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(trend_direction, AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h8s-007",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did the employment rate in Berlin change from 2018 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin"
+      },
+      "time": {
+       "start": "2018",
+       "end": "2018"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h8s-008",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "By what ratio did vulnerable employment in Kenya change from 2000 to 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "vulnerable employment",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "vulnerable employment",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(ratio, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  }
+ ]
+}

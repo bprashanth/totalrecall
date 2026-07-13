@@ -1,0 +1,233 @@
+{
+ "spec_version": "v2.1",
+ "note": "post-freeze Cursor-authored candidates; unexposed to qwen",
+ "source_generated": "coverage/raw/epoch010-supplements.json",
+ "questions": [
+  {
+   "id": "h16s-01",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "For opening a coworking space in Coimbatore, India, estimate coworking spaces from Mysuru, India.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "coworking space",
+     "region": {
+      "op": "REGION",
+      "place": "Mysuru, India"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Coimbatore, India"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": "ESTIMATE(SELECT, REGION)",
+   "must_estimate": true
+  },
+  {
+   "id": "h16s-02",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "For placing an ATM in Kisii, Kenya, estimate ATMs from Kisumu, Kenya.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "atm",
+     "region": {
+      "op": "REGION",
+      "place": "Kisumu, Kenya"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Kisii, Kenya"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": "ESTIMATE(SELECT, REGION)",
+   "must_estimate": true
+  },
+  {
+   "id": "h16s-03",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "For adding a craft workshop in Eldoret, Kenya, estimate craft workshops from Kisumu, Kenya.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Kisumu, Kenya"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Eldoret, Kenya"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": "ESTIMATE(SELECT, REGION)",
+   "must_estimate": true
+  },
+  {
+   "id": "h16s-04",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "For opening a market in Madurai, India, estimate markets from Coimbatore, India.",
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "source": {
+     "op": "SELECT",
+     "entity": "market",
+     "region": {
+      "op": "REGION",
+      "place": "Coimbatore, India"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Madurai, India"
+    },
+    "method": "envelope"
+   },
+   "gold_shape": "ESTIMATE(SELECT, REGION)",
+   "must_estimate": true
+  },
+  {
+   "id": "h16s-05",
+   "sector": "livelihoods",
+   "type": "BEHAVIOUR",
+   "q": "To work with Wi-Fi in Mysuru, India, where are the coworking spaces?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "coworking space",
+    "region": {
+     "op": "REGION",
+     "place": "Mysuru, India"
+    },
+    "time": null
+   },
+   "gold_shape": "SELECT"
+  },
+  {
+   "id": "h16s-06",
+   "sector": "livelihoods",
+   "type": "BEHAVIOUR",
+   "q": "To withdraw cash in Kisumu, Kenya, where are the ATMs?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "atm",
+    "region": {
+     "op": "REGION",
+     "place": "Kisumu, Kenya"
+    },
+    "time": null
+   },
+   "gold_shape": "SELECT"
+  },
+  {
+   "id": "h16s-07",
+   "sector": "livelihoods",
+   "type": "BEHAVIOUR",
+   "q": "To sell goods in Udaipur, India, where are the markets?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "market",
+    "region": {
+     "op": "REGION",
+     "place": "Udaipur, India"
+    },
+    "time": null
+   },
+   "gold_shape": "SELECT"
+  },
+  {
+   "id": "h16s-08",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "To open a work hub in Kisii, Kenya, is there a suitable place?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "presence",
+    "source": {
+     "op": "SELECT",
+     "entity": "?facility_type",
+     "region": {
+      "op": "REGION",
+      "place": "Kisii, Kenya"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": "AGGREGATE(SELECT)",
+   "must_hole": true
+  },
+  {
+   "id": "h16s-09",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "To compare livelihoods in Spain from 2021 to 2023, was the rate rising or falling?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "?indicator",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(trend_direction, AGGREGATE(SELECT))",
+   "must_hole": true
+  },
+  {
+   "id": "h16s-10",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "To decide where to get cash in Coimbatore, India, which places are available?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?facility_type",
+    "region": {
+     "op": "REGION",
+     "place": "Coimbatore, India"
+    },
+    "time": null
+   },
+   "gold_shape": "SELECT",
+   "must_hole": true
+  }
+ ]
+}

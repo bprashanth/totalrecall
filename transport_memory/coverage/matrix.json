@@ -1,0 +1,2608 @@
+{
+  "schema_version": "round2-coverage-transport-v1",
+  "banks": [
+    "gen-001.json",
+    "gen-002-indirect.json",
+    "gen-003.json",
+    "seed.json"
+  ],
+  "summary": {
+    "question_count": 63,
+    "unique_skeletons": 11,
+    "by_bank": {
+      "gen-001.json": 13,
+      "gen-002-indirect.json": 10,
+      "gen-003.json": 18,
+      "seed.json": 22
+    },
+    "by_type": {
+      "AMBIGUOUS": 5,
+      "BEHAVIOUR": 5,
+      "CHANGE": 7,
+      "COMPOSITE": 7,
+      "RANKING": 10,
+      "RELATION": 8,
+      "STATE": 11,
+      "TRANSFER": 4,
+      "TREND": 6
+    },
+    "by_expect": {
+      "answer": 49,
+      "answer_or_data_request": 4,
+      "data_request": 10
+    },
+    "by_source": {
+      "city-open-data-ridership": 3,
+      "gtfs-mobility-database": 4,
+      "hole": 6,
+      "none": 2,
+      "osm-points": 32,
+      "osm-routes": 3,
+      "world-bank": 14
+    },
+    "by_grain": {
+      "city-bbox/point-record": 32,
+      "city-bbox/route-relation": 3,
+      "city-feed/stop-point": 4,
+      "city-system/annual-series": 3,
+      "country/annual-series": 14,
+      "none": 2,
+      "unresolved": 6
+    },
+    "by_time_form": {
+      "point": 9,
+      "unspecified": 49,
+      "window": 5
+    },
+    "by_relation": {
+      "beyond": 4,
+      "distance": 1,
+      "within": 7
+    },
+    "by_agg_metric": {
+      "count": 24,
+      "mean": 7
+    },
+    "by_compare_how": {
+      "difference": 11,
+      "trend_direction": 7
+    },
+    "by_estimate_method": {
+      "envelope": 3,
+      "feature": 1
+    },
+    "by_capability_family": {
+      "None": 63
+    },
+    "cells": {
+      "source_x_type": {
+        "city-open-data-ridership x CHANGE": 1,
+        "city-open-data-ridership x COMPOSITE": 1,
+        "city-open-data-ridership x TREND": 1,
+        "gtfs-mobility-database x RANKING": 1,
+        "gtfs-mobility-database x RELATION": 1,
+        "gtfs-mobility-database x STATE": 2,
+        "hole x AMBIGUOUS": 1,
+        "hole x BEHAVIOUR": 5,
+        "none x AMBIGUOUS": 2,
+        "osm-points x AMBIGUOUS": 2,
+        "osm-points x COMPOSITE": 6,
+        "osm-points x RANKING": 5,
+        "osm-points x RELATION": 8,
+        "osm-points x STATE": 7,
+        "osm-points x TRANSFER": 4,
+        "osm-routes x RANKING": 1,
+        "osm-routes x STATE": 2,
+        "world-bank x CHANGE": 6,
+        "world-bank x RANKING": 3,
+        "world-bank x TREND": 5
+      },
+      "source_x_type_singletons": [
+        "city-open-data-ridership x CHANGE",
+        "city-open-data-ridership x COMPOSITE",
+        "city-open-data-ridership x TREND",
+        "gtfs-mobility-database x RANKING",
+        "gtfs-mobility-database x RELATION",
+        "hole x AMBIGUOUS",
+        "osm-routes x RANKING"
+      ],
+      "type_x_skeleton_singletons": [
+        "AMBIGUOUS x AGGREGATE(RELATE(SELECT,SELECT))",
+        "CHANGE x COMPARE(AGGREGATE(SELECT))",
+        "COMPOSITE x AGGREGATE(RELATE(SELECT,SELECT))",
+        "COMPOSITE x COMPARE(SELECT,SELECT)",
+        "COMPOSITE x RELATE(RELATE(SELECT,SELECT),SELECT)"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "id": "gen-tran-01",
+      "bank": "gen-001.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "tram"
+      ],
+      "regions": [
+        "Melbourne, Australia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-02",
+      "bank": "gen-001.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "charging station",
+        "fuel"
+      ],
+      "regions": [
+        "Cape Town, South Africa"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond"
+      ],
+      "thresholds_km": [
+        1.0
+      ],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-03",
+      "bank": "gen-001.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "air passengers carried"
+      ],
+      "regions": [
+        "Brazil"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-04",
+      "bank": "gen-001.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "container port traffic"
+      ],
+      "regions": [
+        "Japan"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-05",
+      "bank": "gen-001.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "railway passenger volume"
+      ],
+      "regions": [
+        "India"
+      ],
+      "time_forms": [
+        "window"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "mean"
+      ],
+      "compare_hows": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-06",
+      "bank": "gen-001.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bicycle rental station"
+      ],
+      "regions": [
+        "Barcelona, Spain",
+        "Tarragona, Spain"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [
+        "feature"
+      ],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-07",
+      "bank": "gen-001.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "AGGREGATE(RELATE(SELECT,SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "charging station",
+        "hotel"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-08",
+      "bank": "gen-001.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grains": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [
+        "Copenhagen, Denmark"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-09",
+      "bank": "gen-001.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop"
+      ],
+      "regions": [
+        "Munich, Germany",
+        "Stuttgart, Germany"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-10",
+      "bank": "gen-001.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "railway station"
+      ],
+      "regions": [
+        "Helsinki, Finland",
+        "Oslo, Norway"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-11",
+      "bank": "gen-001.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bicycle rental station"
+      ],
+      "regions": [
+        "Denver, Colorado, USA",
+        "Seattle, Washington, USA",
+        "Vancouver, British Columbia, Canada"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-12",
+      "bank": "gen-001.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "rail lines"
+      ],
+      "regions": [
+        "France",
+        "Germany",
+        "Italy"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-13",
+      "bank": "gen-001.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop"
+      ],
+      "regions": [
+        "Barcelona, Spain",
+        "Seville, Spain",
+        "Valencia, Spain"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-01",
+      "bank": "gen-002-indirect.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus system"
+      ],
+      "regions": [
+        "Curitiba, Brazil"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-02",
+      "bank": "gen-002-indirect.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "tram"
+      ],
+      "regions": [
+        "Lyon, France"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-03",
+      "bank": "gen-002-indirect.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "airport",
+        "fuel station"
+      ],
+      "regions": [
+        "Nairobi, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-04",
+      "bank": "gen-002-indirect.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "main railway station",
+        "parking lot"
+      ],
+      "regions": [
+        "Lisbon, Portugal"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-05",
+      "bank": "gen-002-indirect.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "railway passenger traffic"
+      ],
+      "regions": [
+        "India"
+      ],
+      "time_forms": [
+        "window"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "mean"
+      ],
+      "compare_hows": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-06",
+      "bank": "gen-002-indirect.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "air passengers carried"
+      ],
+      "regions": [
+        "Brazil"
+      ],
+      "time_forms": [
+        "window"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "mean"
+      ],
+      "compare_hows": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-07",
+      "bank": "gen-002-indirect.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "none"
+      ],
+      "grains": [
+        "none"
+      ],
+      "entities": [
+        "public transport stop"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-08",
+      "bank": "gen-002-indirect.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grains": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [
+        "Portland, Oregon, USA"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-09",
+      "bank": "gen-002-indirect.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "ev charging station"
+      ],
+      "regions": [
+        "Amsterdam, Netherlands",
+        "Oslo, Norway",
+        "San Francisco, California, USA"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen-tran-10",
+      "bank": "gen-002-indirect.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bike rental station"
+      ],
+      "regions": [
+        "Amsterdam, Netherlands",
+        "Berlin, Germany",
+        "Copenhagen, Denmark"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-01",
+      "bank": "gen-003.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "gtfs-mobility-database"
+      ],
+      "grains": [
+        "city-feed/stop-point"
+      ],
+      "entities": [
+        "scheduled transit stop"
+      ],
+      "regions": [
+        "Oulu, Finland"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-02",
+      "bank": "gen-003.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "railway station"
+      ],
+      "regions": [
+        "Tampere, Finland"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-03",
+      "bank": "gen-003.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "central railway station",
+        "charging station"
+      ],
+      "regions": [
+        "Berlin, Germany"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "distance"
+      ],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-04",
+      "bank": "gen-003.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "city-open-data-ridership"
+      ],
+      "grains": [
+        "city-system/annual-series"
+      ],
+      "entities": [
+        "bus ridership"
+      ],
+      "regions": [
+        "Chicago, Illinois, USA"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-05",
+      "bank": "gen-003.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "container port traffic"
+      ],
+      "regions": [
+        "Singapore"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-06",
+      "bank": "gen-003.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "city-open-data-ridership"
+      ],
+      "grains": [
+        "city-system/annual-series"
+      ],
+      "entities": [
+        "rail ridership"
+      ],
+      "regions": [
+        "New York"
+      ],
+      "time_forms": [
+        "window"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "mean"
+      ],
+      "compare_hows": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-07",
+      "bank": "gen-003.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "total length of rail lines"
+      ],
+      "regions": [
+        "Argentina"
+      ],
+      "time_forms": [
+        "window"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "mean"
+      ],
+      "compare_hows": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-08",
+      "bank": "gen-003.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop"
+      ],
+      "regions": [
+        "Christchurch, New Zealand",
+        "Gisborne, New Zealand"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [
+        "envelope"
+      ],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-09",
+      "bank": "gen-003.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "none"
+      ],
+      "grains": [
+        "none"
+      ],
+      "entities": [
+        "public transport facility"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-10",
+      "bank": "gen-003.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grains": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [
+        "Copenhagen, Denmark"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-11",
+      "bank": "gen-003.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "city-open-data-ridership"
+      ],
+      "grains": [
+        "city-system/annual-series"
+      ],
+      "entities": [
+        "bus ridership",
+        "rail ridership"
+      ],
+      "regions": [
+        "Chicago, Illinois"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-12",
+      "bank": "gen-003.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "railway station",
+        "tram stop"
+      ],
+      "regions": [
+        "Berlin, Germany"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-13",
+      "bank": "gen-003.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "gtfs-mobility-database"
+      ],
+      "grains": [
+        "city-feed/stop-point"
+      ],
+      "entities": [
+        "transit stop"
+      ],
+      "regions": [
+        "Oulu, Finland",
+        "Tampere, Finland",
+        "Winnipeg, Canada"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-14",
+      "bank": "gen-003.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-routes"
+      ],
+      "grains": [
+        "city-bbox/route-relation"
+      ],
+      "entities": [
+        "tram line"
+      ],
+      "regions": [
+        "Berlin, Germany",
+        "Vienna, Austria",
+        "Zurich, Switzerland"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-15",
+      "bank": "gen-003.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-routes"
+      ],
+      "grains": [
+        "city-bbox/route-relation"
+      ],
+      "entities": [
+        "bus route"
+      ],
+      "regions": [
+        "Lyon, France"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-16",
+      "bank": "gen-003.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "gtfs-mobility-database"
+      ],
+      "grains": [
+        "city-feed/stop-point"
+      ],
+      "entities": [
+        "scheduled transit route"
+      ],
+      "regions": [
+        "Christchurch, New Zealand"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-17",
+      "bank": "gen-003.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "air passengers carried"
+      ],
+      "regions": [
+        "China",
+        "Germany",
+        "United States"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "gen3-tran-18",
+      "bank": "gen-003.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "gtfs-mobility-database",
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record",
+        "city-feed/stop-point"
+      ],
+      "entities": [
+        "railway station",
+        "scheduled transit stop"
+      ],
+      "regions": [
+        "Winnipeg, Canada"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond"
+      ],
+      "thresholds_km": [
+        0.5
+      ],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-state-01",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop"
+      ],
+      "regions": [
+        "Rosario, Argentina"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-state-02",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "SELECT",
+      "ops": {
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "ferry terminal"
+      ],
+      "regions": [
+        "Mombasa, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-state-03",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "tram stop"
+      ],
+      "regions": [
+        "Brno, Czechia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-state-04",
+      "bank": "seed.json",
+      "type": "STATE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-routes"
+      ],
+      "grains": [
+        "city-bbox/route-relation"
+      ],
+      "entities": [
+        "bus lines"
+      ],
+      "regions": [
+        "Brno, Czechia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-rel-01",
+      "bank": "seed.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "fuel stations",
+        "parking lot"
+      ],
+      "regions": [
+        "Da Nang, Vietnam"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        2.0
+      ],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-rel-02",
+      "bank": "seed.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop",
+        "fuel station"
+      ],
+      "regions": [
+        "Brno, Czechia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond"
+      ],
+      "thresholds_km": [
+        0.5
+      ],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-rel-03",
+      "bank": "seed.json",
+      "type": "RELATION",
+      "expect": "answer",
+      "skeleton": "RELATE(SELECT,SELECT)",
+      "ops": {
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus station",
+        "railway station"
+      ],
+      "regions": [
+        "Mombasa, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        2.0
+      ],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-chg-01",
+      "bank": "seed.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "air passengers carried"
+      ],
+      "regions": [
+        "Vietnam"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-chg-02",
+      "bank": "seed.json",
+      "type": "CHANGE",
+      "expect": "answer",
+      "skeleton": "COMPARE(SELECT,SELECT)",
+      "ops": {
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "rail lines"
+      ],
+      "regions": [
+        "Czechia"
+      ],
+      "time_forms": [
+        "point"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-trend-01",
+      "bank": "seed.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "air passengers carried"
+      ],
+      "regions": [
+        "Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "mean"
+      ],
+      "compare_hows": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-trend-02",
+      "bank": "seed.json",
+      "type": "TREND",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "COMPARE": 1,
+        "REGION": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "container port traffic"
+      ],
+      "regions": [
+        "Vietnam"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "mean"
+      ],
+      "compare_hows": [
+        "trend_direction"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-tra-01",
+      "bank": "seed.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop"
+      ],
+      "regions": [
+        "Kilifi, Kenya",
+        "Mombasa, Kenya"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [
+        "envelope"
+      ],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-tra-02",
+      "bank": "seed.json",
+      "type": "TRANSFER",
+      "expect": "answer_or_data_request",
+      "skeleton": "ESTIMATE(SELECT,REGION)",
+      "ops": {
+        "ESTIMATE": 1,
+        "REGION": 2,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "fuel station"
+      ],
+      "regions": [
+        "Da Nang",
+        "Hoi An"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [
+        "envelope"
+      ],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-amb-01",
+      "bank": "seed.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "AGGREGATE(SELECT)",
+      "ops": {
+        "AGGREGATE": 1,
+        "SELECT": 1
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?place"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-amb-02",
+      "bank": "seed.json",
+      "type": "AMBIGUOUS",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grains": [
+        "unresolved"
+      ],
+      "entities": [
+        "?transport_type"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?place",
+        "?transport_type"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-beh-01",
+      "bank": "seed.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grains": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?place",
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-beh-02",
+      "bank": "seed.json",
+      "type": "BEHAVIOUR",
+      "expect": "data_request",
+      "skeleton": "SELECT",
+      "ops": {
+        "SELECT": 1
+      },
+      "sources": [
+        "hole"
+      ],
+      "grains": [
+        "unresolved"
+      ],
+      "entities": [
+        "?proxy"
+      ],
+      "regions": [],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [
+        "?place",
+        "?proxy"
+      ],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-comp-01",
+      "bank": "seed.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "AGGREGATE(RELATE(SELECT,SELECT))",
+      "ops": {
+        "AGGREGATE": 1,
+        "REGION": 2,
+        "RELATE": 1,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop",
+        "railway station"
+      ],
+      "regions": [
+        "Rosario, Argentina"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "within"
+      ],
+      "thresholds_km": [
+        1.0
+      ],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-comp-02",
+      "bank": "seed.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "COMPARE(AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 2,
+        "COMPARE": 1,
+        "REGION": 2,
+        "SELECT": 2
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "fuel stations"
+      ],
+      "regions": [
+        "Brno, Czechia",
+        "Rosario, Argentina"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [
+        "difference"
+      ],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-comp-03",
+      "bank": "seed.json",
+      "type": "COMPOSITE",
+      "expect": "answer",
+      "skeleton": "RELATE(RELATE(SELECT,SELECT),SELECT)",
+      "ops": {
+        "REGION": 3,
+        "RELATE": 2,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "bus stop",
+        "parking lot",
+        "tram stop"
+      ],
+      "regions": [
+        "Brno, Czechia"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [
+        "beyond",
+        "within"
+      ],
+      "thresholds_km": [
+        0.3,
+        1.0
+      ],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-rank-01",
+      "bank": "seed.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))",
+      "ops": {
+        "AGGREGATE": 3,
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "osm-points"
+      ],
+      "grains": [
+        "city-bbox/point-record"
+      ],
+      "entities": [
+        "fuel stations"
+      ],
+      "regions": [
+        "Brno",
+        "Da Nang",
+        "Rosario"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [
+        "count"
+      ],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    },
+    {
+      "id": "tr-rank-02",
+      "bank": "seed.json",
+      "type": "RANKING",
+      "expect": "answer",
+      "skeleton": "RANK(SELECT,SELECT,SELECT)",
+      "ops": {
+        "RANK": 1,
+        "REGION": 3,
+        "SELECT": 3
+      },
+      "sources": [
+        "world-bank"
+      ],
+      "grains": [
+        "country/annual-series"
+      ],
+      "entities": [
+        "air passengers carried"
+      ],
+      "regions": [
+        "Argentina",
+        "Kenya",
+        "Vietnam"
+      ],
+      "time_forms": [
+        "unspecified"
+      ],
+      "relations": [],
+      "thresholds_km": [],
+      "agg_metrics": [],
+      "compare_hows": [],
+      "estimate_methods": [],
+      "rank_arities": [
+        3
+      ],
+      "holes": [],
+      "capability_family": null,
+      "adversarial": false
+    }
+  ]
+}

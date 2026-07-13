@@ -1,0 +1,1373 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-h13-generated.json",
+  "pre_run_exclusions": [
+    "h13-008",
+    "h13-042"
+  ],
+  "questions": [
+    {
+      "id": "h13-001",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "For scouting remote work sites in Nairobi, Kenya, where are the coworking spaces?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "coworking space",
+        "region": {
+          "op": "REGION",
+          "place": "Nairobi, Kenya"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT"
+    },
+    {
+      "id": "h13-002",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "For checking market access in Accra, Ghana, are there craft workshops within 1 km of a market?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+    },
+    {
+      "id": "h13-003",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "q": "For mapping service hubs in Bengaluru, India, what are the names of the markets?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "layer": "name"
+      },
+      "gold_shape": "ANNOTATE(SELECT)"
+    },
+    {
+      "id": "h13-004",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "For checking commute access in Nairobi, Kenya, how many coworking spaces are within 1 km of a bus stop?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bus stop",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+    },
+    {
+      "id": "h13-005",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "For finding public support points in Accra, Ghana, are there water points beyond 1 km of a market?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "water point",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+    },
+    {
+      "id": "h13-006",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "For locating neighborhood services in Nairobi, Kenya, where are the community centres?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "community centre",
+        "region": {
+          "op": "REGION",
+          "place": "Nairobi, Kenya"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT"
+    },
+    {
+      "id": "h13-007",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "For checking postal access in Nairobi, Kenya, how many post offices are within 1 km of a community centre?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "post office",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "community centre",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+    },
+    {
+      "id": "h13-009",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "For comparing self-employment pressure in East Africa, what was the change in self employment in Kenya from 2010 to 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "self employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2010",
+            "end": "2010"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(SELECT,SELECT)"
+    },
+    {
+      "id": "h13-010",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "For comparing labor slack in Spain, what was the change in labour underutilization rate from 2013 to 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "Spain"
+          },
+          "time": {
+            "start": "2013",
+            "end": "2013"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(SELECT,SELECT)"
+    },
+    {
+      "id": "h13-011",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "For checking employment momentum in Berlin, what was the trend in employment rate from 2010 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": {
+              "start": "2010",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": "COMPARE(AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h13-012",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "For comparing job structures in India, what is the ratio of employment in services to employment in agriculture in 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment in services",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment in agriculture",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": "COMPARE(SELECT,SELECT)"
+    },
+    {
+      "id": "h13-013",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "For comparing hours in France, what is the ratio of female average weekly hours worked to male average weekly hours worked in 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "female average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "male average weekly hours worked",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": "COMPARE(SELECT,SELECT)"
+    },
+    {
+      "id": "h13-014",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "For comparing regional labor markets, what is the difference between employment rate in Berlin and employment rate in Ile de France in 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Berlin"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Ile de France"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(SELECT,SELECT)"
+    },
+    {
+      "id": "h13-015",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "For choosing between countries for salaried work, rank France, Germany, Spain, and India by wage and salaried workers in 2022.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "wage and salaried workers",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "wage and salaried workers",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "wage and salaried workers",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "wage and salaried workers",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": "RANK(SELECT,SELECT,SELECT,SELECT)"
+    },
+    {
+      "id": "h13-016",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "For choosing between regions for low unemployment, rank Berlin, Ile de France, Comunidad de Madrid, Lombardy, Catalonia, and Warsaw Capital Region by unemployment rate in 2023.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Ile de France"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Comunidad de Madrid"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Lombardy"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Catalonia"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Warsaw Capital Region"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": "RANK(SELECT,SELECT,SELECT,SELECT,SELECT,SELECT)"
+    },
+    {
+      "id": "h13-017",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For siting a remote-work program in Kigali, Rwanda, estimate coworking spaces from Nairobi, Kenya.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kigali, Rwanda"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_estimate": true
+    },
+    {
+      "id": "h13-018",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For siting a craft-support program in Kumasi, Ghana, estimate craft workshops from Accra, Ghana.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kumasi, Ghana"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_estimate": true
+    },
+    {
+      "id": "h13-019",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For siting a market-upgrade program in Mombasa, Kenya, estimate markets from Nairobi, Kenya.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Mombasa, Kenya"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_estimate": true
+    },
+    {
+      "id": "h13-020",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For siting a sanitation-support program in Kumasi, Ghana, estimate toilets from Accra, Ghana.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "toilet",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kumasi, Ghana"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_estimate": true
+    },
+    {
+      "id": "h13-021",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For siting a postal-support program in Kisumu, Kenya, estimate post offices from Nairobi, Kenya.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "post office",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kisumu, Kenya"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_estimate": true
+    },
+    {
+      "id": "h13-022",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For siting a community-space program in Tamale, Ghana, estimate community centres from Accra, Ghana.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "community centre",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Tamale, Ghana"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_estimate": true
+    },
+    {
+      "id": "h13-023",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For siting a remote-work program in Eldoret, Kenya, estimate coworking spaces from Nairobi, Kenya.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Eldoret, Kenya"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_estimate": true
+    },
+    {
+      "id": "h13-024",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For siting a market-access program in Mysuru, India, estimate markets from Bengaluru, India.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Mysuru, India"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_estimate": true
+    },
+    {
+      "id": "h13-025",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "For judging remote-work support in Nairobi via coworking spaces, are there any?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": "AGGREGATE(SELECT)"
+    },
+    {
+      "id": "h13-026",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "For judging workshop access in Accra via craft workshops, where are they?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "craft workshop",
+        "region": {
+          "op": "REGION",
+          "place": "Accra, Ghana"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT"
+    },
+    {
+      "id": "h13-027",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "For judging commuting support in Nairobi via bus stops, how many are within 1 km of coworking spaces?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "bus stop",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Nairobi, Kenya"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+    },
+    {
+      "id": "h13-028",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "For judging market access in Accra via markets, how many craft workshops are within 1 km of them?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(RELATE(SELECT,SELECT))"
+    },
+    {
+      "id": "h13-029",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "For judging labor slack in France via labour underutilization rate, what was the change from 2013 to 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labour underutilization rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2013",
+            "end": "2013"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(SELECT,SELECT)"
+    },
+    {
+      "id": "h13-030",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "For judging job quality in India via wage and salaried workers, what was the change from 2010 to 2022?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "wage and salaried workers",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2022",
+            "end": "2022"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "wage and salaried workers",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": {
+            "start": "2010",
+            "end": "2010"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(SELECT,SELECT)"
+    },
+    {
+      "id": "h13-031",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "For picking a workplace in Nairobi, Kenya, where are the places to work?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?workplace_type",
+        "region": {
+          "op": "REGION",
+          "place": "Nairobi, Kenya"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT",
+      "must_hole": true
+    },
+    {
+      "id": "h13-032",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "For checking job conditions in France, what is the trend?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "?indicator",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": null
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": "COMPARE(AGGREGATE(SELECT))",
+      "must_hole": true
+    },
+    {
+      "id": "h13-033",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "For siting support nearby, estimate markets from Accra, Ghana.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "?place"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT,REGION)",
+      "must_hole": true
+    },
+    {
+      "id": "h13-034",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "For mapping services there, where are the coworking spaces?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "coworking space",
+        "region": {
+          "op": "REGION",
+          "place": "?place"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT",
+      "must_hole": true
+    },
+    {
+      "id": "h13-035",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "For choosing among city hubs, rank Berlin, Germany, Paris, France, and Madrid, Spain by coworking space count.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin, Germany"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Paris, France"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Madrid, Spain"
+              },
+              "time": null
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h13-036",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "For choosing among city hubs, rank Accra, Ghana, Nairobi, Kenya, and Bengaluru, India by market count.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Accra, Ghana"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Nairobi, Kenya"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": "RANK(AGGREGATE(SELECT),AGGREGATE(SELECT),AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h13-037",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "For choosing among countries for lower vulnerable employment, rank France, Germany, India, and Kenya by vulnerable employment in 2022.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "India"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "vulnerable employment",
+            "region": {
+              "op": "REGION",
+              "place": "Kenya"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": "RANK(SELECT,SELECT,SELECT,SELECT)"
+    },
+    {
+      "id": "h13-038",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "For choosing among countries for lower informal employment, rank France, Germany, and Spain by informal employment rate in 2022.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": "RANK(SELECT,SELECT,SELECT)"
+    },
+    {
+      "id": "h13-039",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "q": "For checking facility names in Nairobi before a field visit, what are the names of the coworking spaces?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Nairobi, Kenya"
+          },
+          "time": null
+        },
+        "layer": "name"
+      },
+      "gold_shape": "ANNOTATE(SELECT)"
+    },
+    {
+      "id": "h13-040",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "For checking service clustering before a field visit in Accra, Ghana, which water points are within 1 km of community centres that are within 1 km of a market?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "water point",
+          "region": {
+            "op": "REGION",
+            "place": "Accra, Ghana"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "community centre",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": {
+              "op": "REGION",
+              "place": "Accra, Ghana"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "relation": "within",
+        "threshold_km": 1
+      },
+      "gold_shape": "RELATE(SELECT,RELATE(SELECT,SELECT))"
+    },
+    {
+      "id": "h13-041",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "For comparing regional employment gaps before relocation, what was the change in unemployment rate in Catalonia from 2010 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "unemployment rate",
+          "region": {
+            "op": "REGION",
+            "place": "Catalonia"
+          },
+          "time": {
+            "start": "2010",
+            "end": "2010"
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(SELECT,SELECT)"
+    }
+  ]
+}

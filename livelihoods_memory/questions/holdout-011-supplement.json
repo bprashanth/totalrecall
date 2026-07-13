@@ -1,0 +1,373 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-h11-supplement-generated.json",
+  "pre_run_exclusions": [
+    "h11s-002",
+    "h11s-011",
+    "h11s-012",
+    "h11s-013",
+    "h11s-014",
+    "h11s-015"
+  ],
+  "questions": [
+    {
+      "id": "h11s-001",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Which craft workshops are in Braga, Portugal?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "craft workshop",
+        "region": {
+          "op": "REGION",
+          "place": "Braga, Portugal"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT"
+    },
+    {
+      "id": "h11s-003",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Are there any ATMs in Kisumu, Kenya?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "atm",
+          "region": {
+            "op": "REGION",
+            "place": "Kisumu, Kenya"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": "AGGREGATE(SELECT)"
+    },
+    {
+      "id": "h11s-004",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "q": "What are the names of the marketplaces in Coimbatore, India?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Coimbatore, India"
+          },
+          "time": null
+        },
+        "layer": "name"
+      },
+      "gold_shape": "ANNOTATE(SELECT)"
+    },
+    {
+      "id": "h11s-005",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Which banks in Mangaluru, India are within 0.5 km of a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Mangaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Mangaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.5
+      },
+      "gold_shape": "RELATE(within, SELECT, SELECT)"
+    },
+    {
+      "id": "h11s-006",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Are there any ATMs in Eldoret, Kenya beyond 1 km from a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "atm",
+            "region": {
+              "op": "REGION",
+              "place": "Eldoret, Kenya"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Eldoret, Kenya"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(presence, RELATE(beyond, SELECT, SELECT))"
+    },
+    {
+      "id": "h11s-007",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Which craft workshops in Udaipur, India are within 1 km of a marketplace but beyond 0.5 km from a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Udaipur, India"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Udaipur, India"
+            },
+            "time": null
+          },
+          "relation": "within",
+          "threshold_km": 1
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Udaipur, India"
+          },
+          "time": null
+        },
+        "relation": "beyond",
+        "threshold_km": 0.5
+      },
+      "gold_shape": "RELATE(beyond, RELATE(within, SELECT, SELECT), SELECT)"
+    },
+    {
+      "id": "h11s-008",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Are there any coworking spaces in Braga, Portugal within 1 km of an ATM but beyond 1 km from a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Braga, Portugal"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "atm",
+              "region": {
+                "op": "REGION",
+                "place": "Braga, Portugal"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Braga, Portugal"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(presence, RELATE(beyond, RELATE(within, SELECT, SELECT), SELECT))"
+    },
+    {
+      "id": "h11s-009",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "How many more banks in Mysuru, India are within 0.5 km of a marketplace than within 0.5 km of an ATM?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Mysuru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Mysuru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.5
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Mysuru, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "atm",
+              "region": {
+                "op": "REGION",
+                "place": "Mysuru, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.5
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(RELATE(SELECT,SELECT)))"
+    },
+    {
+      "id": "h11s-010",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "What is the ratio of ATMs within 0.5 km of a bank to ATMs within 0.5 km of a marketplace in Kisumu, Kenya?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "atm",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.5
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "atm",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.5
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": "COMPARE(AGGREGATE(RELATE(SELECT,SELECT)),AGGREGATE(RELATE(SELECT,SELECT)))"
+    }
+  ]
+}

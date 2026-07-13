@@ -1,0 +1,1523 @@
+{
+  "spec_version": "v2.1",
+  "note": "blind holdout selected and execution-audited before parser run; no post-run edits permitted",
+  "source_generated": "questions/holdout-003-generated.json",
+  "pre_run_exclusions": [
+    "h3-002",
+    "h3-006",
+    "h3-013",
+    "h3-018",
+    "h3-019",
+    "h3-024",
+    "h3-031",
+    "h3-035",
+    "h3-036"
+  ],
+  "questions": [
+    {
+      "id": "h3-001",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How many marketplaces are in Lyon, France?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Lyon, France"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-003",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Count the ATMs in Casablanca, Morocco.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "ATM",
+          "region": {
+            "op": "REGION",
+            "place": "Casablanca, Morocco"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-004",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "List coworking spaces in Chiang Mai, Thailand.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "coworking space",
+        "region": {
+          "op": "REGION",
+          "place": "Chiang Mai, Thailand"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-005",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How many banks are in Porto, Portugal?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Porto, Portugal"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-007",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Are there any craft workshops in Bologna, Italy?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Bologna, Italy"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-008",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Provide the locations of ATMs in Kyoto, Japan.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "ATM",
+        "region": {
+          "op": "REGION",
+          "place": "Kyoto, Japan"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-009",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "In Cape Town, South Africa, which marketplaces are within 1 km of a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Cape Town, South Africa"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Cape Town, South Africa"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-010",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "In Medellín, which coworking spaces are near a craft workshop?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Medellín, Colombia"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Medellín, Colombia"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-011",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "In Chiang Mai, which ATMs are within 800 meters of a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 0.8,
+        "left": {
+          "op": "SELECT",
+          "entity": "ATM",
+          "region": {
+            "op": "REGION",
+            "place": "Chiang Mai, Thailand"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Chiang Mai, Thailand"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-012",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "In Lyon, which banks are within 1 km of a marketplace?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Lyon, France"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Lyon, France"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-014",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "In Guadalajara, which coworking spaces are within 2 km of a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 2.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Guadalajara, Mexico"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Guadalajara, Mexico"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-015",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "In Bologna, which ATMs are within 500m of a craft workshop?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 0.5,
+        "left": {
+          "op": "SELECT",
+          "entity": "ATM",
+          "region": {
+            "op": "REGION",
+            "place": "Bologna, Italy"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Bologna, Italy"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-016",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "In Kyoto, which marketplaces are within 1 km of a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Kyoto, Japan"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Kyoto, Japan"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-017",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "By how much did the unemployment rate in France change from 2019 to 2021?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-020",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "By how many percentage points did vulnerable employment in Kenya change from 2018 to 2021?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "vulnerable employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "vulnerable employment",
+          "region": {
+            "op": "REGION",
+            "place": "Kenya"
+          },
+          "time": {
+            "start": "2018",
+            "end": "2018"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-021",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "What was the difference in labor-force participation rate in Brazil between 2016 and 2019?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "labor force participation",
+          "region": {
+            "op": "REGION",
+            "place": "Brazil"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "labor force participation",
+          "region": {
+            "op": "REGION",
+            "place": "Brazil"
+          },
+          "time": {
+            "start": "2016",
+            "end": "2016"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-022",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How much did youth unemployment in Italy change from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Italy"
+          },
+          "time": {
+            "start": "2023",
+            "end": "2023"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "youth unemployment",
+          "region": {
+            "op": "REGION",
+            "place": "Italy"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-023",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "By how many percentage points did the informal employment rate in France change between 2015 and 2020?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "informal employment rate",
+          "region": {
+            "op": "REGION",
+            "place": "France"
+          },
+          "time": {
+            "start": "2015",
+            "end": "2015"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-025",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Is the unemployment rate in Spain rising or falling in recent years?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-026",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Is Germany's labor-force participation rate increasing?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "labor force participation",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-027",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Is youth unemployment in France trending downward?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "youth unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-028",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Are wage and salaried workers becoming more common in Italy?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "wage and salaried workers",
+            "region": {
+              "op": "REGION",
+              "place": "Italy"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-029",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "I need data on craft workshops in Evora, Portugal, but you don't have any. Can you estimate from Lisbon?",
+      "expect": "answer_or_data_request",
+      "must_estimate": true,
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Lisbon, Portugal"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Evora, Portugal"
+        }
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-030",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "There are no records of coworking spaces in Girona, Spain. What can you tell me based on Barcelona?",
+      "expect": "answer_or_data_request",
+      "must_estimate": true,
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Barcelona, Spain"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Girona, Spain"
+        }
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-032",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "How many of those facilities are around here?",
+      "expect": "data_request",
+      "must_hole": true,
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "?facility_type",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-033",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "Are there any craft workshops near the central square?",
+      "expect": "data_request",
+      "must_hole": true,
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "left": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": "?place",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "central square",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-034",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "What's the trend for employment in this region?",
+      "expect": "data_request",
+      "must_hole": true,
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-037",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "Are craft workshops in Chiang Mai popular among tourists?",
+      "expect": "data_request",
+      "must_hole": true,
+      "behaviour": true,
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy",
+        "region": {
+          "op": "REGION",
+          "place": "Chiang Mai, Thailand"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-038",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Does Lyon have more marketplaces than Porto?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Lyon, France"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Porto, Portugal"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-039",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Of the craft workshops in Chiang Mai, how many are near a marketplace but not within 500m of a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.5,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Chiang Mai, Thailand"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Chiang Mai, Thailand"
+              },
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Chiang Mai, Thailand"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-040",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "In Chiang Mai, are there any marketplaces that have both a bank and an ATM within 1 km?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Chiang Mai, Thailand"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Chiang Mai, Thailand"
+              },
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "ATM",
+            "region": {
+              "op": "REGION",
+              "place": "Chiang Mai, Thailand"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "AGGREGATE",
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-041",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "Compare the number of coworking spaces in Bologna and Kyoto – which has more?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Bologna, Italy"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Kyoto, Japan"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-042",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "In Guadalajara, what is the ratio of craft workshops to marketplaces?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "ratio",
+        "left": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Guadalajara, Mexico"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "marketplace",
+          "region": {
+            "op": "REGION",
+            "place": "Guadalajara, Mexico"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-043",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "In Cape Town, are there more ATMs than banks?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "ATM",
+            "region": {
+              "op": "REGION",
+              "place": "Cape Town, South Africa"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Cape Town, South Africa"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-044",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "In Porto, which marketplaces are within 1 km of a bank but not within 500m of a craft workshop?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 0.5,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "marketplace",
+            "region": {
+              "op": "REGION",
+              "place": "Porto, Portugal"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Porto, Portugal"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Porto, Portugal"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-045",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Which of these three cities – Lyon, Porto, and Medellín – has the most marketplaces?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Lyon, France"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Porto, Portugal"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "marketplace",
+              "region": {
+                "op": "REGION",
+                "place": "Medellín, Colombia"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-046",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Among Casablanca, Chiang Mai, and Guadalajara, which has the fewest ATMs?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "ATM",
+              "region": {
+                "op": "REGION",
+                "place": "Casablanca, Morocco"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "ATM",
+              "region": {
+                "op": "REGION",
+                "place": "Chiang Mai, Thailand"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "ATM",
+              "region": {
+                "op": "REGION",
+                "place": "Guadalajara, Mexico"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-047",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Order Kyoto, Bologna, and Lyon by the number of craft workshops (highest first).",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Kyoto, Japan"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Bologna, Italy"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Lyon, France"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT",
+        "AGGREGATE",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-048",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "For the NUTS-2 regions Île de France, Berlin, and Madrid, rank them by employment rate in 2022.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Île de France"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Madrid"
+            },
+            "time": {
+              "start": "2022",
+              "end": "2022"
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    },
+    {
+      "id": "h3-049",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank the countries France, Germany, and Spain by their youth unemployment rate in 2021, from highest to lowest.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "SELECT",
+            "entity": "youth unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "youth unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          },
+          {
+            "op": "SELECT",
+            "entity": "youth unemployment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ]
+    }
+  ]
+}

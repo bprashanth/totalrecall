@@ -1,0 +1,150 @@
+{
+  "spec_version": "v2",
+  "note": "livelihoods sector seed bank — hand-written gold IRs; entities and places verified in the 2026-07-12 census",
+  "questions": [
+    {
+      "id": "lv-state-01", "sector": "livelihoods", "type": "STATE",
+      "q": "How many marketplaces are mapped in Nairobi, Kenya?", "expect": "answer",
+      "gold_ir": {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Nairobi, Kenya"},"time":null}},
+      "gold_shape": ["AGGREGATE","SELECT"]
+    },
+    {
+      "id": "lv-state-02", "sector": "livelihoods", "type": "STATE",
+      "q": "Where are the coworking spaces in Bengaluru, India?", "expect": "answer",
+      "gold_ir": {"op":"SELECT","entity":"coworking space","region":{"op":"REGION","place":"Bengaluru, India"},"time":null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "lv-state-03", "sector": "livelihoods", "type": "STATE",
+      "q": "Show me the mapped craft workshops in Accra, Ghana.", "expect": "answer",
+      "gold_ir": {"op":"SELECT","entity":"craft workshop","region":{"op":"REGION","place":"Accra, Ghana"},"time":null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "lv-state-04", "sector": "livelihoods", "type": "STATE",
+      "q": "What is the density of marketplaces in Accra, Ghana?", "expect": "answer",
+      "gold_ir": {"op":"AGGREGATE","by":"space","metric":"density","source":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Accra, Ghana"},"time":null}},
+      "gold_shape": ["AGGREGATE","SELECT"]
+    },
+    {
+      "id": "lv-gap-01", "sector": "livelihoods", "type": "STATE",
+      "q": "Where are the current job vacancies in Nairobi, Kenya?", "expect": "data_request",
+      "gold_ir": {"op":"SELECT","entity":"job vacancies","region":{"op":"REGION","place":"Nairobi, Kenya"},"time":null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "lv-rel-01", "sector": "livelihoods", "type": "RELATION",
+      "q": "Which craft workshops in Accra, Ghana are within 2 km of a marketplace?", "expect": "answer",
+      "gold_ir": {"op":"RELATE","relation":"within","threshold_km":2.0,"left":{"op":"SELECT","entity":"craft workshop","region":{"op":"REGION","place":"Accra, Ghana"},"time":null},"right":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Accra, Ghana"},"time":null}},
+      "gold_shape": ["RELATE","SELECT","SELECT"]
+    },
+    {
+      "id": "lv-rel-02", "sector": "livelihoods", "type": "RELATION",
+      "q": "Which marketplaces in Nairobi, Kenya have no coworking space within 2 km?", "expect": "answer",
+      "gold_ir": {"op":"RELATE","relation":"beyond","threshold_km":2.0,"left":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Nairobi, Kenya"},"time":null},"right":{"op":"SELECT","entity":"coworking space","region":{"op":"REGION","place":"Nairobi, Kenya"},"time":null}},
+      "gold_shape": ["RELATE","SELECT","SELECT"]
+    },
+    {
+      "id": "lv-rel-03", "sector": "livelihoods", "type": "RELATION",
+      "q": "How far are Bengaluru's coworking spaces from its marketplaces?", "expect": "answer",
+      "gold_ir": {"op":"RELATE","relation":"distance","left":{"op":"SELECT","entity":"coworking space","region":{"op":"REGION","place":"Bengaluru, India"},"time":null},"right":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Bengaluru, India"},"time":null}},
+      "gold_shape": ["RELATE","SELECT","SELECT"]
+    },
+    {
+      "id": "lv-change-01", "sector": "livelihoods", "type": "CHANGE",
+      "q": "How much did self-employment in India change between 2000 and 2020?", "expect": "answer",
+      "gold_ir": {"op":"COMPARE","how":"difference","left":{"op":"SELECT","entity":"self employment","region":{"op":"REGION","place":"India"},"time":{"start":"2020","end":"2020"}},"right":{"op":"SELECT","entity":"self employment","region":{"op":"REGION","place":"India"},"time":{"start":"2000","end":"2000"}}},
+      "gold_shape": ["COMPARE","SELECT","SELECT"]
+    },
+    {
+      "id": "lv-change-02", "sector": "livelihoods", "type": "CHANGE",
+      "q": "By how many percentage points did youth unemployment in Ghana change from 2010 to 2020?", "expect": "answer",
+      "gold_ir": {"op":"COMPARE","how":"difference","left":{"op":"SELECT","entity":"youth unemployment","region":{"op":"REGION","place":"Ghana"},"time":{"start":"2020","end":"2020"}},"right":{"op":"SELECT","entity":"youth unemployment","region":{"op":"REGION","place":"Ghana"},"time":{"start":"2010","end":"2010"}}},
+      "gold_shape": ["COMPARE","SELECT","SELECT"]
+    },
+    {
+      "id": "lv-trend-01", "sector": "livelihoods", "type": "TREND",
+      "q": "Is vulnerable employment in Kenya rising or falling?", "expect": "answer",
+      "gold_ir": {"op":"COMPARE","how":"trend_direction","left":{"op":"AGGREGATE","by":"time","metric":"mean","source":{"op":"SELECT","entity":"vulnerable employment","region":{"op":"REGION","place":"Kenya"},"time":null}}},
+      "gold_shape": ["COMPARE","AGGREGATE","SELECT"]
+    },
+    {
+      "id": "lv-trend-02", "sector": "livelihoods", "type": "TREND",
+      "q": "Has labor-force participation in India been increasing or decreasing?", "expect": "answer",
+      "gold_ir": {"op":"COMPARE","how":"trend_direction","left":{"op":"AGGREGATE","by":"time","metric":"mean","source":{"op":"SELECT","entity":"labor force participation","region":{"op":"REGION","place":"India"},"time":null}}},
+      "gold_shape": ["COMPARE","AGGREGATE","SELECT"]
+    },
+    {
+      "id": "lv-ratio-01", "sector": "livelihoods", "type": "COMPOSITE",
+      "q": "What was the ratio of self-employed to wage and salaried workers in Kenya in 2020?", "expect": "answer",
+      "gold_ir": {"op":"COMPARE","how":"ratio","left":{"op":"SELECT","entity":"self employment","region":{"op":"REGION","place":"Kenya"},"time":{"start":"2020","end":"2020"}},"right":{"op":"SELECT","entity":"wage and salaried workers","region":{"op":"REGION","place":"Kenya"},"time":{"start":"2020","end":"2020"}}},
+      "gold_shape": ["COMPARE","SELECT","SELECT"]
+    },
+    {
+      "id": "lv-transfer-01", "sector": "livelihoods", "type": "TRANSFER",
+      "q": "If marketplace mapping is missing in Kumasi, estimate its coverage from Accra.", "expect": "answer_or_data_request", "must_estimate": true,
+      "gold_ir": {"op":"ESTIMATE","method":"envelope","target":{"op":"REGION","place":"Kumasi, Ghana"},"source":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Accra, Ghana"},"time":null}},
+      "gold_shape": ["ESTIMATE","SELECT"]
+    },
+    {
+      "id": "lv-transfer-02", "sector": "livelihoods", "type": "TRANSFER",
+      "q": "We have no coworking-space data for Mombasa; estimate availability from Nairobi.", "expect": "answer_or_data_request", "must_estimate": true,
+      "gold_ir": {"op":"ESTIMATE","method":"envelope","target":{"op":"REGION","place":"Mombasa, Kenya"},"source":{"op":"SELECT","entity":"coworking space","region":{"op":"REGION","place":"Nairobi, Kenya"},"time":null}},
+      "gold_shape": ["ESTIMATE","SELECT"]
+    },
+    {
+      "id": "lv-amb-01", "sector": "livelihoods", "type": "AMBIGUOUS",
+      "q": "How many marketplaces are there around here?", "expect": "data_request", "must_hole": true,
+      "gold_ir": {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"marketplace","region":"?place","time":null}},
+      "gold_shape": ["AGGREGATE","SELECT"]
+    },
+    {
+      "id": "lv-amb-02", "sector": "livelihoods", "type": "AMBIGUOUS",
+      "q": "Show me the livelihood facilities in this area.", "expect": "data_request", "must_hole": true,
+      "gold_ir": {"op":"SELECT","entity":"?livelihood_facility_type","region":"?place","time":null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "lv-beh-01", "sector": "livelihoods", "type": "BEHAVIOUR",
+      "q": "Why do young people here choose self-employment?", "expect": "data_request", "must_hole": true, "behaviour": true,
+      "gold_ir": {"op":"SELECT","entity":"?proxy","region":"?place","time":null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "lv-beh-02", "sector": "livelihoods", "type": "BEHAVIOUR",
+      "q": "Do nearby marketplaces actually improve household incomes?", "expect": "data_request", "must_hole": true, "behaviour": true,
+      "gold_ir": {"op":"SELECT","entity":"?proxy","region":"?place","time":null},
+      "gold_shape": ["SELECT"]
+    },
+    {
+      "id": "lv-comp-01", "sector": "livelihoods", "type": "COMPOSITE",
+      "q": "Of the craft workshops in Accra, Ghana, how many are within 1 km of a marketplace?", "expect": "answer",
+      "gold_ir": {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"RELATE","relation":"within","threshold_km":1.0,"left":{"op":"SELECT","entity":"craft workshop","region":{"op":"REGION","place":"Accra, Ghana"},"time":null},"right":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Accra, Ghana"},"time":null}}},
+      "gold_shape": ["AGGREGATE","RELATE","SELECT","SELECT"]
+    },
+    {
+      "id": "lv-comp-02", "sector": "livelihoods", "type": "COMPOSITE",
+      "q": "Does Nairobi have more mapped marketplaces than Accra?", "expect": "answer",
+      "gold_ir": {"op":"COMPARE","how":"difference","left":{"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Nairobi, Kenya"},"time":null}},"right":{"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Accra, Ghana"},"time":null}}},
+      "gold_shape": ["COMPARE","AGGREGATE","SELECT","AGGREGATE","SELECT"]
+    },
+    {
+      "id": "lv-comp-03", "sector": "livelihoods", "type": "COMPOSITE",
+      "q": "Which craft workshops in Accra are within 1 km of a marketplace but not within 500 meters of a coworking space?", "expect": "answer",
+      "gold_ir": {"op":"RELATE","relation":"beyond","threshold_km":0.5,"left":{"op":"RELATE","relation":"within","threshold_km":1.0,"left":{"op":"SELECT","entity":"craft workshop","region":{"op":"REGION","place":"Accra, Ghana"},"time":null},"right":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Accra, Ghana"},"time":null}},"right":{"op":"SELECT","entity":"coworking space","region":{"op":"REGION","place":"Accra, Ghana"},"time":null}},
+      "gold_shape": ["RELATE","RELATE","SELECT","SELECT","SELECT"]
+    },
+    {
+      "id": "lv-rank-01", "sector": "livelihoods", "type": "RANKING",
+      "q": "Of Bengaluru, Nairobi, and Accra, which city has the most mapped marketplaces?", "expect": "answer",
+      "gold_ir": {"op":"RANK","order":"desc","items":[{"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Bengaluru, India"},"time":null}},{"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Nairobi, Kenya"},"time":null}},{"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"marketplace","region":{"op":"REGION","place":"Accra, Ghana"},"time":null}}]},
+      "gold_shape": ["RANK","AGGREGATE","SELECT","AGGREGATE","SELECT","AGGREGATE","SELECT"]
+    },
+    {
+      "id": "lv-rank-02", "sector": "livelihoods", "type": "RANKING",
+      "q": "Rank India, Kenya, and Ghana by self-employment in 2020.", "expect": "answer",
+      "gold_ir": {"op":"RANK","order":"desc","items":[{"op":"SELECT","entity":"self employment","region":{"op":"REGION","place":"India"},"time":{"start":"2020","end":"2020"}},{"op":"SELECT","entity":"self employment","region":{"op":"REGION","place":"Kenya"},"time":{"start":"2020","end":"2020"}},{"op":"SELECT","entity":"self employment","region":{"op":"REGION","place":"Ghana"},"time":{"start":"2020","end":"2020"}}]},
+      "gold_shape": ["RANK","SELECT","SELECT","SELECT"]
+    }
+  ]
+}

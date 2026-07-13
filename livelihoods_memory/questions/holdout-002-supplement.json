@@ -1,0 +1,316 @@
+{
+ "spec_version": "v2.1",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "h2s-001",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "How many marketplaces are there in Guadalajara?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "marketplace",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-002",
+   "sector": "livelihoods",
+   "type": "RELATION",
+   "q": "Which banks in Lyon are within 1 km of a craft workshop?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Lyon, France"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Lyon, France"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-003",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "By how much did the unemployment rate in Germany change between 2015 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "Germany"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-004",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Is the labor force participation rate in Spain rising or falling from 2018 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "labor force participation rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2018",
+       "end": "2023"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-005",
+   "sector": "livelihoods",
+   "type": "TRANSFER",
+   "q": "I need to find coworking spaces in the small town of \u00c9vora, Portugal. Can you estimate how many there are based on the number in Lisbon?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "ESTIMATE",
+     "method": "feature",
+     "target": {
+      "op": "REGION",
+      "place": "\u00c9vora, Portugal"
+     },
+     "source": {
+      "op": "SELECT",
+      "entity": "coworking space",
+      "region": {
+       "op": "REGION",
+       "place": "Lisbon, Portugal"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-006",
+   "sector": "livelihoods",
+   "type": "AMBIGUOUS",
+   "q": "How many of those facilities are in this city?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "?facility_type",
+     "region": "?place",
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-007",
+   "sector": "livelihoods",
+   "type": "BEHAVIOUR",
+   "q": "Do people in Berlin prefer using ATMs over banks for cash withdrawals?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Berlin, Germany"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-008",
+   "sector": "livelihoods",
+   "type": "STATE",
+   "q": "How many ATMs are there in Melbourne?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "ATM",
+     "region": {
+      "op": "REGION",
+      "place": "Melbourne, Australia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-009",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "By how much did the informal employment rate in France change between 2015 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "informal employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "informal employment rate",
+     "region": {
+      "op": "REGION",
+      "place": "France"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "h2s-010",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Is the unemployment rate in Catalonia rising or falling between 2021 and 2024?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Catalonia, Spain"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2024"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  }
+ ]
+}

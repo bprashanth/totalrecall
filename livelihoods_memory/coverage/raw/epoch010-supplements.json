@@ -1,0 +1,1100 @@
+{
+  "s14": [
+    {
+      "id": "h14s-01",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "How many coworking spaces are in Mysuru, India?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Mysuru, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": "AGGREGATE(SELECT)"
+    },
+    {
+      "id": "h14s-02",
+      "sector": "livelihoods",
+      "type": "STATE",
+      "q": "Are there any markets in Baguio, Philippines?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Baguio, Philippines"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": "AGGREGATE(SELECT)"
+    },
+    {
+      "id": "h14s-03",
+      "sector": "livelihoods",
+      "type": "VALUE",
+      "q": "What are the names of the markets in Coimbatore, India?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Coimbatore, India"
+          },
+          "time": null
+        },
+        "layer": "name"
+      },
+      "gold_shape": "ANNOTATE(SELECT)"
+    },
+    {
+      "id": "h14s-04",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Which banks in Mangaluru, India are within 0.5 km of a market?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "left": {
+          "op": "SELECT",
+          "entity": "bank",
+          "region": {
+            "op": "REGION",
+            "place": "Mangaluru, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Mangaluru, India"
+          },
+          "time": null
+        },
+        "relation": "within",
+        "threshold_km": 0.5
+      },
+      "gold_shape": "RELATE(within, SELECT, SELECT)"
+    },
+    {
+      "id": "h14s-05",
+      "sector": "livelihoods",
+      "type": "RELATION",
+      "q": "Are there any ATMs in Eldoret, Kenya beyond 1 km from a bank?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "atm",
+            "region": {
+              "op": "REGION",
+              "place": "Eldoret, Kenya"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bank",
+            "region": {
+              "op": "REGION",
+              "place": "Eldoret, Kenya"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(presence, RELATE(beyond, SELECT, SELECT))"
+    },
+    {
+      "id": "h14s-06",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "What are the names of the craft workshops in Udaipur, India that are within 1 km of a market but beyond 0.5 km from an ATM?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Udaipur, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Udaipur, India"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "atm",
+            "region": {
+              "op": "REGION",
+              "place": "Udaipur, India"
+            },
+            "time": null
+          },
+          "relation": "beyond",
+          "threshold_km": 0.5
+        },
+        "layer": "name"
+      },
+      "gold_shape": "ANNOTATE(RELATE(beyond, RELATE(within, SELECT, SELECT), SELECT))"
+    },
+    {
+      "id": "h14s-07",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "How many coworking spaces in Braga, Portugal are within 1 km of banks that are within 0.3 km of an ATM?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "left": {
+            "op": "SELECT",
+            "entity": "coworking space",
+            "region": {
+              "op": "REGION",
+              "place": "Braga, Portugal"
+            },
+            "time": null
+          },
+          "right": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Braga, Portugal"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "atm",
+              "region": {
+                "op": "REGION",
+                "place": "Braga, Portugal"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.3
+          },
+          "relation": "within",
+          "threshold_km": 1
+        }
+      },
+      "gold_shape": "AGGREGATE(count, RELATE(within, SELECT, RELATE(within, SELECT, SELECT)))"
+    },
+    {
+      "id": "h14s-08",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "How many more ATMs in Kisumu, Kenya are within 0.3 km of a bank than within 0.3 km of a market?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "atm",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "bank",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.3
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "atm",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 0.3
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(difference, AGGREGATE(RELATE(within, SELECT, SELECT)), AGGREGATE(RELATE(within, SELECT, SELECT)))"
+    },
+    {
+      "id": "h14s-09",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "What is the ratio of craft workshops within 1 km of a market to all craft workshops in Kumasi, Ghana?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "left": {
+              "op": "SELECT",
+              "entity": "craft workshop",
+              "region": {
+                "op": "REGION",
+                "place": "Kumasi, Ghana"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "market",
+              "region": {
+                "op": "REGION",
+                "place": "Kumasi, Ghana"
+              },
+              "time": null
+            },
+            "relation": "within",
+            "threshold_km": 1
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "craft workshop",
+            "region": {
+              "op": "REGION",
+              "place": "Kumasi, Ghana"
+            },
+            "time": null
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": "COMPARE(ratio, AGGREGATE(RELATE(within, SELECT, SELECT)), AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h14s-10",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank Mysuru, India, Braga, Portugal, and Kisumu, Kenya from most to fewest coworking spaces.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Mysuru, India"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Braga, Portugal"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "coworking space",
+              "region": {
+                "op": "REGION",
+                "place": "Kisumu, Kenya"
+              },
+              "time": null
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": "RANK(AGGREGATE(SELECT), AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    }
+  ],
+  "s15": [
+    {
+      "id": "h15s-01",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did GDP per capita in France change from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "gdp per capita",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2019"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "gdp per capita",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-02",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Was unemployment in Germany rising or falling from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "unemployment",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": "COMPARE(trend_direction, AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-03",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "By what ratio did internet users in Spain change from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "internet users",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2019"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "internet users",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "ratio"
+      },
+      "gold_shape": "COMPARE(ratio, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-04",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank France, Germany, and Spain from highest to lowest labor force participation in 2023.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "Germany"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "labor force participation",
+              "region": {
+                "op": "REGION",
+                "place": "Spain"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          }
+        ],
+        "order": "desc"
+      },
+      "gold_shape": "RANK(AGGREGATE(SELECT), AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-05",
+      "sector": "livelihoods",
+      "type": "COMPOSITE",
+      "q": "How much higher was self employment in Spain than in France in 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "self employment",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-06",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did average weekly hours worked in France change from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2019"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "average weekly hours worked",
+            "region": {
+              "op": "REGION",
+              "place": "France"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-07",
+      "sector": "livelihoods",
+      "type": "TREND",
+      "q": "Was labour underutilization rate in Germany rising or falling from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "labour underutilization rate",
+            "region": {
+              "op": "REGION",
+              "place": "Germany"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": "COMPARE(trend_direction, AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-08",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did informal employment rate in Spain change from 2019 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2019"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "informal employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-09",
+      "sector": "livelihoods",
+      "type": "CHANGE",
+      "q": "How did the employment rate in Berlin change from 2021 to 2023?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2021"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "employment rate",
+            "region": {
+              "op": "REGION",
+              "place": "Berlin"
+            },
+            "time": {
+              "start": "2023",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "difference"
+      },
+      "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h15s-10",
+      "sector": "livelihoods",
+      "type": "RANKING",
+      "q": "Rank Berlin, Ile de France, and Comunidad de Madrid from lowest to highest unemployment rate in 2023.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RANK",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Berlin"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Ile de France"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "unemployment rate",
+              "region": {
+                "op": "REGION",
+                "place": "Comunidad de Madrid"
+              },
+              "time": {
+                "start": "2023",
+                "end": "2023"
+              }
+            }
+          }
+        ],
+        "order": "asc"
+      },
+      "gold_shape": "RANK(AGGREGATE(SELECT), AGGREGATE(SELECT), AGGREGATE(SELECT))"
+    }
+  ],
+  "s16": [
+    {
+      "id": "h16s-01",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For opening a coworking space in Coimbatore, India, estimate coworking spaces from Mysuru, India.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "coworking space",
+          "region": {
+            "op": "REGION",
+            "place": "Mysuru, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Coimbatore, India"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT, REGION)"
+    },
+    {
+      "id": "h16s-02",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For placing an ATM in Kisii, Kenya, estimate ATMs from Kisumu, Kenya.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "atm",
+          "region": {
+            "op": "REGION",
+            "place": "Kisumu, Kenya"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Kisii, Kenya"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT, REGION)"
+    },
+    {
+      "id": "h16s-03",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For adding a craft workshop in Eldoret, Kenya, estimate craft workshops from Kisumu, Kenya.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "craft workshop",
+          "region": {
+            "op": "REGION",
+            "place": "Kisumu, Kenya"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Eldoret, Kenya"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT, REGION)"
+    },
+    {
+      "id": "h16s-04",
+      "sector": "livelihoods",
+      "type": "TRANSFER",
+      "q": "For opening a market in Madurai, India, estimate markets from Coimbatore, India.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "source": {
+          "op": "SELECT",
+          "entity": "market",
+          "region": {
+            "op": "REGION",
+            "place": "Coimbatore, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Madurai, India"
+        },
+        "method": "envelope"
+      },
+      "gold_shape": "ESTIMATE(SELECT, REGION)"
+    },
+    {
+      "id": "h16s-05",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "To work with Wi-Fi in Mysuru, India, where are the coworking spaces?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "coworking space",
+        "region": {
+          "op": "REGION",
+          "place": "Mysuru, India"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT"
+    },
+    {
+      "id": "h16s-06",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "To withdraw cash in Kisumu, Kenya, where are the ATMs?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "atm",
+        "region": {
+          "op": "REGION",
+          "place": "Kisumu, Kenya"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT"
+    },
+    {
+      "id": "h16s-07",
+      "sector": "livelihoods",
+      "type": "BEHAVIOUR",
+      "q": "To sell goods in Udaipur, India, where are the markets?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "market",
+        "region": {
+          "op": "REGION",
+          "place": "Udaipur, India"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT"
+    },
+    {
+      "id": "h16s-08",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "To open a work hub in Kisii, Kenya, is there a suitable place?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "?facility_type",
+          "region": {
+            "op": "REGION",
+            "place": "Kisii, Kenya"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": "AGGREGATE(SELECT)"
+    },
+    {
+      "id": "h16s-09",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "To compare livelihoods in Spain from 2021 to 2023, was the rate rising or falling?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "COMPARE",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "?indicator",
+            "region": {
+              "op": "REGION",
+              "place": "Spain"
+            },
+            "time": {
+              "start": "2021",
+              "end": "2023"
+            }
+          }
+        },
+        "how": "trend_direction"
+      },
+      "gold_shape": "COMPARE(trend_direction, AGGREGATE(SELECT))"
+    },
+    {
+      "id": "h16s-10",
+      "sector": "livelihoods",
+      "type": "AMBIGUOUS",
+      "q": "To decide where to get cash in Coimbatore, India, which places are available?",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?facility_type",
+        "region": {
+          "op": "REGION",
+          "place": "Coimbatore, India"
+        },
+        "time": null
+      },
+      "gold_shape": "SELECT"
+    }
+  ]
+}

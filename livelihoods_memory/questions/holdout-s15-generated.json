@@ -1,0 +1,471 @@
+{
+ "spec_version": "v2.1",
+ "note": "post-freeze Cursor-authored candidates; unexposed to qwen",
+ "source_generated": "coverage/raw/epoch010-supplements.json",
+ "questions": [
+  {
+   "id": "h15s-01",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did GDP per capita in France change from 2019 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-02",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was unemployment in Germany rising or falling from 2019 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(trend_direction, AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-03",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "By what ratio did internet users in Spain change from 2019 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "internet users",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "internet users",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "ratio"
+   },
+   "gold_shape": "COMPARE(ratio, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-04",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank France, Germany, and Spain from highest to lowest labor force participation in 2023.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "labor force participation",
+       "region": {
+        "op": "REGION",
+        "place": "France"
+       },
+       "time": {
+        "start": "2023",
+        "end": "2023"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "labor force participation",
+       "region": {
+        "op": "REGION",
+        "place": "Germany"
+       },
+       "time": {
+        "start": "2023",
+        "end": "2023"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "labor force participation",
+       "region": {
+        "op": "REGION",
+        "place": "Spain"
+       },
+       "time": {
+        "start": "2023",
+        "end": "2023"
+       }
+      }
+     }
+    ],
+    "order": "desc"
+   },
+   "gold_shape": "RANK(AGGREGATE(SELECT), AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-05",
+   "sector": "livelihoods",
+   "type": "COMPOSITE",
+   "q": "How much higher was self employment in Spain than in France in 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "self employment",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "self employment",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-06",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did average weekly hours worked in France change from 2019 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "average weekly hours worked",
+      "region": {
+       "op": "REGION",
+       "place": "France"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-07",
+   "sector": "livelihoods",
+   "type": "TREND",
+   "q": "Was labour underutilization rate in Germany rising or falling from 2019 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "labour underutilization rate",
+      "region": {
+       "op": "REGION",
+       "place": "Germany"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "trend_direction"
+   },
+   "gold_shape": "COMPARE(trend_direction, AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-08",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did informal employment rate in Spain change from 2019 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "informal employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-09",
+   "sector": "livelihoods",
+   "type": "CHANGE",
+   "q": "How did the employment rate in Berlin change from 2021 to 2023?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "employment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Berlin"
+      },
+      "time": {
+       "start": "2023",
+       "end": "2023"
+      }
+     }
+    },
+    "how": "difference"
+   },
+   "gold_shape": "COMPARE(difference, AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  },
+  {
+   "id": "h15s-10",
+   "sector": "livelihoods",
+   "type": "RANKING",
+   "q": "Rank Berlin, Ile de France, and Comunidad de Madrid from lowest to highest unemployment rate in 2023.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Berlin"
+       },
+       "time": {
+        "start": "2023",
+        "end": "2023"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Ile de France"
+       },
+       "time": {
+        "start": "2023",
+        "end": "2023"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment rate",
+       "region": {
+        "op": "REGION",
+        "place": "Comunidad de Madrid"
+       },
+       "time": {
+        "start": "2023",
+        "end": "2023"
+       }
+      }
+     }
+    ],
+    "order": "asc"
+   },
+   "gold_shape": "RANK(AGGREGATE(SELECT), AGGREGATE(SELECT), AGGREGATE(SELECT))"
+  }
+ ]
+}

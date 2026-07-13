@@ -1,0 +1,512 @@
+{
+ "note": "Round-2 breaker program (ROUND2.md workstream C): >=30 probes targeting semantics OUTSIDE the frozen v2.1 op set. Each probe carries the sector judge's pre-run judgement + reasoning; the runner (harness/breakers_round2.py) records what the 2B parser and executor actually do as evidence. judgement: expressible (stress test, has gold_ir) | executor-gap (tree compiles, denotation wrong/incomplete) | inexpressible (evidence for spec-proposals.md; the gold is NEVER weakened to force execution). Negated union is NOT probed: already expressible via De Morgan chained beyond (proven by the livelihoods run).",
+ "questions": [
+  {
+   "id": "brk2-01",
+   "sector": "transport",
+   "capability_family": "filter-attribute",
+   "q": "How many bus stops in Winnipeg have shelters?",
+   "judgement": "inexpressible",
+   "reason": "Attribute predicate over records. OSM carries shelter=yes on bus stops and GTFS has stop attributes, but the algebra has no FILTER op: SELECT picks an entity class, ANNOTATE adds a column, nothing predicates on it. Widening to 'all bus stops' would be a weakened gold."
+  },
+  {
+   "id": "brk2-02",
+   "sector": "transport",
+   "capability_family": "filter-attribute",
+   "q": "How many wheelchair-accessible scheduled transit stops are there in Christchurch?",
+   "judgement": "inexpressible",
+   "reason": "GTFS stops.txt has wheelchair_boarding upstream; no predicate construct in v2.1. Data exists, algebra cannot ask for it."
+  },
+  {
+   "id": "brk2-03",
+   "sector": "transport",
+   "capability_family": "filter-attribute",
+   "q": "Which railway stations in Berlin have more than five platforms?",
+   "judgement": "inexpressible",
+   "reason": "Numeric attribute predicate (platforms > 5). No comparison over row attributes exists; RELATE thresholds only cover spatial distance."
+  },
+  {
+   "id": "brk2-04",
+   "sector": "transport",
+   "capability_family": "filter-attribute",
+   "q": "How many 24-hour fuel stations are there in Mombasa?",
+   "judgement": "inexpressible",
+   "reason": "opening_hours predicate. Same class as brk2-01; also evidence: gen3-tran-03's 'central railway station' was silently widened to ALL stations by the resolver \u2014 named-instance refinement is the same missing FILTER."
+  },
+  {
+   "id": "brk2-05",
+   "sector": "transport",
+   "capability_family": "filter-attribute",
+   "q": "List the electrified rail lines in Argentina.",
+   "judgement": "inexpressible",
+   "reason": "electrified=* attribute on rail; no FILTER. Also no country-level rail-line record source (WB IS.RRS.TOTL.KM is km, not lines) \u2014 double gap, predicate is the structural one."
+  },
+  {
+   "id": "brk2-06",
+   "sector": "transport",
+   "capability_family": "filter-attribute",
+   "q": "How many bus routes in Tampere run at night?",
+   "judgement": "inexpressible",
+   "reason": "Temporal service predicate over GTFS calendar/stop_times. Upstream data exists (GTFS), algebra has no predicate; time on SELECT windows a SERIES, it does not filter service hours."
+  },
+  {
+   "id": "brk2-07",
+   "sector": "transport",
+   "capability_family": "group-partition",
+   "q": "How many bus stops are there per district in Oulu?",
+   "judgement": "inexpressible",
+   "reason": "AGGREGATE by:space collapses to ONE scalar for the whole region; there is no group key and no sub-region enumeration. RANK needs explicitly named items; 'per district' names none."
+  },
+  {
+   "id": "brk2-08",
+   "sector": "transport",
+   "capability_family": "group-partition",
+   "q": "Break down Chicago's transit ridership by mode.",
+   "judgement": "inexpressible",
+   "reason": "Partition by a categorical key (mode). The connector HAS per-mode columns (bus/rail/paratransit), so this is purely an algebra gap; also a multi-output request (one tree = one answer, Round-1 proposal)."
+  },
+  {
+   "id": "brk2-09",
+   "sector": "transport",
+   "capability_family": "group-partition",
+   "q": "Which neighbourhood of Winnipeg has the most transit stops?",
+   "judgement": "inexpressible",
+   "reason": "Argmax over an unenumerated partition. RANK requires the caller to name the items; the question asks the system to discover them."
+  },
+  {
+   "id": "brk2-10",
+   "sector": "transport",
+   "capability_family": "group-partition",
+   "q": "Count the charging stations in each of Brno's city districts.",
+   "judgement": "inexpressible",
+   "reason": "Same as brk2-07 with an explicit 'each' \u2014 the plural output alone breaks the one-answer contract."
+  },
+  {
+   "id": "brk2-11",
+   "sector": "transport",
+   "capability_family": "group-partition",
+   "q": "How many air passengers did Vietnam carry each year over the last decade?",
+   "judgement": "expressible",
+   "reason": "The ONE partition the algebra already has: time. A windowed SELECT of a series IS the per-year breakdown (series answer). Stress test: does the parser reach for it?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "air passengers",
+    "region": {
+     "op": "REGION",
+     "place": "Vietnam"
+    },
+    "time": {
+     "start": "2014",
+     "end": "2023"
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "brk2-12",
+   "sector": "transport",
+   "capability_family": "union-positive",
+   "q": "How many bus and tram stops are there in Brno combined?",
+   "judgement": "inexpressible",
+   "reason": "Positive union over two record sets; no OR exists and no umbrella tag covers exactly bus+tram. TRANSPORT EVIDENCE FOR THE OPEN CROSS-SECTOR UNION PROPOSAL. (Negated union IS expressible via De Morgan chained beyond \u2014 livelihoods proof \u2014 and is not re-proposed.)"
+  },
+  {
+   "id": "brk2-13",
+   "sector": "transport",
+   "capability_family": "union-positive",
+   "q": "Count all ferry terminals and railway stations in Auckland.",
+   "judgement": "inexpressible",
+   "reason": "Union across amenity families (amenity= vs railway=); not even a single Overpass tag alternation in the current resolver vocabulary."
+  },
+  {
+   "id": "brk2-14",
+   "sector": "transport",
+   "capability_family": "union-positive",
+   "q": "How many public transport access points \u2014 bus, tram or train \u2014 does Melbourne have?",
+   "judgement": "inexpressible",
+   "reason": "Explicit 3-way union. An umbrella (public_transport=platform) approximates but does not equal the asked union; adopting it silently would be a wrong-source-shaped weakening."
+  },
+  {
+   "id": "brk2-15",
+   "sector": "transport",
+   "capability_family": "union-positive",
+   "q": "Which of Oslo and Helsinki has more combined bus and tram stops?",
+   "judgement": "inexpressible",
+   "reason": "Union nested inside COMPARE: the operand itself is inexpressible, so the comparison is too. Shows the gap composes upward."
+  },
+  {
+   "id": "brk2-16",
+   "sector": "transport",
+   "capability_family": "intersection",
+   "q": "How many stops in Brno serve both bus and tram lines at the same platform?",
+   "judgement": "inexpressible",
+   "reason": "Identity intersection (same record in both classes). RELATE within epsilon is a proximity join over DIFFERENT records, not identity; no set-intersection op."
+  },
+  {
+   "id": "brk2-17",
+   "sector": "transport",
+   "capability_family": "intersection",
+   "q": "How many tram stops in Brno are within 100 meters of a bus stop?",
+   "judgement": "expressible",
+   "reason": "The proximity-join reading of interchange IS expressible: RELATE within 0.1. Stress test for a tight threshold.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 0.1,
+     "left": {
+      "op": "SELECT",
+      "entity": "tram stop",
+      "region": {
+       "op": "REGION",
+       "place": "Brno, Czechia"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Brno, Czechia"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "brk2-18",
+   "sector": "transport",
+   "capability_family": "intersection",
+   "q": "Which of Berlin, Vienna and Zurich have both a metro and trams?",
+   "judgement": "inexpressible",
+   "reason": "Boolean conjunction of presence PER RANK ITEM ('both X and Y'). RANK items scalarize one number; there is no AND of two presence tests inside an item."
+  },
+  {
+   "id": "brk2-19",
+   "sector": "transport",
+   "capability_family": "rate-denominator",
+   "q": "How many bus stops per 1000 residents does Winnipeg have?",
+   "judgement": "executor-gap",
+   "reason": "COMPARE how:ratio over (count stops, population) compiles \u2014 and the evidence run FALSIFIED the pre-run judgement written here earlier ('the denominator dies honestly'): wb_resolve_iso resolves the CITY region 'Winnipeg, Canada' to CANADA, so the rate executes 200/41,651,653 with a silently NATIONAL denominator under a city question. Pre-freeze executor completion: typed values now carry a grain tag and COMPARE stamps [GRAIN MISMATCH] into provenance, so the answer surface must disclose it. The x1000 scaling stays unrepresentable (unit-arithmetic debt). See FINDINGS 2026-07-13 R2 breakers.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "ratio",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Winnipeg, Canada"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "population",
+     "region": {
+      "op": "REGION",
+      "place": "Winnipeg, Canada"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "brk2-20",
+   "sector": "transport",
+   "capability_family": "rate-denominator",
+   "q": "What is Chicago's rail ridership per resident?",
+   "judgement": "executor-gap",
+   "reason": "Same class as brk2-19, proven by the evidence run: 'Chicago' resolves through its display name to the USA, so ridership-per-resident executes against the NATIONAL population (0.40 rides/resident \u2014 nonsense for a city). Now disclosed via the COMPARE grain-mismatch note; city-population remains a real denominator connector gap (no adopted city-demographics family).",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "ratio",
+    "left": {
+     "op": "SELECT",
+     "entity": "rail ridership",
+     "region": {
+      "op": "REGION",
+      "place": "Chicago"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "population",
+     "region": {
+      "op": "REGION",
+      "place": "Chicago"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "brk2-21",
+   "sector": "transport",
+   "capability_family": "rate-denominator",
+   "q": "Per capita, who flies more: Vietnam or Thailand?",
+   "judgement": "expressible",
+   "reason": "At COUNTRY grain both numerator and denominator exist, and ratio-of-ratios nests: COMPARE(difference, COMPARE(ratio air/pop VNM), COMPARE(ratio air/pop THA)). Stress test for 2-level COMPARE nesting.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "ratio",
+     "left": {
+      "op": "SELECT",
+      "entity": "air passengers",
+      "region": {
+       "op": "REGION",
+       "place": "Vietnam"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "population",
+      "region": {
+       "op": "REGION",
+       "place": "Vietnam"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "ratio",
+     "left": {
+      "op": "SELECT",
+      "entity": "air passengers",
+      "region": {
+       "op": "REGION",
+       "place": "Thailand"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "population",
+      "region": {
+       "op": "REGION",
+       "place": "Thailand"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "brk2-22",
+   "sector": "transport",
+   "capability_family": "rate-denominator",
+   "q": "How many kilometers of rail line does Czechia have per square kilometer of land area?",
+   "judgement": "inexpressible",
+   "reason": "Denominator 'land area' has no adopted source (AG.LND.TOTL.K2 exists upstream but was never census-verified/adopted; adopting mid-breaker-run would be tuning against the probe). Recorded as a candidate for a future census, not silently added."
+  },
+  {
+   "id": "brk2-23",
+   "sector": "transport",
+   "capability_family": "temporal-alignment",
+   "q": "Did air passengers and rail passengers in Argentina peak in the same year?",
+   "judgement": "inexpressible",
+   "reason": "Requires argmax-year per series + equality of the two years. No temporal argmax primitive; COMPARE reduces to endpoint scalars."
+  },
+  {
+   "id": "brk2-24",
+   "sector": "transport",
+   "capability_family": "temporal-alignment",
+   "q": "In which year did Chicago's bus ridership fall the most?",
+   "judgement": "inexpressible",
+   "reason": "Argmax over first differences of a series. Data fully present (38 annual points); the algebra has no windowed difference or argmax."
+  },
+  {
+   "id": "brk2-25",
+   "sector": "transport",
+   "capability_family": "temporal-alignment",
+   "q": "Was Chicago's average annual bus ridership higher in the 1990s than in the 2010s?",
+   "judgement": "executor-gap",
+   "reason": "Tree compiles: COMPARE(difference) of AGGREGATE(mean) over two windowed SELECTs. But the executor's AGGREGATE passes a series through untouched regardless of metric, and COMPARE then takes ENDPOINT values \u2014 the answer silently compares 1999 vs 2019 instead of decade means. Expressible tree, wrong denotation: executor semantics completion required (dev fix, guard-tested).",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus ridership",
+      "region": {
+       "op": "REGION",
+       "place": "Chicago"
+      },
+      "time": {
+       "start": "1990",
+       "end": "1999"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "bus ridership",
+      "region": {
+       "op": "REGION",
+       "place": "Chicago"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2019"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "brk2-26",
+   "sector": "transport",
+   "capability_family": "temporal-alignment",
+   "q": "Since 2010, have bus and rail ridership in Chicago moved together?",
+   "judgement": "inexpressible",
+   "reason": "Co-movement/correlation of two series. COMPARE(trend, trend) cannot compose: trend_direction yields a STRING scalar, difference/ratio over strings is undefined ('cannot compare'). No correlation primitive."
+  },
+  {
+   "id": "brk2-27",
+   "sector": "transport",
+   "capability_family": "quantile",
+   "q": "What is Vietnam's median annual air passenger count since 2000?",
+   "judgement": "inexpressible",
+   "reason": "metric vocabulary is count|density|mean|presence \u2014 no median/percentile. Adding 'median' to the vocab is a spec change (frozen), so: proposal."
+  },
+  {
+   "id": "brk2-28",
+   "sector": "transport",
+   "capability_family": "quantile",
+   "q": "Of Accra, Kumasi and Tamale, which is the middle city by number of fuel stations?",
+   "judgement": "inexpressible",
+   "reason": "RANK orders and truncates from the TOP (k); there is no middle/median selection over ranked items."
+  },
+  {
+   "id": "brk2-29",
+   "sector": "transport",
+   "capability_family": "quantile",
+   "q": "What is the 90th percentile of Chicago's annual bus ridership?",
+   "judgement": "inexpressible",
+   "reason": "Percentile over a series; same vocabulary gap as brk2-27."
+  },
+  {
+   "id": "brk2-30",
+   "sector": "transport",
+   "capability_family": "row-ordering",
+   "q": "Which bus stop in Tampere is closest to the railway station?",
+   "judgement": "inexpressible",
+   "reason": "Argmin over ROWS. RELATE distance annotates every row with dist_km, but RANK ranks subtree ITEMS (places), never rows; there is no row-level order/limit. The data (per-row distances) is already computed and then unreachable."
+  },
+  {
+   "id": "brk2-31",
+   "sector": "transport",
+   "capability_family": "row-ordering",
+   "q": "What are the five northernmost tram stops in Brno?",
+   "judgement": "inexpressible",
+   "reason": "Row-level sort by an attribute (lat) + limit 5. Same gap as brk2-30 without the RELATE."
+  },
+  {
+   "id": "brk2-32",
+   "sector": "transport",
+   "capability_family": "unit-arithmetic",
+   "q": "By what percentage did Chicago's bus ridership change between 1999 and 2019?",
+   "judgement": "expressible",
+   "reason": "how:ratio captures the semantic core (2019/1999); 'percent change' is (ratio-1)x100, an affine rendering the algebra cannot express \u2014 unit/scalar-arithmetic debt noted in proposals, gold NOT weakened (ratio is the correct tree, rendering is the synthesis layer's honest limit).",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "ratio",
+    "left": {
+     "op": "SELECT",
+     "entity": "bus ridership",
+     "region": {
+      "op": "REGION",
+      "place": "Chicago"
+     },
+     "time": {
+      "start": "2019",
+      "end": "2019"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bus ridership",
+     "region": {
+      "op": "REGION",
+      "place": "Chicago"
+     },
+     "time": {
+      "start": "1999",
+      "end": "1999"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  }
+ ]
+}
