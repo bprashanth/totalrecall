@@ -12,10 +12,12 @@ deterministic executor runs the tree against live data connectors, and code (not
 enforces honesty: observed-vs-modelled labels, ask-when-ambiguous via typed holes, data gaps as
 first-class DataRequest answers. The reference run (5 civic sectors, 89 questions) reached 1.000
 with a 2B parser and, along the way, *discovered* two algebra ops via failure probes (RANK, and the
-`beyond` complement relation). Read `algebra/README.md` (the design) and `algebra/ir-spec.md` (the
-machine-checkable spec, **v2.1 — FROZEN for you**) before writing any code. v2.1's COMPARE
-operand-orientation rule (later-minus-earlier for time-anchored difference/ratio) is already
-implemented in the executor — do not re-fix it, and do not penalize the parser for operand order.
+`beyond` complement relation). Read `algebra/README.md` (the design), `algebra/ir-spec.md` (the
+machine-checkable spec), and `SATURATION.md` before writing code. The algebra version in
+`framework-lock.json` is **FROZEN for the sector**. Its COMPARE orientation rule applies
+later-minus-earlier only to same-quantity time comparisons; do not penalize the parser for operand
+order. The saturation protocol's breadth, freeze, and untouched-holdout requirements govern any
+stopping claim.
 
 ## 2. Roles — read carefully, this is where comparability lives
 - **Parser under test = the local Qwen3.5-2B**, OpenAI-compatible at `http://172.17.0.1:8001/v1`
@@ -106,8 +108,10 @@ python3 harness/compile_corpus.py              # refresh corpus/ (the training-d
 python3 harness/report_html.py                     # HTML reports: runs/index.html
 python3 harness/multiturn.py runs/tick-XXX-mt qwen2b   # dialogue layer check (adapt CASES to sector)
 ```
-Repeat until scores plateau AND the residue is characterized (not merely tolerated). Also run
-`--model deepseekv4` once on your final banks as the frontier reference point.
+Repeat development until the residue is characterized (not merely tolerated), then follow
+`SATURATION.md`: freeze exact hashes and require three consecutive untouched post-freeze holdouts.
+A holdout-driven fix invalidates that epoch and restarts the sequence. Also run `--model
+deepseekv4` once on representative final banks as the frontier reference point.
 
 ## 8. Parser prompt rules (edit carefully)
 You may swap the ENTITIES in `parser.py` few-shots to your sector's domain, but keep the same tree

@@ -96,10 +96,10 @@
       "id": "PLN-001",
       "title": "Multi-clause completeness",
       "scope": "dialogue-protocol",
-      "status": "proposed",
+      "status": "accepted",
       "source": "livelihoods_memory/spec-proposals.md",
       "corroboration": ["transport_memory/spec-proposals.md"],
-      "note": "The evidence supports mandatory clause completeness. Whether a BUNDLE is needed remains separate from the currently preferred upstream clause split.",
+      "note": "Adopt mandatory clause completeness and upstream clause splitting; BUNDLE remains deferred until cross-clause dependencies require it.",
       "required_tests": ["no silent half-golds", "independent clause split", "dependency detection", "labelled answer completeness"]
     },
     {
@@ -115,11 +115,33 @@
       "id": "SAT-001",
       "title": "Discovery-rate saturation protocol",
       "scope": "saturation-protocol",
-      "status": "proposed",
+      "status": "validated",
       "source": "livelihoods_memory/ROUND2.md",
       "corroboration": ["transport_memory/ROUND2.md"],
-      "resolution_candidate": "Saturation requires coverage and breaker pressure plus three consecutive post-freeze untouched holdouts of at least 40 rows, a flat discovery curve, complete guards, and immutable checksums.",
+      "resolution": "Saturation requires coverage and breaker pressure plus three consecutive post-freeze untouched holdouts of at least 40 rows, a flat discovery curve, complete guards, and immutable checksums.",
+      "target": "discovery-rate-v1",
       "required_tests": ["freeze invalidation", "holdout provenance", "three-bank sequence", "discovery classification", "corpus leakage audit"]
+    },
+    {
+      "id": "BUG-001",
+      "title": "Same-quantity guard for temporal COMPARE orientation",
+      "scope": "executor-semantics",
+      "status": "validated",
+      "source": "transport_memory/spec-proposals.md",
+      "corroboration": ["../heartwood/docs/architecture/memory/benchmarks/spec-proposals.md"],
+      "resolution": "Later-minus-earlier canonicalization applies only when both operands resolve to the same entity or quantity; cross-entity arithmetic preserves written order.",
+      "target": "algebra-v2.2.1",
+      "required_tests": ["same-entity time reversal", "cross-entity differing end-years", "place comparison order"]
+    },
+    {
+      "id": "BUG-002",
+      "title": "Fail-closed grain co-scoping for arithmetic",
+      "scope": "executor-semantics",
+      "status": "proposed",
+      "source": "transport_memory/spec-proposals.md",
+      "corroboration": ["../heartwood/docs/architecture/memory/benchmarks/spec-proposals.md"],
+      "note": "Contested remedy: provenance-only disclosure versus a DataRequest on incompatible grains. Not released.",
+      "required_tests": ["city versus country denominator", "compatible country series", "explicit user-approved fallback", "synthesis cannot omit mismatch"]
     }
   ]
 }

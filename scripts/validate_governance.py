@@ -38,6 +38,15 @@ def main() -> None:
             raise SystemExit(f"manifest references unknown proposal {proposal_id}")
         if item["status"] != "validated":
             raise SystemExit(f"manifest releases non-validated proposal {proposal_id}")
+    required_artifacts = [
+        "governance/reviews/codex-round2.md",
+        "governance/reviews/fable-import-20260713.md",
+        "governance/decisions/20260713-round2.md",
+        "kit/SATURATION.md",
+    ]
+    for relative in required_artifacts:
+        if not (ROOT / relative).is_file():
+            raise SystemExit(f"missing governance artifact {relative}")
     print(f"governance valid: {len(proposals)} proposals, {len(manifest['released_proposals'])} released")
 
 

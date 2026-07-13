@@ -31,8 +31,9 @@ other. They do share two things: (1) the 2B parser at :8001 — vLLM batches con
 parallelism only costs throughput, never correctness; the hard rule (in AGENTS.md) is that no agent
 may ever stop/restart it; (2) public API rate limits (Overpass/Nominatim) — each sector has its own
 HTTP cache, expect the first census to be the slow part. Bootstrap AFTER the kit's latest sync if
-you want the newest harness (the snapshot is the isolation guarantee: later kit changes don't touch
-an already-bootstrapped sector).
+you want the newest harness and saturation protocol. The snapshot is the isolation guarantee:
+later kit changes don't touch an already-bootstrapped sector. Each new snapshot includes
+`framework-lock.json`, recording the released proposal and protocol versions it inherited.
 
 ## Prerequisites on this box (check before starting an agent)
 - 2B parser serving: `curl -s http://172.17.0.1:8001/v1/models` → `qwen3.5-2b`.
