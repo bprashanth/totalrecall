@@ -1,6 +1,7 @@
 # Working rules (auto-read by coding agents)
 
 Mission and full instructions: **PROMPT.md in this directory — read it first, top to bottom.**
+Stopping and saturation contract: **SATURATION.md — read it before declaring completion.**
 
 Hard rules:
 1. The parser under test is the LOCAL 2B (`qwen2b` via `harness/llm.py`), never yourself. You are
@@ -22,3 +23,6 @@ Hard rules:
    endpoint is down or serves the wrong model name, STOP and report in FINDINGS.md; do not fix it
    yourself. Ports 8002+ are reserved for other experiments (specialist models, LoRA serving) —
    don't bind anything there either.
+10. A perfect repaired bank is regression closure, not saturation. Follow SATURATION.md: freeze
+    exact code and banks, then require three consecutive untouched post-freeze holdouts. Any
+    holdout-driven fix invalidates the epoch.

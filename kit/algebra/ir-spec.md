@@ -1,4 +1,4 @@
-# IR spec v2.2 — the JSON expression tree a question compiles to
+# IR spec v2.2.1 — the JSON expression tree a question compiles to
 
 *(v2.1 adds COMPARE operand-orientation, corroborated across the civic and transport sectors. See the
 version history inline: unary trend_direction, RANK (v1), beyond+threshold_km (v2), orientation (v2.1).)*
@@ -112,9 +112,10 @@ Field vocabularies:
   and `how:ratio` are NOT sign-symmetric, and "change t1→t2" legitimately compiles with operands in
   question order — so `COMPARE(a,b)` and `COMPARE(b,a)` denote opposite scalars, both pass every
   structural check, and one silently prints "decreased" for a series that grew. Rule: when both operands
-  expose a time anchor and the anchors differ, the executor orients **later-minus-earlier** (resp.
-  later/earlier) and stamps the reorientation in provenance. Place-vs-place comparisons (equal/absent
-  years) keep first-named = left, and the answer surface must name the operands. This is a canonical-form
+  resolve to the **same entity/quantity**, expose a time anchor, and the anchors differ, the executor
+  orients **later-minus-earlier** (resp. later/earlier) and stamps the reorientation in provenance.
+  Cross-entity comparisons and place-vs-place comparisons keep first-named = left, even if their
+  source series end in different years. The answer surface must name the operands. This is a canonical-form
   rule (like tree normalization), not a new op — the parser is not penalized for either order.
 - **Provenance = the tree itself** plus per-node row counts / sources stamped during execution.
 

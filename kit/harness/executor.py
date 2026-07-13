@@ -48,7 +48,7 @@ def _route_select(entity, region, time, prov):
         out = C.wb_series(entity, region, time)
         prov.append({"op": "SELECT", "route": "worldbank", "resolved": canon,
                      "ambiguous": ambig, "note": out["note"]})
-        return {"kind": "series", "rows": out["rows"],
+        return {"kind": "series", "rows": out["rows"], "entity": canon,
                 "label": out.get("label", "observed"),   # v2.2: connector-leaf evidence label
                 "source": out["source"], "ambiguous": ambig}
     # osm point entity?
@@ -57,7 +57,7 @@ def _route_select(entity, region, time, prov):
         out = C.osm_select(entity, region)
         prov.append({"op": "SELECT", "route": "osm", "resolved": ocanon,
                      "ambiguous": oambig, "note": out["note"]})
-        return {"kind": "records", "rows": out["rows"], "label": "observed",
+        return {"kind": "records", "rows": out["rows"], "entity": ocanon, "label": "observed",
                 "source": out["source"], "ambiguous": oambig}
     # no connector maps this entity -> honest data gap (never fabricate)
     prov.append({"op": "SELECT", "route": "none", "note": f"no connector for {entity!r}"})
@@ -85,7 +85,7 @@ def _ev(node, prov, region_ctx):
                     if k not in seen:
                         seen.add(k)
                         rows.append(r)
-            val = {"kind": parts[0]["kind"], "rows": rows,
+            val = {"kind": parts[0]["kind"], "rows": rows, "entity": ent,
                    "label": _merge_label(*[p["label"] for p in parts]), "source": "union"}
             prov.append({"op": "SELECT", "route": "union",
                          "note": f"union of {ent} -> {len(rows)} rows"})
@@ -122,7 +122,7 @@ def _ev(node, prov, region_ctx):
         out = _aggregate(src, node["by"], node["metric"])
         prov.append({"op": "AGGREGATE", "by": node["by"], "metric": node["metric"],
                      "note": out["note"]})
-        return {**out, "label": src["label"]}
+        return {**out, "label": src["label"], "entity": src.get("entity")}
 
     if op == "COMPARE":
         left = _ev(node["left"], prov, region_ctx)
@@ -296,7 +296,9 @@ def _compare(left, right, how):
     # ORIENTATION (adopted from transport sector, spec v2->v2.1): "change t1->t2" compiles with
     # operands in QUESTION order — a defensible parse whose sign is opposite the gold's, silently
     # producing "decreased" for a series that grew. When both operands expose a time anchor and the
-    # anchors differ, orient later-minus-earlier deterministically and stamp it in provenance.
+    # anchors differ AND both values resolve to the same entity, orient later-minus-earlier
+    # deterministically and stamp it in provenance. Cross-entity ratios preserve operand order;
+    # differing source end-years must never silently invert the requested denominator.
     def end_year(v):
         if v and v.get("kind") == "series" and v.get("rows"):
             try:
@@ -306,7 +308,8 @@ def _compare(left, right, how):
         return None
     oriented = ""
     ya, yb = end_year(left), end_year(right)
-    if ya is not None and yb is not None and ya < yb:
+    same_entity = left.get("entity") is not None and left.get("entity") == right.get("entity")
+    if same_entity and ya is not None and yb is not None and ya < yb:
         a, b = b, a
         oriented = " (oriented later-minus-earlier)"
     val = (a - b) if how == "difference" else (a / b if b else None)

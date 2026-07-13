@@ -6,14 +6,18 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 SECTOR="${1:?usage: ./bootstrap.sh <sector>   (e.g. livelihoods, transport)}"
 DEST="$HERE/${SECTOR}_memory"
 [ -e "$DEST" ] && { echo "refusing: $DEST already exists"; exit 1; }
+SPEC_VERSION="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["algebra_version"])' \
+  "$HERE/governance/framework-manifest.json")"
 
 mkdir -p "$DEST"/{harness,algebra,questions,runs,corpus,chronology}
 cp "$HERE"/kit/harness/*.py "$DEST/harness/"
 cp "$HERE"/kit/algebra/*.md "$DEST/algebra/"
 cp "$HERE"/kit/PROMPT.md "$DEST/PROMPT.md"
 cp "$HERE"/kit/AGENTS.md "$DEST/AGENTS.md"
+cp "$HERE"/kit/SATURATION.md "$DEST/SATURATION.md"
+cp "$HERE"/governance/framework-manifest.json "$DEST/framework-lock.json"
 cat > "$DEST/sector.json" <<EOF
-{ "sector": "$SECTOR", "created": "$(date -Iseconds)", "spec_version": "v2",
+{ "sector": "$SECTOR", "created": "$(date -Iseconds)", "spec_version": "$SPEC_VERSION",
   "parser_under_test": "qwen2b", "reference_run": "heartwood/docs/architecture/memory/benchmarks" }
 EOF
 cat > "$DEST/spec-proposals.md" <<'EOF'
