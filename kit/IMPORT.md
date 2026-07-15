@@ -22,3 +22,15 @@ notes — e.g. soul.md/playbook.md style scaffolds). Invocation the human will u
    aliases and code-switch terms where the deployment is India-facing. Live-probe every alias.
 6. Then run the standard loop under SATURATION.md budgets: seed bank against imported connectors →
    propose/mine/breakers for NEW sources+questions → dialect transforms → freeze → exam.
+
+## After you finish (IMPORTANT — how your work gets reused)
+Commit everything in your sector dir + write REPORT.md, then STOP. Do NOT integrate anything back
+into the origin system in this run — re-integration is a SEPARATE later invocation: the supervisor
+will retrain the small model with your corpus folded in, then leave a bundle at
+handoff/<sector>-export/ (tuned model + shim + framework-lock + frozen A/B bank + mission) and the
+human will re-invoke you to execute kit/EXPORT.md against the origin (wire the evaluate() tool,
+run the pre-registered A/B, switch only on a win). What makes your run maximally usable meanwhile:
+(a) corpus/parse.jsonl rows only via the verified pipeline (they feed training with NO review
+gate, so purity matters); (b) algebra/spec ideas ONLY as spec-proposals.md entries (they DO get
+reviewed); (c) frozen holdouts clearly marked (they stay eval-only forever); (d) resumable
+checkpoints throughout so a quota stall never loses work.
