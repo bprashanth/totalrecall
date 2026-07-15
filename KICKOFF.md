@@ -35,6 +35,10 @@ you want the newest harness and saturation protocol. The snapshot is the isolati
 later kit changes don't touch an already-bootstrapped sector. Each new snapshot includes
 `framework-lock.json`, recording the released proposal and protocol versions it inherited.
 
+## Importing an EXISTING sector implementation
+If a sector already exists elsewhere (own connectors/datasets/algebra notes), start the agent with:
+"bootstrap <sector> with IMPORT.md against <path>" — see kit/IMPORT.md. Merge-back guidance: kit/EXPORT.md.
+
 ## Prerequisites on this box (check before starting an agent)
 - 2B parser serving: `curl -s http://172.17.0.1:8001/v1/models` → `qwen3.5-2b`.
   (If the 122B is running instead: `docker stop vllm-qwen35 && cd ~/src/github.com/bprashanth/idlisseus && bash models/qwen3.5-2b/run.sh`)
