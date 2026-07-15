@@ -1,0 +1,5087 @@
+{
+ "spec_version": "v2",
+ "note": "FROZEN Indic eval. FIRST-CONTACT PROTOCOL: no model, prompt, adapter or harness change may be informed by per-row inspection of this file before a model's first scored run on it; misses may be autopsied only AFTER that run is recorded. Originals (source_id) are held out from indic-train-001. Hand-authored rows (ind-hand-*) are appended separately.",
+ "questions": [
+  {
+   "id": "ind-001",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "You know I'm going into this weird rabbit hole about Tbilisi Georgia and its urban planning like I keep thinking about universities and how close they are to everything.Also. there are so many random details of universities in Tbilisi Georgia that are within 300 meters of kindergarten how many are within 250 meters of the pharmacy but I can 't stop thinking about it.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 0.25,
+     "left": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.3,
+      "left": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Tbilisi, Georgia"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "kindergarten",
+       "region": {
+        "op": "REGION",
+        "place": "Tbilisi, Georgia"
+       },
+       "time": null
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "pharmacy",
+      "region": {
+       "op": "REGION",
+       "place": "Tbilisi, Georgia"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "mr",
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C2-040"
+   }
+  },
+  {
+   "id": "ind-002",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "You know _ I've been going down this strange rabbit hole about Tbilisi Georgia and its urban planning _ I keep thinking about universities and how close they are to everything _ Anyway the universities in Tbilisi Georgia are within 300 meters of a kindergarten _ how many are within 250 meters of a pharmacy _ it's a random detail _ but I can 't stop wondering about it.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 0.25,
+     "left": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.3,
+      "left": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Tbilisi, Georgia"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "kindergarten",
+       "region": {
+        "op": "REGION",
+        "place": "Tbilisi, Georgia"
+       },
+       "time": null
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "pharmacy",
+      "region": {
+       "op": "REGION",
+       "place": "Tbilisi, Georgia"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "ta",
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C2-040"
+   }
+  },
+  {
+   "id": "ind-003",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "Where can I find public libraries in Bengaluru?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "library",
+    "region": {
+     "op": "REGION",
+     "place": "Bengaluru, India"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "loc",
+    "style": "native",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0140"
+   }
+  },
+  {
+   "id": "ind-004",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Did mobile subscriptions grow faster than gdp per capita in India between 2010 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2010"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2010"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "loc",
+    "style": "native",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C1-038"
+   }
+  },
+  {
+   "id": "icmc-069",
+   "sector": "complaints",
+   "type": "RANKING",
+   "q": "Between Mangamannapalya, Vasanthapura, Bellanduru and Horamavu, where are pothole complaints highest?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "pothole complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Mangamannapalya"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "pothole complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Vasanthapura"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "pothole complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Bellanduru"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "pothole complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Horamavu"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mint",
+    "style": "native",
+    "lang": null,
+    "source": "icmc-mint",
+    "source_id": "icmc-069"
+   }
+  },
+  {
+   "id": "ind-005",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Hey, I was just messing around with some old economic data and totally lost track of what I was looking for. Like, I remember checking India's numbers and now I'm wondering—did urban population grow faster than gdp per capita in India between 2008 and 2018? Probably not, but I can't remember.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "urban population",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2018",
+       "end": "2018"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "urban population",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2008",
+       "end": "2008"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2018",
+       "end": "2018"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "2008",
+       "end": "2008"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "loc",
+    "style": "native",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C1-012"
+   }
+  },
+  {
+   "id": "ind-006",
+   "sector": "livelihoods",
+   "type": "DIALECT",
+   "q": "In Kyoto, which marketplaces are within 1 km of a bank only, na? Tell me, right?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "marketplace",
+     "region": {
+      "op": "REGION",
+      "place": "Kyoto, Japan"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Kyoto, Japan"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "conversational",
+    "lang": null,
+    "source": "livelihoods",
+    "source_id": "livelihoods:0728"
+   }
+  },
+  {
+   "id": "ind-007",
+   "sector": "livelihoods",
+   "type": "DIALECT",
+   "q": "Which markets in Kyoto are within 1 km of a bank",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "marketplace",
+     "region": {
+      "op": "REGION",
+      "place": "Kyoto, Japan"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Kyoto, Japan"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "hi",
+    "source": "livelihoods",
+    "source_id": "livelihoods:0728"
+   }
+  },
+  {
+   "id": "ind-008",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Are there more markets within 300 meters of a school in Hubballi than in Pune?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.3,
+      "left": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Hubballi, India"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "school",
+       "region": {
+        "op": "REGION",
+        "place": "Hubballi, India"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.3,
+      "left": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Pune, India"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "school",
+       "region": {
+        "op": "REGION",
+        "place": "Pune, India"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "loc",
+    "style": "native",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C4-032"
+   }
+  },
+  {
+   "id": "ind-009",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Are there more mandis within 300 meters of a school in Zaragoza than in Arequipa?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.3,
+      "left": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Zaragoza, Spain"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "school",
+       "region": {
+        "op": "REGION",
+        "place": "Zaragoza, Spain"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.3,
+      "left": {
+       "op": "SELECT",
+       "entity": "market",
+       "region": {
+        "op": "REGION",
+        "place": "Arequipa, Peru"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "school",
+       "region": {
+        "op": "REGION",
+        "place": "Arequipa, Peru"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "lex",
+    "style": "native",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C4-032"
+   }
+  },
+  {
+   "id": "ind-010",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "economy status around here?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "here"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "?indicator",
+     "region": {
+      "op": "REGION",
+      "place": "here"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "terse",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0018"
+   },
+   "must_hole": true
+  },
+  {
+   "id": "ind-011",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "How is the economy doing around Surat?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Surat, India"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "?indicator",
+     "region": {
+      "op": "REGION",
+      "place": "Surat, India"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "loc",
+    "style": "native",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0018"
+   },
+   "must_hole": true
+  },
+  {
+   "id": "ind-012",
+   "sector": "livelihoods",
+   "type": "DIALECT",
+   "q": "For opening a craft business elsewhere, estimate craft workshops from Pune.",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "source": {
+     "op": "SELECT",
+     "entity": "craft workshop",
+     "region": {
+      "op": "REGION",
+      "place": "Pune, India"
+     },
+     "time": null
+    },
+    "target": "?place"
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "loc",
+    "style": "native",
+    "lang": null,
+    "source": "livelihoods",
+    "source_id": "livelihoods:0464"
+   },
+   "must_hole": true
+  },
+  {
+   "id": "ind-013",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "In Marseille, which chemists have no nursing home within one kilometer of them?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "pharmacy",
+     "region": {
+      "op": "REGION",
+      "place": "Marseille, France"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "nursing home",
+     "region": {
+      "op": "REGION",
+      "place": "Marseille, France"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "lex",
+    "style": "native",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0077"
+   }
+  },
+  {
+   "id": "ind-014",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Did inflation rise faster than GDP per capita in Morocco between 2000 and 2019?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "inflation",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "inflation",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "mr",
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C1-011"
+   }
+  },
+  {
+   "id": "ind-015",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Inflation grew faster than gdp per capita in Morocco between 2000 and 2019, right? Tell na?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "inflation",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "inflation",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "conversational",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C1-011"
+   }
+  },
+  {
+   "id": "ind-016",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Of the medical shops in Zaragoza, Spain that are within 500 meters of a university, how many are within 250 meters of a bank?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 0.25,
+     "left": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.5,
+      "left": {
+       "op": "SELECT",
+       "entity": "pharmacy",
+       "region": {
+        "op": "REGION",
+        "place": "Zaragoza, Spain"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Zaragoza, Spain"
+       },
+       "time": null
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Zaragoza, Spain"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "lex",
+    "style": "native",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C2-002"
+   }
+  },
+  {
+   "id": "ind-017",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Library count (no bank within 500 meters) minimum among Brno, Marrakech, Graz?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "library",
+        "region": {
+         "op": "REGION",
+         "place": "Brno, Czechia"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "bank",
+        "region": {
+         "op": "REGION",
+         "place": "Brno, Czechia"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "library",
+        "region": {
+         "op": "REGION",
+         "place": "Marrakech, Morocco"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "bank",
+        "region": {
+         "op": "REGION",
+         "place": "Marrakech, Morocco"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "library",
+        "region": {
+         "op": "REGION",
+         "place": "Graz, Austria"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "bank",
+        "region": {
+         "op": "REGION",
+         "place": "Graz, Austria"
+        },
+        "time": null
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "RELATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "fragment",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C3-021"
+   }
+  },
+  {
+   "id": "ind-018",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Kindly inform me which among Brno, Marrakech, and Graz has the fewest libraries with no bank within 500 meters. Please do the needful.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "library",
+        "region": {
+         "op": "REGION",
+         "place": "Brno, Czechia"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "bank",
+        "region": {
+         "op": "REGION",
+         "place": "Brno, Czechia"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "library",
+        "region": {
+         "op": "REGION",
+         "place": "Marrakech, Morocco"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "bank",
+        "region": {
+         "op": "REGION",
+         "place": "Marrakech, Morocco"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "library",
+        "region": {
+         "op": "REGION",
+         "place": "Graz, Austria"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "bank",
+        "region": {
+         "op": "REGION",
+         "place": "Graz, Austria"
+        },
+        "time": null
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "RELATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "formal",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C3-021"
+   }
+  },
+  {
+   "id": "ind-019",
+   "sector": "civic",
+   "type": "DIALECT",
+   "q": "Which bus stops in Nairobi are within a kilometer of a nursing home?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "bus_stop",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "nursing home",
+     "region": {
+      "op": "REGION",
+      "place": "Nairobi, Kenya"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "lex",
+    "style": "native",
+    "lang": null,
+    "source": "seed",
+    "source_id": "seed:civic-02"
+   }
+  },
+  {
+   "id": "ind-020",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Hey so I'm having fun looking at some maps you know how you do and I started thinking about something like Marrakech and Kampala and Rosario which of those three cities has parks with no kindergarten within 2 km which is a very random thing to wonder about but I'm curious if you have any idea.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 2.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Marrakech, Morocco"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "kindergarten",
+        "region": {
+         "op": "REGION",
+         "place": "Marrakech, Morocco"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 2.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Kampala, Uganda"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "kindergarten",
+        "region": {
+         "op": "REGION",
+         "place": "Kampala, Uganda"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 2.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Rosario, Argentina"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "kindergarten",
+        "region": {
+         "op": "REGION",
+         "place": "Rosario, Argentina"
+        },
+        "time": null
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "RELATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "te",
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C3-007"
+   }
+  },
+  {
+   "id": "ind-021",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Hey so I was just looking at some maps for fun _ you know how you do _ and I started thinking about Marrakech and Kampala and Rosario _ which of those three cities has more parks with no kindergarten within 2 kilometers _ it's a random thing to wonder about _ but I was curious if you have any idea",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 2.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Marrakech, Morocco"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "kindergarten",
+        "region": {
+         "op": "REGION",
+         "place": "Marrakech, Morocco"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 2.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Kampala, Uganda"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "kindergarten",
+        "region": {
+         "op": "REGION",
+         "place": "Kampala, Uganda"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 2.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Rosario, Argentina"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "kindergarten",
+        "region": {
+         "op": "REGION",
+         "place": "Rosario, Argentina"
+        },
+        "time": null
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "RELATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "ta",
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C3-007"
+   }
+  },
+  {
+   "id": "icmc-014",
+   "sector": "complaints",
+   "type": "STATE",
+   "q": "In 2020, how many road complaints came from Hoodi?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "road complaints",
+     "region": {
+      "op": "REGION",
+      "place": "Hoodi"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mint",
+    "style": "native",
+    "lang": null,
+    "source": "icmc-mint",
+    "source_id": "icmc-014"
+   }
+  },
+  {
+   "id": "ind-022",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Which of Leipzig, Rosario and Kampala has the most chemists with no nursing home within 1 km?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 1.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Leipzig, Germany"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "nursing home",
+        "region": {
+         "op": "REGION",
+         "place": "Leipzig, Germany"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 1.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Rosario, Argentina"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "nursing home",
+        "region": {
+         "op": "REGION",
+         "place": "Rosario, Argentina"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 1.0,
+       "left": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Kampala, Uganda"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "nursing home",
+        "region": {
+         "op": "REGION",
+         "place": "Kampala, Uganda"
+        },
+        "time": null
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "RELATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "lex",
+    "style": "native",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C3-039"
+   }
+  },
+  {
+   "id": "ind-023",
+   "sector": "livelihoods",
+   "type": "DIALECT",
+   "q": "So what is the difference between water points within 1 km of a market and toilets within 1 km of a market in Accra, Ghana, na? Like how many more or less only, right?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "water_point",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "marketplace",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "toilet",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "marketplace",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "conversational",
+    "lang": null,
+    "source": "livelihoods",
+    "source_id": "livelihoods:1255"
+   }
+  },
+  {
+   "id": "ind-024",
+   "sector": "livelihoods",
+   "type": "DIALECT",
+   "q": "Kindly inform the difference between water points within 1 km of a market and toilets within 1 km of a market in Accra, Ghana. Please do the needful.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "water_point",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "marketplace",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "toilet",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "marketplace",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "formal",
+    "lang": null,
+    "source": "livelihoods",
+    "source_id": "livelihoods:1255"
+   }
+  },
+  {
+   "id": "icmc-032",
+   "sector": "complaints",
+   "type": "CHANGE",
+   "q": "Horamavu water complaints: more in 2022 than 2019, or less?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "water complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Horamavu"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "water complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Horamavu"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mint",
+    "style": "native",
+    "lang": null,
+    "source": "icmc-mint",
+    "source_id": "icmc-032"
+   }
+  },
+  {
+   "id": "icmc-022",
+   "sector": "complaints",
+   "type": "RANKING",
+   "q": "Among Thanisandra, Puttenahalli, Begur and Singasandra, where do people complain least about road?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Thanisandra"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Puttenahalli"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Begur"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Singasandra"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mint",
+    "style": "native",
+    "lang": null,
+    "source": "icmc-mint",
+    "source_id": "icmc-022"
+   }
+  },
+  {
+   "id": "ind-025",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Life expectancy grew faster than mobile subscriptions in Nepal between 2000 and 2019, na? Means, did it grow faster only, right?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "life expectancy",
+      "region": {
+       "op": "REGION",
+       "place": "Nepal"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "life expectancy",
+      "region": {
+       "op": "REGION",
+       "place": "Nepal"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "Nepal"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "Nepal"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "conversational",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C1-007"
+   }
+  },
+  {
+   "id": "ind-026",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "life expectancy vs mobile subscriptions growth Nepal 2000-2019 faster?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "life expectancy",
+      "region": {
+       "op": "REGION",
+       "place": "Nepal"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "life expectancy",
+      "region": {
+       "op": "REGION",
+       "place": "Nepal"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "Nepal"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "Nepal"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "fragment",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C1-007"
+   }
+  },
+  {
+   "id": "ind-027",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Which of Brno, Rosario and Tbilisi has the fewest hotels with no anganwadi within 500 meters?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "hotel",
+        "region": {
+         "op": "REGION",
+         "place": "Brno, Czechia"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "anganwadi",
+        "region": {
+         "op": "REGION",
+         "place": "Brno, Czechia"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "hotel",
+        "region": {
+         "op": "REGION",
+         "place": "Rosario, Argentina"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "anganwadi",
+        "region": {
+         "op": "REGION",
+         "place": "Rosario, Argentina"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.5,
+       "left": {
+        "op": "SELECT",
+        "entity": "hotel",
+        "region": {
+         "op": "REGION",
+         "place": "Tbilisi, Georgia"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "anganwadi",
+        "region": {
+         "op": "REGION",
+         "place": "Tbilisi, Georgia"
+        },
+        "time": null
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "RELATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "lex",
+    "style": "native",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C3-025"
+   }
+  },
+  {
+   "id": "icmc-030",
+   "sector": "complaints",
+   "type": "TREND",
+   "q": "traffic complaints in Bengaluru — going up or coming down?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "traffic complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mint",
+    "style": "native",
+    "lang": null,
+    "source": "icmc-mint",
+    "source_id": "icmc-030"
+   }
+  },
+  {
+   "id": "icmc-036",
+   "sector": "complaints",
+   "type": "CHANGE",
+   "q": "BTM Layout traffic complaints: more in 2020 than 2019, or less?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "traffic complaints",
+      "region": {
+       "op": "REGION",
+       "place": "BTM Layout"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "traffic complaints",
+      "region": {
+       "op": "REGION",
+       "place": "BTM Layout"
+      },
+      "time": {
+       "start": "2019",
+       "end": "2019"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mint",
+    "style": "native",
+    "lang": null,
+    "source": "icmc-mint",
+    "source_id": "icmc-036"
+   }
+  },
+  {
+   "id": "ind-028",
+   "sector": "transport",
+   "type": "DIALECT",
+   "q": "Kindly inform me which bus stops in Brno, Czechia have no fuel station within 500 meters. Please do the needful.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Brno, Czechia"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "fuel station",
+     "region": {
+      "op": "REGION",
+      "place": "Brno, Czechia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "formal",
+    "lang": null,
+    "source": "transport",
+    "source_id": "transport:0053"
+   }
+  },
+  {
+   "id": "ind-029",
+   "sector": "transport",
+   "type": "DIALECT",
+   "q": "Brno Czechia bus stops no fuel station 500m?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Brno, Czechia"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "fuel station",
+     "region": {
+      "op": "REGION",
+      "place": "Brno, Czechia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "terse",
+    "lang": null,
+    "source": "transport",
+    "source_id": "transport:0053"
+   }
+  },
+  {
+   "id": "ind-030",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "Kenya versus Kenya — put them in order of unemployment count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "Kenya"
+       },
+       "time": {
+        "start": "2010",
+        "end": "2010"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "Kenya"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "struct",
+    "style": "native",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0007"
+   },
+   "gold_shapes": [
+    [
+     "RANK",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ]
+   ],
+   "defect": "factory artifact: struct transform over same-place time-COMPARE ('Kenya versus Kenya')"
+  },
+  {
+   "id": "ind-031",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Are there more universities within 1 km of a park in Kampala than in Tbilisi, na? Like Kampala's park-adjacent campuses outnumber Tbilisi's only, means what, right?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Kampala, Uganda"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Kampala, Uganda"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Tbilisi, Georgia"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Tbilisi, Georgia"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "conversational",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C4-016"
+   }
+  },
+  {
+   "id": "ind-032",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Kindly inform whether there are more universities located within 1 km of a park in Kampala than in Tbilisi. Please do the needful.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Kampala, Uganda"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Kampala, Uganda"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 1.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Tbilisi, Georgia"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Tbilisi, Georgia"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "formal",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C4-016"
+   }
+  },
+  {
+   "id": "ind-033",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Kindly tell, of the banks in Surabaya, Indonesia that are within 500 meters of a clinic, how many are within 500 meters of a bus stop? Please do the needful.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 0.5,
+     "left": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.5,
+      "left": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Surabaya, Indonesia"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "clinic",
+       "region": {
+        "op": "REGION",
+        "place": "Surabaya, Indonesia"
+       },
+       "time": null
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bus_stop",
+      "region": {
+       "op": "REGION",
+       "place": "Surabaya, Indonesia"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "formal",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C2-032"
+   }
+  },
+  {
+   "id": "ind-034",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "See, among the banks in Surabaya, Indonesia which are within 500 meters of a clinic, how many of them are also within 500 meters of a bus stop, na? That count only, right?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 0.5,
+     "left": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.5,
+      "left": {
+       "op": "SELECT",
+       "entity": "bank",
+       "region": {
+        "op": "REGION",
+        "place": "Surabaya, Indonesia"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "clinic",
+       "region": {
+        "op": "REGION",
+        "place": "Surabaya, Indonesia"
+       },
+       "time": null
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "bus_stop",
+      "region": {
+       "op": "REGION",
+       "place": "Surabaya, Indonesia"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "conversational",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C2-032"
+   }
+  },
+  {
+   "id": "ind-035",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "unemployment vs gdp per capita growth Georgia 2012-2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Georgia"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Georgia"
+      },
+      "time": {
+       "start": "2012",
+       "end": "2012"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Georgia"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Georgia"
+      },
+      "time": {
+       "start": "2012",
+       "end": "2012"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "fragment",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C1-025"
+   }
+  },
+  {
+   "id": "ind-036",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "unemployment growth faster than gdp per capita georgia 2012-2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Georgia"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "unemployment",
+      "region": {
+       "op": "REGION",
+       "place": "Georgia"
+      },
+      "time": {
+       "start": "2012",
+       "end": "2012"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Georgia"
+      },
+      "time": {
+       "start": "2022",
+       "end": "2022"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Georgia"
+      },
+      "time": {
+       "start": "2012",
+       "end": "2012"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "terse",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C1-025"
+   }
+  },
+  {
+   "id": "ind-037",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "Kindly tell the number of hospitals in Medellín, Colombia. Please do the needful.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "hospital",
+     "region": {
+      "op": "REGION",
+      "place": "Medellin, Colombia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "formal",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0023"
+   }
+  },
+  {
+   "id": "ind-038",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "Hospital count Medellín, Colombia?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "hospital",
+     "region": {
+      "op": "REGION",
+      "place": "Medellin, Colombia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "fragment",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0023"
+   }
+  },
+  {
+   "id": "ind-039",
+   "sector": "livelihoods",
+   "type": "DIALECT",
+   "q": "France versus Germany — put them in order of youth unemployment count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "youth unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "France"
+       },
+       "time": {
+        "start": "2024",
+        "end": "2024"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "youth unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "Germany"
+       },
+       "time": {
+        "start": "2024",
+        "end": "2024"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "struct",
+    "style": "native",
+    "lang": null,
+    "source": "livelihoods",
+    "source_id": "livelihoods:0396"
+   },
+   "gold_shapes": [
+    [
+     "RANK",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ]
+   ]
+  },
+  {
+   "id": "ind-040",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "South Africa versus South Africa — put them in order of unemployment count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "South Africa"
+       },
+       "time": {
+        "start": "2005",
+        "end": "2005"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "unemployment",
+       "region": {
+        "op": "REGION",
+        "place": "South Africa"
+       },
+       "time": {
+        "start": "2015",
+        "end": "2015"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "struct",
+    "style": "native",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0038"
+   },
+   "gold_shapes": [
+    [
+     "RANK",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ]
+   ],
+   "defect": "factory artifact: struct transform over same-place time-COMPARE ('South Africa versus South Africa')"
+  },
+  {
+   "id": "ind-041",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Libraries within 500m of university in Dakar vs Rosario count?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.5,
+      "left": {
+       "op": "SELECT",
+       "entity": "library",
+       "region": {
+        "op": "REGION",
+        "place": "Dakar, Senegal"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Dakar, Senegal"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.5,
+      "left": {
+       "op": "SELECT",
+       "entity": "library",
+       "region": {
+        "op": "REGION",
+        "place": "Rosario, Argentina"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Rosario, Argentina"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "fragment",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C4-014"
+   }
+  },
+  {
+   "id": "ind-042",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Dakar uni 500m libraries more than Rosario?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.5,
+      "left": {
+       "op": "SELECT",
+       "entity": "library",
+       "region": {
+        "op": "REGION",
+        "place": "Dakar, Senegal"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Dakar, Senegal"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 0.5,
+      "left": {
+       "op": "SELECT",
+       "entity": "library",
+       "region": {
+        "op": "REGION",
+        "place": "Rosario, Argentina"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Rosario, Argentina"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "terse",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C4-014"
+   }
+  },
+  {
+   "id": "ind-043",
+   "sector": "transport",
+   "type": "DIALECT",
+   "q": "Copenhagen people cycling over bus reason?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Copenhagen, Denmark"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "fragment",
+    "lang": null,
+    "source": "transport",
+    "source_id": "transport:0060"
+   },
+   "must_hole": true
+  },
+  {
+   "id": "ind-044",
+   "sector": "transport",
+   "type": "DIALECT",
+   "q": "Copenhagen people why cycling over bus?",
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Copenhagen, Denmark"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "terse",
+    "lang": null,
+    "source": "transport",
+    "source_id": "transport:0060"
+   },
+   "must_hole": true
+  },
+  {
+   "id": "ind-045",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "hotels within 2 km restaurant Bologna more than Hanoi?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 2.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "hotel",
+       "region": {
+        "op": "REGION",
+        "place": "Bologna, Italy"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "restaurant",
+       "region": {
+        "op": "REGION",
+        "place": "Bologna, Italy"
+       },
+       "time": null
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "RELATE",
+      "relation": "within",
+      "threshold_km": 2.0,
+      "left": {
+       "op": "SELECT",
+       "entity": "hotel",
+       "region": {
+        "op": "REGION",
+        "place": "Hanoi, Vietnam"
+       },
+       "time": null
+      },
+      "right": {
+       "op": "SELECT",
+       "entity": "restaurant",
+       "region": {
+        "op": "REGION",
+        "place": "Hanoi, Vietnam"
+       },
+       "time": null
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "reg",
+    "style": "terse",
+    "lang": null,
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C4-005"
+   }
+  },
+  {
+   "id": "ind-046",
+   "sector": "transport",
+   "type": "DIALECT",
+   "q": "Munich versus Stuttgart — put them in order of bus stop count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Munich, Germany"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Stuttgart, Germany"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "struct",
+    "style": "native",
+    "lang": null,
+    "source": "transport",
+    "source_id": "transport:0007"
+   },
+   "gold_shapes": [
+    [
+     "RANK",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ]
+   ]
+  },
+  {
+   "id": "ind-047",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "Thailand versus Thailand — put them in order of internet users count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "internet users",
+       "region": {
+        "op": "REGION",
+        "place": "Thailand"
+       },
+       "time": {
+        "start": "2015",
+        "end": "2015"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "internet users",
+       "region": {
+        "op": "REGION",
+        "place": "Thailand"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "struct",
+    "style": "native",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0036"
+   },
+   "gold_shapes": [
+    [
+     "RANK",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ]
+   ],
+   "defect": "factory artifact: struct transform over same-place time-COMPARE ('Thailand versus Thailand')"
+  },
+  {
+   "id": "ind-048",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "South Africa versus South Africa — put them in order of gdp per capita count.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "gdp per capita",
+       "region": {
+        "op": "REGION",
+        "place": "South Africa"
+       },
+       "time": {
+        "start": "2010",
+        "end": "2010"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "gdp per capita",
+       "region": {
+        "op": "REGION",
+        "place": "South Africa"
+       },
+       "time": {
+        "start": "2020",
+        "end": "2020"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "struct",
+    "style": "native",
+    "lang": null,
+    "source": "corpus",
+    "source_id": "corpus:0052"
+   },
+   "gold_shapes": [
+    [
+     "RANK",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ]
+   ],
+   "defect": "factory artifact: struct transform over same-place time-COMPARE ('South Africa versus South Africa')"
+  },
+  {
+   "id": "ind-hand-01",
+   "sector": "health",
+   "type": "STATE",
+   "q": "jayanagar bengaluru medical shops how many",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "medical shop",
+     "region": {
+      "op": "REGION",
+      "place": "Jayanagar, Bengaluru"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "terse",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-02",
+   "sector": "health",
+   "type": "STATE",
+   "q": "Kindly inform how many PHCs are functioning in Mysuru city.",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "PHC",
+     "region": {
+      "op": "REGION",
+      "place": "Mysuru, India"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "formal",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-03",
+   "sector": "civic",
+   "type": "STATE",
+   "q": "Basavanagudi side there are how many petrol bunks, can you tell na?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "petrol bunk",
+     "region": {
+      "op": "REGION",
+      "place": "Basavanagudi, Bengaluru"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-04",
+   "sector": "retail",
+   "type": "STATE",
+   "q": "How many hotels are there in Malleshwaram? Proper count please.",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "hotel",
+     "region": {
+      "op": "REGION",
+      "place": "Malleshwaram, Bengaluru"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-05",
+   "sector": "education",
+   "type": "STATE",
+   "q": "anganwadi count Yelahanka?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "anganwadi",
+     "region": {
+      "op": "REGION",
+      "place": "Yelahanka, Bengaluru"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "fragment",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-06",
+   "sector": "economy",
+   "type": "TREND",
+   "q": "Is internet use going up in India or not?",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "internet use",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": null
+     }
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-07",
+   "sector": "civic",
+   "type": "RANKING",
+   "q": "Between Bengaluru, Mysuru and Hubballi, which city is having most bus stands?",
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stand",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stand",
+       "region": {
+        "op": "REGION",
+        "place": "Mysuru, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stand",
+       "region": {
+        "op": "REGION",
+        "place": "Hubballi, India"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-08",
+   "sector": "retail",
+   "type": "COMPOSITE",
+   "q": "kirana stores within 1 km of schools in jayanagar bengaluru how many",
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 1.0,
+     "left": {
+      "op": "SELECT",
+      "entity": "kirana store",
+      "region": {
+       "op": "REGION",
+       "place": "Jayanagar, Bengaluru"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "school",
+      "region": {
+       "op": "REGION",
+       "place": "Jayanagar, Bengaluru"
+      },
+      "time": null
+     }
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "terse",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-09",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "q": "Which dispensaries in Rajajinagar have no nursing home within 2 km?",
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 2.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "dispensary",
+     "region": {
+      "op": "REGION",
+      "place": "Rajajinagar, Bengaluru"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "nursing home",
+     "region": {
+      "op": "REGION",
+      "place": "Rajajinagar, Bengaluru"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-10",
+   "sector": "complaints",
+   "type": "TREND",
+   "q": "Garbage complaints in Bellandur — coming down or going up?",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "garbage complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bellandur"
+      },
+      "time": null
+     }
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-11",
+   "sector": "complaints",
+   "type": "STATE",
+   "q": "Kindly share the number of streetlight complaints registered in Horamavu ward in 2020.",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "streetlight complaints",
+     "region": {
+      "op": "REGION",
+      "place": "Horamavu"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "formal",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-12",
+   "sector": "complaints",
+   "type": "COMPARATIVE",
+   "q": "HSR Layout vs Bellandur, which ward people are complaining more about garbage?",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "garbage complaints",
+      "region": {
+       "op": "REGION",
+       "place": "HSR Layout"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "garbage complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bellandur"
+      },
+      "time": null
+     }
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   },
+   "gold_shapes": [
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "RANK",
+     "SELECT",
+     "SELECT"
+    ]
+   ],
+   "regold_note": "2-item comparison: RANK{2} is a declared-equivalent skeleton (struct-transform convention)"
+  },
+  {
+   "id": "ind-hand-13",
+   "sector": "education",
+   "type": "STATE",
+   "q": "In Mysuru city how many government schools are there?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "government school",
+     "region": {
+      "op": "REGION",
+      "place": "Mysuru, India"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "formal",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-14",
+   "sector": "complaints",
+   "type": "CHANGE",
+   "q": "Water complaints in Bengaluru increased after 2020 or what? Compare 2020 and 2021.",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "water complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "water complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-15",
+   "sector": "economy",
+   "type": "CHANGE",
+   "q": "india population 2010 vs 2020 how much grew",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "population",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "population",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "terse",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-16",
+   "sector": "retail",
+   "type": "AMBIGUOUS",
+   "q": "How many mandis are there in our area?",
+   "must_hole": true,
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "mandi",
+     "region": "?place",
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-17",
+   "sector": "retail",
+   "type": "STATE",
+   "q": "How many santhes are there in Mysuru?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "santhe",
+     "region": {
+      "op": "REGION",
+      "place": "Mysuru, India"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-18",
+   "sector": "health",
+   "type": "RANKING",
+   "q": "Rank Mysuru, Mandya and Hassan by number of nursing homes.",
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "nursing home",
+       "region": {
+        "op": "REGION",
+        "place": "Mysuru, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "nursing home",
+       "region": {
+        "op": "REGION",
+        "place": "Mandya, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "nursing home",
+       "region": {
+        "op": "REGION",
+        "place": "Hassan, India"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "formal",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-19",
+   "sector": "civic",
+   "type": "STATE",
+   "q": "petrol pump count Indiranagar Bengaluru?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "petrol pump",
+     "region": {
+      "op": "REGION",
+      "place": "Indiranagar, Bengaluru"
+     },
+     "time": null
+    }
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "fragment",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-hand-20",
+   "sector": "complaints",
+   "type": "RANKING",
+   "q": "Which of Bellandur, Begur and Varthur had least road complaints in 2021?",
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Bellandur"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Begur"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Varthur"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      }
+     }
+    ]
+   },
+   "meta": {
+    "transform": "hand",
+    "style": "conversational",
+    "source": "hand"
+   }
+  },
+  {
+   "id": "ind-049",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "does ho chi minh city have more banks than supermarkets",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Ho Chi Minh City, Vietnam"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "supermarket",
+      "region": {
+       "op": "REGION",
+       "place": "Ho Chi Minh City, Vietnam"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "kn",
+    "source": "corpus",
+    "source_id": "corpus:0014"
+   }
+  },
+  {
+   "id": "ind-050",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "Are there more banks in Ho Chi Minh City than supermarkets",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Ho Chi Minh City, Vietnam"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "supermarket",
+      "region": {
+       "op": "REGION",
+       "place": "Ho Chi Minh City, Vietnam"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "hi",
+    "source": "corpus",
+    "source_id": "corpus:0014"
+   }
+  },
+  {
+   "id": "ind-051",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "does brazil have a higher per capita g.d.p. than argentina",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "ratio",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Brazil"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Argentina"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "kn",
+    "source": "corpus",
+    "source_id": "corpus:0013"
+   }
+  },
+  {
+   "id": "ind-052",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "Is Brazil's GDP per capita higher than Argentina's?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "ratio",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Brazil"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Argentina"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "hi",
+    "source": "corpus",
+    "source_id": "corpus:0013"
+   }
+  },
+  {
+   "id": "ind-053",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "I'm choosing for a vacation between Porto Chiang Mai and Hamilton which city has the most parks",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Chiang Mai, Thailand"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Hamilton, Canada"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "kn",
+    "source": "corpus",
+    "source_id": "corpus:0049"
+   },
+   "defect": "MT artifact: comma loss made 3 cities irrecoverable ('Porto Chiang Mai and Hamilton'); judge false-pass"
+  },
+  {
+   "id": "ind-054",
+   "sector": "corpus",
+   "type": "DIALECT",
+   "q": "I'm choosing between Porto Chiang Mai and Hamilton for a holiday Which city has the most parks",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Chiang Mai, Thailand"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Hamilton, Canada"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "hi",
+    "source": "corpus",
+    "source_id": "corpus:0049"
+   },
+   "defect": "MT artifact: comma loss made 3 cities irrecoverable; judge false-pass"
+  },
+  {
+   "id": "ind-055",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Oh hey I was throwing out the zone looking at some random urban planning statistics before you know how this one thing leads to another thing and I was surprised by something completely trivial : I know perfectly randomly which of the Curitiba Dakar and Cebu has fewer parks with no pharmacy within 250 meters but I couldn 't stop thinking about it.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.25,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Curitiba, Brazil"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Curitiba, Brazil"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.25,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Dakar, Senegal"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Dakar, Senegal"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.25,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Cebu, Philippines"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Cebu, Philippines"
+        },
+        "time": null
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "RELATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "kn",
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C3-036"
+   }
+  },
+  {
+   "id": "ind-056",
+   "sector": "cross",
+   "type": "DIALECT",
+   "q": "Oh hey I was just zoning by looking at some random urban planning statistics before you know one thing leads to another and I was thinking about something completely trivial : I know which is Curitiba Dakar and Cebu with very few parks with no pharmacy within 250 meters but couldn 't stop thinking about it.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.25,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Curitiba, Brazil"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Curitiba, Brazil"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.25,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Dakar, Senegal"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Dakar, Senegal"
+        },
+        "time": null
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "RELATE",
+       "relation": "beyond",
+       "threshold_km": 0.25,
+       "left": {
+        "op": "SELECT",
+        "entity": "park",
+        "region": {
+         "op": "REGION",
+         "place": "Cebu, Philippines"
+        },
+        "time": null
+       },
+       "right": {
+        "op": "SELECT",
+        "entity": "pharmacy",
+        "region": {
+         "op": "REGION",
+         "place": "Cebu, Philippines"
+        },
+        "time": null
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "RELATE",
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "meta": {
+    "transform": "mt",
+    "style": "mt",
+    "lang": "ta",
+    "source": "hardtrain",
+    "source_id": "hardtrain:ht-C3-036"
+   }
+  }
+ ]
+}

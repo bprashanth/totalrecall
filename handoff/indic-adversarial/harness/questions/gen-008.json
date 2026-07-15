@@ -1,0 +1,514 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-educ-01",
+   "sector": "education",
+   "type": "STATE",
+   "q": "I'm moving to Valencia with my kids; I need to know what schools are available.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "school",
+    "region": {
+     "op": "REGION",
+     "place": "Valencia, Spain"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-02",
+   "sector": "economy",
+   "type": "CHANGE",
+   "q": "I'm considering investing in Uganda; I want to know if the country has become wealthier over the last decade.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "gdp per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Uganda"
+      },
+      "time": {
+       "start": "2014",
+       "end": "2024"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-03",
+   "sector": "health",
+   "type": "TRANSFER",
+   "q": "I need a clinic in the small town of Tepoztl\u00e1n, Mexico; can you use data from nearby Cuernavaca to guess?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Tepoztl\u00e1n, Mexico"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "clinic",
+     "region": {
+      "op": "REGION",
+      "place": "Cuernavaca, Mexico"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-04",
+   "sector": "civic",
+   "type": "AMBIGUOUS",
+   "q": "Are there good facilities around here?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?facility_type",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-05",
+   "sector": "retail",
+   "type": "BEHAVIOUR",
+   "q": "Why do people in Kampala prefer open-air markets over supermarkets?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-06",
+   "sector": "economy",
+   "type": "COMPOSITE",
+   "q": "I'm comparing Nagpur and Izmir for a business; I want to know which city has more banks.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Nagpur, India"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Izmir, Turkey"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-07",
+   "sector": "civic",
+   "type": "RANKING",
+   "q": "I'm choosing between Porto, Chiang Mai, and Hamilton for a vacation; which city has the most parks?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Chiang Mai, Thailand"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Hamilton, New Zealand"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-08",
+   "sector": "retail",
+   "type": "STATE",
+   "q": "I'm opening a caf\u00e9 in Porto; I want to know if the city center is saturated with caf\u00e9s already.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "density",
+    "source": {
+     "op": "SELECT",
+     "entity": "cafe",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-09",
+   "sector": "health",
+   "type": "RELATION",
+   "q": "My friend is visiting Mulago Hospital in Kampala; I need to know if there are pharmacies nearby.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "pharmacy",
+     "region": {
+      "op": "REGION",
+      "place": "Kampala, Uganda"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "Mulago Hospital",
+     "region": {
+      "op": "REGION",
+      "place": "Kampala, Uganda"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-10",
+   "sector": "economy",
+   "type": "TREND",
+   "q": "I'm worried about inflation in Thailand; I need to know if prices are going up or down.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "inflation",
+      "region": {
+       "op": "REGION",
+       "place": "Thailand"
+      },
+      "time": {
+       "start": "2018",
+       "end": "2023"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-11",
+   "sector": "civic",
+   "type": "TRANSFER",
+   "q": "I need the number of bus stops in the small town of S\u00e1mara, Costa Rica; can you estimate from nearby Liberia?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "S\u00e1mara, Costa Rica"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Liberia, Costa Rica"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-12",
+   "sector": "civic",
+   "type": "AMBIGUOUS",
+   "q": "How many of those are within walking distance?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "?facility_type",
+      "region": "?place",
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "?reference_point",
+      "region": "?place",
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-13",
+   "sector": "retail",
+   "type": "BEHAVIOUR",
+   "q": "Do people in Chiang Mai prefer street food to restaurants?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Chiang Mai, Thailand"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-14",
+   "sector": "education",
+   "type": "COMPOSITE",
+   "q": "In Nagpur, are there more schools than hospitals?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "school",
+      "region": {
+       "op": "REGION",
+       "place": "Nagpur, India"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Nagpur, India"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-15",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "q": "I'm looking for a pharmacy in Izmir that is next to a hospital; are there many such pharmacies?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "pharmacy",
+      "region": {
+       "op": "REGION",
+       "place": "Izmir, Turkey"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Izmir, Turkey"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-16",
+   "sector": "civic",
+   "type": "STATE",
+   "q": "I'm planning a trip to Medell\u00edn; I need to know where the main post offices are.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "post office",
+    "region": {
+     "op": "REGION",
+     "place": "Medell\u00edn, Colombia"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  }
+ ]
+}

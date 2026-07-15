@@ -1,0 +1,440 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-heal-01",
+   "sector": "health",
+   "type": "STATE",
+   "q": "In Guadalajara, Mexico, count only the clinics that are not attached to a hospital.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "beyond",
+     "left": {
+      "op": "SELECT",
+      "entity": "clinic",
+      "region": {
+       "op": "REGION",
+       "place": "Guadalajara, Mexico"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Guadalajara, Mexico"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-02",
+   "sector": "health",
+   "type": "RELATION",
+   "q": "In Marseille, which pharmacies have no hospital within one kilometer of them?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "pharmacy",
+     "region": {
+      "op": "REGION",
+      "place": "Marseille, France"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "hospital",
+     "region": {
+      "op": "REGION",
+      "place": "Marseille, France"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-03",
+   "sector": "economy",
+   "type": "CHANGE",
+   "q": "Did the unemployment rate in Kenya not decrease between 2010 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Kenya"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2020"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ],
+   "gold_shapes": [
+    [
+     "COMPARE",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ]
+   ]
+  },
+  {
+   "id": "gen-educ-04",
+   "sector": "education",
+   "type": "TREND",
+   "q": "Is the literacy rate in Bangladesh rising?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "literacy rate",
+      "region": {
+       "op": "REGION",
+       "place": "Bangladesh"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2023"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-05",
+   "sector": "retail",
+   "type": "TRANSFER",
+   "q": "I need the number of supermarkets in Cusco, Peru, but you have no data there; estimate it from the density in Lima.",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "interpolate",
+    "target": {
+     "op": "REGION",
+     "place": "Cusco, Peru"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "supermarket",
+     "region": {
+      "op": "REGION",
+      "place": "Lima, Peru"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-06",
+   "sector": "civic",
+   "type": "AMBIGUOUS",
+   "q": "What public facilities are near the main square here?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "?facility_type",
+     "region": "?place",
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "main square",
+     "region": "?place",
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-07",
+   "sector": "health",
+   "type": "BEHAVIOUR",
+   "q": "Why do residents of Nairobi prefer private clinics over public hospitals?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-08",
+   "sector": "retail",
+   "type": "COMPOSITE",
+   "q": "In Brisbane, which cafes are within 1km of a park but not within 500m of a bank?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "cafe",
+      "region": {
+       "op": "REGION",
+       "place": "Brisbane, Australia"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "park",
+      "region": {
+       "op": "REGION",
+       "place": "Brisbane, Australia"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Brisbane, Australia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-09",
+   "sector": "education",
+   "type": "RANKING",
+   "q": "Rank the cities of Osaka, Porto, and Nairobi by the number of universities they have.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Osaka, Japan"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-10",
+   "sector": "health",
+   "type": "RELATION",
+   "q": "In Porto, which hospitals are within 1km of a school and also within 500m of a police station?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 1.0,
+     "left": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Porto, Portugal"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "school",
+      "region": {
+       "op": "REGION",
+       "place": "Porto, Portugal"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "police station",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "RELATE",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-11",
+   "sector": "economy",
+   "type": "STATE",
+   "q": "In Santiago, Chile, count the banks that have no supermarket within 500 meters.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "beyond",
+     "threshold_km": 0.5,
+     "left": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Santiago, Chile"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "supermarket",
+      "region": {
+       "op": "REGION",
+       "place": "Santiago, Chile"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  }
+ ]
+}

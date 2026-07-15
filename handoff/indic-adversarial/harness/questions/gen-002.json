@@ -1,0 +1,496 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-heal-01",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "q": "In Valencia, of the hospitals, how many are within 1 km of a pharmacy?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Valencia, Spain"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "pharmacy",
+      "region": {
+       "op": "REGION",
+       "place": "Valencia, Spain"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-02",
+   "sector": "education",
+   "type": "COMPOSITE",
+   "q": "Which has more libraries, Barcelona or Milan?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "library",
+      "region": {
+       "op": "REGION",
+       "place": "Barcelona"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "library",
+      "region": {
+       "op": "REGION",
+       "place": "Milan"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-03",
+   "sector": "retail",
+   "type": "CHANGE",
+   "q": "How much did internet users (per 100 people) change between 2015 and 2020 in Thailand?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "internet users per 100 people",
+     "region": {
+      "op": "REGION",
+      "place": "Thailand"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "internet users per 100 people",
+     "region": {
+      "op": "REGION",
+      "place": "Thailand"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-04",
+   "sector": "retail",
+   "type": "COMPOSITE",
+   "q": "In Medell\u00edn, are there more supermarkets than restaurants?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "supermarket",
+     "region": {
+      "op": "REGION",
+      "place": "Medell\u00edn"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "restaurant",
+     "region": {
+      "op": "REGION",
+      "place": "Medell\u00edn"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-05",
+   "sector": "economy",
+   "type": "COMPOSITE",
+   "q": "Does Brazil have a higher GDP per capita than Argentina?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "gdp per capita",
+     "region": {
+      "op": "REGION",
+      "place": "Brazil"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "gdp per capita",
+     "region": {
+      "op": "REGION",
+      "place": "Argentina"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-06",
+   "sector": "civic",
+   "type": "CHANGE",
+   "q": "How much did urban population (as % of total) change between 2000 and 2020 in Vietnam?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "urban population as percent of total",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "urban population as percent of total",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2000",
+      "end": "2000"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-07",
+   "sector": "civic",
+   "type": "TRANSFER",
+   "q": "We have no bus stop data for Le\u00f3n, Nicaragua \u2014 estimate from nearby big city Managua.",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Le\u00f3n, Nicaragua"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Managua, Nicaragua"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-08",
+   "sector": "civic",
+   "type": "AMBIGUOUS",
+   "q": "Are there many police stations around here?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "police station",
+     "region": "?place",
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-09",
+   "sector": "civic",
+   "type": "BEHAVIOUR",
+   "q": "Why do people prefer to use parks in the morning?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-10",
+   "sector": "civic",
+   "type": "COMPOSITE",
+   "q": "In Kathmandu, of the bus stops, how many are within 500 meters of a park?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "bus stop",
+      "region": {
+       "op": "REGION",
+       "place": "Kathmandu"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "park",
+      "region": {
+       "op": "REGION",
+       "place": "Kathmandu"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-11",
+   "sector": "health",
+   "type": "STATE",
+   "q": "How many clinics are there in Porto?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "clinic",
+     "region": {
+      "op": "REGION",
+      "place": "Porto"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-12",
+   "sector": "retail",
+   "type": "STATE",
+   "q": "How many pharmacies are there in Tunis?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "pharmacy",
+     "region": {
+      "op": "REGION",
+      "place": "Tunis, Tunisia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-13",
+   "sector": "education",
+   "type": "RELATION",
+   "q": "Which schools in Quito are within 1 km of a library?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "school",
+     "region": {
+      "op": "REGION",
+      "place": "Quito, Ecuador"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "library",
+     "region": {
+      "op": "REGION",
+      "place": "Quito, Ecuador"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-14",
+   "sector": "economy",
+   "type": "TREND",
+   "q": "Is internet users (per 100 people) rising in India?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "internet users (per 100 people)",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": {
+       "start": "1990",
+       "end": "2020"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-15",
+   "sector": "education",
+   "type": "TRANSFER",
+   "q": "We have no school data for Oulu, Finland \u2014 estimate from Helsinki.",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Oulu, Finland"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "school",
+     "region": {
+      "op": "REGION",
+      "place": "Helsinki, Finland"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,698 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-heal-01",
+   "sector": "health",
+   "type": "STATE",
+   "q": "How many hospitals are in Lyon, France?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "hospital",
+     "region": {
+      "op": "REGION",
+      "place": "Lyon, France"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-02",
+   "sector": "education",
+   "type": "STATE",
+   "q": "Where are all the libraries located in Durban, South Africa?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "library",
+    "region": {
+     "op": "REGION",
+     "place": "Durban, South Africa"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-03",
+   "sector": "retail",
+   "type": "RELATION",
+   "q": "Which restaurants in Porto, Portugal are within 1 km of a bank?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "restaurant",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-04",
+   "sector": "civic",
+   "type": "RELATION",
+   "q": "Which bus stops in Guadalajara, Mexico are within 500 meters of a police station?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 0.5,
+    "left": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "police station",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-05",
+   "sector": "economy",
+   "type": "CHANGE",
+   "q": "How much did internet users change in Vietnam between 2010 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "internet users",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "internet users",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-06",
+   "sector": "education",
+   "type": "CHANGE",
+   "q": "What was the change in school enrollment in Kenya between 2005 and 2015?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "school enrollment",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2005",
+      "end": "2005"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "school enrollment",
+     "region": {
+      "op": "REGION",
+      "place": "Kenya"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-07",
+   "sector": "economy",
+   "type": "TREND",
+   "q": "Is inflation rising or falling in Argentina?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "inflation",
+      "region": {
+       "op": "REGION",
+       "place": "Argentina"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-08",
+   "sector": "civic",
+   "type": "TRANSFER",
+   "q": "We have no park data for Ts\u00e9vi\u00e9, Togo \u2014 estimate it from nearby Lom\u00e9.",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "source": {
+     "op": "SELECT",
+     "entity": "park",
+     "region": {
+      "op": "REGION",
+      "place": "Lom\u00e9, Togo"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Ts\u00e9vi\u00e9, Togo"
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-09",
+   "sector": "retail",
+   "type": "TRANSFER",
+   "q": "No supermarket data exists for Braga, Portugal \u2014 can you estimate it from Porto?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "source": {
+     "op": "SELECT",
+     "entity": "supermarket",
+     "region": {
+      "op": "REGION",
+      "place": "Porto, Portugal"
+     },
+     "time": null
+    },
+    "target": {
+     "op": "REGION",
+     "place": "Braga, Portugal"
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-10",
+   "sector": "health",
+   "type": "AMBIGUOUS",
+   "q": "Are there any clinics around here?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "clinic",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-11",
+   "sector": "education",
+   "type": "AMBIGUOUS",
+   "q": "What facilities are available for my kids nearby?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "facilities for kids",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-12",
+   "sector": "civic",
+   "type": "BEHAVIOUR",
+   "q": "Why do people prefer to walk to the park rather than take the bus in Medell\u00edn?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Medell\u00edn, Colombia"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-13",
+   "sector": "retail",
+   "type": "BEHAVIOUR",
+   "q": "Do residents of Sapporo, Japan prefer local cafes over chain restaurants?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Sapporo, Japan"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-14",
+   "sector": "economy",
+   "type": "COMPOSITE",
+   "q": "Does Ho Chi Minh City have more banks than supermarkets?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "bank",
+      "region": {
+       "op": "REGION",
+       "place": "Ho Chi Minh City, Vietnam"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "supermarket",
+      "region": {
+       "op": "REGION",
+       "place": "Ho Chi Minh City, Vietnam"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-15",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "q": "Of the pharmacies in Nairobi, Kenya, how many are within 1 km of a hospital?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 1.0,
+     "left": {
+      "op": "SELECT",
+      "entity": "pharmacy",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-16",
+   "sector": "education",
+   "type": "COMPOSITE",
+   "q": "Are there more universities than schools in Bologna, Italy?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "university",
+      "region": {
+       "op": "REGION",
+       "place": "Bologna, Italy"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "school",
+      "region": {
+       "op": "REGION",
+       "place": "Bologna, Italy"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-17",
+   "sector": "civic",
+   "type": "RANKING",
+   "q": "Which of these three cities has the most bus stops per square km: Lisbon, Porto, or Braga?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Lisbon, Portugal"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Braga, Portugal"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-18",
+   "sector": "economy",
+   "type": "RANKING",
+   "q": "Rank Ghana, Kenya, and South Africa by GDP per capita in 2022, from highest to lowest.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "gdp per capita",
+       "region": {
+        "op": "REGION",
+        "place": "Ghana"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "gdp per capita",
+       "region": {
+        "op": "REGION",
+        "place": "Kenya"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "gdp per capita",
+       "region": {
+        "op": "REGION",
+        "place": "South Africa"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-19",
+   "sector": "health",
+   "type": "RANKING",
+   "q": "Which of Lyon, Marseille, and Toulouse has the fewest hospitals?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "hospital",
+       "region": {
+        "op": "REGION",
+        "place": "Lyon, France"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "hospital",
+       "region": {
+        "op": "REGION",
+        "place": "Marseille, France"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "hospital",
+       "region": {
+        "op": "REGION",
+        "place": "Toulouse, France"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  }
+ ]
+}

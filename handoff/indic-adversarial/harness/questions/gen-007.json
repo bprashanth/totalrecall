@@ -1,0 +1,740 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-heal-01",
+   "sector": "health",
+   "type": "STATE",
+   "q": "How many hospitals are in Medell\u00edn, Colombia?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "hospital",
+     "region": {
+      "op": "REGION",
+      "place": "Medell\u00edn, Colombia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-02",
+   "sector": "education",
+   "type": "RELATION",
+   "q": "Which schools in Cape Town are within 1 km of a library?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "school",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "library",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-03",
+   "sector": "economy",
+   "type": "CHANGE",
+   "q": "How much did GDP per capita change between 2015 and 2020 in Vietnam?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "gdp per capita",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "gdp per capita",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-04",
+   "sector": "economy",
+   "type": "TREND",
+   "q": "Is the unemployment rate in Spain rising or falling?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Spain"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2023"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-05",
+   "sector": "civic",
+   "type": "TRANSFER",
+   "q": "We have no pharmacy data for Gisenyi, Rwanda \u2014 can you estimate from nearby Goma?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Gisenyi, Rwanda"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "pharmacy",
+     "region": {
+      "op": "REGION",
+      "place": "Goma, DRC"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-06",
+   "sector": "retail",
+   "type": "AMBIGUOUS",
+   "q": "Where can I grab a coffee around here?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "cafe",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-07",
+   "sector": "health",
+   "type": "BEHAVIOUR",
+   "q": "Why do people in Auckland prefer private clinics over public hospitals?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Auckland, New Zealand"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-08",
+   "sector": "education",
+   "type": "COMPOSITE",
+   "q": "Does Krak\u00f3w have more universities than Wroc\u0142aw, and how many of those are near a park?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "university",
+      "region": {
+       "op": "REGION",
+       "place": "Krak\u00f3w, Poland"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "university",
+      "region": {
+       "op": "REGION",
+       "place": "Wroc\u0142aw, Poland"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-09",
+   "sector": "economy",
+   "type": "RANKING",
+   "q": "Rank Chile, Argentina, and Uruguay by internet users per capita in 2022.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "internet users per capita",
+       "region": {
+        "op": "REGION",
+        "place": "Chile"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "internet users per capita",
+       "region": {
+        "op": "REGION",
+        "place": "Argentina"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "internet users per capita",
+       "region": {
+        "op": "REGION",
+        "place": "Uruguay"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-10",
+   "sector": "civic",
+   "type": "STATE",
+   "q": "Where are all the bus stops in Nairobi, Kenya?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "bus stop",
+    "region": {
+     "op": "REGION",
+     "place": "Nairobi, Kenya"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-11",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "q": "Of the pharmacies in Casablanca, how many are within 1 km of a hospital?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "pharmacy",
+      "region": {
+       "op": "REGION",
+       "place": "Casablanca, Morocco"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Casablanca, Morocco"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-12",
+   "sector": "retail",
+   "type": "RANKING",
+   "q": "Which of these three cities \u2014 Bangkok, Manila, or Jakarta \u2014 has the most supermarkets per capita?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "supermarket",
+       "region": {
+        "op": "REGION",
+        "place": "Bangkok, Thailand"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "supermarket",
+       "region": {
+        "op": "REGION",
+        "place": "Manila, Philippines"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "supermarket",
+       "region": {
+        "op": "REGION",
+        "place": "Jakarta, Indonesia"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-13",
+   "sector": "education",
+   "type": "CHANGE",
+   "q": "How did primary school enrollment change between 2010 and 2018 in Ethiopia?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "primary school enrollment",
+     "region": {
+      "op": "REGION",
+      "place": "Ethiopia"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "primary school enrollment",
+     "region": {
+      "op": "REGION",
+      "place": "Ethiopia"
+     },
+     "time": {
+      "start": "2018",
+      "end": "2018"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-14",
+   "sector": "civic",
+   "type": "RELATION",
+   "q": "Which police stations in Guadalajara are near a park?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "police",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "park",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-15",
+   "sector": "health",
+   "type": "BEHAVIOUR",
+   "q": "Do residents of Lisbon trust public clinics more than private ones?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-16",
+   "sector": "retail",
+   "type": "AMBIGUOUS",
+   "q": "Is there a good bakery near the center?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "presence",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "bakery",
+      "region": "?place",
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "center",
+      "region": "?place",
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-17",
+   "sector": "education",
+   "type": "STATE",
+   "q": "How many libraries are in Osaka, Japan?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "library",
+     "region": {
+      "op": "REGION",
+      "place": "Osaka, Japan"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-18",
+   "sector": "economy",
+   "type": "COMPOSITE",
+   "q": "In Ghana, did mobile subscriptions grow faster than internet users between 2010 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "mobile subscriptions",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2010"
+      }
+     }
+    },
+    "right": {
+     "op": "COMPARE",
+     "how": "difference",
+     "left": {
+      "op": "SELECT",
+      "entity": "internet users",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "internet users",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2010"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "COMPARE",
+    "SELECT",
+    "SELECT",
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-19",
+   "sector": "civic",
+   "type": "RANKING",
+   "q": "Which of these \u2014 post offices, police stations, or bus stops \u2014 are most numerous in Tunis?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "post office",
+       "region": {
+        "op": "REGION",
+        "place": "Tunis, Tunisia"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "police station",
+       "region": {
+        "op": "REGION",
+        "place": "Tunis, Tunisia"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stop",
+       "region": {
+        "op": "REGION",
+        "place": "Tunis, Tunisia"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  }
+ ]
+}
