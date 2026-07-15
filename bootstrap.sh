@@ -15,6 +15,8 @@ cp "$HERE"/kit/algebra/*.md "$DEST/algebra/"
 cp "$HERE"/kit/PROMPT.md "$DEST/PROMPT.md"
 cp "$HERE"/kit/AGENTS.md "$DEST/AGENTS.md"
 cp "$HERE"/kit/SATURATION.md "$DEST/SATURATION.md"
+cp "$HERE"/kit/IMPORT.md "$DEST/IMPORT.md"
+cp "$HERE"/kit/EXPORT.md "$DEST/EXPORT.md"
 python3 -c "import json,sys; d=json.load(open(sys.argv[1])); d['saturation_tier']='none'; json.dump(d,open(sys.argv[2],'w'),indent=2)" \
   "$HERE/governance/framework-manifest.json" "$DEST/framework-lock.json"
 cat > "$DEST/sector.json" <<EOF
