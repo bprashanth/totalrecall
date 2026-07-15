@@ -1,0 +1,2904 @@
+{
+  "spec_version": "v2.2.1",
+  "note": "Independent adversarial second-author bank: genuine Indian urban/semi-urban English; every gold schema-validated and execution-verified.",
+  "questions": [
+    {
+      "id": "adv-001",
+      "sector": "health",
+      "type": "AMBIGUOUS",
+      "q": "That centre near our side, how many are there? I mean the health one only.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?facility_type",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-002",
+      "sector": "retail",
+      "type": "AMBIGUOUS",
+      "q": "Show the shops nearby. Nearby to where I am telling, not full city.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?shop_type",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-003",
+      "sector": "education",
+      "type": "AMBIGUOUS",
+      "q": "School facilities in the taluk, what is the scene?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?education_facility",
+        "region": "?taluk",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-004",
+      "sector": "civic",
+      "type": "AMBIGUOUS",
+      "q": "Our ward has enough public facilities or no?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?facility_type",
+        "region": "?ward",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-005",
+      "sector": "economy",
+      "type": "BEHAVIOUR",
+      "q": "Why all the boys from here are going city side for work?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?migration_proxy",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-006",
+      "sector": "health",
+      "type": "AMBIGUOUS",
+      "q": "In Hosur road area, give hospital-side places count — which Hosur road stretch you take?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "hospital",
+        "region": "?hosur_road_stretch",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-007",
+      "sector": "civic",
+      "type": "AMBIGUOUS",
+      "q": "Please check whether the bus stop is far from it.",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "distance",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "bus_stop",
+          "region": "?place",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "?landmark",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-008",
+      "sector": "economy",
+      "type": "AMBIGUOUS",
+      "q": "Compare the internet figure with last time only.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "internet users",
+          "region": "?country",
+          "time": {
+            "start": "?current_year",
+            "end": "?current_year"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "internet users",
+          "region": "?country",
+          "time": {
+            "start": "?earlier_year",
+            "end": "?earlier_year"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-009",
+      "sector": "retail",
+      "type": "AMBIGUOUS",
+      "q": "Medical and kirana are there nearby, but nearby to which landmark first confirm.",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": [
+            "medical shop",
+            "kirana store"
+          ],
+          "region": "?place",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "?landmark",
+          "region": "?place",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-010",
+      "sector": "education",
+      "type": "AMBIGUOUS",
+      "q": "Between those three towns, which is having more colleges?",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "college",
+              "region": "?town_one",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "college",
+              "region": "?town_two",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "college",
+              "region": "?town_three",
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-011",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "For full Bengaluru, garbage complaints total how much in 2021?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "garbage complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-012",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "HSR Layout ward road-complaint count for 2020, kindly give.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "road complaints",
+          "region": {
+            "op": "REGION",
+            "place": "HSR Layout"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-013",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "Bellandur side, in 2019 how many streetlight grievances came?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "streetlight complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bellandur"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-014",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "BTM Layout water complaints, 2021 only — what was the number?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "water complaints",
+          "region": {
+            "op": "REGION",
+            "place": "BTM Layout"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-015",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "How much garbage issue was reported from JP Nagar ward in 2020?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "garbage complaints",
+          "region": {
+            "op": "REGION",
+            "place": "JP Nagar"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-016",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "Hebbal road grievances for all available years, give one total.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "road complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Hebbal"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-017",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "Yelahanka street-light complaint count, complete 2019 to 2022 period.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "streetlight complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Yelahanka"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2022"
+          }
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-018",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "Basavanagudi ward garbage complaints are how many altogether?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "garbage complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Basavanagudi"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-019",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "Jayanagar road complaint figure — full log, not one year.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "road complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Jayanagar"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-020",
+      "sector": "civic",
+      "type": "STATE",
+      "q": "In BTM Layout, streetlight complaints total tell me once.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "streetlight complaints",
+          "region": {
+            "op": "REGION",
+            "place": "BTM Layout"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-021",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Bengaluru garbage complaints are going up or coming down from 2019 to 2022?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "garbage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-022",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Road complaints in Bengaluru — increasing trend is there or no, 2019 onwards?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "road complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-023",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "From 2019 to 2022, streetlight grievances became more or less in Bengaluru?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "streetlight complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-024",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Check the direction only: Bengaluru water complaints, 2019–2022.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "water complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-025",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Sewage complaint load in Bengaluru is rising ah, or reducing? Use 2019 to 2022.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "sewage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-026",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Storm-drain complaints, Bengaluru full city: which side trend went during 2019–22?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "drain complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-027",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "2019 compared to 2021, how much difference came in Bengaluru garbage complaints?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "garbage complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "garbage complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-028",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "Bengaluru road grievances: 2021 minus 2020 comes to what?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "road complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "road complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-029",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "Did streetlight complaints reduce from 2019 to 2021 in Bengaluru? Give the change.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "streetlight complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "streetlight complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-030",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "For water complaints in Bengaluru, what is 2021 versus 2019 difference?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "water complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "water complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-031",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "HSR Layout or Bellandur — where garbage complaints are more?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "garbage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "HSR Layout"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "garbage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bellandur"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-032",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Road issues: compare Bellandur against BTM Layout, first minus second.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "road complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bellandur"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "road complaints",
+            "region": {
+              "op": "REGION",
+              "place": "BTM Layout"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-033",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Between Hebbal and Yelahanka, which ward logged more streetlight complaints?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "streetlight complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Hebbal"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "streetlight complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Yelahanka"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-034",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Garbage grievance difference for JP Nagar versus Jayanagar please.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "garbage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "JP Nagar"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "garbage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Jayanagar"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-035",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Put HSR Layout, Bellandur and BTM Layout in order of road complaints, highest first.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "road complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "road complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Bellandur"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "road complaints",
+              "region": {
+                "op": "REGION",
+                "place": "BTM Layout"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-036",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Of Jayanagar, Basavanagudi and Hebbal, least garbage complaints came from which ward?",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "garbage complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Jayanagar"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "garbage complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Basavanagudi"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "garbage complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Hebbal"
+              },
+              "time": null
+            }
+          }
+        ],
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-037",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Rank HSR Layout, BTM Layout and Bellandur by water grievances, more to less.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "water complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "water complaints",
+              "region": {
+                "op": "REGION",
+                "place": "BTM Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "water complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Bellandur"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-038",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Streetlight issue is minimum where: Hebbal, HSR Layout or BTM Layout?",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "streetlight complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Hebbal"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "streetlight complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "streetlight complaints",
+              "region": {
+                "op": "REGION",
+                "place": "BTM Layout"
+              },
+              "time": null
+            }
+          }
+        ],
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-039",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "For garbage complaints, arrange Yelahanka, JP Nagar, HSR Layout and Bellandur descending.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "garbage complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Yelahanka"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "garbage complaints",
+              "region": {
+                "op": "REGION",
+                "place": "JP Nagar"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "garbage complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "garbage complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Bellandur"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-040",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Road-complaint table: Bellandur, HSR Layout, BTM Layout — top two wards only.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "road complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Bellandur"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "road complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "road complaints",
+              "region": {
+                "op": "REGION",
+                "place": "BTM Layout"
+              },
+              "time": null
+            }
+          }
+        ],
+        "k": 2
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-041",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Traffic complaints across Bengaluru, 2019 to 2022: overall rising or falling?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "traffic complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-042",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Pollution grievances in Bengaluru are becoming more or less, 2019 onwards?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "pollution complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-043",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Sewage complaint trend for full Bengaluru, 2019–22, which way it went?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "sewage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-044",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Storm-water drain issues: check Bengaluru direction from 2019 through 2022.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "drain complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-045",
+      "sector": "civic",
+      "type": "TREND",
+      "q": "Stray-animal complaints in Bengaluru, going up only or coming down during 2019–22?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "animal complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bengaluru"
+            },
+            "time": {
+              "start": "2019",
+              "end": "2022"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-046",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "Bengaluru traffic grievances: how much change between 2019 and 2021?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "traffic complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "traffic complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-047",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "Take 2021 pollution complaints less 2020 for Bengaluru; what figure comes?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "pollution complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "pollution complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-048",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "Sewage complaints, Bengaluru: 2021 versus 2019 difference please.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "sewage complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "sewage complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-049",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "Did drain grievances reduce from 2020 to 2021 in Bengaluru? Give net change.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "drain complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "drain complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2020",
+            "end": "2020"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-050",
+      "sector": "civic",
+      "type": "CHANGE",
+      "q": "For animal complaints city-wide, 2021 minus 2019 is how much?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "animal complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2021"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "animal complaints",
+          "region": {
+            "op": "REGION",
+            "place": "Bengaluru"
+          },
+          "time": {
+            "start": "2019",
+            "end": "2019"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-051",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Traffic issue more in Bellandur or HSR Layout? Give Bellandur minus HSR count.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "traffic complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bellandur"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "traffic complaints",
+            "region": {
+              "op": "REGION",
+              "place": "HSR Layout"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-052",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Pollution complaints: compare HSR Layout against BTM Layout.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "pollution complaints",
+            "region": {
+              "op": "REGION",
+              "place": "HSR Layout"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "pollution complaints",
+            "region": {
+              "op": "REGION",
+              "place": "BTM Layout"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-053",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Bellandur and BTM Layout sewage complaints — first ward minus second how much?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "sewage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bellandur"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "sewage complaints",
+            "region": {
+              "op": "REGION",
+              "place": "BTM Layout"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-054",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Drain complaints, HSR Layout versus JP Nagar: where count is higher?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "drain complaints",
+            "region": {
+              "op": "REGION",
+              "place": "HSR Layout"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "drain complaints",
+            "region": {
+              "op": "REGION",
+              "place": "JP Nagar"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-055",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Animal grievance gap between Bellandur and JP Nagar, tell clearly.",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "animal complaints",
+            "region": {
+              "op": "REGION",
+              "place": "Bellandur"
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "SELECT",
+            "entity": "animal complaints",
+            "region": {
+              "op": "REGION",
+              "place": "JP Nagar"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-056",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Rank Bellandur, HSR Layout and BTM Layout by traffic complaints, maximum first.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "traffic complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Bellandur"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "traffic complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "traffic complaints",
+              "region": {
+                "op": "REGION",
+                "place": "BTM Layout"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-057",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Pollution issue minimum in which: Bellandur, HSR Layout or BTM Layout?",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "pollution complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Bellandur"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "pollution complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "pollution complaints",
+              "region": {
+                "op": "REGION",
+                "place": "BTM Layout"
+              },
+              "time": null
+            }
+          }
+        ],
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-058",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Arrange HSR Layout, Bellandur and BTM Layout by animal complaints, less to more.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "animal complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "animal complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Bellandur"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "animal complaints",
+              "region": {
+                "op": "REGION",
+                "place": "BTM Layout"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-059",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Electricity grievances top ward among HSR Layout, Bellandur and BTM Layout?",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "electricity complaints",
+              "region": {
+                "op": "REGION",
+                "place": "HSR Layout"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "electricity complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Bellandur"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "electricity complaints",
+              "region": {
+                "op": "REGION",
+                "place": "BTM Layout"
+              },
+              "time": null
+            }
+          }
+        ],
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-060",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "For park complaints, order JP Nagar, Jayanagar and Hebbal from high to low.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "park complaints",
+              "region": {
+                "op": "REGION",
+                "place": "JP Nagar"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "park complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Jayanagar"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "park complaints",
+              "region": {
+                "op": "REGION",
+                "place": "Hebbal"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer"
+    },
+    {
+      "id": "adv-061",
+      "sector": "health",
+      "type": "VALUE",
+      "q": "Taluk hospital medicine stock-out days for last quarter, can the data show?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "medicine stock-out days",
+        "region": "?taluk",
+        "time": {
+          "start": "2026-04-01",
+          "end": "2026-06-30"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-062",
+      "sector": "education",
+      "type": "STATE",
+      "q": "Block-wise teacher vacancies in government schools, give latest position.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "teacher vacancies",
+        "region": "?block",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-063",
+      "sector": "civic",
+      "type": "VALUE",
+      "q": "For our gram panchayat, tap-water supply hours per day how much?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "water supply hours",
+        "region": "?gram_panchayat",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-064",
+      "sector": "retail",
+      "type": "STATE",
+      "q": "Which fair-price shops had rice stock on 15 July 2026 in the mandal?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "fair price shop rice stock",
+        "region": "?mandal",
+        "time": {
+          "start": "2026-07-15",
+          "end": "2026-07-15"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-065",
+      "sector": "health",
+      "type": "VALUE",
+      "q": "Ambulance response time in this district, average figure please.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "mean",
+        "source": {
+          "op": "SELECT",
+          "entity": "ambulance response time",
+          "region": "?district",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-066",
+      "sector": "education",
+      "type": "VALUE",
+      "q": "Anganwadi attendance for this month in our project area, what percentage?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "anganwadi attendance",
+        "region": "?project_area",
+        "time": {
+          "start": "?month",
+          "end": "?month"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-067",
+      "sector": "economy",
+      "type": "STATE",
+      "q": "Self-help group loan overdue amount for the block on 15 July 2026 — total only.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "self help group loan overdue",
+        "region": "?block",
+        "time": {
+          "start": "2026-07-15",
+          "end": "2026-07-15"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-068",
+      "sector": "civic",
+      "type": "VALUE",
+      "q": "Ward-wise pothole repair records after complaint, for 2021 only.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "pothole repair duration",
+        "region": "?ward",
+        "time": {
+          "start": "2021",
+          "end": "2021"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-069",
+      "sector": "retail",
+      "type": "VALUE",
+      "q": "Mandi tomato arrival quantity today compared to yesterday, how much difference?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "tomato mandi arrivals",
+          "region": "?mandi",
+          "time": {
+            "start": "?today",
+            "end": "?today"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "tomato mandi arrivals",
+          "region": "?mandi",
+          "time": {
+            "start": "?yesterday",
+            "end": "?yesterday"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-070",
+      "sector": "health",
+      "type": "BEHAVIOUR",
+      "q": "Why patients are skipping the PHC and directly going district hospital?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?care_bypass_proxy",
+        "region": "?district",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-071",
+      "sector": "health",
+      "type": "RELATION",
+      "q": "Medical shops are there, but show only those with no nursing home within 2 km in this town.",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 2.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "medical shop",
+          "region": "?town",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "nursing home",
+          "region": "?town",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-072",
+      "sector": "education",
+      "type": "RELATION",
+      "q": "Schools near a bus stand but not near any liquor shop — for which town are we checking?",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "school",
+            "region": "?town",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "bus stand",
+            "region": "?town",
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "liquor shop",
+          "region": "?town",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-073",
+      "sector": "retail",
+      "type": "RELATION",
+      "q": "Kirana or medical, both types which are beyond one kilometre from bus stand in our area?",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": [
+            "kirana store",
+            "medical shop"
+          ],
+          "region": "?area",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bus stand",
+          "region": "?area",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-074",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "How far is each petrol bunk from the nearest bus stand? City name I forgot to mention.",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "distance",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "petrol bunk",
+          "region": "?city",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "bus stand",
+          "region": "?city",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-075",
+      "sector": "health",
+      "type": "RELATION",
+      "q": "Hospitals plus PHCs together: which ones have a pharmacy within 500 metres, in that district?",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 0.5,
+        "left": {
+          "op": "SELECT",
+          "entity": [
+            "hospital",
+            "PHC"
+          ],
+          "region": "?district",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "pharmacy",
+          "region": "?district",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-076",
+      "sector": "retail",
+      "type": "RELATION",
+      "q": "Among these places, cafe count least where? I have not sent the town names yet.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "asc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "cafe",
+              "region": "?town_one",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "cafe",
+              "region": "?town_two",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "cafe",
+              "region": "?town_three",
+              "time": null
+            }
+          }
+        ],
+        "k": 1
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-077",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Bus stops outside 800 metres of any hospital, take only whichever ward I send.",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 0.8,
+        "left": {
+          "op": "SELECT",
+          "entity": "bus_stop",
+          "region": "?ward",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "hospital",
+          "region": "?ward",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-078",
+      "sector": "education",
+      "type": "RELATION",
+      "q": "College and university both, rank the three districts by combined count — districts pending.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": [
+                "college",
+                "university"
+              ],
+              "region": "?district_one",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": [
+                "college",
+                "university"
+              ],
+              "region": "?district_two",
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": [
+                "college",
+                "university"
+              ],
+              "region": "?district_three",
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-079",
+      "sector": "civic",
+      "type": "RELATION",
+      "q": "Parks having no public toilet nearby: which municipality should I specify?",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "park",
+          "region": "?municipality",
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "toilet",
+          "region": "?municipality",
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    },
+    {
+      "id": "adv-080",
+      "sector": "retail",
+      "type": "RELATION",
+      "q": "Hotels means eating hotels here, not rooms. Count those near the market after I share locality.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 1.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "restaurant",
+            "region": "?locality",
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "market",
+            "region": "?locality",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true
+    }
+  ]
+}

@@ -1,0 +1,395 @@
+[
+ {
+  "sector": "education",
+  "type": "CHANGE",
+  "q": "How much did primary school enrollment change in Brazil between 2010 and 2015?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "primary school enrollment",
+    "region": {
+     "op": "REGION",
+     "place": "Brazil"
+    },
+    "time": {
+     "start": "2015",
+     "end": "2015"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "primary school enrollment",
+    "region": {
+     "op": "REGION",
+     "place": "Brazil"
+    },
+    "time": {
+     "start": "2010",
+     "end": "2010"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "education",
+  "type": "CHANGE",
+  "q": "How much did school enrollment change between 2010 and 2020 in Kenya?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "school enrollment",
+    "region": {
+     "op": "REGION",
+     "place": "Kenya"
+    },
+    "time": {
+     "start": "2010",
+     "end": "2010"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "school enrollment",
+    "region": {
+     "op": "REGION",
+     "place": "Kenya"
+    },
+    "time": {
+     "start": "2020",
+     "end": "2020"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "education",
+  "type": "CHANGE",
+  "q": "How much did the school enrollment rate change between 2010 and 2020 in Brazil?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "school enrollment rate",
+    "region": {
+     "op": "REGION",
+     "place": "Brazil"
+    },
+    "time": {
+     "start": "2010",
+     "end": "2010"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "school enrollment rate",
+    "region": {
+     "op": "REGION",
+     "place": "Brazil"
+    },
+    "time": {
+     "start": "2020",
+     "end": "2020"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "health",
+  "type": "STATE",
+  "q": "How many clinics are located in Marrakech, Morocco?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "SELECT",
+    "entity": "clinic",
+    "region": {
+     "op": "REGION",
+     "place": "Marrakech, Morocco"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: error (RuntimeError) want answer"
+ },
+ {
+  "sector": "civic",
+  "type": "STATE",
+  "q": "In Osaka, list all bus stops that have no convenience store within 200 meters.",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "bus stop",
+    "region": {
+     "op": "REGION",
+     "place": "Osaka, Japan"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "bus stop",
+     "region": {
+      "op": "REGION",
+      "place": "Osaka, Japan"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "convenience store",
+     "region": {
+      "op": "REGION",
+      "place": "Osaka, Japan"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "economy",
+  "type": "TREND",
+  "q": "Is the inflation rate in Turkey trending upward?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "inflation rate",
+     "region": {
+      "op": "REGION",
+      "place": "Turkey"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "health",
+  "type": "RELATION",
+  "q": "I'm looking for an apartment in Medell\u00edn; I need to know if there are pharmacies within walking distance of the main plaza.",
+  "gold_attempt": {
+   "op": "RELATE",
+   "relation": "within",
+   "threshold_km": 0.5,
+   "left": {
+    "op": "SELECT",
+    "entity": "pharmacy",
+    "region": {
+     "op": "REGION",
+     "place": "Medell\u00edn, Colombia"
+    },
+    "time": null
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "main plaza",
+    "region": {
+     "op": "REGION",
+     "place": "Medell\u00edn, Colombia"
+    },
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "civic",
+  "type": "TREND",
+  "q": "My company is looking to expand in Turkey; I need to know if the internet user base is still growing.",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "internet user base",
+     "region": {
+      "op": "REGION",
+      "place": "Turkey"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2023"
+     }
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "education",
+  "type": "CHANGE",
+  "q": "I'm writing a report on Colombia's education progress; I want to know if the literacy rate improved from 2000 to 2015.",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "difference",
+   "left": {
+    "op": "SELECT",
+    "entity": "literacy rate",
+    "region": {
+     "op": "REGION",
+     "place": "Colombia"
+    },
+    "time": {
+     "start": "2000",
+     "end": "2000"
+    }
+   },
+   "right": {
+    "op": "SELECT",
+    "entity": "literacy rate",
+    "region": {
+     "op": "REGION",
+     "place": "Colombia"
+    },
+    "time": {
+     "start": "2015",
+     "end": "2015"
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "civic",
+  "type": "RANKING",
+  "q": "I'm comparing mobile phone adoption in Uganda, Colombia, and Thailand; which country has seen the fastest growth in the last decade?",
+  "gold_attempt": {
+   "op": "RANK",
+   "order": "desc",
+   "items": [
+    {
+     "op": "COMPARE",
+     "how": "trend_direction",
+     "left": {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "mobile phone adoption",
+       "region": {
+        "op": "REGION",
+        "place": "Uganda"
+       },
+       "time": {
+        "start": "2014",
+        "end": "2024"
+       }
+      }
+     }
+    },
+    {
+     "op": "COMPARE",
+     "how": "trend_direction",
+     "left": {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "mobile phone adoption",
+       "region": {
+        "op": "REGION",
+        "place": "Colombia"
+       },
+       "time": {
+        "start": "2014",
+        "end": "2024"
+       }
+      }
+     }
+    },
+    {
+     "op": "COMPARE",
+     "how": "trend_direction",
+     "left": {
+      "op": "AGGREGATE",
+      "by": "time",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "mobile phone adoption",
+       "region": {
+        "op": "REGION",
+        "place": "Thailand"
+       },
+       "time": {
+        "start": "2014",
+        "end": "2024"
+       }
+      }
+     }
+    }
+   ]
+  },
+  "reject_reason": "gold exec: data_request (no_connector) want answer"
+ },
+ {
+  "sector": "health",
+  "type": "TREND",
+  "q": "Is the urban population decreasing in South Korea?",
+  "gold_attempt": {
+   "op": "COMPARE",
+   "how": "trend_direction",
+   "left": {
+    "op": "AGGREGATE",
+    "by": "time",
+    "metric": "mean",
+    "source": {
+     "op": "SELECT",
+     "entity": "urban population",
+     "region": {
+      "op": "REGION",
+      "place": "South Korea"
+     },
+     "time": null
+    }
+   }
+  },
+  "reject_reason": "gold exec: data_request (empty_select) want answer"
+ },
+ {
+  "sector": "economy",
+  "type": "STATE",
+  "q": "I'm looking at a job transfer to Johannesburg \u2014 can you tell me how many banks are located in the city center?",
+  "gold_attempt": {
+   "op": "AGGREGATE",
+   "by": "space",
+   "metric": "count",
+   "source": {
+    "op": "SELECT",
+    "entity": "bank",
+    "region": "?place",
+    "time": null
+   }
+  },
+  "reject_reason": "gold exec: data_request (unbound_holes) want answer"
+ }
+]

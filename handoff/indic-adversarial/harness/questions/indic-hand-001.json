@@ -1,0 +1,726 @@
+{
+ "spec_version": "v2",
+ "note": "Hand-authored Indian-register questions (INDIAN-DIALECT experiment, 2026-07-15). Written by the supervising agent in genuine Indian urban/semi-urban English registers (formal/conversational/terse/fragment), never shown to any model before first-contact scoring. Golds execution-verified before freezing. Merged into indic-eval-001.json at assembly.",
+ "questions": [
+  {
+   "id": "ind-hand-01",
+   "sector": "health",
+   "type": "STATE",
+   "style": "terse",
+   "q": "jayanagar bengaluru medical shops how many",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "medical shop",
+     "region": {
+      "op": "REGION",
+      "place": "Jayanagar, Bengaluru"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-02",
+   "sector": "health",
+   "type": "STATE",
+   "style": "formal",
+   "q": "Kindly inform how many PHCs are functioning in Mysuru city.",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "PHC",
+     "region": {
+      "op": "REGION",
+      "place": "Mysuru, India"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-03",
+   "sector": "civic",
+   "type": "STATE",
+   "style": "conversational",
+   "q": "Basavanagudi side there are how many petrol bunks, can you tell na?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "petrol bunk",
+     "region": {
+      "op": "REGION",
+      "place": "Basavanagudi, Bengaluru"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-04",
+   "sector": "retail",
+   "type": "STATE",
+   "style": "conversational",
+   "q": "How many hotels are there in Malleshwaram? Proper count please.",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "hotel",
+     "region": {
+      "op": "REGION",
+      "place": "Malleshwaram, Bengaluru"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-05",
+   "sector": "education",
+   "type": "STATE",
+   "style": "fragment",
+   "q": "anganwadi count Yelahanka?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "anganwadi",
+     "region": {
+      "op": "REGION",
+      "place": "Yelahanka, Bengaluru"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-06",
+   "sector": "economy",
+   "type": "TREND",
+   "style": "conversational",
+   "q": "Is internet use going up in India or not?",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "internet use",
+      "region": {
+       "op": "REGION",
+       "place": "India"
+      },
+      "time": null
+     }
+    }
+   }
+  },
+  {
+   "id": "ind-hand-07",
+   "sector": "civic",
+   "type": "RANKING",
+   "style": "conversational",
+   "q": "Between Bengaluru, Mysuru and Hubballi, which city is having most bus stands?",
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stand",
+       "region": {
+        "op": "REGION",
+        "place": "Bengaluru, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stand",
+       "region": {
+        "op": "REGION",
+        "place": "Mysuru, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "bus stand",
+       "region": {
+        "op": "REGION",
+        "place": "Hubballi, India"
+       },
+       "time": null
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ind-hand-08",
+   "sector": "retail",
+   "type": "COMPOSITE",
+   "style": "terse",
+   "q": "kirana stores within 1 km of schools in jayanagar bengaluru how many",
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 1.0,
+     "left": {
+      "op": "SELECT",
+      "entity": "kirana store",
+      "region": {
+       "op": "REGION",
+       "place": "Jayanagar, Bengaluru"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "school",
+      "region": {
+       "op": "REGION",
+       "place": "Jayanagar, Bengaluru"
+      },
+      "time": null
+     }
+    }
+   }
+  },
+  {
+   "id": "ind-hand-09",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "style": "conversational",
+   "q": "Which dispensaries in Rajajinagar have no nursing home within 2 km?",
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer_or_data_request",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "beyond",
+    "threshold_km": 2.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "dispensary",
+     "region": {
+      "op": "REGION",
+      "place": "Rajajinagar, Bengaluru"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "nursing home",
+     "region": {
+      "op": "REGION",
+      "place": "Rajajinagar, Bengaluru"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-10",
+   "sector": "complaints",
+   "type": "TREND",
+   "style": "conversational",
+   "q": "Garbage complaints in Bellandur — coming down or going up?",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "garbage complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bellandur"
+      },
+      "time": null
+     }
+    }
+   }
+  },
+  {
+   "id": "ind-hand-11",
+   "sector": "complaints",
+   "type": "STATE",
+   "style": "formal",
+   "q": "Kindly share the number of streetlight complaints registered in Horamavu ward in 2020.",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "streetlight complaints",
+     "region": {
+      "op": "REGION",
+      "place": "Horamavu"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    }
+   }
+  },
+  {
+   "id": "ind-hand-12",
+   "sector": "complaints",
+   "type": "COMPARATIVE",
+   "style": "conversational",
+   "q": "HSR Layout vs Bellandur, which ward people are complaining more about garbage?",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "garbage complaints",
+      "region": {
+       "op": "REGION",
+       "place": "HSR Layout"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "garbage complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bellandur"
+      },
+      "time": null
+     }
+    }
+   }
+  },
+  {
+   "id": "ind-hand-13",
+   "sector": "education",
+   "type": "STATE",
+   "style": "formal",
+   "q": "In Mysuru city how many government schools are there?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "government school",
+     "region": {
+      "op": "REGION",
+      "place": "Mysuru, India"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-14",
+   "sector": "complaints",
+   "type": "CHANGE",
+   "style": "conversational",
+   "q": "Water complaints in Bengaluru increased after 2020 or what? Compare 2020 and 2021.",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "water complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru"
+      },
+      "time": {
+       "start": "2021",
+       "end": "2021"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "water complaints",
+      "region": {
+       "op": "REGION",
+       "place": "Bengaluru"
+      },
+      "time": {
+       "start": "2020",
+       "end": "2020"
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "ind-hand-15",
+   "sector": "economy",
+   "type": "CHANGE",
+   "style": "terse",
+   "q": "india population 2010 vs 2020 how much grew",
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "population",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "population",
+     "region": {
+      "op": "REGION",
+      "place": "India"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    }
+   }
+  },
+  {
+   "id": "ind-hand-16",
+   "sector": "retail",
+   "type": "AMBIGUOUS",
+   "style": "conversational",
+   "q": "How many mandis are there in our area?",
+   "must_hole": true,
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "data_request",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "mandi",
+     "region": "?place",
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-17",
+   "sector": "retail",
+   "type": "STATE",
+   "style": "conversational",
+   "q": "How many santhes are there in Mysuru?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "santhe",
+     "region": {
+      "op": "REGION",
+      "place": "Mysuru, India"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-18",
+   "sector": "health",
+   "type": "RANKING",
+   "style": "formal",
+   "q": "Rank Mysuru, Mandya and Hassan by number of nursing homes.",
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "nursing home",
+       "region": {
+        "op": "REGION",
+        "place": "Mysuru, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "nursing home",
+       "region": {
+        "op": "REGION",
+        "place": "Mandya, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "nursing home",
+       "region": {
+        "op": "REGION",
+        "place": "Hassan, India"
+       },
+       "time": null
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "ind-hand-19",
+   "sector": "civic",
+   "type": "STATE",
+   "style": "fragment",
+   "q": "petrol pump count Indiranagar Bengaluru?",
+   "gold_shape": [
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "petrol pump",
+     "region": {
+      "op": "REGION",
+      "place": "Indiranagar, Bengaluru"
+     },
+     "time": null
+    }
+   }
+  },
+  {
+   "id": "ind-hand-20",
+   "sector": "complaints",
+   "type": "RANKING",
+   "style": "conversational",
+   "q": "Which of Bellandur, Begur and Varthur had least road complaints in 2021?",
+   "gold_shape": [
+    "RANK",
+    "SELECT",
+    "SELECT",
+    "SELECT"
+   ],
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Bellandur"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Begur"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "road complaints",
+       "region": {
+        "op": "REGION",
+        "place": "Varthur"
+       },
+       "time": {
+        "start": "2021",
+        "end": "2021"
+       }
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

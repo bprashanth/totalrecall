@@ -1,0 +1,540 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-heal-01",
+   "sector": "health",
+   "type": "RANKING",
+   "q": "Which of Lyon, Marseille, and Toulouse has the most hospitals?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "hospital",
+       "region": {
+        "op": "REGION",
+        "place": "Lyon, France"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "hospital",
+       "region": {
+        "op": "REGION",
+        "place": "Marseille, France"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "hospital",
+       "region": {
+        "op": "REGION",
+        "place": "Toulouse, France"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-02",
+   "sector": "education",
+   "type": "RANKING",
+   "q": "Rank the cities of Chennai, Bangalore, and Hyderabad by the number of universities.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Chennai, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Bangalore, India"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Hyderabad, India"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-03",
+   "sector": "retail",
+   "type": "RANKING",
+   "q": "Among Vancouver, Montreal, and Calgary, which has the most supermarkets?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "supermarket",
+       "region": {
+        "op": "REGION",
+        "place": "Vancouver, Canada"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "supermarket",
+       "region": {
+        "op": "REGION",
+        "place": "Montreal, Canada"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "supermarket",
+       "region": {
+        "op": "REGION",
+        "place": "Calgary, Canada"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-04",
+   "sector": "economy",
+   "type": "RANKING",
+   "q": "Rank Germany, France, and Italy by their GDP per capita in 2022.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "gdp per capita",
+       "region": {
+        "op": "REGION",
+        "place": "Germany"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "gdp per capita",
+       "region": {
+        "op": "REGION",
+        "place": "France"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "gdp per capita",
+       "region": {
+        "op": "REGION",
+        "place": "Italy"
+       },
+       "time": {
+        "start": "2022",
+        "end": "2022"
+       }
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-05",
+   "sector": "civic",
+   "type": "RANKING",
+   "q": "Which of Oslo, Stockholm, and Helsinki has the fewest police stations?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "asc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "police",
+       "region": {
+        "op": "REGION",
+        "place": "Oslo, Norway"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "police",
+       "region": {
+        "op": "REGION",
+        "place": "Stockholm, Sweden"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "police",
+       "region": {
+        "op": "REGION",
+        "place": "Helsinki, Finland"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-06",
+   "sector": "civic",
+   "type": "STATE",
+   "q": "How many parks are there in Medell\u00edn, Colombia?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "park",
+     "region": {
+      "op": "REGION",
+      "place": "Medell\u00edn, Colombia"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-07",
+   "sector": "health",
+   "type": "RELATION",
+   "q": "Which restaurants in Cape Town are within 1 km of a hospital?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "distance",
+    "left": {
+     "op": "SELECT",
+     "entity": "restaurant",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "hospital",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-08",
+   "sector": "economy",
+   "type": "TREND",
+   "q": "Is the unemployment rate in Japan rising or falling?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "unemployment rate",
+      "region": {
+       "op": "REGION",
+       "place": "Japan"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-09",
+   "sector": "education",
+   "type": "TRANSFER",
+   "q": "We have no data on schools in the town of Neustadt. Can you estimate the number of schools from nearby Frankfurt?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "ESTIMATE",
+     "method": "envelope",
+     "source": {
+      "op": "SELECT",
+      "entity": "school",
+      "region": {
+       "op": "REGION",
+       "place": "Frankfurt, Germany"
+      },
+      "time": null
+     },
+     "target": {
+      "op": "REGION",
+      "place": "Neustadt, Germany"
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-10",
+   "sector": "civic",
+   "type": "AMBIGUOUS",
+   "q": "What kind of public services are available near my location?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?public_service_type",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-11",
+   "sector": "civic",
+   "type": "BEHAVIOUR",
+   "q": "Why do people prefer to live near parks?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-12",
+   "sector": "education",
+   "type": "COMPOSITE",
+   "q": "In the city of Milan, are there more libraries than universities?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "library",
+      "region": {
+       "op": "REGION",
+       "place": "Milan"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "university",
+      "region": {
+       "op": "REGION",
+       "place": "Milan"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  }
+ ]
+}

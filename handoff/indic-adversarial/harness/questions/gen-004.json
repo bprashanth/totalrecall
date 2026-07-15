@@ -1,0 +1,549 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-heal-01",
+   "sector": "health",
+   "type": "STATE",
+   "q": "I'm moving to Oaxaca and need to find a clinic for my family; what options are there?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "clinic",
+    "region": {
+     "op": "REGION",
+     "place": "Oaxaca, Mexico"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-02",
+   "sector": "education",
+   "type": "STATE",
+   "q": "My daughter is starting school next year in Lyon; what schools are available in the city?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "school",
+    "region": {
+     "op": "REGION",
+     "place": "Lyon, France"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-03",
+   "sector": "retail",
+   "type": "RELATION",
+   "q": "I'm in Gwangju and want to grab a coffee near the university; are there any cafes within walking distance?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "left": {
+     "op": "SELECT",
+     "entity": "cafe",
+     "region": {
+      "op": "REGION",
+      "place": "Gwangju, South Korea"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "university",
+     "region": {
+      "op": "REGION",
+      "place": "Gwangju, South Korea"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-04",
+   "sector": "economy",
+   "type": "CHANGE",
+   "q": "I'm considering investing in South Africa; I heard the economy was shaky in 2010, how has GDP per capita changed by 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "gdp per capita",
+     "region": {
+      "op": "REGION",
+      "place": "South Africa"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "gdp per capita",
+     "region": {
+      "op": "REGION",
+      "place": "South Africa"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "gold_shapes": [
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT"
+    ]
+   ]
+  },
+  {
+   "id": "gen-educ-05",
+   "sector": "education",
+   "type": "TREND",
+   "q": "I'm curious about education in Morocco; are people becoming more literate over the last decade?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "literacy",
+      "region": {
+       "op": "REGION",
+       "place": "Morocco"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-06",
+   "sector": "retail",
+   "type": "TRANSFER",
+   "q": "I'm planning a trip to the small town of Tepoztl\u00e1n but can't find any restaurant listings; I know Mexico City has many, can I assume similar availability?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Tepoztl\u00e1n, Mexico"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "restaurant",
+     "region": {
+      "op": "REGION",
+      "place": "Mexico City, Mexico"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-07",
+   "sector": "civic",
+   "type": "AMBIGUOUS",
+   "q": "I'm looking for information about the parks around here; can you help?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "park",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-08",
+   "sector": "retail",
+   "type": "BEHAVIOUR",
+   "q": "Why do people in Chiang Mai prefer street food over restaurants?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Chiang Mai, Thailand"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-09",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "q": "I'm trying to decide between Durban and Nairobi for a medical equipment business; which city has more hospitals?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Durban, South Africa"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Nairobi, Kenya"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-10",
+   "sector": "education",
+   "type": "COMPOSITE",
+   "q": "In Bras\u00edlia, are there more schools than libraries?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "school",
+      "region": {
+       "op": "REGION",
+       "place": "Bras\u00edlia, Brazil"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "library",
+      "region": {
+       "op": "REGION",
+       "place": "Bras\u00edlia, Brazil"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-11",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "q": "Of the pharmacies in Medell\u00edn, how many are within 1 km of a hospital?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "left": {
+      "op": "SELECT",
+      "entity": "pharmacy",
+      "region": {
+       "op": "REGION",
+       "place": "Medell\u00edn, Colombia"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "hospital",
+      "region": {
+       "op": "REGION",
+       "place": "Medell\u00edn, Colombia"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-12",
+   "sector": "economy",
+   "type": "RANKING",
+   "q": "I'm looking for the best country for remote work; among Chile, Argentina, and Uruguay, which has the highest internet users?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "internet users",
+       "region": {
+        "op": "REGION",
+        "place": "Chile"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "internet users",
+       "region": {
+        "op": "REGION",
+        "place": "Argentina"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "mean",
+      "source": {
+       "op": "SELECT",
+       "entity": "internet users",
+       "region": {
+        "op": "REGION",
+        "place": "Uruguay"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-13",
+   "sector": "civic",
+   "type": "RANKING",
+   "q": "I'm planning to visit several European cities; among Cologne, Lyon, and Porto, which has the most parks?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Cologne, Germany"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Lyon, France"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "park",
+       "region": {
+        "op": "REGION",
+        "place": "Porto, Portugal"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-14",
+   "sector": "education",
+   "type": "CHANGE",
+   "q": "I'm evaluating schools in Indonesia; I heard enrollment was low in 2000, have they improved by 2015?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "school enrollment",
+      "region": {
+       "op": "REGION",
+       "place": "Indonesia"
+      },
+      "time": {
+       "start": "2015",
+       "end": "2015"
+      }
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "school enrollment",
+      "region": {
+       "op": "REGION",
+       "place": "Indonesia"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2000"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ],
+   "gold_shapes": [
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT"
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,271 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-heal-01",
+   "sector": "health",
+   "type": "CHANGE",
+   "q": "How much did the unemployment rate change between 2005 and 2015 in South Africa?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "South Africa"
+     },
+     "time": {
+      "start": "2005",
+      "end": "2005"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "unemployment rate",
+     "region": {
+      "op": "REGION",
+      "place": "South Africa"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-02",
+   "sector": "health",
+   "type": "BEHAVIOUR",
+   "q": "Why do people in Nairobi prefer using private clinics over public hospitals?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Nairobi"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-03",
+   "sector": "education",
+   "type": "TRANSFER",
+   "q": "We have no data on schools in the small town of Timbuktu in Mali. Can you estimate the number of schools from the nearby big city of Bamako?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Timbuktu, Mali"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "school",
+     "region": {
+      "op": "REGION",
+      "place": "Bamako, Mali"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-04",
+   "sector": "education",
+   "type": "BEHAVIOUR",
+   "q": "Why do parents in Medell\u00edn choose private schools over public ones?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Medell\u00edn"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-05",
+   "sector": "retail",
+   "type": "TREND",
+   "q": "Is the number of internet users rising or falling in Vietnam?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "internet users",
+      "region": {
+       "op": "REGION",
+       "place": "Vietnam"
+      },
+      "time": {
+       "start": "2000",
+       "end": "2023"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-06",
+   "sector": "retail",
+   "type": "TRANSFER",
+   "q": "We have no data on restaurants in the small town of Banff in Canada. Can you estimate from the nearby city of Calgary?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Banff, Canada"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "restaurant",
+     "region": {
+      "op": "REGION",
+      "place": "Calgary, Canada"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-07",
+   "sector": "retail",
+   "type": "BEHAVIOUR",
+   "q": "What makes people in Manchester prefer shopping online rather than in-store?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Manchester"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-08",
+   "sector": "economy",
+   "type": "STATE",
+   "q": "How many banks are there in the city of Lyon, France?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Lyon, France"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-09",
+   "sector": "economy",
+   "type": "TRANSFER",
+   "q": "We have no data on banks in the small town of Rovaniemi in Finland. Can you estimate from the nearby city of Helsinki?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Rovaniemi, Finland"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "bank",
+     "region": {
+      "op": "REGION",
+      "place": "Helsinki, Finland"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-10",
+   "sector": "economy",
+   "type": "AMBIGUOUS",
+   "q": "How is the economy doing around here?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?economic_indicator",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  }
+ ]
+}

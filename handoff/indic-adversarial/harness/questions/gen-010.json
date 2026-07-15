@@ -1,0 +1,669 @@
+{
+ "spec_version": "v0",
+ "note": "neutrally generated (deepseekv4), gold validated by execution",
+ "questions": [
+  {
+   "id": "gen-heal-01",
+   "sector": "health",
+   "type": "STATE",
+   "q": "We're moving to Guadalajara next month and my mom needs regular checkups \u2014 can you tell me how many hospitals and clinics are in the city?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "hospitals and clinics",
+     "region": {
+      "op": "REGION",
+      "place": "Guadalajara, Mexico"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-02",
+   "sector": "education",
+   "type": "RELATION",
+   "q": "My nephew is starting university in Cape Town next year; I want to know which libraries are within 1 km of the University of Cape Town main campus.",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "library",
+     "region": {
+      "op": "REGION",
+      "place": "Cape Town, South Africa"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "university",
+     "region": {
+      "op": "REGION",
+      "place": "University of Cape Town, Cape Town, South Africa"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-03",
+   "sector": "economy",
+   "type": "CHANGE",
+   "q": "I'm thinking of investing in a business in Vietnam \u2014 do you have the GDP per capita change from 2015 to 2020 for the country?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "gdp per capita",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "gdp per capita",
+     "region": {
+      "op": "REGION",
+      "place": "Vietnam"
+     },
+     "time": {
+      "start": "2015",
+      "end": "2015"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-04",
+   "sector": "civic",
+   "type": "TREND",
+   "q": "My cousin says life is getting better in Ghana \u2014 can you tell me if internet users per capita has been rising or falling there over the last decade?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "internet users per capita",
+      "region": {
+       "op": "REGION",
+       "place": "Ghana"
+      },
+      "time": {
+       "start": "2014",
+       "end": "2024"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-05",
+   "sector": "retail",
+   "type": "TRANSFER",
+   "q": "I'm looking at opening a small grocery in Tijuana, but I only see data for San Diego \u2014 could you estimate how many supermarkets Tijuana might have based on San Diego's count?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Tijuana, Mexico"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "supermarket",
+     "region": {
+      "op": "REGION",
+      "place": "San Diego, California, USA"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-06",
+   "sector": "civic",
+   "type": "AMBIGUOUS",
+   "q": "I just moved into a new neighborhood in Medell\u00edn and want to know what facilities around here are good for a family with kids.",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?facility_type",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-07",
+   "sector": "health",
+   "type": "BEHAVIOUR",
+   "q": "I'm a nurse considering relocating to Nairobi \u2014 do you think people there prefer private clinics over public hospitals for routine care?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-08",
+   "sector": "education",
+   "type": "COMPOSITE",
+   "q": "I'm comparing school options for my kids in Lyon \u2014 does the city have more primary schools than secondary schools, and of the primary schools, how many are within 1 km of a park?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "primary school",
+      "region": {
+       "op": "REGION",
+       "place": "Lyon, France"
+      },
+      "time": null
+     }
+    },
+    "right": {
+     "op": "AGGREGATE",
+     "by": "space",
+     "metric": "count",
+     "source": {
+      "op": "SELECT",
+      "entity": "secondary school",
+      "region": {
+       "op": "REGION",
+       "place": "Lyon, France"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-09",
+   "sector": "retail",
+   "type": "RANKING",
+   "q": "My buddies and I are debating which city has the best coffee scene \u2014 can you rank Istanbul, Mexico City, and Melbourne by number of cafes per capita?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "cafe",
+       "region": {
+        "op": "REGION",
+        "place": "Istanbul, Turkey"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "cafe",
+       "region": {
+        "op": "REGION",
+        "place": "Mexico City, Mexico"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "density",
+      "source": {
+       "op": "SELECT",
+       "entity": "cafe",
+       "region": {
+        "op": "REGION",
+        "place": "Melbourne, Australia"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-10",
+   "sector": "civic",
+   "type": "RELATION",
+   "q": "My elderly father lives in Buenos Aires and needs a pharmacy near his apartment \u2014 are there any pharmacies within 1 km of the main post office in Palermo?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RELATE",
+    "relation": "within",
+    "threshold_km": 1.0,
+    "left": {
+     "op": "SELECT",
+     "entity": "pharmacy",
+     "region": {
+      "op": "REGION",
+      "place": "Buenos Aires, Argentina"
+     },
+     "time": null
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "post office",
+     "region": {
+      "op": "REGION",
+      "place": "Palermo, Buenos Aires, Argentina"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-11",
+   "sector": "education",
+   "type": "CHANGE",
+   "q": "We're considering sending our daughter to school in Rwanda \u2014 could you check how school enrollment changed there between 2010 and 2020?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "school enrollment",
+     "region": {
+      "op": "REGION",
+      "place": "Rwanda"
+     },
+     "time": {
+      "start": "2010",
+      "end": "2010"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "school enrollment",
+     "region": {
+      "op": "REGION",
+      "place": "Rwanda"
+     },
+     "time": {
+      "start": "2020",
+      "end": "2020"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ],
+   "gold_shapes": [
+    [
+     "COMPARE",
+     "SELECT",
+     "SELECT"
+    ],
+    [
+     "COMPARE",
+     "SELECT"
+    ]
+   ]
+  },
+  {
+   "id": "gen-heal-12",
+   "sector": "health",
+   "type": "TREND",
+   "q": "I'm a public health researcher focused on Bangladesh \u2014 can you tell me if electricity access (which affects vaccine storage) has been rising or falling in the country?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "trend_direction",
+    "left": {
+     "op": "AGGREGATE",
+     "by": "time",
+     "metric": "mean",
+     "source": {
+      "op": "SELECT",
+      "entity": "electricity access",
+      "region": {
+       "op": "REGION",
+       "place": "Bangladesh"
+      },
+      "time": {
+       "start": "2010",
+       "end": "2023"
+      }
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-13",
+   "sector": "retail",
+   "type": "TRANSFER",
+   "q": "I'm planning a restaurant in Le\u00f3n, Nicaragua, but there's no restaurant data for that town \u2014 could you estimate the number of restaurants there based on data from Managua?",
+   "expect": "answer_or_data_request",
+   "must_estimate": true,
+   "gold_ir": {
+    "op": "ESTIMATE",
+    "method": "envelope",
+    "target": {
+     "op": "REGION",
+     "place": "Le\u00f3n, Nicaragua"
+    },
+    "source": {
+     "op": "SELECT",
+     "entity": "restaurant",
+     "region": {
+      "op": "REGION",
+      "place": "Managua, Nicaragua"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "ESTIMATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-14",
+   "sector": "economy",
+   "type": "AMBIGUOUS",
+   "q": "I heard there's a lot of new development happening around here \u2014 can you tell me what the economic indicators look like for this area?",
+   "expect": "data_request",
+   "must_hole": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?indicator",
+    "region": "?place",
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-civi-15",
+   "sector": "civic",
+   "type": "BEHAVIOUR",
+   "q": "My wife and I are thinking of retiring in Porto \u2014 do you think locals prefer living near parks or near bus stops for daily errands?",
+   "expect": "data_request",
+   "must_hole": true,
+   "behaviour": true,
+   "gold_ir": {
+    "op": "SELECT",
+    "entity": "?proxy",
+    "region": {
+     "op": "REGION",
+     "place": "Porto, Portugal"
+    },
+    "time": null
+   },
+   "gold_shape": [
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-heal-16",
+   "sector": "health",
+   "type": "COMPOSITE",
+   "q": "I'm a doctor moving to S\u00e3o Paulo with my family \u2014 does the city have more hospitals than clinics, and of the clinics, how many are within 1 km of a pharmacy?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "RELATE",
+     "relation": "within",
+     "threshold_km": 1.0,
+     "left": {
+      "op": "SELECT",
+      "entity": "clinic",
+      "region": {
+       "op": "REGION",
+       "place": "S\u00e3o Paulo, Brazil"
+      },
+      "time": null
+     },
+     "right": {
+      "op": "SELECT",
+      "entity": "pharmacy",
+      "region": {
+       "op": "REGION",
+       "place": "S\u00e3o Paulo, Brazil"
+      },
+      "time": null
+     }
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "RELATE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-educ-17",
+   "sector": "education",
+   "type": "RANKING",
+   "q": "My three kids are applying to universities abroad \u2014 can you rank Accra, Dakar, and Nairobi by the number of universities each city has?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "RANK",
+    "order": "desc",
+    "items": [
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Accra, Ghana"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Dakar, Senegal"
+       },
+       "time": null
+      }
+     },
+     {
+      "op": "AGGREGATE",
+      "by": "space",
+      "metric": "count",
+      "source": {
+       "op": "SELECT",
+       "entity": "university",
+       "region": {
+        "op": "REGION",
+        "place": "Nairobi, Kenya"
+       },
+       "time": null
+      }
+     }
+    ]
+   },
+   "gold_shape": [
+    "RANK",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT",
+    "AGGREGATE",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-econ-18",
+   "sector": "economy",
+   "type": "CHANGE",
+   "q": "I'm writing a report on Latin America \u2014 could you tell me how much inflation changed in Colombia between 2018 and 2022?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "COMPARE",
+    "how": "difference",
+    "left": {
+     "op": "SELECT",
+     "entity": "inflation",
+     "region": {
+      "op": "REGION",
+      "place": "Colombia"
+     },
+     "time": {
+      "start": "2022",
+      "end": "2022"
+     }
+    },
+    "right": {
+     "op": "SELECT",
+     "entity": "inflation",
+     "region": {
+      "op": "REGION",
+      "place": "Colombia"
+     },
+     "time": {
+      "start": "2018",
+      "end": "2018"
+     }
+    }
+   },
+   "gold_shape": [
+    "COMPARE",
+    "SELECT",
+    "SELECT"
+   ]
+  },
+  {
+   "id": "gen-reta-19",
+   "sector": "retail",
+   "type": "STATE",
+   "q": "We're vacationing in Marrakech next month and need to stock up on supplies \u2014 how many supermarkets are there in the city?",
+   "expect": "answer",
+   "gold_ir": {
+    "op": "AGGREGATE",
+    "by": "space",
+    "metric": "count",
+    "source": {
+     "op": "SELECT",
+     "entity": "supermarket",
+     "region": {
+      "op": "REGION",
+      "place": "Marrakech, Morocco"
+     },
+     "time": null
+    }
+   },
+   "gold_shape": [
+    "AGGREGATE",
+    "SELECT"
+   ]
+  }
+ ]
+}
