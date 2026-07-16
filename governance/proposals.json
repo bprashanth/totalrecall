@@ -1,448 +1,851 @@
 {
-  "schema_version": "framework-proposals-v1",
-  "proposals": [
-    {
-      "id": "EVD-001",
-      "title": "Connector-declared evidence labels",
-      "scope": "connector-contract",
-      "status": "validated",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroboration": ["transport_memory/spec-proposals.md"],
-      "resolution": "Connector metadata may label an upstream result observed, modelled, or proxy; SELECT propagates the label without adding a parser op.",
-      "target": "algebra-v2.2",
-      "required_tests": ["connector evidence-label propagation", "default observed compatibility", "provenance reason retained"]
-    },
-    {
-      "id": "ALG-001",
-      "title": "Positive entity union",
-      "scope": "algebra",
-      "status": "validated",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroboration": ["transport_memory/spec-proposals.md"],
-      "resolution": "Adopt the common positive case as list-valued SELECT.entity with deterministic union and deduplication; do not imply general intersection or difference.",
-      "target": "algebra-v2.2",
-      "required_tests": ["multi-entity routing", "deduplication", "evidence taint join", "De Morgan negated-union regression"]
-    },
-    {
-      "id": "ALG-002",
-      "title": "Typed FILTER over records and source dimensions",
-      "scope": "algebra",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroboration": ["transport_memory/spec-proposals.md"],
-      "dependencies": ["typed connector field declarations"],
-      "required_tests": ["record attribute predicates", "official-statistic dimensions", "unknown field DataRequest", "predicate type errors", "provenance counts"]
-    },
-    {
-      "id": "ALG-003",
-      "title": "Partitioned GROUP",
-      "scope": "algebra",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroboration": ["transport_memory/spec-proposals.md"],
-      "dependencies": ["ALG-002 field resolver", "typed keyed-result contract"],
-      "required_tests": ["single and multiple group keys", "unit-preserving metrics", "missing partitions", "no implicit flattening"]
-    },
-    {
-      "id": "ALG-004",
-      "title": "General record-set intersection and difference",
-      "scope": "algebra",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["record identity contract"],
-      "note": "The positive union subset is already ALG-001; this proposal covers only semantics not supplied by list-valued SELECT.entity.",
-      "required_tests": ["same-source identity", "cross-source identity refusal", "intersection", "difference", "schema compatibility"]
-    },
-    {
-      "id": "ALG-005",
-      "title": "Unit-tagged derived arithmetic",
-      "scope": "algebra",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroboration": ["transport_memory/spec-proposals.md"],
-      "dependencies": ["typed units", "grain co-scoping", "alignment rules"],
-      "required_tests": ["valid derived rate", "scale", "unit mismatch refusal", "grain mismatch refusal", "zero denominator"]
-    },
-    {
-      "id": "ALG-006",
-      "title": "Distribution-valued aggregation",
-      "scope": "algebra",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroboration": ["transport_memory/spec-proposals.md"],
-      "dependencies": ["typed aggregate specification"],
-      "required_tests": ["median", "quantile", "histogram policy", "null policy", "exact versus approximate provenance"]
-    },
-    {
-      "id": "ALG-007",
-      "title": "Explicit temporal alignment and vintage",
-      "scope": "algebra",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroboration": ["transport_memory/spec-proposals.md"],
-      "dependencies": ["calendar and frequency metadata"],
-      "required_tests": ["inner and outer calendar joins", "missingness certificate", "lag", "interpolation refusal/default", "vintage selection"]
-    },
-    {
-      "id": "ALG-008",
-      "title": "Epistemic CORROBORATE or VERIFY",
-      "scope": "claim-layer",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["EVD-001", "ALG-005", "ALG-007", "measure-definition compatibility", "lineage metadata"],
-      "required_tests": ["agreement", "conflict", "incomparable definitions", "shared-lineage non-independence", "tolerance provenance"]
-    },
-    {
-      "id": "PLN-001",
-      "title": "Multi-clause completeness",
-      "scope": "dialogue-protocol",
-      "status": "accepted",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroboration": ["transport_memory/spec-proposals.md"],
-      "note": "Adopt mandatory clause completeness and upstream clause splitting; BUNDLE remains deferred until cross-clause dependencies require it.",
-      "required_tests": ["no silent half-golds", "independent clause split", "dependency detection", "labelled answer completeness"]
-    },
-    {
-      "id": "ASK-001",
-      "title": "Causal requests remain typed asks",
-      "scope": "protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "resolution_candidate": "Compile causal intent to a typed DataRequest unless a future claim layer carries an explicit identification design; never overload observational COMPARE or ESTIMATE.",
-      "required_tests": ["causal wording detection", "typed treatment/outcome/population/time ask", "no observational causal assertion"]
-    },
-    {
-      "id": "SAT-001",
-      "title": "Discovery-rate saturation protocol",
-      "scope": "saturation-protocol",
-      "status": "validated",
-      "source": "livelihoods_memory/ROUND2.md",
-      "corroboration": ["transport_memory/ROUND2.md"],
-      "resolution": "Saturation requires coverage and breaker pressure plus three consecutive post-freeze untouched holdouts of at least 40 rows, a flat discovery curve, complete guards, and immutable checksums.",
-      "target": "discovery-rate-v1",
-      "required_tests": ["freeze invalidation", "holdout provenance", "three-bank sequence", "discovery classification", "corpus leakage audit"]
-    },
-    {
-      "id": "SAT-002",
-      "title": "Family-level discovery and absorption accounting",
-      "scope": "saturation-protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H20 showed that failing-row count and semantic novelty are different axes. A family closes only after one generalized repair, positive variants, adjacent negative guards, a full-wall regression, and a new untouched-bank contact; reports publish both family and row counts.",
-      "required_tests": ["stable discovery-family taxonomy", "positive surface variants", "adjacent negative semantic guards", "row and family discovery curves", "post-absorption untouched contact"]
-    },
-    {
-      "id": "BNCH-001",
-      "title": "Pre-contact semantic gold lint gate",
-      "scope": "benchmark-protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H20 admitted two singular-winner RANK golds without k:1 and one density ambiguity. Admission should lint rank cardinality, candidate coverage, distinct operands, complete unsupported phrases, source-gap versus hole status, and requested output form before the immutable checksum.",
-      "required_tests": ["singular winner requires k one", "top N agrees with k", "candidate list completeness", "distinct named operand preservation", "unsupported phrase completeness", "output-form agreement"]
-    },
-    {
-      "id": "SCR-001",
-      "title": "Output-form-sensitive diagnostic scoring",
-      "scope": "benchmark-scoring",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H20 first contact scored 0.917 coarsely but only 18/40 under strict audit. The diagnostic scorer should distinguish Records, count, presence, density, Series, Scalar, and Ranking including k; strict canonical audit remains the release gate.",
-      "required_tests": ["record versus count mismatch", "count versus presence mismatch", "density versus count mismatch", "ranking cardinality mismatch", "strict audit remains authoritative"]
-    },
-    {
-      "id": "SRC-002",
-      "title": "Connector-declared annotation-layer admissibility",
-      "scope": "connector-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H21 pre-contact execution showed that arbitrary ANNOTATE layers can return an Answer with absent fields. Connectors should declare field type, unit, coverage, and provider; unsupported or insufficient layers fail closed with a source-gap DataRequest.",
-      "required_tests": ["supported annotation field", "unsupported field refusal", "partial field coverage", "field unit and type", "matched and null row provenance"]
-    },
-    {
-      "id": "BUG-003",
-      "title": "Fail-closed resolver morphology",
-      "scope": "resolver-semantics",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H21 explicit gig-work platform was falsely routed to craft workshops because work prefix-matched workshop. H23 then showed zero-overlap entity restoration rewriting cold storage to marketplace, while the legacy main-marketplace and coworking-access golds demonstrated unsafe modifier dropping. Replace uncontrolled prefix/subset equality with declared aliases or bounded morphology plus a resolver certificate.",
-      "required_tests": ["declared alias match", "plural and inflection normalization", "cross-lexeme prefix refusal", "restrictive modifier refusal", "zero-overlap restoration refusal", "source-gap prefix adversaries", "resolver certificate provenance"]
-    },
-    {
-      "id": "ASK-004",
-      "title": "Bounded endpoint-direction versus trend convention",
-      "scope": "protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "resolution_candidate": "From-to event wording such as did X go up/down denotes endpoint CHANGE; progressive or explicit trajectory wording denotes unary TREND; unresolved surfaces are rejected or carry alternative golds.",
-      "required_tests": ["from-to endpoint direction", "progressive bounded trend", "explicit trend wording", "endpoint and slope disagreement", "ambiguous direction admission"]
-    },
-    {
-      "id": "BUG-001",
-      "title": "Same-quantity guard for temporal COMPARE orientation",
-      "scope": "executor-semantics",
-      "status": "validated",
-      "source": "transport_memory/spec-proposals.md",
-      "corroboration": ["../heartwood/docs/architecture/memory/benchmarks/spec-proposals.md"],
-      "resolution": "Later-minus-earlier canonicalization applies only when both operands resolve to the same entity or quantity; cross-entity arithmetic preserves written order.",
-      "target": "algebra-v2.2.1",
-      "required_tests": ["same-entity time reversal", "cross-entity differing end-years", "place comparison order"]
-    },
-    {
-      "id": "BUG-002",
-      "title": "Fail-closed grain co-scoping for arithmetic",
-      "scope": "executor-semantics",
-      "status": "proposed",
-      "source": "transport_memory/spec-proposals.md",
-      "corroboration": ["../heartwood/docs/architecture/memory/benchmarks/spec-proposals.md"],
-      "note": "Contested remedy: provenance-only disclosure versus a DataRequest on incompatible grains. Not released.",
-      "required_tests": ["city versus country denominator", "compatible country series", "explicit user-approved fallback", "synthesis cannot omit mismatch"]
-    },
-    {
-      "id": "ALG-009",
-      "title": "Exact series-point selection",
-      "scope": "algebra",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["typed series output", "observation timestamp and vintage metadata"],
-      "note": "H18 showed that SELECT(time:null) cannot simultaneously mean a whole series and one latest scalar. Candidate surface is PICK or a restricted typed REDUCE.",
-      "required_tests": ["latest scalar", "earliest scalar", "exact as-of", "previous and nearest fallback provenance", "empty series DataRequest", "SELECT null-time series regression"]
-    },
-    {
-      "id": "ASK-002",
-      "title": "Explicit source gaps are not semantic holes",
-      "scope": "protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "resolution_candidate": "Preserve explicitly requested unsupported literals and return a source-gap DataRequest; reserve holes for unresolved user meaning or references.",
-      "required_tests": ["unsupported explicit entity remains literal", "data request without holes", "ambiguous entity still holes", "missing reference still holes", "source capability named in provenance"]
-    },
-    {
-      "id": "SRC-001",
-      "title": "Connector-declared temporal admissibility",
-      "scope": "connector-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H19 showed that a current-snapshot record connector can silently accept historical time constraints and manufacture a trend or endpoint comparison. Connectors must declare time semantics and the executor must fail closed when the requested temporal evidence is unavailable.",
-      "required_tests": ["snapshot source rejects historical endpoints", "trend requires time-indexed evidence", "valid-time versus retrieval-time provenance", "historical connector accepts supported range", "missing temporal coverage returns DataRequest"]
-    },
-    {
-      "id": "ASK-003",
-      "title": "Unbounded scalar change needs an interval policy",
-      "scope": "protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H19 exposed a conflict between absent-time-null series retrieval and a scalar 'how much did X change' request, which requires two endpoints. The framework must choose an explicit available-range convention or a typed interval clarification; benchmark golds must not invent two time holes ad hoc.",
-      "required_tests": ["unbounded scalar change", "explicit endpoint change", "unary trend without dates", "available-range provenance", "interval clarification binding"]
-    },
-    {
-      "id": "SRC-003",
-      "title": "Explicit scope certificates for native-grain connectors",
-      "scope": "connector-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "corroborates": ["BUG-002"],
-      "note": "H21 showed that a wrong subnational World Bank operand could execute to the intended national value because the resolver inferred France from a geocoder parent. Native-grain routing must certify the requested scope and fail closed on implicit coarsening.",
-      "required_tests": ["exact country route", "subnational-to-national refusal", "geocoder parent is not consent", "explicit coarsening policy", "cross-grain comparison provenance", "unresolved region returns DataRequest"]
-    },
-    {
-      "id": "BUG-004",
-      "title": "Recursive hole safety for every value-or-node slot",
-      "scope": "schema-executor-semantics",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H22 encoded an unresolved ESTIMATE target as REGION(place='?place'). The validator inspected target as a leaf but did not walk the REGION, so the unbound placeholder reached geocoding and execution. The spec already requires every nested hole to stop execution; implementations need exhaustive value-or-node traversal tests.",
-      "required_tests": ["scalar target hole", "REGION target hole", "SELECT region hole", "nested time hole", "rank-item hole", "no connector call before unbound refusal"]
-    },
-    {
-      "id": "EXEC-001",
-      "title": "Declared numeric value binding for record aggregation",
-      "scope": "executor-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H22 showed AGGREGATE(by=space, metric=mean) falling through to row count. RELATE(distance) can declare dist_km as its value column, but general record means require an explicit typed numeric field contract rather than guessing among ids, coordinates, and annotations.",
-      "required_tests": ["mean distance uses dist_km", "mean never falls through to count", "missing numeric value DataRequest", "arbitrary numeric id is not averaged", "typed annotated numeric field", "unit provenance"]
-    },
-    {
-      "id": "BUG-005",
-      "title": "Frozen IR input-type enforcement",
-      "scope": "schema-executor-semantics",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H24 produced schema-valid trees that fed scalar AGGREGATE outputs into Records-only RELATE/AGGREGATE/ESTIMATE inputs and a non-REGION node into ESTIMATE.target. Validators must enforce every frozen signature before connector execution.",
-      "required_tests": ["Records-only child matrix", "Series-only child matrix", "ESTIMATE target REGION type", "nested valid composition", "invalid tree cannot execute"]
-    },
-    {
-      "id": "ASK-005",
-      "title": "Constrained typed holes",
-      "scope": "algebra-dialogue-boundary",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H23 focus-city-in-India preserved a known country constraint only by encoding it in an opaque hole name. A typed clarification slot should retain machine-checkable region kind and fixed parent constraints without pretending the place is known.",
-      "required_tests": ["region hole with country constraint", "binding inside constraint", "invalid out-of-scope binding refusal", "clarification rendering", "plain-hole compatibility"]
-    },
-    {
-      "id": "ALG-010",
-      "title": "Spatial candidate generation and optimization",
-      "scope": "algebra",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["candidate-domain contract", "typed objective measures", "ALG-005"],
-      "note": "H23 asked where a micro-enterprise should open to maximize foot traffic near informal markets. v2.1 can rank supplied items but cannot generate feasible locations, attach an objective, or express constraints and optimization uncertainty.",
-      "required_tests": ["explicit candidate set optimization", "generated spatial candidates", "objective direction and unit", "hard and soft constraints", "no-evidence DataRequest", "modelled-result label and uncertainty"]
-    },
-    {
-      "id": "BUG-006",
-      "title": "Bank-scoped corpus admission",
-      "scope": "benchmark-corpus-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "Epoch-017 corpus audit found a superseded H10 proxy trace re-entering training because admission used global question-text membership across immutable holdouts, raw candidates, and active development banks. Admission must require exact active bank, bank-local ID, and current question text, then apply composite defect exclusions.",
-      "required_tests": ["bank-local duplicate IDs", "superseded question text refusal", "immutable holdout trace refusal", "corrected development copy retained", "composite defect exclusion", "unique corpus questions"]
-    },
-    {
-      "id": "BUG-007",
-      "title": "Typed deterministic answer rendering",
-      "scope": "answer-truth-boundary",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H25 and the 1,196-row historical wall showed that correct typed execution can be contradicted by free-form prose: Boolean inversion, observed/modelled inversion, invented aggregates, rank-direction claims, arbitrary attrs.source promotion, and compiler errors called no-data. Common typed results and failures need deterministic renderers plus fail-closed surface-contract checks.",
-      "required_tests": ["Boolean polarity", "observed versus modelled polarity", "local corroboration", "numeric authorization", "rank order", "source-route attribution", "arbitrary attribute isolation", "compiler failure versus data gap", "annotation field rendering", "null arithmetic"]
-    },
-    {
-      "id": "SAT-003",
-      "title": "Synthesis-faithfulness saturation wall",
-      "scope": "saturation-protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "Epoch 017 passed compiler/executor certification while its answer prose systematically contradicted typed results. Every saturation wall and untouched bank must therefore pass a model-free prose/evidence audit over every row; a new synthesis or audit defect retires the epoch exactly like a parser, connector, executor, or scorer change.",
-      "required_tests": ["all-row synthesis audit", "independent polarity scan", "cross-sectional versus temporal difference", "direct comparison answer form", "partial-list disclosure", "scope-gap taxonomy", "freeze includes synthesis audit", "three untouched banks remain prose-clean"]
-    },
-    {
-      "id": "BNCH-002",
-      "title": "Executable pre-contact gold and source-warrant audit",
-      "scope": "benchmark-protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H25 generation used scalar year strings that the connector treated as unbounded while object windows were bounded, and sparse source-census summaries were too weak to adjudicate exact operands. Before checksum freeze, admitted golds should normalize time shape, execute each operand, and record source route, table, unit, observation count, flags, and permitted DataRequest outcomes without contacting the parser under test.",
-      "required_tests": ["time-window normalization", "direct gold execution", "one requested point per exact-year operand", "route and table provenance", "unit compatibility", "source flags", "outcome-class validation", "immutable post-contact gold"]
-    },
-    {
-      "id": "BUG-008",
-      "title": "Upstream source outages are typed evidence gaps",
-      "scope": "connector-executor-answer-boundary",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H26's pre-contact direct-gold audit exhausted bounded Overpass retries and exposed a generic executor error. A transport outage neither proves an empty result nor invalidates a typed plan: it must return a source_unavailable DataRequest, preserve any accumulated provenance, distinguish temporary availability from connector coverage and truncation, and invite retry or a verified alternate source.",
-      "required_tests": ["bounded connector retries exhausted", "source_unavailable DataRequest", "not evidence of absence", "retry or alternate-source instruction", "programming errors remain executor errors", "all-row synthesis audit"]
-    },
-    {
-      "id": "SAT-004",
-      "title": "Tiered practical and hard saturation claims",
-      "scope": "saturation-protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["SAT-001", "SAT-003", "BNCH-002"],
-      "note": "For first-pass exploration across many sectors, a complete broad certification wall plus one parser-blind post-freeze bank of at least 80 rows (or two independently generated banks of at least 40), at least half adversarial and clean on every eligible first-contact gate, may support an explicitly labelled practical-saturation claim. The existing three-consecutive-bank protocol remains hard saturation for second-round LoRA, integration, deployment, or low-residual-failure claims. Any valid change still invalidates the exam, forces absorption and refreeze, and requires a new qualifying bank; the target claim must be selected before holdout contact.",
-      "required_tests": ["claim selected before holdout contact", "practical breadth prerequisites", "one bank at least 80 or two banks at least 40", "at least half adversarial", "major capability-family coverage", "zero eligible change-bearing first-contact failures", "repair forces refreeze and new exam", "report distinguishes practical from hard saturation", "hard three-bank protocol unchanged"]
-    },
-    {
-      "id": "BUG-009",
-      "title": "Shared active-bank identity for certification consumers",
-      "scope": "benchmark-certification-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["BUG-006"],
-      "note": "Coverage, wall, corpus, defect registry, and freeze manifest must consume one exact active-bank authority. Filesystem discovery admitted retired pressure rows and made published counts disagree despite individually valid artifacts.",
-      "required_tests": ["identical bank sets across wall matrix corpus and freeze", "retired holdout exclusion", "raw generator exclusion", "bank-local identity", "freeze fails on consumer disagreement"]
-    },
-    {
-      "id": "BNCH-003",
-      "title": "Gold leaves require literal geography and entity warrant",
-      "scope": "benchmark-protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["BNCH-001", "BNCH-002"],
-      "note": "H27 gold silently chose Argentina for bare Cordoba, Cebu City for bare Cebu, and train station for generic station. Fixed gold leaves must be spoken, uniquely entailed by declared scope, or represented by a typed hole; post-contact clarifications belong only in disclosed development copies.",
-      "required_tests": ["ambiguous place lint", "generic subtype lint", "declared scope entailment", "typed-hole alternative", "immutable post-contact defect retention", "disclosed wording repair"]
-    },
-    {
-      "id": "BUG-010",
-      "title": "Coarse and strict contracts share literal normalization",
-      "scope": "benchmark-scorer-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "note": "H27 was strictly exact but the ordinary answer contract rejected population-density against population density. Approximate contracts may omit detail but must derive separator and literal equivalence from the same canonical authority as strict audit.",
-      "required_tests": ["hyphen whitespace equivalence", "underscore whitespace equivalence", "strict and coarse agreement", "meaning-bearing token difference remains visible", "scorer change resets saturation"]
-    },
-    {
-      "id": "ALG-011",
-      "title": "Full-cardinality RANK canonical identity",
-      "scope": "algebra-canonicalization",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["RANK"],
-      "note": "RANK over N items with k=N has the same denotation as the identical full rank with k absent. Normalize this identity for equality, caching, and answer contracts while retaining provenance; k below N remains meaning-bearing.",
-      "required_tests": ["k equals item count identity", "k below item count distinct", "ordinary strict agreement", "full-list ordering unchanged", "provenance may retain written k"]
-    },
-    {
-      "id": "BUG-011",
-      "title": "Shared renderer and synthesis-audit failure contract",
-      "scope": "answer-truth-boundary",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["BUG-007", "SAT-003"],
-      "note": "The source_unavailable renderer faithfully emitted temporarily unavailable and availability gap, but its mechanical scorer recognized neither and rejected 30 H28 responses. Typed renderers and audits must share reason-code predicates and stock fixtures.",
-      "required_tests": ["every stock renderer passes stock audit", "source outage distinguished from absence", "all failure reason fixtures", "strict and coarse audit agreement", "renderer vocabulary change conformance"]
-    },
-    {
-      "id": "BUG-012",
-      "title": "Repair-pass typed-subexpression and hole preservation",
-      "scope": "compiler-repair-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["BUG-004", "BUG-005"],
-      "note": "H28 and epoch-021 walls showed late repairs deleting valid RELATE or ANNOTATE sources, replacing proximity with distance, and preserving invented self-relations despite explicit unresolved-role language. Repairs must declare writable slots, preserve valid typed children, and give explicit holes precedence over structural completeness.",
-      "required_tests": ["typed child preservation", "explicit hole overrides invented literal", "no self-relation invention", "candidate-local rank closure", "operand-local compare closure", "estimate source composition", "post-repair invariant audit"]
-    },
-    {
-      "id": "ALG-012",
-      "title": "Role-complete operand frames precede composition",
-      "scope": "compiler-algebra-construction-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["BUG-004", "BUG-005", "BUG-012"],
-      "note": "H29 produced 43 strict divergences when outer operations were composed before clause- and candidate-local roles were complete. Compiler implementations must first bind spatial predicate, rank candidate, transfer donor/target, binary quantity, and epistemic-hole frames independently, then compose them without sibling attribute leakage or subtree loss. This adds no v2.1 operation or denotation.",
-      "required_tests": ["ordered spatial predicate frames", "candidate-local rank qualifiers", "country qualifier is not a candidate", "arbitrary Records transfer donor", "two complete binary operands", "epistemic claim dominates available indicator", "bound siblings survive a hole", "complete existing frame is not rebuilt"]
-    },
-    {
-      "id": "ALG-013",
-      "title": "Explicit global reduction from spatial Field to Scalar",
-      "scope": "algebra-expressiveness",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["AGGREGATE", "COMPARE"],
-      "note": "Seven independently audited H30 requests asked for a global total, global spatial mean, density ratio, or comparison of total cardinalities. Frozen v2.1 AGGREGATE by space produces Field and supplies no governed Field-to-Scalar reduction. Add an explicit typed reduction contract rather than silently treating a Field as a Scalar.",
-      "required_tests": ["global count reduction", "global spatial mean", "Field-to-Scalar typing", "two reduced scalars compare", "no implicit scalarization", "empty support behavior", "units and provenance preservation"]
-    },
-    {
-      "id": "ALG-014",
-      "title": "Explicit semantic identity for RANK candidates",
-      "scope": "algebra-rank-output-contract",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["RANK", "ALG-011"],
-      "note": "Five clean H30 breaker patterns rank candidates sharing the same place/entity but differing by time, metric, relation, annotation layer, or composition. Frozen v2.1 derives labels from region/entity and cannot faithfully distinguish the result items. Give each candidate an explicit, question-warranted semantic identity or label with canonical provenance.",
-      "required_tests": ["same entity different year", "same entity different metric", "same entity different relation", "same entity different annotation", "label must be question warranted", "label survives canonicalization", "duplicate identity rejected"]
-    },
-    {
-      "id": "BNCH-004",
-      "title": "Separate expressiveness breakers from scored saturation exams",
-      "scope": "benchmark-admission-protocol",
-      "status": "proposed",
-      "source": "livelihoods_memory/spec-proposals.md",
-      "dependencies": ["BNCH-001", "BNCH-002", "BNCH-003", "SAT-004"],
-      "note": "H30 precontact audit found 28 repairable question/gold warrant defects, 13 rows not faithfully expressible in frozen v2.1, and two duplicates before parser contact. Admission must preserve the raw artifact, apply only reproducible precontact repairs, score only expressible unambiguous rows, and retain non-expressible rows in a separate breaker lane for algebra evolution.",
-      "required_tests": ["raw artifact immutable", "per-row disposition", "reproducible precontact repair", "independent re-audit", "expressibility gate", "breaker retention", "duplicate exclusion", "no parser contact before immutable admission"]
-    }
-  ]
+ "schema_version": "framework-proposals-v1",
+ "proposals": [
+  {
+   "id": "EVD-001",
+   "title": "Connector-declared evidence labels",
+   "scope": "connector-contract",
+   "status": "validated",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroboration": [
+    "transport_memory/spec-proposals.md"
+   ],
+   "resolution": "Connector metadata may label an upstream result observed, modelled, or proxy; SELECT propagates the label without adding a parser op.",
+   "target": "algebra-v2.2",
+   "required_tests": [
+    "connector evidence-label propagation",
+    "default observed compatibility",
+    "provenance reason retained"
+   ]
+  },
+  {
+   "id": "ALG-001",
+   "title": "Positive entity union",
+   "scope": "algebra",
+   "status": "validated",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroboration": [
+    "transport_memory/spec-proposals.md"
+   ],
+   "resolution": "Adopt the common positive case as list-valued SELECT.entity with deterministic union and deduplication; do not imply general intersection or difference.",
+   "target": "algebra-v2.2",
+   "required_tests": [
+    "multi-entity routing",
+    "deduplication",
+    "evidence taint join",
+    "De Morgan negated-union regression"
+   ]
+  },
+  {
+   "id": "ALG-002",
+   "title": "Typed FILTER over records and source dimensions",
+   "scope": "algebra",
+   "status": "accepted-conditional",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroboration": [
+    "transport_memory/spec-proposals.md"
+   ],
+   "dependencies": [
+    "typed connector field declarations"
+   ],
+   "required_tests": [
+    "record attribute predicates",
+    "official-statistic dimensions",
+    "unknown field DataRequest",
+    "predicate type errors",
+    "provenance counts"
+   ],
+   "decision": "decisions/20260716-ALG-contracts.md",
+   "decision_note": "FILTER core accepted; promotion gated on typed connector field declarations; ships in v2.4.0 bundle",
+   "decided": "2026-07-16"
+  },
+  {
+   "id": "ALG-003",
+   "title": "Partitioned GROUP",
+   "scope": "algebra",
+   "status": "rfc-required",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroboration": [
+    "transport_memory/spec-proposals.md"
+   ],
+   "dependencies": [
+    "ALG-002 field resolver",
+    "typed keyed-result contract"
+   ],
+   "required_tests": [
+    "single and multiple group keys",
+    "unit-preserving metrics",
+    "missing partitions",
+    "no implicit flattening"
+   ],
+   "decision": "decisions/20260716-ALG-contracts.md",
+   "decision_note": "need accepted by both reviews; keyed-result representation RFC required (v2.2.1 by:space returns scalar, not keyed Field)",
+   "decided": "2026-07-16"
+  },
+  {
+   "id": "ALG-004",
+   "title": "General record-set intersection and difference",
+   "scope": "algebra",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "record identity contract"
+   ],
+   "note": "The positive union subset is already ALG-001; this proposal covers only semantics not supplied by list-valued SELECT.entity.",
+   "required_tests": [
+    "same-source identity",
+    "cross-source identity refusal",
+    "intersection",
+    "difference",
+    "schema compatibility"
+   ]
+  },
+  {
+   "id": "ALG-005",
+   "title": "Unit-tagged derived arithmetic",
+   "scope": "algebra",
+   "status": "accepted",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroboration": [
+    "transport_memory/spec-proposals.md"
+   ],
+   "dependencies": [
+    "typed units",
+    "grain co-scoping",
+    "alignment rules"
+   ],
+   "required_tests": [
+    "valid derived rate",
+    "scale",
+    "unit mismatch refusal",
+    "grain mismatch refusal",
+    "zero denominator"
+   ],
+   "decision": "decisions/20260716-ALG-contracts.md",
+   "decision_note": "unit/grain/lineage result metadata + fail-closed arithmetic; v2.3.0, executor-only",
+   "decided": "2026-07-16"
+  },
+  {
+   "id": "ALG-006",
+   "title": "Distribution-valued aggregation",
+   "scope": "algebra",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroboration": [
+    "transport_memory/spec-proposals.md"
+   ],
+   "dependencies": [
+    "typed aggregate specification"
+   ],
+   "required_tests": [
+    "median",
+    "quantile",
+    "histogram policy",
+    "null policy",
+    "exact versus approximate provenance"
+   ]
+  },
+  {
+   "id": "ALG-007",
+   "title": "Explicit temporal alignment and vintage",
+   "scope": "algebra",
+   "status": "accepted",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroboration": [
+    "transport_memory/spec-proposals.md"
+   ],
+   "dependencies": [
+    "calendar and frequency metadata"
+   ],
+   "required_tests": [
+    "inner and outer calendar joins",
+    "missingness certificate",
+    "lag",
+    "interpolation refusal/default",
+    "vintage selection"
+   ],
+   "decision": "decisions/20260716-ALG-contracts.md",
+   "decision_note": "temporal alignment contract on Series operands (scalar-window exempt); v2.3.0, executor-only",
+   "decided": "2026-07-16"
+  },
+  {
+   "id": "ALG-008",
+   "title": "Epistemic CORROBORATE or VERIFY",
+   "scope": "claim-layer",
+   "status": "deferred",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "EVD-001",
+    "ALG-005",
+    "ALG-007",
+    "measure-definition compatibility",
+    "lineage metadata"
+   ],
+   "required_tests": [
+    "agreement",
+    "conflict",
+    "incomparable definitions",
+    "shared-lineage non-independence",
+    "tolerance provenance"
+   ],
+   "decision": "decisions/20260716-ALG-contracts.md",
+   "decision_note": "fails open without connector lineage metadata; evidence bar recorded in decision",
+   "decided": "2026-07-16"
+  },
+  {
+   "id": "PLN-001",
+   "title": "Multi-clause completeness",
+   "scope": "dialogue-protocol",
+   "status": "accepted",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroboration": [
+    "transport_memory/spec-proposals.md"
+   ],
+   "note": "Adopt mandatory clause completeness and upstream clause splitting; BUNDLE remains deferred until cross-clause dependencies require it.",
+   "required_tests": [
+    "no silent half-golds",
+    "independent clause split",
+    "dependency detection",
+    "labelled answer completeness"
+   ]
+  },
+  {
+   "id": "ASK-001",
+   "title": "Causal requests remain typed asks",
+   "scope": "protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "resolution_candidate": "Compile causal intent to a typed DataRequest unless a future claim layer carries an explicit identification design; never overload observational COMPARE or ESTIMATE.",
+   "required_tests": [
+    "causal wording detection",
+    "typed treatment/outcome/population/time ask",
+    "no observational causal assertion"
+   ]
+  },
+  {
+   "id": "SAT-001",
+   "title": "Discovery-rate saturation protocol",
+   "scope": "saturation-protocol",
+   "status": "validated",
+   "source": "livelihoods_memory/ROUND2.md",
+   "corroboration": [
+    "transport_memory/ROUND2.md"
+   ],
+   "resolution": "Saturation requires coverage and breaker pressure plus three consecutive post-freeze untouched holdouts of at least 40 rows, a flat discovery curve, complete guards, and immutable checksums.",
+   "target": "discovery-rate-v1",
+   "required_tests": [
+    "freeze invalidation",
+    "holdout provenance",
+    "three-bank sequence",
+    "discovery classification",
+    "corpus leakage audit"
+   ]
+  },
+  {
+   "id": "SAT-002",
+   "title": "Family-level discovery and absorption accounting",
+   "scope": "saturation-protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H20 showed that failing-row count and semantic novelty are different axes. A family closes only after one generalized repair, positive variants, adjacent negative guards, a full-wall regression, and a new untouched-bank contact; reports publish both family and row counts.",
+   "required_tests": [
+    "stable discovery-family taxonomy",
+    "positive surface variants",
+    "adjacent negative semantic guards",
+    "row and family discovery curves",
+    "post-absorption untouched contact"
+   ]
+  },
+  {
+   "id": "BNCH-001",
+   "title": "Pre-contact semantic gold lint gate",
+   "scope": "benchmark-protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H20 admitted two singular-winner RANK golds without k:1 and one density ambiguity. Admission should lint rank cardinality, candidate coverage, distinct operands, complete unsupported phrases, source-gap versus hole status, and requested output form before the immutable checksum.",
+   "required_tests": [
+    "singular winner requires k one",
+    "top N agrees with k",
+    "candidate list completeness",
+    "distinct named operand preservation",
+    "unsupported phrase completeness",
+    "output-form agreement"
+   ]
+  },
+  {
+   "id": "SCR-001",
+   "title": "Output-form-sensitive diagnostic scoring",
+   "scope": "benchmark-scoring",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H20 first contact scored 0.917 coarsely but only 18/40 under strict audit. The diagnostic scorer should distinguish Records, count, presence, density, Series, Scalar, and Ranking including k; strict canonical audit remains the release gate.",
+   "required_tests": [
+    "record versus count mismatch",
+    "count versus presence mismatch",
+    "density versus count mismatch",
+    "ranking cardinality mismatch",
+    "strict audit remains authoritative"
+   ]
+  },
+  {
+   "id": "SRC-002",
+   "title": "Connector-declared annotation-layer admissibility",
+   "scope": "connector-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H21 pre-contact execution showed that arbitrary ANNOTATE layers can return an Answer with absent fields. Connectors should declare field type, unit, coverage, and provider; unsupported or insufficient layers fail closed with a source-gap DataRequest.",
+   "required_tests": [
+    "supported annotation field",
+    "unsupported field refusal",
+    "partial field coverage",
+    "field unit and type",
+    "matched and null row provenance"
+   ]
+  },
+  {
+   "id": "BUG-003",
+   "title": "Fail-closed resolver morphology",
+   "scope": "resolver-semantics",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H21 explicit gig-work platform was falsely routed to craft workshops because work prefix-matched workshop. H23 then showed zero-overlap entity restoration rewriting cold storage to marketplace, while the legacy main-marketplace and coworking-access golds demonstrated unsafe modifier dropping. Replace uncontrolled prefix/subset equality with declared aliases or bounded morphology plus a resolver certificate.",
+   "required_tests": [
+    "declared alias match",
+    "plural and inflection normalization",
+    "cross-lexeme prefix refusal",
+    "restrictive modifier refusal",
+    "zero-overlap restoration refusal",
+    "source-gap prefix adversaries",
+    "resolver certificate provenance"
+   ]
+  },
+  {
+   "id": "ASK-004",
+   "title": "Bounded endpoint-direction versus trend convention",
+   "scope": "protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "resolution_candidate": "From-to event wording such as did X go up/down denotes endpoint CHANGE; progressive or explicit trajectory wording denotes unary TREND; unresolved surfaces are rejected or carry alternative golds.",
+   "required_tests": [
+    "from-to endpoint direction",
+    "progressive bounded trend",
+    "explicit trend wording",
+    "endpoint and slope disagreement",
+    "ambiguous direction admission"
+   ]
+  },
+  {
+   "id": "BUG-001",
+   "title": "Same-quantity guard for temporal COMPARE orientation",
+   "scope": "executor-semantics",
+   "status": "validated",
+   "source": "transport_memory/spec-proposals.md",
+   "corroboration": [
+    "../heartwood/docs/architecture/memory/benchmarks/spec-proposals.md"
+   ],
+   "resolution": "Later-minus-earlier canonicalization applies only when both operands resolve to the same entity or quantity; cross-entity arithmetic preserves written order.",
+   "target": "algebra-v2.2.1",
+   "required_tests": [
+    "same-entity time reversal",
+    "cross-entity differing end-years",
+    "place comparison order"
+   ]
+  },
+  {
+   "id": "BUG-002",
+   "title": "Fail-closed grain co-scoping for arithmetic",
+   "scope": "executor-semantics",
+   "status": "proposed",
+   "source": "transport_memory/spec-proposals.md",
+   "corroboration": [
+    "../heartwood/docs/architecture/memory/benchmarks/spec-proposals.md"
+   ],
+   "note": "Contested remedy: provenance-only disclosure versus a DataRequest on incompatible grains. Not released.",
+   "required_tests": [
+    "city versus country denominator",
+    "compatible country series",
+    "explicit user-approved fallback",
+    "synthesis cannot omit mismatch"
+   ]
+  },
+  {
+   "id": "ALG-009",
+   "title": "Exact series-point selection",
+   "scope": "algebra",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "typed series output",
+    "observation timestamp and vintage metadata"
+   ],
+   "note": "H18 showed that SELECT(time:null) cannot simultaneously mean a whole series and one latest scalar. Candidate surface is PICK or a restricted typed REDUCE.",
+   "required_tests": [
+    "latest scalar",
+    "earliest scalar",
+    "exact as-of",
+    "previous and nearest fallback provenance",
+    "empty series DataRequest",
+    "SELECT null-time series regression"
+   ]
+  },
+  {
+   "id": "ASK-002",
+   "title": "Explicit source gaps are not semantic holes",
+   "scope": "protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "resolution_candidate": "Preserve explicitly requested unsupported literals and return a source-gap DataRequest; reserve holes for unresolved user meaning or references.",
+   "required_tests": [
+    "unsupported explicit entity remains literal",
+    "data request without holes",
+    "ambiguous entity still holes",
+    "missing reference still holes",
+    "source capability named in provenance"
+   ]
+  },
+  {
+   "id": "SRC-001",
+   "title": "Connector-declared temporal admissibility",
+   "scope": "connector-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H19 showed that a current-snapshot record connector can silently accept historical time constraints and manufacture a trend or endpoint comparison. Connectors must declare time semantics and the executor must fail closed when the requested temporal evidence is unavailable.",
+   "required_tests": [
+    "snapshot source rejects historical endpoints",
+    "trend requires time-indexed evidence",
+    "valid-time versus retrieval-time provenance",
+    "historical connector accepts supported range",
+    "missing temporal coverage returns DataRequest"
+   ]
+  },
+  {
+   "id": "ASK-003",
+   "title": "Unbounded scalar change needs an interval policy",
+   "scope": "protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H19 exposed a conflict between absent-time-null series retrieval and a scalar 'how much did X change' request, which requires two endpoints. The framework must choose an explicit available-range convention or a typed interval clarification; benchmark golds must not invent two time holes ad hoc.",
+   "required_tests": [
+    "unbounded scalar change",
+    "explicit endpoint change",
+    "unary trend without dates",
+    "available-range provenance",
+    "interval clarification binding"
+   ]
+  },
+  {
+   "id": "SRC-003",
+   "title": "Explicit scope certificates for native-grain connectors",
+   "scope": "connector-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "corroborates": [
+    "BUG-002"
+   ],
+   "note": "H21 showed that a wrong subnational World Bank operand could execute to the intended national value because the resolver inferred France from a geocoder parent. Native-grain routing must certify the requested scope and fail closed on implicit coarsening.",
+   "required_tests": [
+    "exact country route",
+    "subnational-to-national refusal",
+    "geocoder parent is not consent",
+    "explicit coarsening policy",
+    "cross-grain comparison provenance",
+    "unresolved region returns DataRequest"
+   ]
+  },
+  {
+   "id": "BUG-004",
+   "title": "Recursive hole safety for every value-or-node slot",
+   "scope": "schema-executor-semantics",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H22 encoded an unresolved ESTIMATE target as REGION(place='?place'). The validator inspected target as a leaf but did not walk the REGION, so the unbound placeholder reached geocoding and execution. The spec already requires every nested hole to stop execution; implementations need exhaustive value-or-node traversal tests.",
+   "required_tests": [
+    "scalar target hole",
+    "REGION target hole",
+    "SELECT region hole",
+    "nested time hole",
+    "rank-item hole",
+    "no connector call before unbound refusal"
+   ]
+  },
+  {
+   "id": "EXEC-001",
+   "title": "Declared numeric value binding for record aggregation",
+   "scope": "executor-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H22 showed AGGREGATE(by=space, metric=mean) falling through to row count. RELATE(distance) can declare dist_km as its value column, but general record means require an explicit typed numeric field contract rather than guessing among ids, coordinates, and annotations.",
+   "required_tests": [
+    "mean distance uses dist_km",
+    "mean never falls through to count",
+    "missing numeric value DataRequest",
+    "arbitrary numeric id is not averaged",
+    "typed annotated numeric field",
+    "unit provenance"
+   ]
+  },
+  {
+   "id": "BUG-005",
+   "title": "Frozen IR input-type enforcement",
+   "scope": "schema-executor-semantics",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H24 produced schema-valid trees that fed scalar AGGREGATE outputs into Records-only RELATE/AGGREGATE/ESTIMATE inputs and a non-REGION node into ESTIMATE.target. Validators must enforce every frozen signature before connector execution.",
+   "required_tests": [
+    "Records-only child matrix",
+    "Series-only child matrix",
+    "ESTIMATE target REGION type",
+    "nested valid composition",
+    "invalid tree cannot execute"
+   ]
+  },
+  {
+   "id": "ASK-005",
+   "title": "Constrained typed holes",
+   "scope": "algebra-dialogue-boundary",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H23 focus-city-in-India preserved a known country constraint only by encoding it in an opaque hole name. A typed clarification slot should retain machine-checkable region kind and fixed parent constraints without pretending the place is known.",
+   "required_tests": [
+    "region hole with country constraint",
+    "binding inside constraint",
+    "invalid out-of-scope binding refusal",
+    "clarification rendering",
+    "plain-hole compatibility"
+   ]
+  },
+  {
+   "id": "ALG-010",
+   "title": "Spatial candidate generation and optimization",
+   "scope": "algebra",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "candidate-domain contract",
+    "typed objective measures",
+    "ALG-005"
+   ],
+   "note": "H23 asked where a micro-enterprise should open to maximize foot traffic near informal markets. v2.1 can rank supplied items but cannot generate feasible locations, attach an objective, or express constraints and optimization uncertainty.",
+   "required_tests": [
+    "explicit candidate set optimization",
+    "generated spatial candidates",
+    "objective direction and unit",
+    "hard and soft constraints",
+    "no-evidence DataRequest",
+    "modelled-result label and uncertainty"
+   ]
+  },
+  {
+   "id": "BUG-006",
+   "title": "Bank-scoped corpus admission",
+   "scope": "benchmark-corpus-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "Epoch-017 corpus audit found a superseded H10 proxy trace re-entering training because admission used global question-text membership across immutable holdouts, raw candidates, and active development banks. Admission must require exact active bank, bank-local ID, and current question text, then apply composite defect exclusions.",
+   "required_tests": [
+    "bank-local duplicate IDs",
+    "superseded question text refusal",
+    "immutable holdout trace refusal",
+    "corrected development copy retained",
+    "composite defect exclusion",
+    "unique corpus questions"
+   ]
+  },
+  {
+   "id": "BUG-007",
+   "title": "Typed deterministic answer rendering",
+   "scope": "answer-truth-boundary",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H25 and the 1,196-row historical wall showed that correct typed execution can be contradicted by free-form prose: Boolean inversion, observed/modelled inversion, invented aggregates, rank-direction claims, arbitrary attrs.source promotion, and compiler errors called no-data. Common typed results and failures need deterministic renderers plus fail-closed surface-contract checks.",
+   "required_tests": [
+    "Boolean polarity",
+    "observed versus modelled polarity",
+    "local corroboration",
+    "numeric authorization",
+    "rank order",
+    "source-route attribution",
+    "arbitrary attribute isolation",
+    "compiler failure versus data gap",
+    "annotation field rendering",
+    "null arithmetic"
+   ]
+  },
+  {
+   "id": "SAT-003",
+   "title": "Synthesis-faithfulness saturation wall",
+   "scope": "saturation-protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "Epoch 017 passed compiler/executor certification while its answer prose systematically contradicted typed results. Every saturation wall and untouched bank must therefore pass a model-free prose/evidence audit over every row; a new synthesis or audit defect retires the epoch exactly like a parser, connector, executor, or scorer change.",
+   "required_tests": [
+    "all-row synthesis audit",
+    "independent polarity scan",
+    "cross-sectional versus temporal difference",
+    "direct comparison answer form",
+    "partial-list disclosure",
+    "scope-gap taxonomy",
+    "freeze includes synthesis audit",
+    "three untouched banks remain prose-clean"
+   ]
+  },
+  {
+   "id": "BNCH-002",
+   "title": "Executable pre-contact gold and source-warrant audit",
+   "scope": "benchmark-protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H25 generation used scalar year strings that the connector treated as unbounded while object windows were bounded, and sparse source-census summaries were too weak to adjudicate exact operands. Before checksum freeze, admitted golds should normalize time shape, execute each operand, and record source route, table, unit, observation count, flags, and permitted DataRequest outcomes without contacting the parser under test.",
+   "required_tests": [
+    "time-window normalization",
+    "direct gold execution",
+    "one requested point per exact-year operand",
+    "route and table provenance",
+    "unit compatibility",
+    "source flags",
+    "outcome-class validation",
+    "immutable post-contact gold"
+   ]
+  },
+  {
+   "id": "BUG-008",
+   "title": "Upstream source outages are typed evidence gaps",
+   "scope": "connector-executor-answer-boundary",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H26's pre-contact direct-gold audit exhausted bounded Overpass retries and exposed a generic executor error. A transport outage neither proves an empty result nor invalidates a typed plan: it must return a source_unavailable DataRequest, preserve any accumulated provenance, distinguish temporary availability from connector coverage and truncation, and invite retry or a verified alternate source.",
+   "required_tests": [
+    "bounded connector retries exhausted",
+    "source_unavailable DataRequest",
+    "not evidence of absence",
+    "retry or alternate-source instruction",
+    "programming errors remain executor errors",
+    "all-row synthesis audit"
+   ]
+  },
+  {
+   "id": "SAT-004",
+   "title": "Tiered practical and hard saturation claims",
+   "scope": "saturation-protocol",
+   "status": "validated",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "SAT-001",
+    "SAT-003",
+    "BNCH-002"
+   ],
+   "note": "For first-pass exploration across many sectors, a complete broad certification wall plus one parser-blind post-freeze bank of at least 80 rows (or two independently generated banks of at least 40), at least half adversarial and clean on every eligible first-contact gate, may support an explicitly labelled practical-saturation claim. The existing three-consecutive-bank protocol remains hard saturation for second-round LoRA, integration, deployment, or low-residual-failure claims. Any valid change still invalidates the exam, forces absorption and refreeze, and requires a new qualifying bank; the target claim must be selected before holdout contact.",
+   "required_tests": [
+    "claim selected before holdout contact",
+    "practical breadth prerequisites",
+    "one bank at least 80 or two banks at least 40",
+    "at least half adversarial",
+    "major capability-family coverage",
+    "zero eligible change-bearing first-contact failures",
+    "repair forces refreeze and new exam",
+    "report distinguishes practical from hard saturation",
+    "hard three-bank protocol unchanged"
+   ]
+  },
+  {
+   "id": "BUG-009",
+   "title": "Shared active-bank identity for certification consumers",
+   "scope": "benchmark-certification-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "BUG-006"
+   ],
+   "note": "Coverage, wall, corpus, defect registry, and freeze manifest must consume one exact active-bank authority. Filesystem discovery admitted retired pressure rows and made published counts disagree despite individually valid artifacts.",
+   "required_tests": [
+    "identical bank sets across wall matrix corpus and freeze",
+    "retired holdout exclusion",
+    "raw generator exclusion",
+    "bank-local identity",
+    "freeze fails on consumer disagreement"
+   ]
+  },
+  {
+   "id": "BNCH-003",
+   "title": "Gold leaves require literal geography and entity warrant",
+   "scope": "benchmark-protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "BNCH-001",
+    "BNCH-002"
+   ],
+   "note": "H27 gold silently chose Argentina for bare Cordoba, Cebu City for bare Cebu, and train station for generic station. Fixed gold leaves must be spoken, uniquely entailed by declared scope, or represented by a typed hole; post-contact clarifications belong only in disclosed development copies.",
+   "required_tests": [
+    "ambiguous place lint",
+    "generic subtype lint",
+    "declared scope entailment",
+    "typed-hole alternative",
+    "immutable post-contact defect retention",
+    "disclosed wording repair"
+   ]
+  },
+  {
+   "id": "BUG-010",
+   "title": "Coarse and strict contracts share literal normalization",
+   "scope": "benchmark-scorer-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "note": "H27 was strictly exact but the ordinary answer contract rejected population-density against population density. Approximate contracts may omit detail but must derive separator and literal equivalence from the same canonical authority as strict audit.",
+   "required_tests": [
+    "hyphen whitespace equivalence",
+    "underscore whitespace equivalence",
+    "strict and coarse agreement",
+    "meaning-bearing token difference remains visible",
+    "scorer change resets saturation"
+   ]
+  },
+  {
+   "id": "ALG-011",
+   "title": "Full-cardinality RANK canonical identity",
+   "scope": "algebra-canonicalization",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "RANK"
+   ],
+   "note": "RANK over N items with k=N has the same denotation as the identical full rank with k absent. Normalize this identity for equality, caching, and answer contracts while retaining provenance; k below N remains meaning-bearing.",
+   "required_tests": [
+    "k equals item count identity",
+    "k below item count distinct",
+    "ordinary strict agreement",
+    "full-list ordering unchanged",
+    "provenance may retain written k"
+   ]
+  },
+  {
+   "id": "BUG-011",
+   "title": "Shared renderer and synthesis-audit failure contract",
+   "scope": "answer-truth-boundary",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "BUG-007",
+    "SAT-003"
+   ],
+   "note": "The source_unavailable renderer faithfully emitted temporarily unavailable and availability gap, but its mechanical scorer recognized neither and rejected 30 H28 responses. Typed renderers and audits must share reason-code predicates and stock fixtures.",
+   "required_tests": [
+    "every stock renderer passes stock audit",
+    "source outage distinguished from absence",
+    "all failure reason fixtures",
+    "strict and coarse audit agreement",
+    "renderer vocabulary change conformance"
+   ]
+  },
+  {
+   "id": "BUG-012",
+   "title": "Repair-pass typed-subexpression and hole preservation",
+   "scope": "compiler-repair-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "BUG-004",
+    "BUG-005"
+   ],
+   "note": "H28 and epoch-021 walls showed late repairs deleting valid RELATE or ANNOTATE sources, replacing proximity with distance, and preserving invented self-relations despite explicit unresolved-role language. Repairs must declare writable slots, preserve valid typed children, and give explicit holes precedence over structural completeness.",
+   "required_tests": [
+    "typed child preservation",
+    "explicit hole overrides invented literal",
+    "no self-relation invention",
+    "candidate-local rank closure",
+    "operand-local compare closure",
+    "estimate source composition",
+    "post-repair invariant audit"
+   ]
+  },
+  {
+   "id": "ALG-012",
+   "title": "Role-complete operand frames precede composition",
+   "scope": "compiler-algebra-construction-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "BUG-004",
+    "BUG-005",
+    "BUG-012"
+   ],
+   "note": "H29 produced 43 strict divergences when outer operations were composed before clause- and candidate-local roles were complete. Compiler implementations must first bind spatial predicate, rank candidate, transfer donor/target, binary quantity, and epistemic-hole frames independently, then compose them without sibling attribute leakage or subtree loss. This adds no v2.1 operation or denotation.",
+   "required_tests": [
+    "ordered spatial predicate frames",
+    "candidate-local rank qualifiers",
+    "country qualifier is not a candidate",
+    "arbitrary Records transfer donor",
+    "two complete binary operands",
+    "epistemic claim dominates available indicator",
+    "bound siblings survive a hole",
+    "complete existing frame is not rebuilt"
+   ]
+  },
+  {
+   "id": "ALG-013",
+   "title": "Explicit global reduction from spatial Field to Scalar",
+   "scope": "algebra-expressiveness",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "AGGREGATE",
+    "COMPARE"
+   ],
+   "note": "Seven independently audited H30 requests asked for a global total, global spatial mean, density ratio, or comparison of total cardinalities. Frozen v2.1 AGGREGATE by space produces Field and supplies no governed Field-to-Scalar reduction. Add an explicit typed reduction contract rather than silently treating a Field as a Scalar.",
+   "required_tests": [
+    "global count reduction",
+    "global spatial mean",
+    "Field-to-Scalar typing",
+    "two reduced scalars compare",
+    "no implicit scalarization",
+    "empty support behavior",
+    "units and provenance preservation"
+   ]
+  },
+  {
+   "id": "ALG-014",
+   "title": "Explicit semantic identity for RANK candidates",
+   "scope": "algebra-rank-output-contract",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "RANK",
+    "ALG-011"
+   ],
+   "note": "Five clean H30 breaker patterns rank candidates sharing the same place/entity but differing by time, metric, relation, annotation layer, or composition. Frozen v2.1 derives labels from region/entity and cannot faithfully distinguish the result items. Give each candidate an explicit, question-warranted semantic identity or label with canonical provenance.",
+   "required_tests": [
+    "same entity different year",
+    "same entity different metric",
+    "same entity different relation",
+    "same entity different annotation",
+    "label must be question warranted",
+    "label survives canonicalization",
+    "duplicate identity rejected"
+   ]
+  },
+  {
+   "id": "BNCH-004",
+   "title": "Separate expressiveness breakers from scored saturation exams",
+   "scope": "benchmark-admission-protocol",
+   "status": "proposed",
+   "source": "livelihoods_memory/spec-proposals.md",
+   "dependencies": [
+    "BNCH-001",
+    "BNCH-002",
+    "BNCH-003",
+    "SAT-004"
+   ],
+   "note": "H30 precontact audit found 28 repairable question/gold warrant defects, 13 rows not faithfully expressible in frozen v2.1, and two duplicates before parser contact. Admission must preserve the raw artifact, apply only reproducible precontact repairs, score only expressible unambiguous rows, and retain non-expressible rows in a separate breaker lane for algebra evolution.",
+   "required_tests": [
+    "raw artifact immutable",
+    "per-row disposition",
+    "reproducible precontact repair",
+    "independent re-audit",
+    "expressibility gate",
+    "breaker retention",
+    "duplicate exclusion",
+    "no parser contact before immutable admission"
+   ]
+  }
+ ]
 }
