@@ -9,7 +9,9 @@ import argparse, json, os, re, subprocess, sys, time, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARMS = {"A-2B": ("loravb", "loravb"), "A-9B": ("lora9b", "lora9b"),
-        "A-DS": ("deepseek/deepseek-chat-v4", "dsv4")}
+        "A-2B-ctx": ("loravb", "loravb"), "A-9B-ctx": ("lora9b", "lora9b"),
+        "A-DS": ("deepseek/deepseek-v4-flash", "dsv4")}
+DIGEST = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "persona", "digest.txt")).read()
 OR_KEY = os.environ.get("OPENROUTER_API_KEY") or subprocess.run(
     ["docker", "exec", "hermes-live", "sh", "-c", "printenv OPENROUTER_API_KEY"],
     capture_output=True, text=True).stdout.strip()
@@ -26,13 +28,13 @@ TURN1 = ("I want you to help me understand my own district for NGO work. First r
          "there, but tell me like I'm mapping it for livelihoods work.")
 
 def phrase(goal, prev_answer):
-    body = {"model": "deepseek/deepseek-chat-v4", "max_tokens": 120, "temperature": 0.7,
-            "messages": [{"role": "user", "content":
-                "You are Meena, 34, NGO program associate from Erode (Indian English, terse, "
-                "warm). The assistant just said:\n---\n" + prev_answer[-600:] + "\n---\n"
-                "Write ONLY your next chat message (1-2 sentences): first react to something "
-                "concrete it said (agree/doubt/pick at it), then ask about: " + goal +
-                "\nDo not add quotes or labels.")}]}
+    content = ("You are Meena, 34, NGO program associate from Erode (Indian English, terse, "
+               "warm). The assistant just said:\n---\n" + prev_answer[-600:] + "\n---\n"
+               "Write ONLY your next chat message (1-2 sentences): first react to something "
+               "concrete it said (agree/doubt/pick at it), then ask about: " + goal +
+               "\nDo not add quotes or labels.")
+    body = {"model": "deepseek/deepseek-v4-flash", "max_tokens": 900, "temperature": 0.7,
+            "messages": [{"role": "user", "content": content}]}
     req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
                                  json.dumps(body).encode(),
                                  {"Content-Type": "application/json",
@@ -45,11 +47,26 @@ def phrase(goal, prev_answer):
             time.sleep(5); err = e
     raise SystemExit(f"phraser failed: {err}")
 
-def ask_hermes(text, session, model, provider):
+def pack_text():
+    import subprocess as sp
+    return sp.run(["docker", "exec", "hermes-live", "sh", "-c",
+                   "for f in /opt/data/livelihoods_erode/*.json; do echo \"=== $f\"; cat $f; done; echo '=== GAPS.md'; cat /opt/data/livelihoods_erode/GAPS.md"],
+                  capture_output=True, text=True).stdout
+
+CTX_PREAMBLE = ("I want you to help me understand my district for NGO work. Below is our ENTIRE "
+    "verified data pack about Erode livelihoods. Rules for the whole conversation: real numbers "
+    "ONLY from this pack, each with its source label in-line; anything not in the pack is either "
+    "a labeled estimate (state your one-line basis) or unknown — and when it matters, tell me "
+    "exactly what data to collect (a DATA REQUEST). Never invent a number. Talk like a "
+    "knowledgeable local colleague, 1-3 short paragraphs.\n\n--- DATA PACK START\n%s\n--- DATA "
+    "PACK END\n\nNow: tell me about Erode — I'm from there, but tell me like I'm mapping it "
+    "for livelihoods work.")
+
+def ask_hermes(text, session, model, provider, toolset="terminal,file,code_execution,clarify", home="/opt/data/bench_home"):
     cmd = ["docker", "exec", "hermes-live", "sh", "-c",
-           "cd /opt/data && timeout 900 hermes -z " + json.dumps(text) +
-           f" -m {json.dumps(model)} --provider {provider} --continue {session} 2>/dev/null"]
-    p = subprocess.run(cmd, capture_output=True, text=True, timeout=960)
+           (f"cd {home} && HOME={home} HERMES_HOME={home} timeout 1800 hermes -z ") + json.dumps(text) +
+           f" -m {json.dumps(model)} --provider {provider} -t {toolset} --continue {session} 2>/dev/null"]
+    p = subprocess.run(cmd, capture_output=True, text=True, timeout=1860)
     return (p.stdout or "").strip() or "[NO OUTPUT — hermes error: " + (p.stderr or "")[-300:] + "]"
 
 def main():
@@ -59,6 +76,7 @@ def main():
     ap.add_argument("--turns", type=int, default=14)
     a = ap.parse_args()
     model, provider = ARMS[a.arm]
+    is_ctx = a.arm.endswith("-ctx")
     outdir = os.path.join(HERE, "transcripts", a.round)
     os.makedirs(outdir, exist_ok=True)
     path = os.path.join(outdir, a.arm + ".md")
@@ -75,9 +93,13 @@ def main():
                     f"session={session} model={model} provider={provider} "
                     f"started={time.strftime('%F %T')}\n\n")
         for i in range(done, min(a.turns, len(ARC))):
-            q = TURN1 if i == 0 else phrase(ARC[i], prev)
+            q = (CTX_PREAMBLE % pack_text() if is_ctx else TURN1) if i == 0 else phrase(ARC[i], prev)
+            if is_ctx and i > 0:
+                q = q + "\n\n[" + DIGEST + "]"
             t0 = time.time()
-            ans = ask_hermes(q, session, model, provider)
+            ans = ask_hermes(q, session, model, provider,
+                             toolset="clarify" if is_ctx else "terminal,file,code_execution,clarify",
+                             home="/opt/data/bench_home_ctx" if is_ctx else "/opt/data/bench_home")
             f.write(f"## Turn {i+1} — {ARC[i][:60]}\n### Meena\n{q}\n\n"
                     f"### Hermes\n{ans}\n\n_(latency {time.time()-t0:.0f}s)_\n\n")
             f.flush()

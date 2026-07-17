@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""edata -- tiny CLI over the Erode livelihoods data pack (JSON files in this dir).
+Usage: edata list | edata get <name> | edata grep <term>
+"""
+import json, os, sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+
+def datasets():
+    for fn in sorted(os.listdir(HERE)):
+        if fn.endswith(".json"):
+            try:
+                with open(os.path.join(HERE, fn)) as f:
+                    yield fn[:-5], json.load(f)
+            except (json.JSONDecodeError, OSError):
+                continue
+
+
+def cmd_list():
+    for name, data in datasets():
+        print(f"{name}: {data.get('description', '(no description)')}")
+
+
+def cmd_get(name):
+    for n, data in datasets():
+        if n == name:
+            print(json.dumps(data, indent=2, ensure_ascii=False))
+            return
+    sys.exit(f"no such dataset: {name}")
+
+
+def cmd_grep(term):
+    term, hits = term.lower(), 0
+    for name, data in datasets():
+        default_src = data.get("source_title") or data.get("source_url") or ""
+        for rec in data.get("records", []):
+            if term in json.dumps(rec, ensure_ascii=False).lower():
+                hits += 1
+                print(f"--- [{name}] source: {rec.get('source_url', default_src)}")
+                print(json.dumps(rec, indent=2, ensure_ascii=False))
+    if not hits:
+        print(f"no matches for: {term}")
+
+
+def main():
+    cmd, rest = (sys.argv[1:2] or [None])[0], sys.argv[2:]
+    if cmd == "list":
+        cmd_list()
+    elif cmd == "get" and rest:
+        cmd_get(rest[0])
+    elif cmd == "grep" and rest:
+        cmd_grep(" ".join(rest))
+    else:
+        sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()
