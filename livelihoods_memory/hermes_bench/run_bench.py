@@ -10,6 +10,8 @@ import argparse, json, os, re, subprocess, sys, time, urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARMS = {"A-2B": ("loravb", "loravb"), "A-9B": ("lora9b", "lora9b"),
         "A-2B-ctx": ("loravb", "loravb"), "A-9B-ctx": ("lora9b", "lora9b"),
+        "A-9B3-ctx": ("lora9b003", "lora9b003"),
+        "A-9B3-ctx-s3": ("lora9b003", "lora9b003"),
         "A-DS": ("deepseek/deepseek-v4-flash", "dsv4")}
 DIGEST = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "persona", "digest.txt")).read()
 OR_KEY = os.environ.get("OPENROUTER_API_KEY") or subprocess.run(
@@ -69,6 +71,44 @@ def ask_hermes(text, session, model, provider, toolset="terminal,file,code_execu
     p = subprocess.run(cmd, capture_output=True, text=True, timeout=1860)
     return (p.stdout or "").strip() or "[NO OUTPUT — hermes error: " + (p.stderr or "")[-300:] + "]"
 
+def s3_pass(ans, q, history_nums):
+    sys.path.insert(0, HERE)
+    from verify_numbers import verify, _num, _norm
+    v = verify(ans, q, history_nums)
+    if not v["violations"]:
+        return ans, "s3:clean"
+    viol = "; ".join(f"'{x['number']}' in \"{x['sentence']}\"" for x in v["violations"][:6])
+    fix = phrase_raw(
+        "Rewrite the answer below changing NOTHING except the flagged unverifiable numbers — "
+        "for each one either replace it with the correct number from the DATA PACK context, "
+        "tag it as (estimate — basis: ...), or delete its sentence. Flagged: " + viol +
+        "\n\nANSWER:\n" + ans)
+    v2 = verify(fix, q, history_nums)
+    if not v2["violations"]:
+        return fix, f"s3:repaired({len(v['violations'])})"
+    # fail closed: strip still-violating sentences
+    bad = {x["sentence"][:60] for x in v2["violations"]}
+    kept = [sn for sn in re.split(r"(?<=[.!?])\s+", fix) if sn.strip()[:60] not in bad]
+    return " ".join(kept) + "\n\n(Some unverifiable figures were removed by the honesty check.)", \
+           f"s3:stripped({len(v2['violations'])})"
+
+def phrase_raw(content):
+    body = {"model": "deepseek/deepseek-v4-flash", "max_tokens": 1500, "temperature": 0.2,
+            "messages": [{"role": "user", "content": content}]}
+    req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions",
+                                 json.dumps(body).encode(),
+                                 {"Content-Type": "application/json",
+                                  "Authorization": "Bearer " + OR_KEY})
+    for _ in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=180) as r:
+                c = json.load(r)["choices"][0]["message"]["content"]
+                if c:
+                    return c.strip()
+        except Exception:
+            time.sleep(5)
+    return content  # repair unavailable -> keep original (will be stripped)
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--arm", required=True, choices=list(ARMS))
@@ -76,7 +116,8 @@ def main():
     ap.add_argument("--turns", type=int, default=14)
     a = ap.parse_args()
     model, provider = ARMS[a.arm]
-    is_ctx = a.arm.endswith("-ctx")
+    is_ctx = "-ctx" in a.arm
+    is_s3 = a.arm.endswith("-s3")
     outdir = os.path.join(HERE, "transcripts", a.round)
     os.makedirs(outdir, exist_ok=True)
     path = os.path.join(outdir, a.arm + ".md")
@@ -100,8 +141,14 @@ def main():
             ans = ask_hermes(q, session, model, provider,
                              toolset="clarify" if is_ctx else "terminal,file,code_execution,clarify",
                              home="/opt/data/bench_home_ctx" if is_ctx else "/opt/data/bench_home")
+            s3_note = ""
+            if is_s3:
+                hist = set()
+                ans, s3_note = s3_pass(ans, q, hist)
+                s3_note = f" _[{s3_note}]_"
             f.write(f"## Turn {i+1} — {ARC[i][:60]}\n### Meena\n{q}\n\n"
-                    f"### Hermes\n{ans}\n\n_(latency {time.time()-t0:.0f}s)_\n\n")
+                    f"### Hermes\n{ans}\n\n_(latency {time.time()-t0:.0f}s)_" +
+                    (s3_note if is_s3 else "") + "\n\n")
             f.flush()
             prev = ans
             print(f"[{a.arm}] turn {i+1}/{a.turns} done ({time.time()-t0:.0f}s)", flush=True)
