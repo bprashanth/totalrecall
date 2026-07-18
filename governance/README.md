@@ -16,9 +16,10 @@ framework behavior merely because a sector harness implemented a workaround.
    `implemented` or `validated`.
 6. `framework-manifest.json` names the stable algebra and saturation protocol copied by bootstrap.
 
-Allowed proposal states are `proposed`, `deferred`, `rejected`, `accepted`, `implemented`, and
-`validated`. Only `validated` changes belong in a released bootstrap manifest. Reviews use
-`accept`, `accept-partial`, `defer`, or `reject`.
+Allowed proposal states are `proposed`, `deferred`, `rejected`, `accepted`,
+`accepted-conditional`, `rfc-required`, `implemented`, and `validated`. Conditional acceptance and
+RFC-required status are decision records, not release states. Only `validated` changes belong in a
+released bootstrap manifest. Reviews use `accept`, `accept-partial`, `defer`, or `reject`.
 
 ## Snapshot rule
 

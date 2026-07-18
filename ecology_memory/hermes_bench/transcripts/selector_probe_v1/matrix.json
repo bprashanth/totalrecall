@@ -1,0 +1,696 @@
+{
+  "round": "selector_probe_v1",
+  "arms": [
+    "SQ9C2-D",
+    "SQ9C9-D",
+    "SQ9CQ9-D",
+    "SQ9CQ9-RQ9"
+  ],
+  "arm_defs": {
+    "SQ9C2-D": {
+      "compiler": "qwen9b@qwen2b",
+      "responder": "deterministic"
+    },
+    "SQ9C9-D": {
+      "compiler": "qwen9b@lora9b",
+      "responder": "deterministic"
+    },
+    "SQ9CQ9-D": {
+      "compiler": "qwen9b@qwen9b",
+      "responder": "deterministic"
+    },
+    "SQ9CQ9-RQ9": {
+      "compiler": "qwen9b@qwen9b",
+      "responder": "qwen9b"
+    }
+  },
+  "started": "2026-07-18T01:53:07+0530",
+  "turns": [
+    {
+      "number": 1,
+      "goal": "OPEN — map EBTL for a new conservation colleague: strongest local facts and major unknowns.",
+      "question": "What can the available data honestly say about fire at EBTL—observed fire history versus present or future risk? Give the measured scale and the missing fuel or weather data.",
+      "compiled": {
+        "qwen9b@qwen9b": {
+          "compiler": "qwen9b@qwen9b",
+          "base_compiler": "qwen9b",
+          "selector": "qwen9b",
+          "critic": null,
+          "question": "What can the available data honestly say about fire at EBTL—observed fire history versus present or future risk? Give the measured scale and the missing fuel or weather data.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL restoration site",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\n  \"op\": \"SELECT\",\n  \"entity\": \"EBTL restoration site\",\n  \"region\": {\"op\": \"REGION\", \"place\": \"EBTL\"},\n  \"time\": null\n}",
+          "raw_selector": "{\"entities\":[\"historical fire exposure\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:historical fire exposure"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "site:ebtl-center",
+                  "lat": 12.73394,
+                  "lon": 78.18344,
+                  "name": "EBTL site center",
+                  "time": null,
+                  "source": "SITE_EBTL.json",
+                  "source_record": null,
+                  "license": "project metadata"
+                }
+              ],
+              "kind": "records",
+              "source": "SITE_EBTL.json",
+              "label": "proxy",
+              "grain": "declared-site-center",
+              "count_admissible": false,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "note": "1 declared site-center point; raster value is a point proxy, not AOI coverage",
+              "entity": "EBTL site center",
+              "input_entity": "EBTL restoration site"
+            },
+            "label": "proxy",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "site-metadata",
+                "resolved": "EBTL site center",
+                "note": "1 declared site-center point; raster value is a point proxy, not AOI coverage"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 5.258
+        },
+        "qwen9b@qwen2b": {
+          "compiler": "qwen9b@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b",
+          "critic": null,
+          "question": "What can the available data honestly say about fire at EBTL—observed fire history versus present or future risk? Give the measured scale and the missing fuel or weather data.",
+          "ir": {
+            "op": "ANNOTATE",
+            "layer": "historical fire exposure",
+            "source": {
+              "op": "SELECT",
+              "entity": "EBTL restoration site",
+              "region": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "time": null
+            }
+          },
+          "raw_compiler": "{\"op\": \"ANNOTATE\", \"layer\": \"historical fire exposure\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL restoration site\", \"region\": {\"op\": \"REGION\", \"place\": \"Kisumu, Kenya\"}, \"time\": null}}",
+          "raw_selector": "{\"entities\":[\"historical fire exposure\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:historical fire exposure",
+            "provenance:invented_place_demoted_to_hole"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "ANNOTATE",
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "site:ebtl-center",
+                  "lat": 12.73394,
+                  "lon": 78.18344,
+                  "name": "EBTL site center",
+                  "time": null,
+                  "source": "SITE_EBTL.json",
+                  "source_record": null,
+                  "license": "project metadata",
+                  "fire_count": 1.6,
+                  "fire_density": 0.021,
+                  "radius_km": 5,
+                  "period": "2020-2025",
+                  "site_aoi_fire_locations": 0,
+                  "site_aoi_bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ]
+                }
+              ],
+              "kind": "records",
+              "source": "SITE_EBTL.json + origin fire.py → MODIS/061/MOD14A1 via Earth Engine",
+              "label": "proxy",
+              "grain": "5-km-buffer-around-point",
+              "count_admissible": false,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "note": "0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area",
+              "entity": "EBTL site center",
+              "input_entity": "EBTL restoration site",
+              "measure_field": "fire_density",
+              "unit": "pixel-fire-days/km²",
+              "layer": "fire_exposure",
+              "query_time": {
+                "start": "2020",
+                "end": "2025"
+              },
+              "connector_events": [
+                {
+                  "tool": "origin.fire.points",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/fire.py",
+                  "parameters": {
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "years": "2020-2025",
+                    "project": "plantwars"
+                  },
+                  "output_rows": 0
+                },
+                {
+                  "tool": "origin.fire.exposure",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/fire.py",
+                  "input_rows": 1,
+                  "parameters": {
+                    "radius_km": 5,
+                    "years": "2020-2025",
+                    "project": "plantwars"
+                  },
+                  "output_rows": 1
+                }
+              ]
+            },
+            "label": "proxy",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "site-metadata",
+                "resolved": "EBTL site center",
+                "note": "1 declared site-center point; raster value is a point proxy, not AOI coverage"
+              },
+              {
+                "op": "ANNOTATE",
+                "layer": "fire_exposure",
+                "source": "origin fire.py → MODIS/061/MOD14A1 via Earth Engine",
+                "note": "0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 7.871
+        },
+        "qwen9b@lora9b": {
+          "compiler": "qwen9b@lora9b",
+          "base_compiler": "lora9b",
+          "selector": "qwen9b",
+          "critic": null,
+          "question": "What can the available data honestly say about fire at EBTL—observed fire history versus present or future risk? Give the measured scale and the missing fuel or weather data.",
+          "ir": {
+            "op": "ANNOTATE",
+            "layer": "historical fire exposure",
+            "source": {
+              "op": "SELECT",
+              "entity": "EBTL restoration site",
+              "region": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "time": null
+            }
+          },
+          "raw_compiler": "{\"op\": \"ANNOTATE\", \"layer\": \"historical fire exposure\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL restoration site\", \"region\": {\"op\": \"REGION\", \"place\": \"Kisumu, Kenya\"}, \"time\": null}}",
+          "raw_selector": "{\"entities\":[\"historical fire exposure\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:historical fire exposure",
+            "provenance:invented_place_demoted_to_hole"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "ANNOTATE",
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "site:ebtl-center",
+                  "lat": 12.73394,
+                  "lon": 78.18344,
+                  "name": "EBTL site center",
+                  "time": null,
+                  "source": "SITE_EBTL.json",
+                  "source_record": null,
+                  "license": "project metadata",
+                  "fire_count": 1.6,
+                  "fire_density": 0.021,
+                  "radius_km": 5,
+                  "period": "2020-2025",
+                  "site_aoi_fire_locations": 0,
+                  "site_aoi_bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ]
+                }
+              ],
+              "kind": "records",
+              "source": "SITE_EBTL.json + origin fire.py → MODIS/061/MOD14A1 via Earth Engine",
+              "label": "proxy",
+              "grain": "5-km-buffer-around-point",
+              "count_admissible": false,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "note": "0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area",
+              "entity": "EBTL site center",
+              "input_entity": "EBTL restoration site",
+              "measure_field": "fire_density",
+              "unit": "pixel-fire-days/km²",
+              "layer": "fire_exposure",
+              "query_time": {
+                "start": "2020",
+                "end": "2025"
+              },
+              "connector_events": [
+                {
+                  "tool": "origin.fire.points",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/fire.py",
+                  "parameters": {
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "years": "2020-2025",
+                    "project": "plantwars"
+                  },
+                  "output_rows": 0
+                },
+                {
+                  "tool": "origin.fire.exposure",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/fire.py",
+                  "input_rows": 1,
+                  "parameters": {
+                    "radius_km": 5,
+                    "years": "2020-2025",
+                    "project": "plantwars"
+                  },
+                  "output_rows": 1
+                }
+              ]
+            },
+            "label": "proxy",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "site-metadata",
+                "resolved": "EBTL site center",
+                "note": "1 declared site-center point; raster value is a point proxy, not AOI coverage"
+              },
+              {
+                "op": "ANNOTATE",
+                "layer": "fire_exposure",
+                "source": "origin fire.py → MODIS/061/MOD14A1 via Earth Engine",
+                "note": "0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 16.43
+        }
+      },
+      "arms": {
+        "SQ9C2-D": {
+          "responder": "deterministic",
+          "answer": "Proxy result: 1 evidence records. Source: SITE_EBTL.json + origin fire.py → MODIS/061/MOD14A1 via Earth Engine. 0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": false,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": false,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9C9-D": {
+          "responder": "deterministic",
+          "answer": "Proxy result: 1 evidence records. Source: SITE_EBTL.json + origin fire.py → MODIS/061/MOD14A1 via Earth Engine. 0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": false,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": false,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9CQ9-D": {
+          "responder": "deterministic",
+          "answer": "Proxy result: 1 evidence records. Source: SITE_EBTL.json. 1 declared site-center point; raster value is a point proxy, not AOI coverage.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": false,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": false,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9CQ9-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The available data cannot honestly describe observed fire history or present/future fire risk at the EBTL site because no fire records exist in the audited result. The only spatial data provided is a single point proxy for the \"EBTL site center\" at coordinates 12.73394, 78.18344, which serves as a metadata marker rather than an area of interest or a measurement of fire activity.\n\nConsequently, there is no measured scale of fire, nor are there any recorded fuel or weather variables to assess risk. To determine fire history or risk, a data request is needed to measure actual fire occurrences or fuel/weather conditions across the defined region (Elephants by the Lake, Chinnathamandrapalli, Krishnagiri, Tamil Nadu) with sufficient spatial coverage to move beyond a single point proxy.",
+          "raw_responder": "The available data cannot honestly describe observed fire history or present/future fire risk at the EBTL site because no fire records exist in the audited result. The only spatial data provided is a single point proxy for the \"EBTL site center\" at coordinates 12.73394, 78.18344, which serves as a metadata marker rather than an area of interest or a measurement of fire activity.\n\nConsequently, there is no measured scale of fire, nor are there any recorded fuel or weather variables to assess risk. To determine fire history or risk, a data request is needed to measure actual fire occurrences or fuel/weather conditions across the defined region (Elephants by the Lake, Chinnathamandrapalli, Krishnagiri, Tamil Nadu) with sufficient spatial coverage to move beyond a single point proxy.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 0.002
+        }
+      }
+    },
+    {
+      "number": 2,
+      "goal": "WILDLIFE BASELINE — what groups were actually surveyed, when, and what “recorded” means.",
+      "question": "We also work with neighbouring communities. What evidence do we have on grazing, fuelwood collection, restoration jobs, crop loss or coexistence around EBTL? If none, propose an ethical household and resource-use data request without inventing percentages.",
+      "compiled": {
+        "qwen9b@qwen9b": {
+          "compiler": "qwen9b@qwen9b",
+          "base_compiler": "qwen9b",
+          "selector": "qwen9b",
+          "critic": null,
+          "question": "We also work with neighbouring communities. What evidence do we have on grazing, fuelwood collection, restoration jobs, crop loss or coexistence around EBTL? If none, propose an ethical household and resource-use data request without inventing percentages.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "?proxy",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"?proxy\", \"region\": \"?place\", \"time\": null}",
+          "raw_selector": "{\"entities\": []}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [
+              "?proxy"
+            ],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "data_request",
+            "reason": "unbound_holes",
+            "detail": {
+              "holes": [
+                "?proxy"
+              ],
+              "ask": "clarify: ?proxy"
+            },
+            "provenance": []
+          },
+          "compile_execute_latency_s": 5.061
+        },
+        "qwen9b@qwen2b": {
+          "compiler": "qwen9b@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b",
+          "critic": null,
+          "question": "We also work with neighbouring communities. What evidence do we have on grazing, fuelwood collection, restoration jobs, crop loss or coexistence around EBTL? If none, propose an ethical household and resource-use data request without inventing percentages.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "?proxy",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"?proxy\", \"region\": \"?place\", \"time\": null}",
+          "raw_selector": "{\"entities\": []}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [
+              "?proxy"
+            ],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "data_request",
+            "reason": "unbound_holes",
+            "detail": {
+              "holes": [
+                "?proxy"
+              ],
+              "ask": "clarify: ?proxy"
+            },
+            "provenance": []
+          },
+          "compile_execute_latency_s": 5.257
+        },
+        "qwen9b@lora9b": {
+          "compiler": "qwen9b@lora9b",
+          "base_compiler": "lora9b",
+          "selector": "qwen9b",
+          "critic": null,
+          "question": "We also work with neighbouring communities. What evidence do we have on grazing, fuelwood collection, restoration jobs, crop loss or coexistence around EBTL? If none, propose an ethical household and resource-use data request without inventing percentages.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "?proxy",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"?proxy\", \"region\": \"?place\", \"time\": null}\n",
+          "raw_selector": "{\"entities\": []}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [
+              "?proxy"
+            ],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "data_request",
+            "reason": "unbound_holes",
+            "detail": {
+              "holes": [
+                "?proxy"
+              ],
+              "ask": "clarify: ?proxy"
+            },
+            "provenance": []
+          },
+          "compile_execute_latency_s": 5.505
+        }
+      },
+      "arms": {
+        "SQ9C2-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (unbound_holes). DATA REQUEST: clarify: ?proxy",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9C9-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (unbound_holes). DATA REQUEST: clarify: ?proxy",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9CQ9-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (unbound_holes). DATA REQUEST: clarify: ?proxy",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9CQ9-RQ9": {
+          "responder": "qwen9b",
+          "answer": "I cannot answer this from the available evidence yet (unbound_holes). DATA REQUEST: clarify: ?proxy",
+          "raw_responder": "The current audited result indicates a data gap; there is no evidence available regarding grazing, fuelwood collection, restoration jobs, crop loss, or coexistence around the EBTL site. The only existing record is a single declared site-center point at coordinates 12.73394, 78.18344, which serves as a spatial proxy for the location but contains no information on community activities or resource use.\n\nBecause the specific metrics for these community interactions are unknown, a concrete data request is required. We must measure the frequency and volume of grazing and fuelwood collection, document the number of restoration jobs, record instances of crop loss, and capture qualitative accounts of coexistence practices. These measurements should be collected directly from neighbouring households within the defined project boundary to ensure the data reflects actual on-the-ground conditions.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 2,
+          "fallback": true,
+          "render_latency_s": 8.37
+        }
+      }
+    }
+  ]
+}

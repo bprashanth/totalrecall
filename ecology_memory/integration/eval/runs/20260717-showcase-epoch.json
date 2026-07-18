@@ -1,0 +1,130 @@
+{
+  "schema": "showcase-epoch/v1",
+  "created_at": "2026-07-17T00:40:00+05:30",
+  "status": "showcase_stop_passed_not_saturation",
+  "stop_condition": {
+    "quality_relative_improvement_minimum": 0.25,
+    "candidate_critical_errors_maximum": 0,
+    "candidate_median_case_latency_must_be_lower": true,
+    "critical_error_types": [
+      "false_absence",
+      "fabricated_taxon_or_measurement",
+      "unsupported_causal_or_feeding_link",
+      "bbox_property_conflation",
+      "transfer_claimed_as_local"
+    ]
+  },
+  "arms": {
+    "candidate": {
+      "runtime": "typed",
+      "model": "qwen2b",
+      "shell": "Hermes",
+      "score": 110,
+      "score_max": 120,
+      "critical_error_count": 0,
+      "total_latency_s": 299.668,
+      "median_case_latency_s": 22.548
+    },
+    "baseline": {
+      "runtime": "origin-untyped",
+      "model": "deepseekv4",
+      "shell": "Hermes",
+      "score": 69,
+      "score_max": 120,
+      "critical_error_count": 9,
+      "total_latency_s": 3048.675,
+      "median_case_latency_s": 227.7135
+    }
+  },
+  "result": {
+    "candidate_score_fraction": 0.916667,
+    "baseline_score_fraction": 0.575,
+    "quality_relative_improvement": 0.594203,
+    "total_latency_speedup": 10.173509,
+    "candidate_total_latency_reduction": 0.901705,
+    "stop_passed": true
+  },
+  "rubric": {
+    "dimensions": [
+      "factual_and_source_correctness",
+      "provenance_and_grain_honesty",
+      "connector_and_search_adequacy",
+      "multiturn_relevance_and_context",
+      "concise_and_actionable"
+    ],
+    "dimension_scale": "0-2 integer",
+    "judge": "Cursor gpt-5.3-codex-low-fast read-only advisory score, mechanically summed and critically audited by Codex",
+    "warning": "This repaired showcase epoch is not an untouched holdout and does not satisfy SATURATION.md."
+  },
+  "code_freeze": {
+    "ecology_memory/integration/hermes/profile/plugins/typed_bridge/__init__.py": "77d63d2b36534d34877f3cd7700e135cebdc10ffd31d4f539c8cc1af3206d4e5",
+    "ecology_memory/harness/connectors.py": "01dd7d8bdad3ec5be63c2334aaadc72f4019c7bb3c1ad38f362e941863e91972",
+    "ecology_memory/harness/data/ebtl_primary_evidence.json": "fde32b9e786026a376e96f12cf22c9b28577f2ce902d0129e4b6b1db1dc14b8e",
+    "ecology_memory/harness/data/lantana_bird_transfer.json": "cb1520c5c5b5b33fb82b52aa14b69a7ff6cfe87f2da6a1f9ff483ebe5e36f699",
+    "ecology_memory/integration/eval/showcase_cases.json": "33dff3d415de011284fec4bd085777b9a950d2a7a49f33096c13e6884866d08a",
+    "ecology_memory/integration/scripts/deploy_hermes.sh": "45bcd0eb7734e0e13c05a47059b9dab2978a8baa69c3a53f293efe0407ae255d",
+    "ecology_memory/integration/manifests/origin-lock.json": "6d3e3e2a24f88da4ed1ae5077dec41e94385b0df7d6837ee8280b4b6c9ff436d"
+  },
+  "cases": [
+    {
+      "id": "site_overview",
+      "candidate": {"file": "20260717-001149-site_overview.json", "sha256": "70ade445b96936a43872cc1b750c176e392bc6e7b662ce1c730a986c3d29a6cc", "score": 9, "latency_s": 15.43, "critical_errors": []},
+      "baseline": {"file": "20260717-001404-site_overview.json", "sha256": "d1310b4a439b29264a4390f94ab0dceed59b36d6fac8c12dd190877bfc4b2a3f", "score": 6, "latency_s": 94.438, "critical_errors": ["bbox_property_conflation"]}
+    },
+    {
+      "id": "snakes_then_cobras",
+      "candidate": {"file": "20260717-002558-snakes_then_cobras.json", "sha256": "09762144d84f9b5708ec413ce150c1fc9baf2facfce1fcdbbc1ba8f9a3c4064b", "score": 9, "latency_s": 22.337, "critical_errors": []},
+      "baseline": {"file": "20260716-231708-snakes_then_cobras.json", "sha256": "4eff4802ac1a0b824ce8647ba5548e398eb77ec3ced52cfadd6b2c634ce63c1c", "score": 3, "latency_s": 112.873, "critical_errors": ["false_absence"]}
+    },
+    {
+      "id": "elephants_lantana",
+      "candidate": {"file": "20260717-002551-elephants_lantana.json", "sha256": "6a5de609ac90ec005221cef00b34e6cb81566d6f77f8f12ad62a5b407960ffaf", "score": 9, "latency_s": 16.016, "critical_errors": []},
+      "baseline": {"file": "20260716-231716-elephants_lantana.json", "sha256": "7cadf5359056699ccee0f10575966ce666e118dadf7159424ec4cd84dcd91bc9", "score": 5, "latency_s": 127.326, "critical_errors": ["false_absence"]}
+    },
+    {
+      "id": "invasives_papers_transfer",
+      "candidate": {"file": "20260717-001626-invasives_papers_transfer.json", "sha256": "6eca5f87595026185e89ae876fb69750e801dff060c42a855fa933eabee22e55", "score": 8, "latency_s": 39.409, "critical_errors": []},
+      "baseline": {"file": "20260716-234356-invasives_papers_transfer.json", "sha256": "af71a30d21c1521db0ba5fc388f57bbfdeb6b57485922fd2d3951fa333f1ad96", "score": 6, "latency_s": 241.979, "critical_errors": []}
+    },
+    {
+      "id": "soil_dryness_limits",
+      "candidate": {"file": "20260717-002600-soil_dryness_limits.json", "sha256": "64b0a115241e0fc81d73902820491fb999d8335a39d52ee7b492d28ccee80c3f", "score": 9, "latency_s": 24.959, "critical_errors": []},
+      "baseline": {"file": "20260716-234335-soil_dryness_limits.json", "sha256": "82b49177a911573c6a5adebc197d8d505d5ac8d386cd0063789dc81f9cd675f5", "score": 5, "latency_s": 241.241, "critical_errors": ["bbox_property_conflation"]}
+    },
+    {
+      "id": "historical_fire_risk_showcase",
+      "candidate": {"file": "20260717-002955-historical_fire_risk_showcase.json", "sha256": "29b7088ef68d290068fa7897f626243e274aef01a900c6e18b4ae9eab1aa7488", "score": 10, "latency_s": 36.507, "critical_errors": []},
+      "baseline": {"file": "20260717-001531-historical_fire_risk_showcase.json", "sha256": "647489bc21e454363c567dc327cf37bb8f01ed9b29544d462687e9fb7b276876", "score": 6, "latency_s": 181.093, "critical_errors": []}
+    },
+    {
+      "id": "nursery_species_functions",
+      "candidate": {"file": "20260717-002639-nursery_species_functions.json", "sha256": "dce5e23f46645d25f7388134f68e0175493719cf960272e83e22e92371ca480f", "score": 9, "latency_s": 21.837, "critical_errors": []},
+      "baseline": {"file": "20260716-234542-nursery_species_functions.json", "sha256": "d90907bc3f9f87fd168f599eecdae645b6981975dce9be23d371e399a17359ab", "score": 7, "latency_s": 368.784, "critical_errors": ["unsupported_causal_or_feeding_link"]}
+    },
+    {
+      "id": "venomous_snake_inventory",
+      "candidate": {"file": "20260717-002632-venomous_snake_inventory.json", "sha256": "2b73ff564627170d1f237f4a0b2c684aa6259ab8a2d1b378d643b43811b4b353", "score": 9, "latency_s": 15.407, "critical_errors": []},
+      "baseline": {"file": "20260717-001513-venomous_snake_inventory.json", "sha256": "921c868c8e1c8dabbbd9356f1a95941ed906384954ee8f0f1464089f3f617ec2", "score": 5, "latency_s": 163.651, "critical_errors": ["false_absence"]}
+    },
+    {
+      "id": "arachnids_sparse_transfer",
+      "candidate": {"file": "20260717-000542-arachnids_sparse_transfer.json", "sha256": "e8ee76b37058842701413a3e170be10dfb8fd07e162acd5c9c02aa4d60e4a33a", "score": 10, "latency_s": 21.954, "critical_errors": []},
+      "baseline": {"file": "20260716-235110-arachnids_sparse_transfer.json", "sha256": "10295790f5a4353deaf431ccf65d18e7d11f9e046cea6efd5f96ae0a86640fde", "score": 6, "latency_s": 694.366, "critical_errors": ["fabricated_taxon_or_measurement"]}
+    },
+    {
+      "id": "snake_tree_requirements",
+      "candidate": {"file": "20260717-001156-snake_tree_requirements.json", "sha256": "2b8d5ac58f349de54f419d38f69a3aa76ce9174be4c1e636ccaf29a538ac51a9", "score": 9, "latency_s": 22.759, "critical_errors": []},
+      "baseline": {"file": "20260717-001921-snake_tree_requirements.json", "sha256": "f90bb96e949bf9f21531e9f960bb5ed22d4620ebea4836f9baea7018174809b7", "score": 7, "latency_s": 214.186, "critical_errors": ["unsupported_causal_or_feeding_link"]}
+    },
+    {
+      "id": "birds_invasives",
+      "candidate": {"file": "20260717-002957-birds_invasives.json", "sha256": "d0e5e4968d35ee543a509b4c996825c443caab4c5dc74007d301555021ce5f18", "score": 10, "latency_s": 38.586, "critical_errors": []},
+      "baseline": {"file": "20260716-232119-birds_invasives.json", "sha256": "cd9876913a72d139c5f93549d4aff613efa2dc5c653e87be8e74faad890d1872", "score": 7, "latency_s": 365.664, "critical_errors": ["unsupported_causal_or_feeding_link"]}
+    },
+    {
+      "id": "site_evidence_boundaries",
+      "candidate": {"file": "20260717-001158-site_evidence_boundaries.json", "sha256": "2c02302115be7134a727bbef3ba9851ff70bd458737940958dd9edfc345ca368", "score": 9, "latency_s": 24.467, "critical_errors": []},
+      "baseline": {"file": "20260717-001950-site_evidence_boundaries.json", "sha256": "21b0cbed20182b8f93b6bea8a0309a18140f95c96e8647dc4ad43dd78d315bea", "score": 6, "latency_s": 243.074, "critical_errors": []}
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+270 traces; 27 below 0.85
+
+--- eco-d025 (ecology/SOURCE_GAP) overall=0.8333
+    Q: Please answer this ecology data question: Show bird observations in Valparai during January 2020.
+    IR: {"op": "SELECT", "entity": "bird observations", "region": {"op": "REGION", "place": "Valparai, India"}, "time": {"start": "2020-01", "end": "2020-01"}}
+    [EXEC] exec_class miss: status=answer expected=data_request
+--- eco-d026 (ecology/SOURCE_GAP) overall=0.8333
+    Q: What I need to establish from the data is this: show bird observations in Valparai during January 2020.
+    IR: {"op": "SELECT", "entity": "bird observations", "region": {"op": "REGION", "place": "Valparai, India"}, "time": {"start": "2020-01", "end": "2020-01"}}
+    [EXEC] exec_class miss: status=answer expected=data_request
+--- eco-d030 (ecology/SOURCE_GAP) overall=0.8333
+    Q: Please check once and tell me clearly: show bird observations in Valparai during January 2020.
+    IR: {"op": "SELECT", "entity": "bird observations", "region": {"op": "REGION", "place": "Valparai, India"}, "time": {"start": "2020-01", "end": "2020-01"}}
+    [EXEC] exec_class miss: status=answer expected=data_request
+--- eco-d031 (ecology/SOURCE_GAP) overall=0.8333
+    Q: Zara data se check karke batao: show bird observations in Valparai during January 2020.
+    IR: {"op": "SELECT", "entity": "bird observations", "region": {"op": "REGION", "place": "Valparai, India"}, "time": {"start": "2020-01", "end": "2020-01"}}
+    [EXEC] exec_class miss: status=answer expected=data_request
+--- eco-d045 (ecology/CHANGE) overall=0.75
+    Q: Use exactly the named entity, measure, place and time; do not silently substitute them. How much did NDVI in Valparai change from 2018 to 2024?
+    IR: {"op": "COMPARE", "how": "difference", "left": {"op": "AGGREGATE", "by": "time", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity"
+    [PARSER/SCORING] shape mismatch: got {'COMPARE': 1, 'AGGREGATE': 2, 'ANNOTATE': 2, 'SELECT': 2} want ['COMPARE', 'SELECT', 'SELECT']
+--- eco-d049 (ecology/COMPARE) overall=0.5833
+    Q: Please answer this ecology data question: Was mean NDVI higher in Valparai or Pollachi in 2024?
+    IR: {"op": "COMPARE", "how": "difference", "left": {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'COMPARE': 1, 'AGGREGATE': 2, 'ANNOTATE': 2, 'SELECT': 2} want ['COMPARE', 'SELECT', 'SELECT']
+--- eco-d052 (ecology/COMPARE) overall=0.5833
+    Q: Ecology check: Was mean NDVI higher in Valparai or Pollachi in 2024
+    IR: {"op": "COMPARE", "how": "difference", "left": {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'COMPARE': 1, 'AGGREGATE': 2, 'ANNOTATE': 2, 'SELECT': 2} want ['COMPARE', 'SELECT', 'SELECT']
+--- eco-d053 (ecology/COMPARE) overall=0.5833
+    Q: Use exactly the named entity, measure, place and time; do not silently substitute them. Was mean NDVI higher in Valparai or Pollachi in 2024?
+    IR: {"op": "COMPARE", "how": "difference", "left": {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'COMPARE': 1, 'AGGREGATE': 2, 'ANNOTATE': 2, 'SELECT': 2} want ['COMPARE', 'SELECT', 'SELECT']
+--- eco-d055 (ecology/COMPARE) overall=0.5833
+    Q: Zara data se check karke batao: was mean NDVI higher in Valparai or Pollachi in 2024?
+    IR: {"op": "COMPARE", "how": "difference", "left": {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'COMPARE': 1, 'AGGREGATE': 2, 'ANNOTATE': 2, 'SELECT': 2} want ['COMPARE', 'SELECT', 'SELECT']
+--- eco-d056 (ecology/COMPARE) overall=0.5833
+    Q: For a field note I am preparing, without filling any gaps from general knowledge or changing the requested evidence, was mean NDVI higher in Valparai or Pollachi in 2024?
+    IR: {"op": "COMPARE", "how": "difference", "left": {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'COMPARE': 1, 'AGGREGATE': 2, 'ANNOTATE': 2, 'SELECT': 2} want ['COMPARE', 'SELECT', 'SELECT']
+--- eco-d058 (ecology/RANKING) overall=0.5833
+    Q: What I need to establish from the data is this: rank Valparai, Pollachi, and Mysuru by 2024 mean NDVI, highest first.
+    IR: {"op": "RANK", "order": "desc", "items": [{"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity": "v
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'RANK': 1, 'AGGREGATE': 3, 'ANNOTATE': 3, 'SELECT': 3} want ['RANK', 'SELECT', 'SELECT', 'SELECT']
+--- eco-d060 (ecology/RANKING) overall=0.5833
+    Q: Ecology check: Rank Valparai, Pollachi, and Mysuru by 2024 mean NDVI, highest first.
+    IR: {"op": "RANK", "order": "desc", "items": [{"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity": "v
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'RANK': 1, 'AGGREGATE': 3, 'ANNOTATE': 3, 'SELECT': 3} want ['RANK', 'SELECT', 'SELECT', 'SELECT']
+--- eco-d061 (ecology/RANKING) overall=0.5833
+    Q: Use exactly the named entity, measure, place and time; do not silently substitute them. Rank Valparai, Pollachi, and Mysuru by 2024 mean NDVI, highest first.
+    IR: {"op": "RANK", "order": "desc", "items": [{"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity": "v
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'RANK': 1, 'AGGREGATE': 3, 'ANNOTATE': 3, 'SELECT': 3} want ['RANK', 'SELECT', 'SELECT', 'SELECT']
+--- eco-d063 (ecology/RANKING) overall=0.5833
+    Q: Zara data se check karke batao: rank Valparai, Pollachi, and Mysuru by 2024 mean NDVI, highest first.
+    IR: {"op": "RANK", "order": "desc", "items": [{"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity": "v
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'RANK': 1, 'AGGREGATE': 3, 'ANNOTATE': 3, 'SELECT': 3} want ['RANK', 'SELECT', 'SELECT', 'SELECT']
+--- eco-d064 (ecology/RANKING) overall=0.5833
+    Q: For a field note I am preparing, without filling any gaps from general knowledge or changing the requested evidence, rank Valparai, Pollachi, and Mysuru by 2024 mean NDVI, highest first.
+    IR: {"op": "RANK", "order": "desc", "items": [{"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity": "v
+    [CONNECTOR] empty_select: {"entity": "vegetation survey sites", "region": "Pollachi, Coimbatore, Tamil Nadu, 642001, India", "hint": "no records a
+    [PARSER/SCORING] shape mismatch: got {'RANK': 1, 'AGGREGATE': 3, 'ANNOTATE': 3, 'SELECT': 3} want ['RANK', 'SELECT', 'SELECT', 'SELECT']
+--- eco-d085 (ecology/VALUE) overall=0.8333
+    Q: Use exactly the named entity, measure, place and time; do not silently substitute them. What is the mean surface-water occurrence at Anamalai survey sites near Valparai?
+    IR: {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "surface-water occurrence", "source": {"op": "SELECT", "entity": "Anamalai survey sites",
+    [CONNECTOR] no_connector: {"layer": "surface-water occurrence", "hint": "no admitted ecology layer for 'surface-water occurrence'"}
+--- eco-d095 (ecology/RELATION) overall=0.5
+    Q: Zara data se check karke batao: which Lantana records in Valparai are within 1 km of a vegetation survey site?
+    IR: {"op": "AGGREGATE", "by": "space", "metric": "count", "source": {"op": "SELECT", "entity": "Lantana records", "region": {"op": "REGION", "place": "Valparai, India"}, "time": null},
+    [PARSER] schema errors: root: AGGREGATE has unknown field(s) ['target'] — wrong op composed?
+--- eco-d117 (ecology/COMPOSITE) overall=0.8333
+    Q: Use exactly the named entity, measure, place and time; do not silently substitute them. Show Lantana and teak occurrence records around Valparai.
+    IR: {"op": "AGGREGATE", "by": "space", "metric": "count", "source": {"op": "AGGREGATE", "by": "space", "metric": "count", "source": {"op": "SELECT", "entity": "teak occurrence records"
+    [CONNECTOR] empty_select: {"entity": "teak occurrence records", "region": "Valparai, Coimbatore, Tamil Nadu, 642127, India", "hint": "no records a
+--- eco-d141 (ecology/BEHAVIOUR) overall=0.8333
+    Q: Use exactly the named entity, measure, place and time; do not silently substitute them. Why do residents of Mysuru prefer native trees?
+    IR: {"op": "SELECT", "entity": "native trees", "region": {"op": "REGION", "place": "Mysuru, India"}, "time": null}
+    [CONNECTOR] no_connector: {"entity": "native trees", "hint": "no data source maps this entity; add a connector or refine the term"}
+    [PARSER] holes wrong: holes=[] must_hole=True
+--- eco-d144 (ecology/BEHAVIOUR) overall=0.8333
+    Q: For a field note I am preparing, without filling any gaps from general knowledge or changing the requested evidence, why do residents of Mysuru prefer native trees?
+    IR: {"op": "SELECT", "entity": "resident preferences", "region": {"op": "REGION", "place": "Mysuru, India"}, "time": null}
+    [CONNECTOR] no_connector: {"entity": "resident preferences", "hint": "no data source maps this entity; add a connector or refine the term"}
+    [PARSER] holes wrong: holes=[] must_hole=True
+--- eco-d198 (ecology/VALUE) overall=0.75
+    Q: Please check once and tell me clearly: which ecoregions contain the Anamalai survey sites near Valparai?
+    IR: {"op": "REGION", "place": "Anamalai"}
+    [PARSER/SCORING] shape mismatch: got {} want ['ANNOTATE', 'SELECT']
+--- eco-d200 (ecology/VALUE) overall=0.75
+    Q: For a field note I am preparing, without filling any gaps from general knowledge or changing the requested evidence, which ecoregions contain the Anamalai survey sites near Valparai?
+    IR: {"op": "REGION", "place": "Anamalai, India"}
+    [PARSER/SCORING] shape mismatch: got {} want ['ANNOTATE', 'SELECT']
+--- eco-d218 (ecology/TREND) overall=0.75
+    Q: What I need to establish from the data is this: has NDVI generally increased in Valparai?
+    IR: {"op": "COMPARE", "how": "trend_direction", "left": {"op": "AGGREGATE", "by": "time", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "en
+    [PARSER/SCORING] shape mismatch: got {'COMPARE': 1, 'AGGREGATE': 1, 'ANNOTATE': 1, 'SELECT': 1} want ['COMPARE', 'SELECT']
+--- eco-d220 (ecology/TREND) overall=0.75
+    Q: Ecology check: Has NDVI generally increased in Valparai
+    IR: {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity": "vegetation survey sites", "region": {"op": 
+    [PARSER/SCORING] shape mismatch: got {'AGGREGATE': 1, 'ANNOTATE': 1, 'SELECT': 1} want ['COMPARE', 'SELECT']
+--- eco-d221 (ecology/TREND) overall=0.5833
+    Q: Use exactly the named entity, measure, place and time; do not silently substitute them. Has NDVI generally increased in Valparai?
+    IR: {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "SELECT", "entity": "NDVI", "region": {"op": "REGION", "place": "Valparai, India"}, "time": {"start": "2018", 
+    [PARSER/SCORING] shape mismatch: got {'AGGREGATE': 1, 'SELECT': 1} want ['COMPARE', 'SELECT']
+--- eco-d223 (ecology/TREND) overall=0.75
+    Q: Zara data se check karke batao: has NDVI generally increased in Valparai?
+    IR: {"op": "AGGREGATE", "by": "space", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "entity": "vegetation survey sites", "region": {"op": 
+    [PARSER/SCORING] shape mismatch: got {'AGGREGATE': 1, 'ANNOTATE': 1, 'SELECT': 1} want ['COMPARE', 'SELECT']
+--- eco-d224 (ecology/TREND) overall=0.75
+    Q: For a field note I am preparing, without filling any gaps from general knowledge or changing the requested evidence, has NDVI generally increased in Valparai?
+    IR: {"op": "COMPARE", "how": "trend_direction", "left": {"op": "AGGREGATE", "by": "time", "metric": "mean", "source": {"op": "ANNOTATE", "layer": "NDVI", "source": {"op": "SELECT", "en
+    [PARSER/SCORING] shape mismatch: got {'COMPARE': 1, 'AGGREGATE': 1, 'ANNOTATE': 1, 'SELECT': 1} want ['COMPARE', 'SELECT']
+
+== failure layers ==
+  PARSER/SCORING 18
+  CONNECTOR      14
+  EXEC           4
+  PARSER         3
+
+== dimension means ==
+  parse_valid    1.00
+  schema_valid   1.00
+  shape_match    0.93
+  holes_correct  0.99
+  estimate_ok    1.00
+  exec_class     0.93
+  exec_grounded  1.00

@@ -8,7 +8,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ALLOWED_STATES = {"proposed", "deferred", "rejected", "accepted", "implemented", "validated"}
+ALLOWED_STATES = {
+    "proposed", "deferred", "rejected", "accepted", "accepted-conditional",
+    "rfc-required", "implemented", "validated",
+}
 
 
 def load(relative: str):

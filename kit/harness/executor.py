@@ -31,6 +31,35 @@ def _merge_label(*labels):
     return "observed"
 
 
+META_FIELDS = ("measure", "unit", "grain", "lineage", "frequency", "vintage",
+               "temporal_semantics", "coarsen", "grain_proxy", "fields")
+
+
+def _meta(value):
+    """Return total metadata: legacy values receive explicit, non-wildcard unknown tags."""
+    return {
+        "measure": value.get("measure", "unknown"),
+        "unit": value.get("unit", "unknown"),
+        "grain": value.get("grain", "unknown"),
+        "lineage": value.get("lineage") or [],
+        "frequency": value.get("frequency"),
+        "vintage": value.get("vintage"),
+        "temporal_semantics": value.get("temporal_semantics"),
+        "coarsen": value.get("coarsen"),
+        "grain_proxy": value.get("grain_proxy"),
+        "fields": value.get("fields") or {},
+    }
+
+
+def _copy_meta(source):
+    return {field: source[field] for field in META_FIELDS if field in source}
+
+
+def _compatibility_tuple(value):
+    metadata = _meta(value)
+    return metadata["measure"], metadata["unit"], metadata["grain"]
+
+
 def _resolve_region(region):
     if isinstance(region, dict) and region.get("op") == "REGION":
         return C.resolve_region(region["place"])
@@ -50,7 +79,7 @@ def _route_select(entity, region, time, prov):
                      "ambiguous": ambig, "note": out["note"]})
         return {"kind": "series", "rows": out["rows"], "entity": canon,
                 "label": out.get("label", "observed"),   # v2.2: connector-leaf evidence label
-                "source": out["source"], "ambiguous": ambig}
+                "source": out["source"], "ambiguous": ambig, **_copy_meta(out)}
     # osm point entity?
     tag, ocanon, oambig = C.osm_resolve_tag(entity)
     if tag:
@@ -58,7 +87,7 @@ def _route_select(entity, region, time, prov):
         prov.append({"op": "SELECT", "route": "osm", "resolved": ocanon,
                      "ambiguous": oambig, "note": out["note"]})
         return {"kind": "records", "rows": out["rows"], "entity": ocanon, "label": "observed",
-                "source": out["source"], "ambiguous": oambig}
+                "source": out["source"], "ambiguous": oambig, **_copy_meta(out)}
     # no connector maps this entity -> honest data gap (never fabricate)
     prov.append({"op": "SELECT", "route": "none", "note": f"no connector for {entity!r}"})
     raise DataRequest("no_connector",
@@ -86,7 +115,13 @@ def _ev(node, prov, region_ctx):
                         seen.add(k)
                         rows.append(r)
             val = {"kind": parts[0]["kind"], "rows": rows, "entity": ent,
-                   "label": _merge_label(*[p["label"] for p in parts]), "source": "union"}
+                   "label": _merge_label(*[p["label"] for p in parts]), "source": "union",
+                   "measure": "union:" + "+".join(_meta(p)["measure"] for p in parts),
+                   "unit": _meta(parts[0])["unit"] if all(
+                       _meta(p)["unit"] == _meta(parts[0])["unit"] for p in parts) else "unknown",
+                   "grain": _meta(parts[0])["grain"] if all(
+                       _meta(p)["grain"] == _meta(parts[0])["grain"] for p in parts) else "unknown",
+                   "lineage": [item for p in parts for item in _meta(p)["lineage"]]}
             prov.append({"op": "SELECT", "route": "union",
                          "note": f"union of {ent} -> {len(rows)} rows"})
         else:
@@ -128,8 +163,14 @@ def _ev(node, prov, region_ctx):
         left = _ev(node["left"], prov, region_ctx)
         right = _ev(node["right"], prov, region_ctx) if "right" in node else None
         out = _compare(left, right, node["how"])
-        prov.append({"op": "COMPARE", "how": node["how"], "note": out["note"]})
-        labels = [left["label"]] + ([right["label"]] if right else [])
+        event = {"op": "COMPARE", "how": node["how"], "note": out["note"]}
+        if out.get("alignment"):
+            event["alignment"] = out["alignment"]
+        if out.get("lineage"):
+            event["lineage"] = out["lineage"]
+        prov.append(event)
+        labels = [left["label"]] + ([right["label"]] if right else []) + \
+            ([out["label"]] if out.get("label") else [])
         return {**out, "label": _merge_label(*labels)}
 
     if op == "RANK":
@@ -148,6 +189,13 @@ def _ev(node, prov, region_ctx):
             raise DataRequest("rank_unscorable",
                               {"items": [r["label"] for r in scored if r["value"] is None],
                                "hint": "an item produced no comparable value"})
+        signatures = {(_meta(v)["measure"], _meta(v)["unit"]) for v in vals}
+        if len(signatures) != 1:
+            raise DataRequest("rank_incompatible",
+                              {"items": [{"label": label, "measure": _meta(value)["measure"],
+                                          "unit": _meta(value)["unit"]}
+                                         for label, value in zip(labels, vals)],
+                               "hint": "RANK items must share measure and unit"})
         rev = node.get("order", "desc") == "desc"
         scored.sort(key=lambda r: r["value"], reverse=rev)
         k = node.get("k")
@@ -156,7 +204,11 @@ def _ev(node, prov, region_ctx):
         prov.append({"op": "RANK", "order": node.get("order"),
                      "note": " > ".join(f"{r['label']}={r['value']}" for r in scored)})
         return {"kind": "ranking", "rows": scored,
-                "label": _merge_label(*[v["label"] for v in vals]), "source": "rank"}
+                "label": _merge_label(*[v["label"] for v in vals]), "source": "rank",
+                "measure": _meta(vals[0])["measure"], "unit": _meta(vals[0])["unit"],
+                "grain": "ranked-items", "lineage": [
+                    {"label": label, "lineage": _meta(value)["lineage"]}
+                    for label, value in zip(labels, vals)]}
 
     if op == "ESTIMATE":
         src = _ev(node["source"], prov, region_ctx)
@@ -244,7 +296,8 @@ def _aggregate(src, by, metric):
     rows = src.get("rows", [])
     if src["kind"] == "series":
         # already a series; count/mean summarise it
-        return {"kind": "series", "rows": rows, "note": f"passthrough series ({len(rows)} pts)"}
+        return {"kind": "series", "rows": rows,
+                "note": f"passthrough series ({len(rows)} pts)", **_copy_meta(src)}
     if by == "time":
         bins = {}
         for r in rows:
@@ -253,23 +306,177 @@ def _aggregate(src, by, metric):
                 continue
             bins[t] = bins.get(t, 0) + 1
         series = [{"t": k, "value": v} for k, v in sorted(bins.items())]
-        return {"kind": "series", "rows": series, "note": f"binned to {len(series)} years"}
+        return {"kind": "series", "rows": series, "note": f"binned to {len(series)} years",
+                "measure": "record_count", "unit": "count", "grain": _meta(src)["grain"],
+                "lineage": _meta(src)["lineage"], "frequency": "annual",
+                "temporal_semantics": "flow", "coarsen": "sum"}
     # by space
     if metric in ("count", "presence"):
-        return {"kind": "scalar", "value": len(rows), "note": f"count={len(rows)}"}
+        return {"kind": "scalar", "value": len(rows), "note": f"count={len(rows)}",
+                "measure": "record_count", "unit": "count", "grain": _meta(src)["grain"],
+                "lineage": _meta(src)["lineage"]}
     if metric == "density":
-        return {"kind": "scalar", "value": len(rows), "note": f"n={len(rows)} (density proxy)"}
-    return {"kind": "scalar", "value": len(rows), "note": f"n={len(rows)}"}
+        return {"kind": "scalar", "value": len(rows), "note": f"n={len(rows)} (density proxy)",
+                "measure": "record_density_proxy", "unit": "count",
+                "grain": _meta(src)["grain"], "lineage": _meta(src)["lineage"],
+                "grain_proxy": {"declared": True, "reason": "bbox count used as density proxy"}}
+    return {"kind": "scalar", "value": len(rows), "note": f"n={len(rows)}",
+            "measure": "record_count", "unit": "count", "grain": _meta(src)["grain"],
+            "lineage": _meta(src)["lineage"]}
+
+
+FREQUENCY_ORDER = {"annual": 1, "quarterly": 2, "monthly": 3, "daily": 4}
+
+
+def _infer_frequency(rows):
+    periods = [str(row.get("t", "")) for row in rows if row.get("t") is not None]
+    if not periods:
+        return None
+    if all(len(period) == 4 and period.isdigit() for period in periods):
+        return "annual"
+    if all("Q" in period.upper() for period in periods):
+        return "quarterly"
+    if all(len(period) >= 10 for period in periods):
+        return "daily"
+    if all(len(period) >= 7 for period in periods):
+        return "monthly"
+    return None
+
+
+def _period_key(value, frequency):
+    period = str(value)
+    if frequency == "annual":
+        return period[:4]
+    if frequency == "monthly":
+        return period[:7]
+    if frequency == "daily":
+        return period[:10]
+    if frequency == "quarterly":
+        compact = period.upper().replace("-", "")
+        if "Q" in compact:
+            year, quarter = compact.split("Q", 1)
+            return f"{year[:4]}Q{quarter[:1]}"
+    return period
+
+
+def _coarsen_rows(rows, from_frequency, to_frequency, method):
+    if to_frequency != "annual" or from_frequency not in {"daily", "monthly", "quarterly"}:
+        raise DataRequest("temporal_frequency_mismatch", {
+            "from": from_frequency, "to": to_frequency,
+            "ask": "declare an implemented coarsening policy for these frequencies"})
+    if method not in {"sum", "mean", "last"}:
+        raise DataRequest("temporal_frequency_mismatch", {
+            "from": from_frequency, "to": to_frequency, "coarsen": method,
+            "ask": "connector must declare coarsen as sum, mean, or last"})
+    buckets = {}
+    for row in rows:
+        buckets.setdefault(str(row.get("t", ""))[:4], []).append(row)
+    out = []
+    for period, items in sorted(buckets.items()):
+        values = [item.get("value") for item in items
+                  if isinstance(item.get("value"), (int, float))]
+        if not values:
+            continue
+        if method == "sum":
+            value = sum(values)
+        elif method == "mean":
+            value = sum(values) / len(values)
+        else:
+            value = sorted(items, key=lambda item: str(item.get("t", "")))[-1]["value"]
+        out.append({"t": period, "value": value})
+    return out
+
+
+def _declared_coarsening(value, side, from_frequency, to_frequency):
+    metadata = _meta(value)
+    semantic, method = metadata["temporal_semantics"], metadata["coarsen"]
+    valid = ((semantic == "flow" and method == "sum") or
+             (semantic == "stock" and method in {"mean", "last"}))
+    if not valid:
+        raise DataRequest("temporal_frequency_mismatch", {
+            "side": side, "from": from_frequency, "to": to_frequency,
+            "temporal_semantics": semantic, "coarsen": method,
+            "ask": "connector must declare flow+sum or stock+mean/last coarsening"})
+    return method
+
+
+def _aligned_series(left, right):
+    """Exact-period inner join with an auditable certificate when support changes."""
+    lrows, rrows = list(left.get("rows") or []), list(right.get("rows") or [])
+    lf = _meta(left)["frequency"] or _infer_frequency(lrows)
+    rf = _meta(right)["frequency"] or _infer_frequency(rrows)
+    # Two one-point, intentionally disjoint windows are scalar CHANGE operands, not two
+    # period-indexed series to align (v2.3 scoping clause).
+    raw_overlap = {str(row.get("t")) for row in lrows} & {str(row.get("t")) for row in rrows}
+    if len(lrows) == len(rrows) == 1 and not raw_overlap:
+        return left, right, None
+
+    coarsened = None
+    if lf != rf:
+        if lf not in FREQUENCY_ORDER or rf not in FREQUENCY_ORDER:
+            raise DataRequest("temporal_frequency_mismatch", {
+                "left_frequency": lf, "right_frequency": rf,
+                "ask": "both connectors must declare compatible frequencies"})
+        if FREQUENCY_ORDER[lf] > FREQUENCY_ORDER[rf]:
+            method = _declared_coarsening(left, "left", lf, rf)
+            lrows = _coarsen_rows(lrows, lf, rf, method)
+            coarsened = {"side": "left", "from": lf, "to": rf, "method": method}
+            lf = rf
+        else:
+            method = _declared_coarsening(right, "right", rf, lf)
+            rrows = _coarsen_rows(rrows, rf, lf, method)
+            coarsened = {"side": "right", "from": rf, "to": lf, "method": method}
+            rf = lf
+
+    def indexed(rows, frequency, side):
+        out = {}
+        duplicates = []
+        for row in rows:
+            key = _period_key(row.get("t"), frequency)
+            if key in out:
+                duplicates.append(key)
+            out[key] = row
+        if duplicates:
+            raise DataRequest("duplicate_periods", {
+                "side": side, "periods": sorted(set(duplicates)),
+                "ask": "deduplicate the connector series before comparison"})
+        return out
+
+    li, ri = indexed(lrows, lf, "left"), indexed(rrows, rf, "right")
+    common = sorted(set(li) & set(ri))
+    if not common:
+        raise DataRequest("temporal_no_overlap", {
+            "left_window": [min(li) if li else None, max(li) if li else None],
+            "right_window": [min(ri) if ri else None, max(ri) if ri else None],
+            "ask": "choose a period covered by both series"})
+    dropped_left = sorted(set(li) - set(common))
+    dropped_right = sorted(set(ri) - set(common))
+    left_aligned = {**left, "rows": [{**li[key], "t": key} for key in common],
+                    "frequency": lf}
+    right_aligned = {**right, "rows": [{**ri[key], "t": key} for key in common],
+                     "frequency": rf}
+    certificate = None
+    if dropped_left or dropped_right or coarsened:
+        certificate = {
+            "join": "exact-period-inner", "frequency": lf,
+            "used_periods": common,
+            "used_window": [common[0], common[-1]],
+            "dropped_left": dropped_left, "dropped_right": dropped_right,
+            "coarsened": coarsened,
+        }
+    return left_aligned, right_aligned, certificate
 
 
 def _compare(left, right, how):
     if how == "trend_direction":
         rows = left.get("rows", [])
         if len(rows) < 2:
-            return {"kind": "scalar", "value": None, "note": "insufficient points for trend"}
+            return {"kind": "scalar", "value": None, "note": "insufficient points for trend",
+                    "measure": f"trend:{_meta(left)['measure']}",
+                    "unit": f"{_meta(left)['unit']}/period", "grain": _meta(left)["grain"],
+                    "lineage": _meta(left)["lineage"], "vintage": _meta(left)["vintage"]}
         xs = list(range(len(rows)))
         ys = [r["value"] for r in rows]
-        # simple least-squares slope sign
         n = len(xs)
         mx, my = sum(xs) / n, sum(ys) / n
         denom = sum((x - mx) ** 2 for x in xs) or 1
@@ -277,43 +484,96 @@ def _compare(left, right, how):
         direction = "rising" if slope > 0 else "falling" if slope < 0 else "flat"
         pct = (ys[-1] - ys[0]) / (abs(ys[0]) or 1) * 100
         return {"kind": "scalar", "value": direction,
+                "measure": f"trend:{_meta(left)['measure']}",
+                "unit": f"{_meta(left)['unit']}/period", "grain": _meta(left)["grain"],
+                "lineage": _meta(left)["lineage"], "vintage": _meta(left)["vintage"],
                 "note": f"{direction} (slope={slope:.4g}, {pct:+.1f}% over {n} pts "
                         f"{rows[0]['t']}→{rows[-1]['t']})"}
-    # difference / ratio between two scalars or two series endpoints
-    def scal(v):
-        if v is None:
+
+    alignment = None
+    if left.get("kind") == right.get("kind") == "series":
+        left, right, alignment = _aligned_series(left, right)
+
+    def scal(value):
+        if value is None:
             return None
-        if v["kind"] == "scalar":
-            return v["value"]
-        if v["kind"] == "series" and v.get("rows"):
-            return v["rows"][-1]["value"]
-        if v["kind"] in ("records", "field"):
-            return len(v.get("rows", []))
+        if value["kind"] == "scalar":
+            return value["value"]
+        if value["kind"] == "series" and value.get("rows"):
+            return value["rows"][-1]["value"]
+        if value["kind"] in ("records", "field"):
+            return len(value.get("rows", []))
         return None
+
+    left_meta, right_meta = _meta(left), _meta(right)
+    if how == "difference" and _compatibility_tuple(left) != _compatibility_tuple(right):
+        raise DataRequest("incompatible_arithmetic", {
+            "how": how,
+            "left": dict(zip(("measure", "unit", "grain"), _compatibility_tuple(left))),
+            "right": dict(zip(("measure", "unit", "grain"), _compatibility_tuple(right))),
+            "ask": "use operands with identical measure, unit, and grain"})
+    proxy = None
+    if how == "ratio" and left_meta["grain"] != right_meta["grain"]:
+        proxy = left_meta["grain_proxy"] or right_meta["grain_proxy"]
+        if not proxy:
+            raise DataRequest("incompatible_arithmetic", {
+                "how": how, "left_grain": left_meta["grain"],
+                "right_grain": right_meta["grain"],
+                "ask": "align grains or declare the specific proxy substitution"})
+
     a, b = scal(left), scal(right)
     if a is None or b is None or not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
-        return {"kind": "scalar", "value": None, "note": f"cannot compare {a} {how} {b}"}
-    # ORIENTATION (adopted from transport sector, spec v2->v2.1): "change t1->t2" compiles with
-    # operands in QUESTION order — a defensible parse whose sign is opposite the gold's, silently
-    # producing "decreased" for a series that grew. When both operands expose a time anchor and the
-    # anchors differ AND both values resolve to the same entity, orient later-minus-earlier
-    # deterministically and stamp it in provenance. Cross-entity ratios preserve operand order;
-    # differing source end-years must never silently invert the requested denominator.
-    def end_year(v):
-        if v and v.get("kind") == "series" and v.get("rows"):
+        return {"kind": "scalar", "value": None, "note": f"cannot compare {a} {how} {b}",
+                "measure": "unknown", "unit": "unknown", "grain": "unknown"}
+
+    def end_year(value):
+        if value and value.get("kind") == "series" and value.get("rows"):
             try:
-                return int(str(v["rows"][-1]["t"])[:4])
+                return int(str(value["rows"][-1]["t"])[:4])
             except (ValueError, TypeError):
                 return None
         return None
+
     oriented = ""
     ya, yb = end_year(left), end_year(right)
     same_entity = left.get("entity") is not None and left.get("entity") == right.get("entity")
     if same_entity and ya is not None and yb is not None and ya < yb:
         a, b = b, a
+        left, right = right, left
+        left_meta, right_meta = right_meta, left_meta
         oriented = " (oriented later-minus-earlier)"
-    val = (a - b) if how == "difference" else (a / b if b else None)
-    return {"kind": "scalar", "value": val, "note": f"{a} {how} {b} = {val}{oriented}"}
+    if how == "ratio" and b == 0:
+        raise DataRequest("zero_denominator", {"how": how, "ask": "choose a non-zero denominator"})
+    value = (a - b) if how == "difference" else (a / b)
+    if how == "difference":
+        measure, unit, grain = left_meta["measure"], left_meta["unit"], left_meta["grain"]
+    else:
+        measure = f"ratio:{left_meta['measure']}/{right_meta['measure']}"
+        unit = f"{left_meta['unit']}/{right_meta['unit']}"
+        grain = left_meta["grain"] if left_meta["grain"] == right_meta["grain"] else \
+            f"proxy:{left_meta['grain']}/{right_meta['grain']}"
+    lineage = {"operation": how,
+               "left": {"measure": left_meta["measure"], "unit": left_meta["unit"],
+                        "grain": left_meta["grain"], "lineage": left_meta["lineage"]},
+               "right": {"measure": right_meta["measure"], "unit": right_meta["unit"],
+                         "grain": right_meta["grain"], "lineage": right_meta["lineage"]}}
+    vintage = {"left": left_meta["vintage"], "right": right_meta["vintage"]}
+    alignment_note = (f"; exact common coverage {alignment['used_window'][0]}–"
+                      f"{alignment['used_window'][1]}" if alignment else "")
+    out = {"kind": "scalar", "value": value, "measure": measure, "unit": unit,
+           "grain": grain, "lineage": lineage, "vintage": vintage,
+           "note": f"{a} {how} {b} = {value}{oriented}{alignment_note}"}
+    if left_meta["vintage"] != right_meta["vintage"] and (
+            left_meta["vintage"] is not None or right_meta["vintage"] is not None):
+        out["note"] += (f"; source vintages differ: left={left_meta['vintage']}, "
+                        f"right={right_meta['vintage']}")
+    if alignment:
+        out["alignment"] = alignment
+    if proxy:
+        out["label"] = "proxy"
+        out["grain_proxy"] = proxy
+        out["note"] += "; declared grain proxy used"
+    return out
 
 
 def _gate(src, target, method):

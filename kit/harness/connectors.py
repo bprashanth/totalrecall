@@ -198,6 +198,11 @@ def osm_select(entity, region, limit=200):
                      "name": (el.get("tags") or {}).get("name"), "time": None})
     return {"rows": rows, "kind": "records", "source": "osm-overpass",
             "resolved": canon, "ambiguous": ambig,
+            "measure": f"osm:{canon}:occurrence_record", "unit": "record",
+            "grain": "georeferenced-point-in-request-bbox",
+            "lineage": [{"source": "OpenStreetMap/Overpass", "entity": canon}],
+            "fields": {"id": "identifier", "lat": "number", "lon": "number",
+                       "name": "string|null", "time": "period|null"},
             "note": f"{len(rows)} {canon} in bbox" + (f"; AMBIGUOUS among {ambig}" if ambig else "")}
 
 
@@ -281,6 +286,22 @@ def wb_resolve_iso(region):
 # sector finding: modeled stats entering SELECT were falsely tainted observed).
 WB_MODELED = {"SL.UEM.TOTL.ZS", "SL.TLF.TOTL.IN", "SI.POV.DDAY"}
 
+# Connector-owned semantic metadata for the released v2.3 arithmetic/alignment contract.  A
+# measure id is source+method specific; sharing unit "percent" does not make two indicators
+# subtractable.  World Bank rows are annual, so mixed-frequency coarsening is not requested here.
+WB_UNITS = {
+    "NY.GDP.PCAP.CD": "current_USD/person", "NY.GDP.MKTP.CD": "current_USD",
+    "SP.POP.TOTL": "person", "SP.URB.TOTL.IN.ZS": "percent",
+    "SL.UEM.TOTL.ZS": "percent", "SI.POV.DDAY": "percent",
+    "IT.NET.USER.ZS": "percent", "IT.CEL.SETS.P2": "subscriptions/100_people",
+    "EG.ELC.ACCS.ZS": "percent", "SE.PRM.ENRR": "percent",
+    "SE.SEC.ENRR": "percent", "SE.ADT.LITR.ZS": "percent",
+    "FP.CPI.TOTL.ZG": "percent/year", "SL.TLF.TOTL.IN": "person",
+    "NE.TRD.GNFS.ZS": "percent_GDP", "SP.DYN.LE00.IN": "year",
+    "ST.INT.ARVL": "arrival", "SH.XPD.CHEX.GD.ZS": "percent_GDP",
+    "NY.GDP.MKTP.KD.ZG": "percent/year",
+}
+
 
 def wb_series(entity, region, time=None):
     code, canon, ambig = wb_resolve_indicator(entity)
@@ -316,8 +337,14 @@ def wb_series(entity, region, time=None):
                 note_extra = f" (no {s} value; nearest year {near['t']} used)"
         rows = windowed
     lbl = "modelled" if code in WB_MODELED else "observed"
+    vintage = d[0].get("lastupdated") if isinstance(d, list) and d and isinstance(d[0], dict) else None
     return {"rows": rows, "kind": "series", "source": "worldbank", "label": lbl,
             "resolved": canon, "ambiguous": ambig, "indicator": code, "iso": iso,
+            "measure": f"worldbank:{code}", "unit": WB_UNITS.get(code, "unknown"),
+            "grain": "country", "frequency": "annual", "vintage": vintage,
+            "lineage": [{"source": "World Bank API", "indicator": code, "country": iso,
+                         "vintage": vintage}],
+            "fields": {"t": "annual_period", "value": "number"},
             "note": f"{len(rows)} yearly points of {canon} for {iso}{note_extra}"
                     + (" (upstream ILO/WB modeled estimate)" if lbl == "modelled" else "")}
 

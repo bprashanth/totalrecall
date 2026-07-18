@@ -1,7 +1,8 @@
-# IR spec v2.2.1 — the JSON expression tree a question compiles to
+# IR spec v2.3.0 — the JSON expression tree a question compiles to
 
-*(v2.1 adds COMPARE operand-orientation, corroborated across the civic and transport sectors. See the
-version history inline: unary trend_direction, RANK (v1), beyond+threshold_km (v2), orientation (v2.1).)*
+*(v2.3 adds executor-enforced unit/grain/lineage compatibility and exact-period temporal alignment;
+it adds no parser-visible operation. See the inline history for RANK (v1), beyond+threshold_km (v2),
+orientation (v2.1), entity union/leaf labels (v2.2), and metadata/alignment (v2.3).)*
 
 
 This is the concrete, machine-checkable form of the algebra in `README.md`. It is **v0**: the whole point
@@ -33,6 +34,30 @@ hole is **unbound** and must not execute — the hole is the clarifying question
 | `COMPARE` | `left`, `how` (+`right` unless `how:trend_direction`) | left,right: Field/Series/Scalar | Scalar/Field/Series |
 | `ESTIMATE` | `source`, `target`, `method` | source: Records | Field (**modelled**) |
 | `RANK` | `items` (list of ≥2 nodes), `order` (`desc|asc`), optional `k` | items: anything scalarizable | Ranking (ordered `{label,value}` list) |
+
+### v2.3 typed-result contract (ALG-005 + ALG-007)
+
+Every connector leaf declares, and derived values preserve, `measure`, `unit`, `grain`, and
+`lineage`. Series additionally declare `frequency` and may declare `vintage`; mixed-frequency
+support requires `temporal_semantics:flow|stock` plus `coarsen:sum|mean|last`. Missing legacy tags
+are represented as the literal `unknown`, never treated as a wildcard.
+
+- `COMPARE how:difference` requires identical `(measure, unit, grain)` and otherwise returns a
+  typed `incompatible_arithmetic` DataRequest.
+- `COMPARE how:ratio` forms a derived unit and retains numerator/denominator lineage. A zero
+  denominator fails closed. Grain mismatch fails unless a connector declares the specific proxy
+  substitution, in which case the answer is proxy-labelled and the substitution is in provenance.
+- `RANK` scalarization requires every item to share `(measure, unit)`.
+- Two period-indexed Series align by exact-period inner join. No period is interpolated or selected
+  by nearest date. Dropped periods produce an alignment certificate naming available support,
+  exact used periods, and discarded periods; zero overlap returns `temporal_no_overlap` with both
+  windows. Duplicate period keys fail closed.
+- Mixed frequency is allowed only through connector-declared flow+sum or stock+mean/last
+  coarsening. The certificate names the side, frequencies, and method. Otherwise execution returns
+  `temporal_frequency_mismatch`.
+- Source vintage passes through; differing vintages are surfaced, not silently reconciled.
+- Scoping: two intentionally disjoint, one-value pre/post Series operands are window Scalars for
+  CHANGE semantics and are exempt from period alignment. The later-minus-earlier rule still applies.
 
 **v2.1→v2.2 (cross-sector reconciliation, 2026-07-13).** Two adoptions with multi-sector evidence:
 - **Entity UNION**: `SELECT.entity` may be a LIST (`["hospital","clinic"]`) — the resolver routes each
@@ -66,7 +91,7 @@ Leaf/support nodes:
 - Values are plain JSON (strings, numbers, `{start,end}` for time).
 
 Field vocabularies:
-- `relation` ∈ `distance | within | cooccur`
+- `relation` ∈ `distance | within | beyond | cooccur`
 - `by` ∈ `space | time`
 - `metric` ∈ `count | density | mean | presence`
 - `how` ∈ `difference | ratio | trend_direction`
@@ -117,6 +142,11 @@ Field vocabularies:
   Cross-entity comparisons and place-vs-place comparisons keep first-named = left, even if their
   source series end in different years. The answer surface must name the operands. This is a canonical-form
   rule (like tree normalization), not a new op — the parser is not penalized for either order.
+- **Typed arithmetic and temporal alignment** (v2.3, ALG-005/ALG-007): connector-owned semantic
+  metadata is enforced at execution, and multi-Series comparisons use only exact shared periods.
+  Compatibility failures and empty temporal overlap are DataRequests. Alignment certificates and
+  vintage differences are part of provenance and the answer surface. No IR node or parser grammar
+  changed, so v2.2 trees remain valid.
 - **Provenance = the tree itself** plus per-node row counts / sources stamped during execution.
 
 ## What the parser must produce
@@ -128,5 +158,6 @@ fixes. Over-holing is a scored failure just like under-holing.
 ## Known-open questions (to resolve via the loop)
 - Is `RELATE` one op or does `cooccur` deserve its own? (co-occurrence may need AGGREGATE semantics.)
 - Does `ESTIMATE.method` belong in the tree or should the executor choose it from the gate result?
-- Do we need a `FILTER`/`RANK` op, or are those AGGREGATE/COMPARE parameters?
+- Should conditional FILTER ship after connector field schemas, and what keyed representation must
+  precede partitioned GROUP? (Both remain unreleased.)
 - Behaviour/intent questions: represented as `SELECT` on a proxy entity + a forced DataRequest?

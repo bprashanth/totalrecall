@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "created_at": "2026-07-16T22:12:45.639209",
+  "case": {
+    "id": "site_landcover_limits",
+    "purpose": "Current land-cover answer and point-versus-AOI limitation",
+    "context": "ebtl",
+    "turns": [
+      "tell me about ebtl",
+      "what is the current vegetation or land cover?",
+      "is that for the whole property or just one point?"
+    ],
+    "checks": [
+      "site_context_is_retained",
+      "production_landcover_source_is_executed",
+      "modelled_layer_is_labelled",
+      "point_proxy_is_not_generalized_to_whole_aoi"
+    ]
+  },
+  "arms": [
+    {
+      "case": "site_landcover_limits",
+      "runtime": "typed",
+      "model": "qwen2b",
+      "context": "ebtl",
+      "session": "20260716_164102_41e379",
+      "source": "mt-site_landcover_limits-typed-qwen2b-1784220058",
+      "checks": [
+        "site_context_is_retained",
+        "production_landcover_source_is_executed",
+        "modelled_layer_is_labelled",
+        "point_proxy_is_not_generalized_to_whole_aoi"
+      ],
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "tell me about ebtl",
+          "exit_code": 0,
+          "latency_s": 5.961,
+          "output": "Query: tell me about ebtl\nInitializing agent...\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     Sure \u2014 quick clarification first: \u201cElephants by the Lake\u201d covers a lot     \n     of ground. What angle do you want right now?                               \n                                                                                \n     1) Current vegetation / land cover \u2014 what\u2019s actually on the ground         \n     today                                                                      \n     2) Wildlife sightings \u2014 species documented at the site                     \n     3) Fire / degradation risk \u2014 pressure mapping                              \n     4) Restoration progress \u2014 change over time                                 \n                                                                                \n     Pick one and I\u2019ll give you real numbers from the available data.           \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_164102_41e379 -p dss-eval\n\nSession:        20260716_164102_41e379\nDuration:       1s\nMessages:       2 (1 user, 0 tool calls)"
+        },
+        {
+          "turn": 2,
+          "prompt": "what is the current vegetation or land cover?",
+          "exit_code": 0,
+          "latency_s": 17.154,
+          "output": "Query: what is the current vegetation or land cover?\nInitializing agent...\n\u21bb Resumed session 20260716_164102_41e379 (1 user message, 2 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  answer\n  \u250a \ud83d\udd0c origin.landcover.classify  1 rows\n  \u250a \ud83d\udd0c origin.landcover.area_by_class  5 rows\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     WorldCover v200 classifies the declared centre as Shrubland. Across        \n     the analysis bbox: Shrubland 4.37 km\u00b2, Tree cover 3.63 km\u00b2, Cropland       \n     0.5 km\u00b2, Grassland 0.16 km\u00b2, Built-up 0.01 km\u00b2. This is a modelled         \n     land-cover classification over the analysis AOI, not a surveyed            \n     composition of the 70-acre property; that needs its actual boundary        \n     polygon.                                                                   \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_164102_41e379 -p dss-eval\n\nSession:        20260716_164102_41e379\nDuration:       12s\nMessages:       4 (2 user, 0 tool calls)"
+        },
+        {
+          "turn": 3,
+          "prompt": "is that for the whole property or just one point?",
+          "exit_code": 0,
+          "latency_s": 5.67,
+          "output": "Query: is that for the whole property or just one point?\nInitializing agent...\n\u21bb Resumed session 20260716_164102_41e379 (2 user messages, 4 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     It is only the declared site-centre point, not the whole property. A       \n     whole-AOI answer needs polygon-wide WorldCover class areas or a            \n     declared sampling grid; until then, the point result must remain           \n     labelled as a proxy.                                                       \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_164102_41e379 -p dss-eval\n\nSession:        20260716_164102_41e379\nDuration:       1s\nMessages:       6 (3 user, 0 tool calls)"
+        }
+      ]
+    },
+    {
+      "case": "site_landcover_limits",
+      "runtime": "untyped",
+      "model": "deepseekv4",
+      "context": "ebtl",
+      "session": "20260716_164129_9915af",
+      "source": "mt-site_landcover_limits-untyped-deepseekv4-1784220087",
+      "checks": [
+        "site_context_is_retained",
+        "production_landcover_source_is_executed",
+        "modelled_layer_is_labelled",
+        "point_proxy_is_not_generalized_to_whole_aoi"
+      ],
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "tell me about ebtl",
+          "exit_code": 0,
+          "latency_s": 23.969,
+          "output": "Query: tell me about ebtl\nInitializing agent...\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83d\udcd6 preparing read_file\u2026\n  \u250a \ud83d\udc0d preparing execute_code\u2026\n  \u250a \ud83d\udcd6 read      /opt/data/connectors/PLAYBOOK.md  0.2s\n  \u250a \ud83d\udc0d exec      import subprocess, os, json  0.1s\n\n\u256d\u2500 \u2695 Hermes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n    EBTL is the flagship site \u2014 \"Elephants by the Lake\" \u2014 a dry-deciduous forest restoration near Veppanapalli, Krishnagiri, Tamil Nadu (~2.9 km\u00b2 AOI). I've got landcover, greenness, terrain, water, ecoregion, species records, fire history, and more data for it.\n    \n    But that's a broad ask \u2014 what specifically are you trying to understand or observe? A few directions I can go:\n    \n    - What's the current landcover / forest condition? (satellite, observed)\n    - What species have been recorded on-site? (GBIF + iNaturalist records)\n    - Water availability / ponds / streams? (observed surface water)\n    - Fire history? (satellite fire scars)\n    - Greenness trends? (NDVI over time)\n    - What's growing nearby that could transfer? (wider corridor species pool)\n    \n    Which thread's useful to you?\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\nResume this session with:\n  hermes --resume 20260716_164129_9915af\n\nSession:        20260716_164129_9915af\nDuration:       21s\nMessages:       5 (1 user, 3 tool calls)\n\u26a0 Auxiliary title generation failed: HTTP 404: The model `qwen` does not exist.\n[chat] backend=deepseek-v4-flash (openrouter) (container hermes-live)  \u00b7  flags: -m deepseek/deepseek-v4-flash --provider openrouter --yolo --source mt-site_landcover_limits-untyped-deepseekv4-1784220087 --max-turns 12"
+        },
+        {
+          "turn": 2,
+          "prompt": "what is the current vegetation or land cover?",
+          "exit_code": 0,
+          "latency_s": 39.206,
+          "output": "Query: what is the current vegetation or land cover?\nInitializing agent...\n\u21bb Resumed session 20260716_164129_9915af (1 user message, 5 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83d\udcd6 preparing read_file\u2026\n  \u250a \ud83d\udcbb preparing terminal\u2026\n  \u250a \ud83d\udcd6 read      /opt/data/connectors/SITE_EBTL.json  0.1s\n  \u250a \ud83d\udcbb $         cd /opt/data/connectors && python landcover.py --describe 2>&1  0.1s\n  \u250a \ud83d\udcbb preparing terminal\u2026\n  \u250a \ud83d\udcbb $         cd /opt/data/connectors && python landcover.py area_by_class --bbox 78.170,12.721,78.197,12.747 2>&1  6.0s\n\n\u256d\u2500 \u2695 Hermes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n    Current land cover at EBTL (ESA WorldCover v200, 10 m, satellite observed \u2014 ~2021 imagery):\n    \n    | Class      | Area (km\u00b2) | % of site |\n    |------------|------------|-----------|\n    | Shrubland  | 4.37       | 50%       |\n    | Tree cover | 3.63       | 42%       |\n    | Cropland   | 0.50       | 6%        |\n    | Grassland  | 0.16       | 2%        |\n    | Built-up   | 0.01       | <1%       |\n    \n    The site is roughly half shrubland, half tree cover with a small cropland patch \u2014 classic dry-deciduous transition where restoration is actively shifting the shrubland toward tree cover. The \"Tree cover\" class includes both mature trees and any planted saplings large enough to resolve at 10 m.\n    \n\u26a0\ufe0f  Stream interrupted by network error (finish_reason='length' on partial-stream-stub)\n    A couple of cave...A couple of caveats:\n    \n    - Shrubland is the restoration target zone \u2014 the ~4.4 km\u00b2 where you're intervening. The 3.6 km\u00b2 of \"Tree cover\" could include planted native saplings that've grown tall enough to read at 10 m resolution, plus remnant patches.\n    - It's ~2021 imagery \u2014 the most recent ESA WorldCover snapshot. An update would show progress since planting began.\n    \n    Want me to run any of these?\n    \n    1. Greenness trend (NDVI from satellite, yearly since 2017) \u2014 shows whether the site is getting greener\n    2. Tree cover vs restored patch \u2014 I can contrast this with actual planted boundaries if you share a CSV\n    3. Compare to the wider corridor \u2014 how EBTL's cover stacks against the surrounding landscape\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\nResume this session with:\n  hermes --resume 20260716_164129_9915af\n\nSession:        20260716_164129_9915af\nDuration:       35s\nMessages:       14 (3 user, 8 tool calls)\n[chat] backend=deepseek-v4-flash (openrouter) (container hermes-live)  \u00b7  flags: -m deepseek/deepseek-v4-flash --provider openrouter --yolo --source mt-site_landcover_limits-untyped-deepseekv4-1784220087 --resume 20260716_164129_9915af --max-turns 12"
+        },
+        {
+          "turn": 3,
+          "prompt": "is that for the whole property or just one point?",
+          "exit_code": 0,
+          "latency_s": 14.91,
+          "output": "Query: is that for the whole property or just one point?\nInitializing agent...\n\u21bb Resumed session 20260716_164129_9915af (3 user messages, 14 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n\n\u256d\u2500 \u2695 Hermes \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n    Good catch \u2014 those numbers are for the whole ~2.9 \u00d7 2.9 km AOI bounding box (the entire window around EBTL, ~8.7 km\u00b2), not just the ~70-acre restoration property. The area_by_class function paints every 10 m pixel inside that box with its class.\n    \n    Your actual restoration footprint (~70 acres / 0.28 km\u00b2) is much smaller \u2014 \"Tree cover\" and \"Shrubland\" inside there would depend on exactly where your planted patches are. If you share a CSV or KML of your planted boundaries, I can clip the landcover to just your patches and give you the real numbers for the property. Otherwise, the 50/42% shrub/tree split above is the context of the surrounding landscape your site sits in.\n    \n    Alternately, I could run:\n    \n    1. Greenness (NDVI) trend for the AOI since 2017 \u2014 see if the valley's getting greener\n    2. Terrain (elevation/slope) \u2014 understand which patches are shrub vs tree by topography\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n\nResume this session with:\n  hermes --resume 20260716_164129_9915af\n\nSession:        20260716_164129_9915af\nDuration:       12s\nMessages:       16 (4 user, 8 tool calls)\n[chat] backend=deepseek-v4-flash (openrouter) (container hermes-live)  \u00b7  flags: -m deepseek/deepseek-v4-flash --provider openrouter --yolo --source mt-site_landcover_limits-untyped-deepseekv4-1784220087 --resume 20260716_164129_9915af --max-turns 12"
+        }
+      ]
+    }
+  ]
+}

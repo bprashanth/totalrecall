@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "created_at": "2026-07-16T22:14:30.055347",
+  "case": {
+    "id": "site_landcover_limits",
+    "purpose": "Current land-cover answer and point-versus-AOI limitation",
+    "context": "ebtl",
+    "turns": [
+      "tell me about ebtl",
+      "what is the current vegetation or land cover?",
+      "is that for the whole property or just one point?"
+    ],
+    "checks": [
+      "site_context_is_retained",
+      "production_landcover_source_is_executed",
+      "modelled_layer_is_labelled",
+      "point_proxy_is_not_generalized_to_whole_aoi"
+    ]
+  },
+  "arms": [
+    {
+      "case": "site_landcover_limits",
+      "runtime": "typed",
+      "model": "qwen2b",
+      "context": "ebtl",
+      "session": "20260716_164407_418e42",
+      "source": "mt-site_landcover_limits-typed-qwen2b-1784220243",
+      "checks": [
+        "site_context_is_retained",
+        "production_landcover_source_is_executed",
+        "modelled_layer_is_labelled",
+        "point_proxy_is_not_generalized_to_whole_aoi"
+      ],
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "tell me about ebtl",
+          "exit_code": 0,
+          "latency_s": 6.077,
+          "output": "Query: tell me about ebtl\nInitializing agent...\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     Sure \u2014 quick clarification first: \u201cElephants by the Lake\u201d covers a lot     \n     of ground. What angle do you want right now?                               \n                                                                                \n     1) Current vegetation / land cover \u2014 what\u2019s actually on the ground         \n     today                                                                      \n     2) Wildlife sightings \u2014 species documented at the site                     \n     3) Fire / degradation risk \u2014 pressure mapping                              \n     4) Restoration progress \u2014 change over time                                 \n                                                                                \n     Pick one and I\u2019ll give you real numbers from the available data.           \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_164407_418e42 -p dss-eval\n\nSession:        20260716_164407_418e42\nDuration:       1s\nMessages:       2 (1 user, 0 tool calls)"
+        },
+        {
+          "turn": 2,
+          "prompt": "what is the current vegetation or land cover?",
+          "exit_code": 0,
+          "latency_s": 15.257,
+          "output": "Query: what is the current vegetation or land cover?\nInitializing agent...\n\u21bb Resumed session 20260716_164407_418e42 (1 user message, 2 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  answer\n  \u250a \ud83d\udd0c origin.landcover.classify  1 rows\n  \u250a \ud83d\udd0c origin.landcover.area_by_class  5 rows\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     WorldCover v200 classifies the declared centre as Shrubland. Across        \n     the analysis bbox: Shrubland 4.37 km\u00b2, Tree cover 3.63 km\u00b2, Cropland       \n     0.5 km\u00b2, Grassland 0.16 km\u00b2, Built-up 0.01 km\u00b2. This is a modelled         \n     land-cover classification over the analysis AOI, not a surveyed            \n     composition of the 70-acre property; that needs its actual boundary        \n     polygon.                                                                   \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_164407_418e42 -p dss-eval\n\nSession:        20260716_164407_418e42\nDuration:       10s\nMessages:       4 (2 user, 0 tool calls)"
+        },
+        {
+          "turn": 3,
+          "prompt": "is that for the whole property or just one point?",
+          "exit_code": 0,
+          "latency_s": 5.494,
+          "output": "Query: is that for the whole property or just one point?\nInitializing agent...\n\u21bb Resumed session 20260716_164407_418e42 (2 user messages, 4 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     It contains two grains: \u2018Shrubland\u2019 is the declared centre point,          \n     while the class-area figures cover the entire ~8.7 km\u00b2 analysis            \n     bounding box. Neither is the 70-acre property composition. That            \n     requires the actual property boundary polygon; WorldCover remains a        \n     modelled classification.                                                   \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_164407_418e42 -p dss-eval\n\nSession:        20260716_164407_418e42\nDuration:       1s\nMessages:       6 (3 user, 0 tool calls)"
+        }
+      ]
+    }
+  ]
+}

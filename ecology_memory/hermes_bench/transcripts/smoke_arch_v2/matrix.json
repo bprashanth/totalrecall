@@ -1,0 +1,233 @@
+{
+  "round": "smoke_arch_v2",
+  "arms": [
+    "C2-D",
+    "C9-D",
+    "C2-R9",
+    "C9-R9"
+  ],
+  "started": "2026-07-17T20:07:19+0530",
+  "turns": [
+    {
+      "number": 1,
+      "goal": "OPEN — map EBTL for a new conservation colleague: strongest local facts and major unknowns.",
+      "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+      "compiled": {
+        "qwen2b": {
+          "compiler": "qwen2b",
+          "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL evidence summary",
+            "region": {
+              "op": "REGION",
+              "place": "Lake region, Africa"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL evidence summary\", \"region\": {\"op\": \"REGION\", \"place\": \"Lake region, Africa\"}, \"time\": null}",
+          "parse_valid": true,
+          "repair_events": [],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "data_request",
+            "reason": "no_connector",
+            "detail": {
+              "entity": "EBTL evidence summary",
+              "hint": "no data source maps this entity; add a connector or refine the term"
+            },
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "none",
+                "note": "no connector for 'EBTL evidence summary'"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 3.067
+        },
+        "lora9b": {
+          "compiler": "lora9b",
+          "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL evidence summary",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL evidence summary\", \"region\": \"?place\", \"time\": null}",
+          "parse_valid": true,
+          "repair_events": [],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-summary:birds",
+                  "topic": "birds",
+                  "finding": "67 species in a local 2024 transit survey",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:snakes",
+                  "topic": "snakes",
+                  "finding": "14 documented property species; 3 encountered in the three-day 2024 VES",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:elephants",
+                  "topic": "elephants",
+                  "finding": "two passage events supported by indirect physical signs",
+                  "label": "indirect"
+                },
+                {
+                  "id": "ebtl-summary:nursery",
+                  "topic": "nursery",
+                  "finding": "110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues",
+                  "label": "reported"
+                },
+                {
+                  "id": "ebtl-summary:invasives",
+                  "topic": "non-native management",
+                  "finding": "roughly one acre of Eucalyptus removal documented; no local Lantana confirmation",
+                  "label": "reported"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "evidence_summary",
+              "source_metadata": {},
+              "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations",
+              "connector_events": [],
+              "entity": "evidence_summary",
+              "input_entity": "EBTL evidence summary"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "evidence_summary",
+                "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 5.634
+        }
+      },
+      "arms": {
+        "C2-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (no_connector). DATA REQUEST: no data source maps this entity; add a connector or refine the term",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "C9-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 5 evidence records: 67 species in a local 2024 transit survey, 14 documented property species; 3 encountered in the three-day 2024 VES, two passage events supported by indirect physical signs, 110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues, roughly one acre of Eucalyptus removal documented; no local Lantana confirmation. Source: Imported EBTL primary evidence. local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "C2-R9": {
+          "responder": "lora9b",
+          "answer": "We currently have no factual evidence to map for Elephants by the Lake (EBTL). The system shows no data source connects to an EBTL evidence summary, meaning there are no recorded observations, surveys, or monitoring records available for this entity.\n\nTo move forward, we need a concrete data source: identify what specific elephant-related metric you can measure (e.g., presence/absence, sightings, or proxy indicators), where in the EBTL region, and when the data was collected or should be collected. Without a connector or data source, we cannot produce a map or summary of the situation.",
+          "raw_responder": "{\"status\": \"data_request\", \"evidence_label\": null, \"reason\": \"no_connector\", \"detail\": {\"entity\": \"EBTL evidence summary\", \"hint\": \"no data source maps this entity; add a connector or refine the term\"}, \"value\": null, \"provenance\": [{\"op\": \"SELECT\", \"route\": \"none\", \"note\": \"no connector for 'EBTL evidence summary'\"}]}\nassistant\n<think>\nThe user is asking about the strongest facts and important gaps for EBTL (Elephants by the Lake) mapping. However, the current audited result shows a \"data_request\" status with \"no_connector\" - meaning there is no actual data available for this entity.\n\nAccording to the hard rules:\n- If status=data_request, say what is unknown and make one concrete DATA REQUEST: what to measure, where, when/effort. Do not guess a number.\n- Use only facts, names and numbers present in the CURRENT AUDITED RESULT or explicitly supplied by the user.\n\nThe result tells me:\n- There is no data source that maps to \"EBTL evidence summary\"\n- No connector exists for this entity\n- The entity itself is \"EBTL evidence summary\"\n\nI need to explain that we have no facts available and make a concrete data request. I cannot invent facts or suggest specific measurements beyond what the system indicates is missing.\n\nLet me craft a response that:\n1. Leads with the answer (we have no facts)\n2. Explains the gap clearly\n3. Makes one concrete data request based on what's missing\n</think>\n\nWe currently have no factual evidence to map for Elephants by the Lake (EBTL). The system shows no data source connects to an EBTL evidence summary, meaning there are no recorded observations, surveys, or monitoring records available for this entity.\n\nTo move forward, we need a concrete data source: identify what specific elephant-related metric you can measure (e.g., presence/absence, sightings, or proxy indicators), where in the EBTL region, and when the data was collected or should be collected. Without a connector or data source, we cannot produce a map or summary of the situation.\n",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 43.285
+        },
+        "C9-R9": {
+          "responder": "lora9b",
+          "answer": "{\"role\": \"assistant\", \"content\": \"The strongest facts we have are direct observations of 67 bird species and 14 snake species (with 3 seen in a three-day 2024 survey) at Elephants by the Lake. We also have indirect evidence of two elephant passage events supported by physical signs, and reported data on a 110-species nursery with 15,000 saplings from July 2024. There is also a reported record of roughly one acre of Eucalyptus removal.\\n\\nImportant gaps include the lack of local confirmation for Lantana presence, and the elephant evidence is indirect rather than direct sightings. We do not have direct observations of elephants, only indirect signs of passage. For a new field colleague, priority would be to measure elephant presence directly and confirm the presence or absence of Lantana in the area.\"}",
+          "raw_responder": "{\"role\": \"assistant\", \"content\": \"The strongest facts we have are direct observations of 67 bird species and 14 snake species (with 3 seen in a three-day 2024 survey) at Elephants by the Lake. We also have indirect evidence of two elephant passage events supported by physical signs, and reported data on a 110-species nursery with 15,000 saplings from July 2024. There is also a reported record of roughly one acre of Eucalyptus removal.\\n\\nImportant gaps include the lack of local confirmation for Lantana presence, and the elephant evidence is indirect rather than direct sightings. We do not have direct observations of elephants, only indirect signs of passage. For a new field colleague, priority would be to measure elephant presence directly and confirm the presence or absence of Lantana in the area.\"}\n",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 61.631
+        }
+      }
+    }
+  ]
+}

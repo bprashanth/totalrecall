@@ -1,0 +1,516 @@
+{
+  "round": "v9_acceptance_candidate",
+  "arms": [
+    "SQ9DSC2-D",
+    "SQ9DSC2-RQ9"
+  ],
+  "arm_defs": {
+    "SQ9DSC2-D": {
+      "compiler": "qwen9b>deepseekv4@qwen2b",
+      "responder": "deterministic"
+    },
+    "SQ9DSC2-RQ9": {
+      "compiler": "qwen9b>deepseekv4@qwen2b",
+      "responder": "qwen9b"
+    }
+  },
+  "started": "2026-07-18T02:48:03+0530",
+  "turns": [
+    {
+      "number": 1,
+      "goal": "OPEN — map EBTL for a new conservation colleague: strongest local facts and major unknowns.",
+      "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL evidence summary",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL evidence summary\", \"region\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"time\": null}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"EBTL evidence summary\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL evidence summary",
+            "capability_verifier:retained:EBTL evidence summary",
+            "capability_selector:mode:execute",
+            "capability_binding:single_declared_template"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-summary:birds",
+                  "topic": "birds",
+                  "finding": "67 species in a local 2024 transit survey",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:snakes",
+                  "topic": "snakes",
+                  "finding": "14 documented property species; 3 encountered in the three-day 2024 VES",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:elephants",
+                  "topic": "elephants",
+                  "finding": "two passage events supported by indirect physical signs",
+                  "label": "indirect"
+                },
+                {
+                  "id": "ebtl-summary:nursery",
+                  "topic": "nursery",
+                  "finding": "110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues",
+                  "label": "reported"
+                },
+                {
+                  "id": "ebtl-summary:invasives",
+                  "topic": "non-native management",
+                  "finding": "roughly one acre of Eucalyptus removal documented; no local Lantana confirmation",
+                  "label": "reported"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "evidence_summary",
+              "source_metadata": {},
+              "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations",
+              "connector_events": [],
+              "entity": "evidence_summary",
+              "input_entity": "EBTL evidence summary"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "evidence_summary",
+                "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 16.928
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Mixed-evidence result: 5 evidence records: [observed] 67 species in a local 2024 transit survey, [observed] 14 documented property species; 3 encountered in the three-day 2024 VES, [indirect] two passage events supported by indirect physical signs, [reported] 110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues, [reported] roughly one acre of Eucalyptus removal documented; no local Lantana confirmation. Source: Imported EBTL primary evidence. local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "no_typed_holes": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The strongest facts available for Elephants by the Lake (EBTL) are direct observations of 67 bird species and 3 snake species recorded during a three-day 2024 survey, alongside 14 documented snake species for the property overall. There is also reported data from a July 2024 snapshot indicating 110 species and 15,000 saplings in the nursery, plus documentation of roughly one acre of Eucalyptus removal.\n\nImportant gaps exist regarding elephants, where only two passage events are known from indirect physical signs rather than direct sightings, and there is no local confirmation of Lantana despite some invasive management activity. To address the elephant gap, a concrete data request is needed to measure elephant presence directly through repeat detection efforts at specific locations during appropriate seasons using standard field methods.",
+          "raw_responder": "The strongest facts available for Elephants by the Lake (EBTL) are direct observations of 67 bird species and 3 snake species recorded during a three-day 2024 survey, alongside 14 documented snake species for the property overall. There is also reported data from a July 2024 snapshot indicating 110 species and 15,000 saplings in the nursery, plus documentation of roughly one acre of Eucalyptus removal.\n\nImportant gaps exist regarding elephants, where only two passage events are known from indirect physical signs rather than direct sightings, and there is no local confirmation of Lantana despite some invasive management activity. To address the elephant gap, a concrete data request is needed to measure elephant presence directly through repeat detection efforts at specific locations during appropriate seasons using standard field methods.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "no_typed_holes": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 13.09
+        }
+      }
+    },
+    {
+      "number": 2,
+      "goal": "WILDLIFE BASELINE — what groups were actually surveyed, when, and what “recorded” means.",
+      "question": "That is useful, but what was actually surveyed on the property in 2024? Give me the wildlife groups, dates and effort, and separate animals seen in that survey from older or indirect records.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "That is useful, but what was actually surveyed on the property in 2024? Give me the wildlife groups, dates and effort, and separate animals seen in that survey from older or indirect records.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL wildlife inventory",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL wildlife inventory\", \"region\": \"?place\", \"time\": {\"start\": \"2024\", \"end\": \"2024\"}}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"EBTL wildlife inventory\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL wildlife inventory",
+            "capability_verifier:retained:EBTL wildlife inventory",
+            "capability_selector:mode:execute"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "faunal-survey-2024:group:butterflies",
+                  "group": "butterflies",
+                  "recorded_taxa": 54,
+                  "observed_during_survey": 54,
+                  "pages": [
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  "method": "Four 30-minute road/walkway transects per day for three days, 09:30-12:30, plus observations outside transect timings",
+                  "examples": [
+                    "Common Emigrant",
+                    "Tawny Coster",
+                    "Common Grass Yellow",
+                    "Double-branded Crow",
+                    "Crimson Rose"
+                  ],
+                  "record_status": "survey_summary",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=4"
+                },
+                {
+                  "id": "faunal-survey-2024:group:odonates",
+                  "group": "odonates",
+                  "recorded_taxa": 42,
+                  "observed_during_survey": 42,
+                  "pages": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15
+                  ],
+                  "method": "One-hour time-constrained VES on three transects over four days",
+                  "breakdown": {
+                    "dragonflies": 31,
+                    "damselflies": 11
+                  },
+                  "examples": [
+                    "Vagrant Emperor",
+                    "Common Clubtail",
+                    "Scarlet Skimmer",
+                    "Coromandel Marsh Dart",
+                    "Yellow Bush Dart"
+                  ],
+                  "record_status": "survey_summary",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=10"
+                },
+                {
+                  "id": "faunal-survey-2024:group:birds",
+                  "group": "birds",
+                  "recorded_taxa": 67,
+                  "observed_during_survey": 67,
+                  "pages": [
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "method": "Birds seen or heard on approximately 1 km transits, with morning/evening effort and 30-minute eBird checklists",
+                  "examples": [
+                    "Gray Junglefowl",
+                    "Short-toed Snake-Eagle",
+                    "Indian Spotted Eagle",
+                    "White-cheeked Barbet",
+                    "Spot-breasted Fantail"
+                  ],
+                  "record_status": "survey_summary",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=16"
+                },
+                {
+                  "id": "faunal-survey-2024:group:herpetofauna",
+                  "group": "herpetofauna",
+                  "recorded_taxa": 33,
+                  "observed_during_survey": 20,
+                  "earlier_property_records_not_observed": 13,
+                  "pages": [
+                    22,
+                    23,
+                    24
+                  ],
+                  "method": "Three days of two-hour time-constrained VES sessions across morning, evening and night periods",
+                  "observed_breakdown": {
+                    "frogs": 7,
+                    "lizards": 9,
+                    "snakes": 3,
+                    "turtles": 1
+                  },
+                  "earlier_breakdown": {
+                    "lizards": 2,
+                    "snakes": 11
+                  },
+                  "examples": [
+                    "Common Indian Toad",
+                    "Indian Burrowing Frog",
+                    "Rock Agama",
+                    "Common Sand Boa",
+                    "Star Tortoise"
+                  ],
+                  "record_status": "survey_summary",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=22"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": {
+                "start": "2024",
+                "end": "2024"
+              },
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "wildlife_inventory",
+              "source_metadata": {
+                "survey_dates": {
+                  "butterflies": "2024-09-05 to 2024-09-07",
+                  "birds": "2024-09-05 to 2024-09-07",
+                  "herpetofauna": "2024-09-05 to 2024-09-07",
+                  "odonates": "2024-10-10 to 2024-10-13"
+                },
+                "limitation": "Survey-period inventories are not proof of year-round presence, abundance, or complete detectability; 13 herpetofauna entries are earlier property records rather than detections during the 2024 VES",
+                "indirect_elephant_passage_events": 2
+              },
+              "note": "published local survey summaries for butterflies, odonates, birds and herpetofauna; the herpetofauna total separates 2024 VES detections from earlier property records; elephant evidence comes from two separate indirect passage reports",
+              "connector_events": [],
+              "entity": "wildlife_inventory",
+              "input_entity": "EBTL wildlife inventory"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "wildlife_inventory",
+                "note": "published local survey summaries for butterflies, odonates, birds and herpetofauna; the herpetofauna total separates 2024 VES detections from earlier property records; elephant evidence comes from two separate indirect passage reports"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 1.172
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 4 evidence records. Source: Imported EBTL primary evidence. published local survey summaries for butterflies, odonates, birds and herpetofauna; the herpetofauna total separates 2024 VES detections from earlier property records; elephant evidence comes from two separate indirect passage reports.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "no_typed_holes": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "In September 2024, the property was surveyed for butterflies (Sept 5–7), birds (Sept 5–7), and herpetofauna (Sept 5–7), while odonates were surveyed separately from October 10–13. Butterflies, birds, and all odonates recorded during these periods were seen or heard directly during the specific 2024 field efforts. For herpetofauna, only 20 of the 33 total taxa were encountered during the three-day visual encounter surveys; the remaining 13 species are older property records not observed in 2024.\n\nTwo indirect elephant passage events were also noted, but these are not direct sightings from the 2024 surveys. The current data distinguishes between animals confirmed by the 2024 effort and those known only from historical records, particularly for reptiles and amphibians. No direct elephant observations were made during the 2024 fieldwork, so their presence remains inferred from physical signs rather than direct encounter.",
+          "raw_responder": "In September 2024, the property was surveyed for butterflies (Sept 5–7), birds (Sept 5–7), and herpetofauna (Sept 5–7), while odonates were surveyed separately from October 10–13. Butterflies, birds, and all odonates recorded during these periods were seen or heard directly during the specific 2024 field efforts. For herpetofauna, only 20 of the 33 total taxa were encountered during the three-day visual encounter surveys; the remaining 13 species are older property records not observed in 2024.\n\nTwo indirect elephant passage events were also noted, but these are not direct sightings from the 2024 surveys. The current data distinguishes between animals confirmed by the 2024 effort and those known only from historical records, particularly for reptiles and amphibians. No direct elephant observations were made during the 2024 fieldwork, so their presence remains inferred from physical signs rather than direct encounter.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "no_typed_holes": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 2.891
+        }
+      }
+    },
+    {
+      "number": 3,
+      "goal": "BIODIVERSITY COVERAGE — what important groups or seasons are missing; why inventory is not richness.",
+      "question": "For the bird list specifically, can it tell us year-round richness or monsoon and winter migrants, or is it only a seasonal snapshot? Tell me exactly what repeated survey would close that gap.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "clarify",
+          "question": "For the bird list specifically, can it tell us year-round richness or monsoon and winter migrants, or is it only a seasonal snapshot? Tell me exactly what repeated survey would close that gap.",
+          "ir": null,
+          "raw_compiler": null,
+          "raw_selector": "{\"mode\":\"clarify\",\"entities\":[\"EBTL bird inventory\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL bird inventory",
+            "capability_selector:mode:clarify"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": []
+          },
+          "execution": {
+            "status": "data_request",
+            "reason": "ambiguous_request",
+            "detail": {
+              "ask": "Which measurement should I use?",
+              "candidate_capabilities": [
+                "EBTL bird inventory"
+              ]
+            }
+          },
+          "compile_execute_latency_s": 0.744
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "That request could mean several different measurements. Which aspect do you want? Options: EBTL bird inventory.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "no_typed_holes": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": false,
+            "passed": false,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The current bird list from the 2024 survey documents 67 species seen or heard during specific morning and evening transits, but it does not distinguish between resident, monsoon, or winter migrant populations. Because the data represents a single seasonal snapshot rather than a year-round inventory, it cannot confirm which species are permanent residents versus seasonal visitors.\n\nTo close this gap, a repeated survey effort is needed that explicitly measures bird presence across multiple seasons (monsoon and winter) using the same standardized method: approximately 1 km transits with morning and evening effort, supplemented by 30-minute eBird checklists. Conducting these surveys in different seasons will allow you to separate resident species from migrants and establish true year-round richness.",
+          "raw_responder": "The current bird list from the 2024 survey documents 67 species seen or heard during specific morning and evening transits, but it does not distinguish between resident, monsoon, or winter migrant populations. Because the data represents a single seasonal snapshot rather than a year-round inventory, it cannot confirm which species are permanent residents versus seasonal visitors.\n\nTo close this gap, a repeated survey effort is needed that explicitly measures bird presence across multiple seasons (monsoon and winter) using the same standardized method: approximately 1 km transits with morning and evening effort, supplemented by 30-minute eBird checklists. Conducting these surveys in different seasons will allow you to separate resident species from migrants and establish true year-round richness.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "no_typed_holes": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 19.081
+        }
+      }
+    }
+  ]
+}

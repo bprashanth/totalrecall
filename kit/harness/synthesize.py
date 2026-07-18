@@ -14,6 +14,8 @@ SYNTH_SYSTEM = """You write the FINAL one-paragraph answer to a user's question 
 from a structured result computed by deterministic tools. Rules:
 - <= 60 words. Lead with the finding (the number / the list size / the direction / the ranking).
 - If evidence_label is "modelled": say clearly it is a modelled estimate needing local corroboration.
+- If alignment is present, name the exact common coverage window and that unmatched periods were
+  dropped; never imply interpolation. If source vintages differ, name both vintages.
 - If status is data_request: do NOT invent an answer. Say exactly what is missing or ambiguous and
   ask the ONE most useful question (or name the data to collect).
 - Never invent numbers not present in the result. Mention the data source in passing."""
@@ -21,11 +23,16 @@ from a structured result computed by deterministic tools. Rules:
 
 def _context(exec_result):
     v = exec_result.get("value") or {}
+    alignments = [p.get("alignment") for p in exec_result.get("provenance", [])
+                  if p.get("alignment")]
     ctx = {"status": exec_result.get("status"), "evidence_label": exec_result.get("label"),
            "reason": exec_result.get("reason"), "detail": exec_result.get("detail"),
            "kind": v.get("kind"), "scalar": v.get("value"),
            "n_rows": v.get("n_rows", len(v.get("rows", []) or [])),
            "sample_rows": (v.get("rows") or [])[:3],
+           "measure": v.get("measure"), "unit": v.get("unit"), "grain": v.get("grain"),
+           "alignment": alignments[-1] if alignments else v.get("alignment"),
+           "vintage": v.get("vintage"),
            "provenance_notes": [p.get("note") for p in exec_result.get("provenance", [])
                                 if p.get("note")][:4],
            "sources": list({p.get("route") for p in exec_result.get("provenance", [])
@@ -74,6 +81,14 @@ def score_synthesis(question, exec_result, prose):
         s["modelled_flagged"] = bool(re.search(r"model|estimat|approximat", prose.lower()))
     else:
         s["modelled_flagged"] = True
+    alignment = next((p.get("alignment") for p in exec_result.get("provenance", [])
+                      if p.get("alignment")), None)
+    if alignment and alignment.get("used_window"):
+        start, end = alignment["used_window"]
+        s["alignment_surfaced"] = str(start) in prose and str(end) in prose and bool(
+            re.search(r"common|overlap|align|drop|unmatched", prose.lower()))
+    else:
+        s["alignment_surfaced"] = True
     if status == "data_request":
         s["gap_stated"] = bool(re.search(r"missing|no data|need|collect|clarif|which |couldn|unable|specify",
                                          prose.lower()))

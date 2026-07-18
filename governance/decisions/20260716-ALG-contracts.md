@@ -84,3 +84,20 @@ overlap certificate presence/absence; zero-overlap DataRequest; no-synthetic-per
 test; scalar-window exemption regression (pre/post CHANGE class must keep executing);
 orientation-rule regression; FILTER unknown-field DataRequest; null-exclusion accounting;
 chain-merge canonical equality; type error on FILTER over non-Records.
+
+## Release record — 2026-07-17
+
+ALG-005 and ALG-007 were implemented in `kit/` and promoted after the executor/connector/synthesis
+conformance wall passed. The release is algebra **v2.3.0**, framework **2.4.0**. It adds no IR op
+and requires no parser/model retraining. World Bank and OSM reference leaves now declare typed
+measure/unit/grain/lineage metadata; World Bank also declares annual frequency and source vintage.
+
+The implemented temporal surface is exactly the reconciled one: exact inner period joins,
+dropped-period certificates, zero-overlap and duplicate-period DataRequests, flow+sum or
+stock+mean/last declared coarsening, vintage passthrough, and the one-value pre/post exemption.
+There is no outer join, interpolation, lag, or vintage selection.
+
+ALG-002 remains `accepted-conditional` and unreleased; connector field declarations have begun but
+the parser-visible FILTER surface and corpus/model bundle do not exist. ALG-003 remains
+`rfc-required`; no keyed-result representation was selected or implemented. ALG-008 remains
+deferred.

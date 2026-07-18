@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "shell": "hermes",
+  "compatibility_default": {"runtime": "untyped", "context": "ebtl", "entrypoint": "origin"},
+  "runtimes": {
+    "untyped": {
+      "algebra": "origin playbook/router",
+      "connectors": "origin live connectors",
+      "exact_origin_case": "context=ebtl and non-2B origin model"
+    },
+    "typed": {
+      "algebra": "released typed IR v2.2.1 plus sector compiler/executor",
+      "connectors": "typed normalized connector set",
+      "dialogue": "Hermes with pre-turn deterministic result injection"
+    },
+    "no-algebra": {
+      "algebra": "none",
+      "connectors": "none",
+      "dialogue": "neutral Hermes profile"
+    }
+  },
+  "contexts": {
+    "general": {"site_bound": false},
+    "ebtl": {"site_bound": true, "bbox_wsen": [78.170, 12.721, 78.197, 12.747]}
+  },
+  "models": {
+    "deepseekv4": {"available": true, "provider": "openrouter"},
+    "qwen2b": {
+      "available": true,
+      "provider": "local",
+      "served_id": "qwen3.5-2b",
+      "limitations": ["actual server context 8192", "no automatic tool calling"]
+    },
+    "qwen2b-lora": {
+      "available": false,
+      "provider": "local",
+      "served_id": "qwen3.5-2b-lora",
+      "reason": "not advertised by the local /v1/models endpoint"
+    }
+  },
+  "comparison_axes": [
+    "clarification_quality",
+    "multi_turn_binding",
+    "semantic_fidelity",
+    "execution_status",
+    "grounding",
+    "evidence_label_fidelity",
+    "unsupported_claim_rate",
+    "brevity",
+    "latency",
+    "tool_errors",
+    "cost"
+  ]
+}

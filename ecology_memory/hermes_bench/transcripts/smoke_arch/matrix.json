@@ -1,0 +1,143 @@
+{
+  "round": "smoke_arch",
+  "arms": [
+    "C2-D",
+    "C9-D",
+    "C2-R9",
+    "C9-R9"
+  ],
+  "started": "2026-07-17T20:04:33+0530",
+  "turns": [
+    {
+      "number": 1,
+      "goal": "OPEN — map EBTL for a new conservation colleague: strongest local facts and major unknowns.",
+      "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+      "compiled": {
+        "lora9b": {
+          "compiler": "lora9b",
+          "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+          "ir": null,
+          "raw_compiler": "[llm-error] llm chat failed for lora9b: HTTP Error 500: Internal Server Error",
+          "parse_valid": false,
+          "repair_events": [
+            "llm_error"
+          ],
+          "schema": {
+            "valid": false,
+            "errors": [
+              "no IR"
+            ],
+            "holes": [],
+            "ops": []
+          },
+          "execution": {
+            "status": "error",
+            "reason": "no_ir",
+            "detail": {}
+          },
+          "compile_execute_latency_s": 12.05
+        },
+        "qwen2b": {
+          "compiler": "qwen2b",
+          "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+          "ir": null,
+          "raw_compiler": "[llm-error] llm chat failed for qwen2b: HTTP Error 400: Bad Request",
+          "parse_valid": false,
+          "repair_events": [
+            "llm_error"
+          ],
+          "schema": {
+            "valid": false,
+            "errors": [
+              "no IR"
+            ],
+            "holes": [],
+            "ops": []
+          },
+          "execution": {
+            "status": "error",
+            "reason": "no_ir",
+            "detail": {}
+          },
+          "compile_execute_latency_s": 12.065
+        }
+      },
+      "arms": {
+        "C9-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (no_ir). DATA REQUEST: specify or collect the missing entity, place, measure, and survey effort.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "C2-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (no_ir). DATA REQUEST: specify or collect the missing entity, place, measure, and survey effort.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "C2-R9": {
+          "responder": "lora9b",
+          "answer": "There are currently no facts available to map for Elephants by the Lake. The system returned an error indicating no information records exist for this topic—no observations, no proxy data, and no modelled estimates.\n\nThis means we cannot identify strong evidence or meaningful gaps at this time. To move forward, we need to determine what baseline information is required: what species, what location, and what time period should be measured. A concrete next step would be to define the specific geographic area and temporal window for a new data collection effort.",
+          "raw_responder": "{\"status\": \"error\", \"evidence_label\": \"proxy\", \"reason\": \"no_ir\", \"detail\": {}, \"value\": null, \"provenance\": []}\nassistant\n<think>\nThe user is asking about the strongest facts and important gaps for mapping Elephants by the Lake (EBTL) for a new field colleague. However, the current audited result shows an error status with \"no_ir\" (no information record) and null values.\n\nAccording to the hard rules:\n1. I must use only facts present in the CURRENT AUDITED RESULT or explicitly supplied by the user\n2. If status=data_request, say what is unknown and make one concrete DATA REQUEST\n3. Lead with the answer\n4. Never add species, causal mechanism, recommendation or measurement absent from the audited result\n\nThe audited result shows:\n- status: \"error\"\n- evidence_label: \"proxy\"\n- reason: \"no_ir\"\n- detail: {}\n- value: null\n- provenance: []\n\nThis means there is no information available - no records, no proxy data, nothing. I cannot fabricate facts about what we have or what gaps exist because the system returned an error with no data.\n\nI need to be honest about this limitation. The error indicates there's no information record available for this topic. I should explain what this means in plain language and make a concrete data request as per rule #3 (though this is an error status, not data_request, the spirit is to be clear about what's unknown).\n\nActually, looking more carefully - the status is \"error\" not \"data_request\". Rule #3 says \"If status=data_request\" - so I don't need to make a data request in this case. But I should still be clear about what's unknown.\n\nThe key issue: there is literally no information available in the system for this topic. I need to communicate this honestly without making up facts.\n</think>\n\nThere are currently no facts available to map for Elephants by the Lake. The system returned an error indicating no information records exist for this topic—no observations, no proxy data, and no modelled estimates.\n\nThis means we cannot identify strong evidence or meaningful gaps at this time. To move forward, we need to determine what baseline information is required: what species, what location, and what time period should be measured. A concrete next step would be to define the specific geographic area and temporal window for a new data collection effort.\n",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 48.714
+        },
+        "C9-R9": {
+          "responder": "lora9b",
+          "answer": "There are currently no facts available to map for Elephants by the Lake. The system returned an error indicating no information records exist for this topic—no observations, no proxy data, and no modelled estimates.\n\nThis means we cannot identify strong evidence or meaningful gaps at this time. To move forward, we need to determine what baseline information is required: what species, what location, and what time period should be measured. A concrete next step would be to define the specific geographic area and temporal window for a new data collection effort.",
+          "raw_responder": "{\"status\": \"error\", \"evidence_label\": \"proxy\", \"reason\": \"no_ir\", \"detail\": {}, \"value\": null, \"provenance\": []}\nassistant\n<think>\nThe user is asking about the strongest facts and important gaps for mapping Elephants by the Lake (EBTL) for a new field colleague. However, the current audited result shows an error status with \"no_ir\" (no information record) and null values.\n\nAccording to the hard rules:\n1. I must use only facts present in the CURRENT AUDITED RESULT or explicitly supplied by the user\n2. If status=data_request, say what is unknown and make one concrete DATA REQUEST\n3. Lead with the answer\n4. Never add species, causal mechanism, recommendation or measurement absent from the audited result\n\nThe audited result shows:\n- status: \"error\"\n- evidence_label: \"proxy\"\n- reason: \"no_ir\"\n- detail: {}\n- value: null\n- provenance: []\n\nThis means there is no information available - no records, no proxy data, nothing. I cannot fabricate facts about what we have or what gaps exist because the system returned an error with no data.\n\nI need to be honest about this limitation. The error indicates there's no information record available for this topic. I should explain what this means in plain language and make a concrete data request as per rule #3 (though this is an error status, not data_request, the spirit is to be clear about what's unknown).\n\nActually, looking more carefully - the status is \"error\" not \"data_request\". Rule #3 says \"If status=data_request\" - so I don't need to make a data request in this case. But I should still be clear about what's unknown.\n\nThe key issue: there is literally no information available in the system for this topic. I need to communicate this honestly without making up facts.\n</think>\n\nThere are currently no facts available to map for Elephants by the Lake. The system returned an error indicating no information records exist for this topic—no observations, no proxy data, and no modelled estimates.\n\nThis means we cannot identify strong evidence or meaningful gaps at this time. To move forward, we need to determine what baseline information is required: what species, what location, and what time period should be measured. A concrete next step would be to define the specific geographic area and temporal window for a new data collection effort.\n",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 97.478
+        }
+      }
+    }
+  ]
+}

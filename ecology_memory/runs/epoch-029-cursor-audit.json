@@ -1,0 +1,106 @@
+{
+  "auditor": "cursor-agent",
+  "model": "gpt-5.4-mini-low",
+  "candidate_model": "qwen3.5-2b",
+  "banks": [
+    "final-035",
+    "final-036",
+    "final-037"
+  ],
+  "rows_audited": 120,
+  "verdict": "fail",
+  "issues": [
+    {
+      "id": "final-035-010",
+      "severity": "high",
+      "category": "IR mismatch",
+      "evidence": "Gold asks for a 2024 place-level mean NDVI comparison between Valparai and Pollachi, but the candidate switches aggregate grain from by:time to by:space and synthesis reports only a Valparai proxy value instead of a two-place comparison."
+    },
+    {
+      "id": "final-035-011",
+      "severity": "high",
+      "category": "dropped entity",
+      "evidence": "Gold selects the union of Lantana and teak records; the candidate selects only Lantana and synthesis omits teak."
+    },
+    {
+      "id": "final-035-016",
+      "severity": "medium",
+      "category": "wrong grain",
+      "evidence": "Gold returns locations where the two record sets co-occur; the candidate returns an aggregate count."
+    },
+    {
+      "id": "final-036-009",
+      "severity": "high",
+      "category": "IR mismatch",
+      "evidence": "A two-place 2024 mean NDVI comparison is collapsed to the wrong aggregate grain and a single-place answer."
+    },
+    {
+      "id": "final-036-010",
+      "severity": "high",
+      "category": "IR mismatch",
+      "evidence": "The requested two-place comparison is not preserved in the final answer."
+    },
+    {
+      "id": "final-036-012",
+      "severity": "high",
+      "category": "dropped entity",
+      "evidence": "The candidate drops teak from an explicit Lantana-and-teak union."
+    },
+    {
+      "id": "final-036-015",
+      "severity": "medium",
+      "category": "wrong grain",
+      "evidence": "A request for co-occurrence locations becomes a count."
+    },
+    {
+      "id": "final-037-010",
+      "severity": "high",
+      "category": "IR mismatch",
+      "evidence": "A two-place NDVI comparison uses the wrong grain and does not answer which place is higher."
+    },
+    {
+      "id": "final-037-012",
+      "severity": "high",
+      "category": "dropped entity",
+      "evidence": "The candidate drops teak from an explicit Lantana-and-teak union."
+    },
+    {
+      "id": "final-037-016",
+      "severity": "medium",
+      "category": "wrong grain",
+      "evidence": "A request for co-occurrence locations becomes a count."
+    },
+    {
+      "id": "final-037-017",
+      "severity": "medium",
+      "category": "IR mismatch",
+      "evidence": "Gold requests elephant population, an unsupported measure; the candidate weakens it to a count of elephants."
+    }
+  ],
+  "manual_followup": [
+    {
+      "id": "final-035-012",
+      "severity": "high",
+      "category": "relation mismatch",
+      "evidence": "The question asks for records closer than 1 km to survey sites and farther than 300 m from elephant records. The candidate reverses the nested anchors and loses the 1 km threshold."
+    }
+  ],
+  "bank_counts": {
+    "final-035": {
+      "audited": 40,
+      "cursor_issues": 4,
+      "manual_additional_issues": 1
+    },
+    "final-036": {
+      "audited": 40,
+      "cursor_issues": 4,
+      "manual_additional_issues": 0
+    },
+    "final-037": {
+      "audited": 40,
+      "cursor_issues": 3,
+      "manual_additional_issues": 0
+    }
+  },
+  "disposition": "Epoch 029 invalidated. No hard-saturation claim is admissible until the scorer and compiler are strengthened and a fresh post-freeze sequence passes."
+}
