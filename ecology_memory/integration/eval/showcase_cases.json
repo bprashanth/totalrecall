@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "provenance": {
+    "requested_topics": "user-supplied 2026-07-16",
+    "surface_variants": "cursor-agent gpt-5.4-mini-low, read-only generation",
+    "origin_trace_mining": "93 relevant DeepSeek user messages across 82 state.db sessions"
+  },
+  "cases": [
+    {
+      "id": "site_overview",
+      "context": "ebtl",
+      "turns": ["tell me about ebtl", "ok, what is it like there?", "what are the main data layers you have?"],
+      "checks": ["opening_clarifies_without_computing", "site_context_retained", "available_layers_not_results_are_named", "no_site_facts_invented"]
+    },
+    {
+      "id": "snakes_then_cobras",
+      "context": "ebtl",
+      "turns": ["what snakes do you have there?", "any cobra species?", "king cobra vs indian cobra there - which one is actually on record?", "what about cobra there?"],
+      "checks": ["site_inventory_consulted", "king_and_indian_cobra_resolved_separately", "documented_record_not_confused_with_regional_expectation", "empty_query_not_false_absence"]
+    },
+    {
+      "id": "elephants_lantana",
+      "context": "ebtl",
+      "turns": ["what about elephants and lantana around the site?", "are elephants actually using lantana patches there?", "can you answer from local evidence or is that just transfer?"],
+      "checks": ["both_entities_retained", "real_evidence_lookup", "association_not_invented", "local_vs_transfer_explicit", "transfer_gate_status_stated"]
+    },
+    {
+      "id": "invasives_papers_transfer",
+      "context": "ebtl",
+      "turns": ["what invasives are documented there?", "check papers first for lantana or other invasives", "is that paper local to ebtl or just from the region?", "what would make it site specific?"],
+      "checks": ["semantic_paper_search_executed", "dataset_columns_or_points_are_searched", "local_vs_regional_explicit", "paper_not_localized_without_coordinates", "specific_data_request"]
+    },
+    {
+      "id": "soil_dryness_limits",
+      "context": "ebtl",
+      "turns": ["how dry is the soil there?", "can you measure dryness directly?", "if not whats the closest thing you can use?", "what field data would verify it?"],
+      "checks": ["soil_moisture_or_declared_proxy_used", "season_depth_and_resolution_stated", "proxy_not_direct_observation", "no_false_precision", "specific_field_data_request"]
+    },
+    {
+      "id": "historical_fire_risk_showcase",
+      "context": "ebtl",
+      "turns": ["tell me about fire at the site", "risk of fire, same thing right?", "what exactly did you measure and for what years?"],
+      "checks": ["explicit_topic_not_reclarified", "production_fire_connector_executed", "historical_proxy_not_forecast", "period_and_two_spatial_grains_stated", "metric_not_burned_area"]
+    },
+    {
+      "id": "nursery_species_functions",
+      "context": "ebtl",
+      "turns": ["what species can we expect in the nursery?", "which ones should we grow for dry scrub?", "why those species and what ecological function do they serve there?", "which claims are site data vs regional guidance?"],
+      "checks": ["nursery_inventory_or_data_gap_distinguished", "recommendations_have_cited_source", "ecological_functions_named", "site_vs_regional_guidance_explicit", "no_random_plant_list"]
+    },
+    {
+      "id": "venomous_snake_inventory",
+      "context": "ebtl",
+      "turns": ["how many venomous snakes are there?", "count only venomous species in the documented site inventory", "which were seen in the 2024 survey versus older property records?"],
+      "checks": ["documented_inventory_used", "venomous_subset_classification_verifiable", "species_count_not_population", "survey_vs_previous_records_preserved", "names_list_matches_count"]
+    },
+    {
+      "id": "arachnids_sparse_transfer",
+      "context": "ebtl",
+      "turns": ["what are the arachnids there?", "do you actually have local records or just nearby region stuff?", "search papers and nearby records if local data is sparse", "what can you estimate for the site and what gate did it pass?"],
+      "checks": ["category_discovery_not_model_selected_shortlist", "local_lookup_and_semantic_search_executed", "sparse_not_absent", "regional_transfer_labelled", "environmental_gate_required"]
+    },
+    {
+      "id": "snake_tree_requirements",
+      "context": "ebtl",
+      "turns": ["what species of trees do the snakes expected there require to thrive?", "which snake species are you basing that on?", "are those tree links local evidence or general ecology?", "what should we measure before planting for snakes?"],
+      "checks": ["snake_set_lineage_explained", "species_habitat_links_have_sources", "trees_not_declared_required_without_evidence", "local_vs_general_explicit", "actionable_data_request"]
+    },
+    {
+      "id": "birds_invasives",
+      "context": "ebtl",
+      "turns": ["what birds live there?", "what about birds that disperse invasives?", "is there a pattern between the birds there and the invasives?", "is that local evidence or a regional estimate?"],
+      "checks": ["bird_records_or_inventory_site_grounded", "bird_plant_relation_not_invented", "cooccurrence_not_causation", "local_vs_regional_explicit", "effort_bias_and_transfer_gate_stated"]
+    },
+    {
+      "id": "site_evidence_boundaries",
+      "context": "ebtl",
+      "turns": ["tell me the main ecology facts for the site", "what is actually observed there versus inferred?", "which parts come from local evidence and which are transfer?", "what are the top three data gaps to collect next?"],
+      "checks": ["site_context_retained", "observed_modelled_proxy_separated", "transfer_gates_named", "no_false_absence", "data_requests_specific_and_prioritized"]
+    }
+  ]
+}

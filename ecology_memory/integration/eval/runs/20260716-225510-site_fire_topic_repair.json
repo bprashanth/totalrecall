@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "created_at": "2026-07-16T22:55:10.179708",
+  "case": {
+    "id": "site_fire_topic_repair",
+    "purpose": "An explicitly scoped opening must not be clarified as though no topic was given",
+    "context": "ebtl",
+    "turns": [
+      "tell me about fire at the site",
+      "i said fire",
+      "what exactly did you measure, over what area and period?"
+    ],
+    "checks": [
+      "explicit_topic_bypasses_generic_site_clarification",
+      "natural_language_menu_reply_retains_fire_topic",
+      "production_fire_connector_is_executed",
+      "metric_area_period_and_proxy_limit_are_stated"
+    ]
+  },
+  "arms": [
+    {
+      "case": "site_fire_topic_repair",
+      "runtime": "typed",
+      "model": "qwen2b",
+      "context": "ebtl",
+      "session": "20260716_172439_cafb80",
+      "source": "mt-site_fire_topic_repair-typed-qwen2b-1784222675",
+      "checks": [
+        "explicit_topic_bypasses_generic_site_clarification",
+        "natural_language_menu_reply_retains_fire_topic",
+        "production_fire_connector_is_executed",
+        "metric_area_period_and_proxy_limit_are_stated"
+      ],
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "tell me about fire at the site",
+          "exit_code": 0,
+          "latency_s": 12.454,
+          "output": "Query: tell me about fire at the site\nInitializing agent...\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  answer\n  \u250a \ud83d\udd0c origin.fire.points  0 rows\n  \u250a \ud83d\udd0c origin.fire.exposure  1 rows\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     MODIS returned 0 active-fire locations inside the exact EBTL AOI in        \n     2020-2025. The separate 5 km exposure buffer measured 1.6                  \n     pixel-fire-days (0.021 per km\u00b2). These are historical pressure             \n     proxies, not a forecast or burned-area estimate; the buffer extends        \n     beyond the AOI.                                                            \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_172439_cafb80 -p dss-eval\n\nSession:        20260716_172439_cafb80\nDuration:       7s\nMessages:       2 (1 user, 0 tool calls)"
+        },
+        {
+          "turn": 2,
+          "prompt": "i said fire",
+          "exit_code": 0,
+          "latency_s": 12.384,
+          "output": "Query: i said fire\nInitializing agent...\n\u21bb Resumed session 20260716_172439_cafb80 (1 user message, 2 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  answer\n  \u250a \ud83d\udd0c origin.fire.points  0 rows\n  \u250a \ud83d\udd0c origin.fire.exposure  1 rows\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     MODIS returned 0 active-fire locations inside the exact EBTL AOI in        \n     2020-2025. The separate 5 km exposure buffer measured 1.6                  \n     pixel-fire-days (0.021 per km\u00b2). These are historical pressure             \n     proxies, not a forecast or burned-area estimate; the buffer extends        \n     beyond the AOI.                                                            \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_172439_cafb80 -p dss-eval\n\nSession:        20260716_172439_cafb80\nDuration:       7s\nMessages:       4 (2 user, 0 tool calls)"
+        },
+        {
+          "turn": 3,
+          "prompt": "what exactly did you measure, over what area and period?",
+          "exit_code": 0,
+          "latency_s": 10.267,
+          "output": "Query: what exactly did you measure, over what area and period?\nInitializing agent...\n\u21bb Resumed session 20260716_172439_cafb80 (2 user messages, 4 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  answer\n  \u250a \ud83d\udd0c origin.fire.points  0 rows\n  \u250a \ud83d\udd0c origin.fire.exposure  1 rows\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     I queried MODIS/061/MOD14A1 FireMask \u22657 for 2020-2025. The exact EBTL      \n     bbox [78.17, 12.721, 78.197, 12.747] returned 0 sampled active-fire        \n     locations. Separately, origin fire.exposure summed 1.6 pixel-fire-days     \n     within 5 km (0.021 per km\u00b2). That buffer extends beyond the AOI;           \n     neither metric is fire probability or burned area.                         \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260716_172439_cafb80 -p dss-eval\n\nSession:        20260716_172439_cafb80\nDuration:       5s\nMessages:       6 (3 user, 0 tool calls)"
+        }
+      ]
+    }
+  ]
+}

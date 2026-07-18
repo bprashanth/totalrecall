@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "created_at": "2026-07-16T22:59:22.737901",
+  "case": {
+    "id": "soil_dryness_limits",
+    "context": "ebtl",
+    "turns": [
+      "how dry is the soil there?",
+      "can you measure dryness directly?",
+      "if not whats the closest thing you can use?",
+      "what field data would verify it?"
+    ],
+    "checks": [
+      "soil_moisture_or_declared_proxy_used",
+      "season_depth_and_resolution_stated",
+      "proxy_not_direct_observation",
+      "no_false_precision",
+      "specific_field_data_request"
+    ]
+  },
+  "arms": [
+    {
+      "case": "soil_dryness_limits",
+      "runtime": "typed",
+      "model": "qwen2b",
+      "context": "ebtl",
+      "session": null,
+      "source": "mt-soil_dryness_limits-typed-qwen2b-1784222956",
+      "checks": [
+        "soil_moisture_or_declared_proxy_used",
+        "season_depth_and_resolution_stated",
+        "proxy_not_direct_observation",
+        "no_false_precision",
+        "specific_field_data_request"
+      ],
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "how dry is the soil there?",
+          "exit_code": 0,
+          "latency_s": 6.052,
+          "output": "Query: how dry is the soil there?\nInitializing agent...\nFailed to initialize agent: Model qwen3.5-2b has a context window of 8,192 \ntokens, which is below the minimum 64,000 required by Hermes Agent.  Choose a \nmodel with at least 64K context, or set model.context_length in config.yaml to \noverride.\n\nGoodbye! \u2695"
+        }
+      ]
+    }
+  ]
+}

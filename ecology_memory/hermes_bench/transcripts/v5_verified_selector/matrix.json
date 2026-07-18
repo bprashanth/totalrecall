@@ -1,0 +1,3860 @@
+{
+  "round": "v5_verified_selector",
+  "arms": [
+    "SQ9DSC2-D",
+    "SQ9DSC2-RQ9"
+  ],
+  "arm_defs": {
+    "SQ9DSC2-D": {
+      "compiler": "qwen9b>deepseekv4@qwen2b",
+      "responder": "deterministic"
+    },
+    "SQ9DSC2-RQ9": {
+      "compiler": "qwen9b>deepseekv4@qwen2b",
+      "responder": "qwen9b"
+    }
+  },
+  "started": "2026-07-18T02:21:36+0530",
+  "turns": [
+    {
+      "number": 1,
+      "goal": "OPEN — map EBTL for a new conservation colleague: strongest local facts and major unknowns.",
+      "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL evidence summary",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL evidence summary\", \"region\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"time\": null}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"EBTL evidence summary\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL evidence summary",
+            "capability_verifier:retained:EBTL evidence summary",
+            "capability_selector:mode:execute",
+            "capability_binding:single_declared_template"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-summary:birds",
+                  "topic": "birds",
+                  "finding": "67 species in a local 2024 transit survey",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:snakes",
+                  "topic": "snakes",
+                  "finding": "14 documented property species; 3 encountered in the three-day 2024 VES",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:elephants",
+                  "topic": "elephants",
+                  "finding": "two passage events supported by indirect physical signs",
+                  "label": "indirect"
+                },
+                {
+                  "id": "ebtl-summary:nursery",
+                  "topic": "nursery",
+                  "finding": "110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues",
+                  "label": "reported"
+                },
+                {
+                  "id": "ebtl-summary:invasives",
+                  "topic": "non-native management",
+                  "finding": "roughly one acre of Eucalyptus removal documented; no local Lantana confirmation",
+                  "label": "reported"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "evidence_summary",
+              "source_metadata": {},
+              "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations",
+              "connector_events": [],
+              "entity": "evidence_summary",
+              "input_entity": "EBTL evidence summary"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "evidence_summary",
+                "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 16.533
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Mixed-evidence result: 5 evidence records: [observed] 67 species in a local 2024 transit survey, [observed] 14 documented property species; 3 encountered in the three-day 2024 VES, [indirect] two passage events supported by indirect physical signs, [reported] 110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues, [reported] roughly one acre of Eucalyptus removal documented; no local Lantana confirmation. Source: Imported EBTL primary evidence. local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The strongest confirmed facts for Elephants by the Lake (EBTL) are direct observations of 67 bird species and 14 snake species recorded in a local 2024 survey, alongside a July 2024 snapshot of a 110-species nursery containing 15,000 saplings. Management actions are partially verified by roughly one acre of documented Eucalyptus removal, though there is no local confirmation of Lantana presence.\n\nImportant gaps exist regarding elephant activity, where only two passage events are known from indirect physical signs rather than direct sightings, and invasive species monitoring is incomplete due to the lack of local Lantana confirmation. To address these uncertainties, the team should conduct targeted ground surveys to verify elephant presence and specifically search for Lantana within the nursery and surrounding areas.",
+          "raw_responder": "The strongest confirmed facts for Elephants by the Lake (EBTL) are direct observations of 67 bird species and 14 snake species recorded in a local 2024 survey, alongside a July 2024 snapshot of a 110-species nursery containing 15,000 saplings. Management actions are partially verified by roughly one acre of documented Eucalyptus removal, though there is no local confirmation of Lantana presence.\n\nImportant gaps exist regarding elephant activity, where only two passage events are known from indirect physical signs rather than direct sightings, and invasive species monitoring is incomplete due to the lack of local Lantana confirmation. To address these uncertainties, the team should conduct targeted ground surveys to verify elephant presence and specifically search for Lantana within the nursery and surrounding areas.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 0.0
+        }
+      }
+    },
+    {
+      "number": 2,
+      "goal": "WILDLIFE BASELINE — what groups were actually surveyed, when, and what “recorded” means.",
+      "question": "That is useful, but what was actually surveyed on the property in 2024? Give me the wildlife groups, dates and effort, and separate animals seen in that survey from older or indirect records.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "That is useful, but what was actually surveyed on the property in 2024? Give me the wildlife groups, dates and effort, and separate animals seen in that survey from older or indirect records.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL wildlife inventory",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL wildlife inventory\", \"region\": \"?place\", \"time\": {\"start\": \"2024\", \"end\": \"2024\"}}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"EBTL wildlife inventory\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL wildlife inventory",
+            "capability_verifier:retained:EBTL wildlife inventory",
+            "capability_selector:mode:execute"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "faunal-survey-2024:group:butterflies",
+                  "group": "butterflies",
+                  "recorded_taxa": 54,
+                  "observed_during_survey": 54,
+                  "pages": [
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                  ],
+                  "method": "Four 30-minute road/walkway transects per day for three days, 09:30-12:30, plus observations outside transect timings",
+                  "examples": [
+                    "Common Emigrant",
+                    "Tawny Coster",
+                    "Common Grass Yellow",
+                    "Double-branded Crow",
+                    "Crimson Rose"
+                  ],
+                  "record_status": "survey_summary",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=4"
+                },
+                {
+                  "id": "faunal-survey-2024:group:odonates",
+                  "group": "odonates",
+                  "recorded_taxa": 42,
+                  "observed_during_survey": 42,
+                  "pages": [
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15
+                  ],
+                  "method": "One-hour time-constrained VES on three transects over four days",
+                  "breakdown": {
+                    "dragonflies": 31,
+                    "damselflies": 11
+                  },
+                  "examples": [
+                    "Vagrant Emperor",
+                    "Common Clubtail",
+                    "Scarlet Skimmer",
+                    "Coromandel Marsh Dart",
+                    "Yellow Bush Dart"
+                  ],
+                  "record_status": "survey_summary",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=10"
+                },
+                {
+                  "id": "faunal-survey-2024:group:birds",
+                  "group": "birds",
+                  "recorded_taxa": 67,
+                  "observed_during_survey": 67,
+                  "pages": [
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                    21
+                  ],
+                  "method": "Birds seen or heard on approximately 1 km transits, with morning/evening effort and 30-minute eBird checklists",
+                  "examples": [
+                    "Gray Junglefowl",
+                    "Short-toed Snake-Eagle",
+                    "Indian Spotted Eagle",
+                    "White-cheeked Barbet",
+                    "Spot-breasted Fantail"
+                  ],
+                  "record_status": "survey_summary",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=16"
+                },
+                {
+                  "id": "faunal-survey-2024:group:herpetofauna",
+                  "group": "herpetofauna",
+                  "recorded_taxa": 33,
+                  "observed_during_survey": 20,
+                  "earlier_property_records_not_observed": 13,
+                  "pages": [
+                    22,
+                    23,
+                    24
+                  ],
+                  "method": "Three days of two-hour time-constrained VES sessions across morning, evening and night periods",
+                  "observed_breakdown": {
+                    "frogs": 7,
+                    "lizards": 9,
+                    "snakes": 3,
+                    "turtles": 1
+                  },
+                  "earlier_breakdown": {
+                    "lizards": 2,
+                    "snakes": 11
+                  },
+                  "examples": [
+                    "Common Indian Toad",
+                    "Indian Burrowing Frog",
+                    "Rock Agama",
+                    "Common Sand Boa",
+                    "Star Tortoise"
+                  ],
+                  "record_status": "survey_summary",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=22"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": {
+                "start": "2024",
+                "end": "2024"
+              },
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "wildlife_inventory",
+              "source_metadata": {
+                "survey_dates": {
+                  "butterflies": "2024-09-05 to 2024-09-07",
+                  "birds": "2024-09-05 to 2024-09-07",
+                  "herpetofauna": "2024-09-05 to 2024-09-07",
+                  "odonates": "2024-10-10 to 2024-10-13"
+                },
+                "limitation": "Survey-period inventories are not proof of year-round presence, abundance, or complete detectability; 13 herpetofauna entries are earlier property records rather than detections during the 2024 VES",
+                "indirect_elephant_passage_events": 2
+              },
+              "note": "published local survey summaries for butterflies, odonates, birds and herpetofauna; the herpetofauna total separates 2024 VES detections from earlier property records; elephant evidence comes from two separate indirect passage reports",
+              "connector_events": [],
+              "entity": "wildlife_inventory",
+              "input_entity": "EBTL wildlife inventory"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "wildlife_inventory",
+                "note": "published local survey summaries for butterflies, odonates, birds and herpetofauna; the herpetofauna total separates 2024 VES detections from earlier property records; elephant evidence comes from two separate indirect passage reports"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 9.8
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 4 evidence records. Source: Imported EBTL primary evidence. published local survey summaries for butterflies, odonates, birds and herpetofauna; the herpetofauna total separates 2024 VES detections from earlier property records; elephant evidence comes from two separate indirect passage reports.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "In September 2024, the property was surveyed for butterflies (Sept 5–7), birds (Sept 5–7), and herpetofauna (Sept 5–7), while odonates were surveyed separately from October 10–13. Butterflies and birds were observed directly during these specific windows: 54 butterfly species and 67 bird species were recorded via transects and checklists. For herpetofauna, the three-day effort yielded 20 direct detections (7 frogs, 9 lizards, 3 snakes, 1 turtle), but the total of 33 taxa includes 13 species found only in earlier property records, not during the 2024 survey.\n\nThe odonate survey involved four days of one-hour time-constrained visits and recorded 42 species (31 dragonflies, 11 damselflies) directly observed. No direct wildlife observations were recorded for elephants in 2024; the only elephant evidence consists of two indirect passage events supported by physical signs, distinct from the direct survey data for other groups.",
+          "raw_responder": "In September 2024, the property was surveyed for butterflies (Sept 5–7), birds (Sept 5–7), and herpetofauna (Sept 5–7), while odonates were surveyed separately from October 10–13. Butterflies and birds were observed directly during these specific windows: 54 butterfly species and 67 bird species were recorded via transects and checklists. For herpetofauna, the three-day effort yielded 20 direct detections (7 frogs, 9 lizards, 3 snakes, 1 turtle), but the total of 33 taxa includes 13 species found only in earlier property records, not during the 2024 survey.\n\nThe odonate survey involved four days of one-hour time-constrained visits and recorded 42 species (31 dragonflies, 11 damselflies) directly observed. No direct wildlife observations were recorded for elephants in 2024; the only elephant evidence consists of two indirect passage events supported by physical signs, distinct from the direct survey data for other groups.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 0.0
+        }
+      }
+    },
+    {
+      "number": 3,
+      "goal": "BIODIVERSITY COVERAGE — what important groups or seasons are missing; why inventory is not richness.",
+      "question": "For the bird list specifically, can it tell us year-round richness or monsoon and winter migrants, or is it only a seasonal snapshot? Tell me exactly what repeated survey would close that gap.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "For the bird list specifically, can it tell us year-round richness or monsoon and winter migrants, or is it only a seasonal snapshot? Tell me exactly what repeated survey would close that gap.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL bird inventory",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"ESTIMATE\", \"method\": \"feature\", \"target\": {\"op\": \"REGION\", \"place\": \"Kisumu, Kenya\"}, \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL bird inventory\", \"region\": {\"op\": \"REGION\", \"place\": \"Kisumu, Kenya\"}, \"time\": null}}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"EBTL bird inventory\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL bird inventory",
+            "capability_verifier:retained:EBTL bird inventory",
+            "capability_selector:mode:execute",
+            "capability_binding:single_declared_template",
+            "provenance:invented_place_demoted_to_hole"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "faunal-survey-2024:bird:1",
+                  "group": "Bird",
+                  "common_name": "Lesser Whistling-Duck",
+                  "scientific_name": "Dendrocygna javanica",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:2",
+                  "group": "Bird",
+                  "common_name": "Indian Peafowl",
+                  "scientific_name": "Pavo cristatus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:3",
+                  "group": "Bird",
+                  "common_name": "Gray Junglefowl",
+                  "scientific_name": "Gallus sonneratii",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:4",
+                  "group": "Bird",
+                  "common_name": "Gray Francolin",
+                  "scientific_name": "Ortygornis pondicerianus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:5",
+                  "group": "Bird",
+                  "common_name": "Spotted Dove",
+                  "scientific_name": "Spilopelia chinensis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:6",
+                  "group": "Bird",
+                  "common_name": "Laughing Dove",
+                  "scientific_name": "Spilopelia senegalensis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:7",
+                  "group": "Bird",
+                  "common_name": "Greater Coucal",
+                  "scientific_name": "Centropus sinensis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:8",
+                  "group": "Bird",
+                  "common_name": "Pied Cuckoo",
+                  "scientific_name": "Clamator jacobinus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:9",
+                  "group": "Bird",
+                  "common_name": "Asian Koel",
+                  "scientific_name": "Eudynamys scolopaceus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:10",
+                  "group": "Bird",
+                  "common_name": "Gray-bellied Cuckoo",
+                  "scientific_name": "Cacomantis passerinus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:11",
+                  "group": "Bird",
+                  "common_name": "Common Hawk-Cuckoo",
+                  "scientific_name": "Hierococcyx varius",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:12",
+                  "group": "Bird",
+                  "common_name": "Jerdon's Nightjar",
+                  "scientific_name": "Caprimulgus atripennis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:13",
+                  "group": "Bird",
+                  "common_name": "White-breasted Waterhen",
+                  "scientific_name": "Amaurornis phoenicurus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:14",
+                  "group": "Bird",
+                  "common_name": "Red-wattled Lapwing",
+                  "scientific_name": "Vanellus indicus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:15",
+                  "group": "Bird",
+                  "common_name": "Barred Buttonquail",
+                  "scientific_name": "Turnix suscitator",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:16",
+                  "group": "Bird",
+                  "common_name": "Little Cormorant",
+                  "scientific_name": "Microcarbo niger",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:17",
+                  "group": "Bird",
+                  "common_name": "Indian Pond-Heron",
+                  "scientific_name": "Ardeola grayii",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:18",
+                  "group": "Bird",
+                  "common_name": "Short-toed Snake-Eagle",
+                  "scientific_name": "Circaetus gallicus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:19",
+                  "group": "Bird",
+                  "common_name": "Black Eagle",
+                  "scientific_name": "Ictinaetus malaiensis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:20",
+                  "group": "Bird",
+                  "common_name": "Indian Spotted Eagle",
+                  "scientific_name": "Clanga hastata",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:21",
+                  "group": "Bird",
+                  "common_name": "Shikra",
+                  "scientific_name": "Accipiter badius",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:22",
+                  "group": "Bird",
+                  "common_name": "Indian Scops-Owl",
+                  "scientific_name": "Otus bakkamoena",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:23",
+                  "group": "Bird",
+                  "common_name": "Jungle Owlet",
+                  "scientific_name": "Glaucidium radiatum",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:24",
+                  "group": "Bird",
+                  "common_name": "Spotted Owlet",
+                  "scientific_name": "Athene brama",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:25",
+                  "group": "Bird",
+                  "common_name": "Mottled Wood-Owl",
+                  "scientific_name": "Strix ocellata",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:26",
+                  "group": "Bird",
+                  "common_name": "White-throated Kingfisher",
+                  "scientific_name": "Halcyon smyrnensis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:27",
+                  "group": "Bird",
+                  "common_name": "Asian Green Bee-eater",
+                  "scientific_name": "Merops orientalis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:28",
+                  "group": "Bird",
+                  "common_name": "Blue-tailed Bee-eater",
+                  "scientific_name": "Merops philippinus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:29",
+                  "group": "Bird",
+                  "common_name": "Indian Roller",
+                  "scientific_name": "Coracias benghalensis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:30",
+                  "group": "Bird",
+                  "common_name": "Coppersmith Barbet",
+                  "scientific_name": "Psilopogon haemacephalus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:31",
+                  "group": "Bird",
+                  "common_name": "White-cheeked Barbet",
+                  "scientific_name": "Psilopogon viridis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:32",
+                  "group": "Bird",
+                  "common_name": "White-naped Woodpecker",
+                  "scientific_name": "Chrysocolaptes festivus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:33",
+                  "group": "Bird",
+                  "common_name": "Rose-ringed Parakeet",
+                  "scientific_name": "Psittacula krameri",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:34",
+                  "group": "Bird",
+                  "common_name": "Plum-headed Parakeet",
+                  "scientific_name": "Psittacula cyanocephala",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:35",
+                  "group": "Bird",
+                  "common_name": "Small Minivet",
+                  "scientific_name": "Pericrocotus cinnamomeus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:36",
+                  "group": "Bird",
+                  "common_name": "Black-headed Cuckooshrike",
+                  "scientific_name": "Lalage melanoptera",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:37",
+                  "group": "Bird",
+                  "common_name": "Common Woodshrike",
+                  "scientific_name": "Tephrodornis pondicerianus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:38",
+                  "group": "Bird",
+                  "common_name": "Common Iora",
+                  "scientific_name": "Aegithina tiphia",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:39",
+                  "group": "Bird",
+                  "common_name": "Spot-breasted Fantail",
+                  "scientific_name": "Rhipidura albogularis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:40",
+                  "group": "Bird",
+                  "common_name": "Black Drongo",
+                  "scientific_name": "Dicrurus macrocercus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:41",
+                  "group": "Bird",
+                  "common_name": "White-bellied Drongo",
+                  "scientific_name": "Dicrurus caerulescens",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:42",
+                  "group": "Bird",
+                  "common_name": "Rufous Treepie",
+                  "scientific_name": "Dendrocitta vagabunda",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:43",
+                  "group": "Bird",
+                  "common_name": "Jerdon's Bushlark",
+                  "scientific_name": "Mirafra affinis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:44",
+                  "group": "Bird",
+                  "common_name": "Common Tailorbird",
+                  "scientific_name": "Orthotomus sutorius",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:45",
+                  "group": "Bird",
+                  "common_name": "Gray-breasted Prinia",
+                  "scientific_name": "Prinia hodgsonii",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:46",
+                  "group": "Bird",
+                  "common_name": "Jungle Prinia",
+                  "scientific_name": "Prinia sylvatica",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:47",
+                  "group": "Bird",
+                  "common_name": "Ashy Prinia",
+                  "scientific_name": "Prinia socialis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:48",
+                  "group": "Bird",
+                  "common_name": "Red-rumped Swallow",
+                  "scientific_name": "Cecropis daurica",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:49",
+                  "group": "Bird",
+                  "common_name": "White-browed Bulbul",
+                  "scientific_name": "Pycnonotus luteolus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:50",
+                  "group": "Bird",
+                  "common_name": "Red-whiskered Bulbul",
+                  "scientific_name": "Pycnonotus jocosus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:51",
+                  "group": "Bird",
+                  "common_name": "Red-vented Bulbul",
+                  "scientific_name": "Pycnonotus cafer",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:52",
+                  "group": "Bird",
+                  "common_name": "Indian White-eye",
+                  "scientific_name": "Zosterops palpebrosus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:53",
+                  "group": "Bird",
+                  "common_name": "Tawny-bellied Babbler",
+                  "scientific_name": "Dumetia hyperythra",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:54",
+                  "group": "Bird",
+                  "common_name": "Puff-throated Babbler",
+                  "scientific_name": "Pellorneum ruficeps",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:55",
+                  "group": "Bird",
+                  "common_name": "Yellow-billed Babbler",
+                  "scientific_name": "Argya affinis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:56",
+                  "group": "Bird",
+                  "common_name": "Common Myna",
+                  "scientific_name": "Acridotheres tristis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:57",
+                  "group": "Bird",
+                  "common_name": "Indian Robin",
+                  "scientific_name": "Copsychus fulicatus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:58",
+                  "group": "Bird",
+                  "common_name": "Oriental Magpie-Robin",
+                  "scientific_name": "Copsychus saularis",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:59",
+                  "group": "Bird",
+                  "common_name": "Tickell's Blue Flycatcher",
+                  "scientific_name": "Cyornis tickelliae",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:60",
+                  "group": "Bird",
+                  "common_name": "Pied Bushchat",
+                  "scientific_name": "Saxicola caprata",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:61",
+                  "group": "Bird",
+                  "common_name": "Pale-billed Flowerpecker",
+                  "scientific_name": "Dicaeum erythrorhynchos",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:62",
+                  "group": "Bird",
+                  "common_name": "Purple-rumped Sunbird",
+                  "scientific_name": "Leptocoma zeylonica",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:63",
+                  "group": "Bird",
+                  "common_name": "Purple Sunbird",
+                  "scientific_name": "Cinnyris asiaticus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:64",
+                  "group": "Bird",
+                  "common_name": "Jerdon's Leafbird",
+                  "scientific_name": "Chloropsis jerdoni",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:65",
+                  "group": "Bird",
+                  "common_name": "Baya Weaver",
+                  "scientific_name": "Ploceus philippinus",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:66",
+                  "group": "Bird",
+                  "common_name": "Indian Silverbill",
+                  "scientific_name": "Euodice malabarica",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                },
+                {
+                  "id": "faunal-survey-2024:bird:67",
+                  "group": "Bird",
+                  "common_name": "Scaly-breasted Munia",
+                  "scientific_name": "Lonchura punctulata",
+                  "record_status": "recorded_during_2024_site_survey",
+                  "source": "Faunal Survey 2024",
+                  "source_record": "Faunal survey 2024.pdf#page=18"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "bird_inventory",
+              "source_metadata": {
+                "method": "Birds seen or heard on approximately 1 km transits on both sides of base camp, with at least one morning and one evening survey and 30-minute eBird checklists",
+                "survey_period": "2024 study period; exact dates are not stated in the bird chapter",
+                "pages": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21
+                ],
+                "frequent_checklist_species": [
+                  [
+                    "Gray-breasted Prinia",
+                    57.14
+                  ],
+                  [
+                    "Spotted Dove",
+                    42.86
+                  ],
+                  [
+                    "Indian Peafowl",
+                    33.33
+                  ],
+                  [
+                    "Gray Francolin",
+                    33.33
+                  ],
+                  [
+                    "Common Iora",
+                    33.33
+                  ],
+                  [
+                    "Purple-rumped Sunbird",
+                    33.33
+                  ],
+                  [
+                    "Gray Junglefowl",
+                    28.57
+                  ],
+                  [
+                    "Laughing Dove",
+                    28.57
+                  ],
+                  [
+                    "Rose-ringed Parakeet",
+                    28.57
+                  ],
+                  [
+                    "Indian White-eye",
+                    28.57
+                  ]
+                ]
+              },
+              "note": "complete published site inventory of 67 bird species; seen-or-heard transit survey with morning/evening effort and 30-minute eBird checklists",
+              "connector_events": [],
+              "entity": "bird_inventory",
+              "input_entity": "EBTL bird inventory"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "bird_inventory",
+                "note": "complete published site inventory of 67 bird species; seen-or-heard transit survey with morning/evening effort and 30-minute eBird checklists"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 1.818
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 67 evidence records: Lesser Whistling-Duck, Indian Peafowl, Gray Junglefowl, Gray Francolin, Spotted Dove, Laughing Dove, Greater Coucal, Pied Cuckoo. Source: Imported EBTL primary evidence. complete published site inventory of 67 bird species; seen-or-heard transit survey with morning/evening effort and 30-minute eBird checklists.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.001
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The bird list represents only a seasonal snapshot from a single 2024 survey period and cannot determine year-round richness or distinguish between monsoon and winter migrants. The evidence confirms 67 species were recorded via \"seen or heard\" methods on approximately 1 km transits with morning and evening effort, but the specific dates are not stated in the bird chapter, and the record status is limited to detections during that specific study window.\n\nTo close this gap, a concrete data request is needed: conduct a standardized bird survey covering the full annual cycle (or at least distinct monsoon and winter seasons) using the same 1 km transit and eBird checklist methods to explicitly identify which of the 67 species are permanent residents versus seasonal migrants.",
+          "raw_responder": "The bird list represents only a seasonal snapshot from a single 2024 survey period and cannot determine year-round richness or distinguish between monsoon and winter migrants. The evidence confirms 67 species were recorded via \"seen or heard\" methods on approximately 1 km transits with morning and evening effort, but the specific dates are not stated in the bird chapter, and the record status is limited to detections during that specific study window.\n\nTo close this gap, a concrete data request is needed: conduct a standardized bird survey covering the full annual cycle (or at least distinct monsoon and winter seasons) using the same 1 km transit and eBird checklist methods to explicitly identify which of the 67 species are permanent residents versus seasonal migrants.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 0.001
+        }
+      }
+    },
+    {
+      "number": 4,
+      "goal": "INVASIVES — what is locally documented versus public-bbox or regional evidence.",
+      "question": "Now invasives: what is documented locally at EBTL, and what comes only from regional literature, satellite proxies or public records? Please keep those evidence levels separate.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "Now invasives: what is documented locally at EBTL, and what comes only from regional literature, satellite proxies or public records? Please keep those evidence levels separate.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL invasive evidence",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"ANNOTATE\", \"layer\": \"evidence\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL invasive evidence\", \"region\": \"?place\", \"time\": null}}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"EBTL invasive evidence\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL invasive evidence",
+            "capability_verifier:retained:EBTL invasive evidence",
+            "capability_selector:mode:execute",
+            "capability_binding:single_declared_template"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-invasive-evidence:1",
+                  "topic": "invasive_or_non_native_management",
+                  "evidence_type": "documented_site_management",
+                  "detail": "A roughly one-acre eucalyptus monocrop at a high catchment was uprooted before pond construction",
+                  "source_id": "newsletter_june_2023",
+                  "pdf_page": 6,
+                  "limitation": "This documents Eucalyptus management; it does not establish Lantana camara at the property",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=6"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "invasive_evidence",
+              "source_metadata": {
+                "site_bbox_public_point_records": {
+                  "Lantana camara": 0,
+                  "Jatropha gossypiifolia": 1,
+                  "Dichrostachys cinerea": 1,
+                  "Abrus precatorius": 3
+                }
+              },
+              "note": "site documentation names a roughly one-acre Eucalyptus monocrop removal; public occurrence points add candidate taxa inside the analysis bbox, which is not the 70-acre property boundary; Lantana returns zero points",
+              "connector_events": [
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Lantana camara",
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 0,
+                  "cached": false
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Jatropha gossypiifolia",
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 1,
+                  "cached": true
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Dichrostachys cinerea",
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 1,
+                  "cached": true
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Abrus precatorius",
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 3,
+                  "cached": true
+                }
+              ],
+              "entity": "invasive_evidence",
+              "input_entity": "EBTL invasive evidence"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Lantana camara",
+                  "bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 0,
+                "cached": false
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Jatropha gossypiifolia",
+                  "bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 1,
+                "cached": true
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Dichrostachys cinerea",
+                  "bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 1,
+                "cached": true
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Abrus precatorius",
+                  "bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 3,
+                "cached": true
+              },
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "invasive_evidence",
+                "note": "site documentation names a roughly one-acre Eucalyptus monocrop removal; public occurrence points add candidate taxa inside the analysis bbox, which is not the 70-acre property boundary; Lantana returns zero points"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 33.675
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 1 evidence records. Source: Imported EBTL primary evidence. site documentation names a roughly one-acre Eucalyptus monocrop removal; public occurrence points add candidate taxa inside the analysis bbox, which is not the 70-acre property boundary; Lantana returns zero points.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "Locally at Elephants by the Lake, the only documented invasive management action is the removal of a roughly one-acre Eucalyptus monocrop at a high catchment area, recorded in a June 2023 newsletter. There is no local confirmation of Lantana camara presence on the property.\n\nSeparate from these local records, public occurrence points within the site's analysis bounding box identify candidate invasive taxa including Jatropha gossypiifolia (1 record), Dichrostachys cinerea (1 record), and Abrus precatorius (3 records). These points are derived from regional databases like GBIF and iNaturalist and do not confirm presence within the specific 70-acre property boundary. A concrete data request is needed to verify the presence or absence of these candidate species through direct field surveys on the ground.",
+          "raw_responder": "Locally at Elephants by the Lake, the only documented invasive management action is the removal of a roughly one-acre Eucalyptus monocrop at a high catchment area, recorded in a June 2023 newsletter. There is no local confirmation of Lantana camara presence on the property.\n\nSeparate from these local records, public occurrence points within the site's analysis bounding box identify candidate invasive taxa including Jatropha gossypiifolia (1 record), Dichrostachys cinerea (1 record), and Abrus precatorius (3 records). These points are derived from regional databases like GBIF and iNaturalist and do not confirm presence within the specific 70-acre property boundary. A concrete data request is needed to verify the presence or absence of these candidate species through direct field surveys on the ground.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 0.001
+        }
+      }
+    },
+    {
+      "number": 5,
+      "goal": "SCARCE-1: INVASIVE REBOUND — whether Lantana or other invasives are returning after removal; expect unknown + concrete repeated-map DATA REQUEST.",
+      "question": "Do we know whether the removed invasive vegetation is returning? If the evidence cannot show rebound, design the smallest repeated field measurement that would answer it.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "Do we know whether the removed invasive vegetation is returning? If the evidence cannot show rebound, design the smallest repeated field measurement that would answer it.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL invasive evidence",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"ESTIMATE\", \"method\": \"feature\", \"target\": {\"op\": \"REGION\", \"place\": \"Kisumu, Kenya\"}, \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL invasive evidence\", \"region\": \"?place\", \"time\": null}}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"EBTL invasive evidence\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL invasive evidence",
+            "capability_verifier:retained:EBTL invasive evidence",
+            "capability_selector:mode:execute",
+            "capability_binding:single_declared_template",
+            "provenance:invented_place_demoted_to_hole"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-invasive-evidence:1",
+                  "topic": "invasive_or_non_native_management",
+                  "evidence_type": "documented_site_management",
+                  "detail": "A roughly one-acre eucalyptus monocrop at a high catchment was uprooted before pond construction",
+                  "source_id": "newsletter_june_2023",
+                  "pdf_page": 6,
+                  "limitation": "This documents Eucalyptus management; it does not establish Lantana camara at the property",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=6"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "invasive_evidence",
+              "source_metadata": {
+                "site_bbox_public_point_records": {
+                  "Lantana camara": 0,
+                  "Jatropha gossypiifolia": 1,
+                  "Dichrostachys cinerea": 1,
+                  "Abrus precatorius": 3
+                }
+              },
+              "note": "site documentation names a roughly one-acre Eucalyptus monocrop removal; public occurrence points add candidate taxa inside the analysis bbox, which is not the 70-acre property boundary; Lantana returns zero points",
+              "connector_events": [
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Lantana camara",
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 0,
+                  "cached": false
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Jatropha gossypiifolia",
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 1,
+                  "cached": true
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Dichrostachys cinerea",
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 1,
+                  "cached": true
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Abrus precatorius",
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 3,
+                  "cached": true
+                }
+              ],
+              "entity": "invasive_evidence",
+              "input_entity": "EBTL invasive evidence"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Lantana camara",
+                  "bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 0,
+                "cached": false
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Jatropha gossypiifolia",
+                  "bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 1,
+                "cached": true
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Dichrostachys cinerea",
+                  "bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 1,
+                "cached": true
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Abrus precatorius",
+                  "bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 3,
+                "cached": true
+              },
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "invasive_evidence",
+                "note": "site documentation names a roughly one-acre Eucalyptus monocrop removal; public occurrence points add candidate taxa inside the analysis bbox, which is not the 70-acre property boundary; Lantana returns zero points"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 19.27
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 1 evidence records. Source: Imported EBTL primary evidence. site documentation names a roughly one-acre Eucalyptus monocrop removal; public occurrence points add candidate taxa inside the analysis bbox, which is not the 70-acre property boundary; Lantana returns zero points.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.001
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "No, the evidence does not show whether the removed vegetation is returning. The only local record from the June 2023 newsletter confirms that a roughly one-acre eucalyptus monocrop was uprooted before pond construction, but it provides no data on post-removal regrowth or current cover.\n\nTo answer this, a targeted field measurement is required: conduct a vegetation survey of the specific one-acre high catchment area where the eucalyptus was removed to quantify current invasive plant density or regrowth status. This should be done within the next 12 months to establish a baseline for the site's current state.",
+          "raw_responder": "No, the evidence does not show whether the removed vegetation is returning. The only local record from the June 2023 newsletter confirms that a roughly one-acre eucalyptus monocrop was uprooted before pond construction, but it provides no data on post-removal regrowth or current cover.\n\nTo answer this, a targeted field measurement is required: conduct a vegetation survey of the specific one-acre high catchment area where the eucalyptus was removed to quantify current invasive plant density or regrowth status. This should be done within the next 12 months to establish a baseline for the site's current state.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 0.001
+        }
+      }
+    },
+    {
+      "number": 6,
+      "goal": "FIRE — observed fire history versus present/future risk; fuels/weather/field gaps.",
+      "question": "What can the available data honestly say about fire at EBTL—observed fire history versus present or future risk? Give the measured scale and the missing fuel or weather data.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "What can the available data honestly say about fire at EBTL—observed fire history versus present or future risk? Give the measured scale and the missing fuel or weather data.",
+          "ir": {
+            "op": "ANNOTATE",
+            "layer": "historical fire exposure",
+            "source": {
+              "op": "SELECT",
+              "entity": "EBTL restoration site",
+              "region": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "time": null
+            }
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"historical fire exposure\", \"region\": {\"op\": \"REGION\", \"place\": \"EBTL restoration site\"}, \"time\": null}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"historical fire exposure\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:historical fire exposure",
+            "capability_verifier:retained:historical fire exposure",
+            "capability_selector:mode:execute",
+            "capability_binding:single_declared_template",
+            "provenance:invented_place_demoted_to_hole"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "ANNOTATE",
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "site:ebtl-center",
+                  "lat": 12.73394,
+                  "lon": 78.18344,
+                  "name": "EBTL site center",
+                  "time": null,
+                  "source": "SITE_EBTL.json",
+                  "source_record": null,
+                  "license": "project metadata",
+                  "fire_count": 1.6,
+                  "fire_density": 0.021,
+                  "radius_km": 5,
+                  "period": "2020-2025",
+                  "site_aoi_fire_locations": 0,
+                  "site_aoi_bbox": [
+                    78.17,
+                    12.721,
+                    78.197,
+                    12.747
+                  ]
+                }
+              ],
+              "kind": "records",
+              "source": "SITE_EBTL.json + origin fire.py → MODIS/061/MOD14A1 via Earth Engine",
+              "label": "proxy",
+              "grain": "5-km-buffer-around-point",
+              "count_admissible": false,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "note": "0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area",
+              "entity": "EBTL site center",
+              "input_entity": "EBTL restoration site",
+              "measure_field": "fire_density",
+              "unit": "pixel-fire-days/km²",
+              "layer": "fire_exposure",
+              "query_time": {
+                "start": "2020",
+                "end": "2025"
+              },
+              "connector_events": [
+                {
+                  "tool": "origin.fire.points",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/fire.py",
+                  "parameters": {
+                    "bbox": [
+                      78.17,
+                      12.721,
+                      78.197,
+                      12.747
+                    ],
+                    "years": "2020-2025",
+                    "project": "plantwars"
+                  },
+                  "output_rows": 0
+                },
+                {
+                  "tool": "origin.fire.exposure",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/fire.py",
+                  "input_rows": 1,
+                  "parameters": {
+                    "radius_km": 5,
+                    "years": "2020-2025",
+                    "project": "plantwars"
+                  },
+                  "output_rows": 1
+                }
+              ]
+            },
+            "label": "proxy",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "site-metadata",
+                "resolved": "EBTL site center",
+                "note": "1 declared site-center point; raster value is a point proxy, not AOI coverage"
+              },
+              {
+                "op": "ANNOTATE",
+                "layer": "fire_exposure",
+                "source": "origin fire.py → MODIS/061/MOD14A1 via Earth Engine",
+                "note": "0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 17.215
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Proxy result: 1 evidence records. Source: SITE_EBTL.json + origin fire.py → MODIS/061/MOD14A1 via Earth Engine. 0 historical 2020-2025 MODIS active-fire locations inside the exact AOI; point exposure also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.001
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The available data provides only a regional proxy for fire pressure, not observed fire history at the site. Analysis of MODIS satellite data from 2020 to 2025 shows zero active-fire locations within the exact 70-acre EBTL property boundary (bbox: 78.17, 12.721, 78.197, 12.747). However, a 5-km buffer around the site center recorded a proxy fire density of 0.021 pixel-fire-days/km², indicating regional fire activity but not direct ignition or burn events on the property.\n\nThis dataset lacks the specific fuel loads, vegetation continuity, or local weather records required to calculate present or future fire risk. To close this gap, a field measurement is needed to quantify fuel continuity (e.g., dead wood or grass height) and record local weather conditions (humidity, wind) during the dry season at the site center.",
+          "raw_responder": "The available data provides only a regional proxy for fire pressure, not observed fire history at the site. Analysis of MODIS satellite data from 2020 to 2025 shows zero active-fire locations within the exact 70-acre EBTL property boundary (bbox: 78.17, 12.721, 78.197, 12.747). However, a 5-km buffer around the site center recorded a proxy fire density of 0.021 pixel-fire-days/km², indicating regional fire activity but not direct ignition or burn events on the property.\n\nThis dataset lacks the specific fuel loads, vegetation continuity, or local weather records required to calculate present or future fire risk. To close this gap, a field measurement is needed to quantify fuel continuity (e.g., dead wood or grass height) and record local weather conditions (humidity, wind) during the dry season at the site center.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 0.001
+        }
+      }
+    },
+    {
+      "number": 7,
+      "goal": "ASSISTED NATURAL REGENERATION — evidence for choosing ANR versus planting across the property; avoid recommendation without treatment/plot data.",
+      "question": "The field team is choosing between assisted natural regeneration and planting across different parts of the site. Do we have evidence to choose, and if not what plot comparison should we collect before recommending one?",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "The field team is choosing between assisted natural regeneration and planting across different parts of the site. Do we have evidence to choose, and if not what plot comparison should we collect before recommending one?",
+          "ir": {
+            "op": "SELECT",
+            "entity": "?proxy",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"assisted natural regeneration\", \"region\": {\"op\": \"REGION\", \"place\": \"site\"}, \"time\": null}, {\"op\": \"SELECT\", \"entity\": \"planting\", \"region\": {\"op\": \"REGION\", \"place\": \"site\"}, \"time\": null}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"EBTL evidence summary\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:",
+            "capability_verifier:retained:",
+            "capability_selector:mode:execute",
+            "capability_binding:empty_to_typed_hole",
+            "provenance:invented_place_demoted_to_hole"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [
+              "?proxy"
+            ],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "data_request",
+            "reason": "unbound_holes",
+            "detail": {
+              "holes": [
+                "?proxy"
+              ],
+              "ask": "clarify: ?proxy"
+            },
+            "provenance": []
+          },
+          "compile_execute_latency_s": 13.658
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (unbound_holes). DATA REQUEST: clarify: ?proxy",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.001
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "No, the available data does not provide evidence to choose between assisted natural regeneration and planting. The current record contains an unbound placeholder labeled \"?proxy\" regarding this comparison, meaning no measured plot data, species performance metrics, or regeneration rates are present to support a recommendation.\n\nTo answer this, a concrete data request is needed: measure and compare seedling survival rates and growth metrics for naturally regenerating saplings versus planted seedlings across at least two distinct microsites (e.g., high-catchment vs. low-lying areas) within the 70-acre property boundary. This measurement should be conducted over a minimum of one growing season to establish a baseline for site-specific regeneration potential.",
+          "raw_responder": "No, the available data does not provide evidence to choose between assisted natural regeneration and planting. The current record contains an unbound placeholder labeled \"?proxy\" regarding this comparison, meaning no measured plot data, species performance metrics, or regeneration rates are present to support a recommendation.\n\nTo answer this, a concrete data request is needed: measure and compare seedling survival rates and growth metrics for naturally regenerating saplings versus planted seedlings across at least two distinct microsites (e.g., high-catchment vs. low-lying areas) within the 70-acre property boundary. This measurement should be conducted over a minimum of one growing season to establish a baseline for site-specific regeneration potential.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 16.19
+        }
+      }
+    },
+    {
+      "number": 8,
+      "goal": "NURSERY + PHYLOGENY — what native material is documented and whether phylogenetic/functional diversity can be assessed.",
+      "question": "What native material is actually documented in the EBTL nursery? Can those records support a claim about phylogenetic or functional diversity, or what taxonomy and trait fields are missing?",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "What native material is actually documented in the EBTL nursery? Can those records support a claim about phylogenetic or functional diversity, or what taxonomy and trait fields are missing?",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL nursery inventory",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"taxonomy\", \"column\": \"native_material\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"phylogenetic_diversity\", \"column\": \"phylogenetic_diversity\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"functional_diversity\", \"column\": \"functional_diversity\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"trait\", \"column\": \"trait_fields\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"taxonomy\", \"column\": \"taxonomy\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"phylogenetic_diversity\", \"column\": \"phylogenetic_diversity\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"functional_diversity\", \"column\": \"functional_diversity\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"trait\", \"column\": \"trait_fields\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"taxonomy\", \"column\": \"taxonomy\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"phylogenetic_diversity\", \"column\": \"phylogenetic_diversity\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"functional_diversity\", \"column\": \"functional_diversity\"}, {\"op\": \"ANNOTATE\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL nursery inventory\", \"region\": \"?place\", \"time\": null}, \"layer\": \"trait\", \"column\": \"trait_fields\"}",
+          "raw_selector": "{\n\"mode\": \"execute\",\n\"entities\": [\n\"EBTL nursery inventory\"\n]\n}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL nursery inventory",
+            "capability_verifier:retained:EBTL nursery inventory",
+            "capability_selector:mode:execute",
+            "capability_binding:single_declared_template",
+            "schema_errors:root: ANNOTATE has unknown field(s) ['column'] — wrong op composed?",
+            "llm_repair:rejected"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-nursery-taxon:1",
+                  "scientific_name": "Buchanania lanzan",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:2",
+                  "scientific_name": "Diospyros melanoxylon",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:3",
+                  "scientific_name": "Ficus amplissima",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:4",
+                  "scientific_name": "Cochlospermum religiosum",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:5",
+                  "scientific_name": "Chukrasia tabularis",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:6",
+                  "scientific_name": "Dendrocalamus strictus",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:7",
+                  "scientific_name": "Schleichera oleosa",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:8",
+                  "scientific_name": "Terminalia bellirica",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:9",
+                  "scientific_name": "Drypetes sepiaria",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:10",
+                  "scientific_name": "Chloroxylon swietenia",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:11",
+                  "scientific_name": "Diospyros montana",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:12",
+                  "scientific_name": "Diospyros ebenum",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:13",
+                  "scientific_name": "Mitragyna parviflora",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:14",
+                  "scientific_name": "Walsura trifoliata",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:15",
+                  "scientific_name": "Suregada lanceolata",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:16",
+                  "scientific_name": "Clausena dentata",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:17",
+                  "scientific_name": "Glycosmis mauritiana",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:18",
+                  "scientific_name": "Combretum albidum",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — June 2023",
+                  "source_record": "ebtl-newsletter-june2023.pdf#page=5"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:19",
+                  "scientific_name": "Ficus dalhousiae",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — March 2024",
+                  "source_record": "ebtl-newsletter-march2024.pdf#page=3"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:20",
+                  "scientific_name": "Terminalia elliptica",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — March 2024",
+                  "source_record": "ebtl-newsletter-march2024.pdf#page=3"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:21",
+                  "scientific_name": "Heptapleurum stellatum",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — March 2024",
+                  "source_record": "ebtl-newsletter-march2024.pdf#page=3"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:22",
+                  "scientific_name": "Pterospermum suberifolium",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — March 2024",
+                  "source_record": "ebtl-newsletter-march2024.pdf#page=3"
+                },
+                {
+                  "id": "ebtl-nursery-taxon:23",
+                  "scientific_name": "Celtis philippensis",
+                  "record_status": "named_in_site_nursery_report",
+                  "source": "Elephants by the Lake Newsletter — March 2024",
+                  "source_record": "ebtl-newsletter-march2024.pdf#page=3"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "nursery_inventory",
+              "source_metadata": {
+                "snapshots": [
+                  {
+                    "date": "2023-06",
+                    "species_count": 85,
+                    "saplings": 15000,
+                    "source_id": "newsletter_june_2023",
+                    "pdf_page": 4
+                  },
+                  {
+                    "date": "2024-07",
+                    "species_count": 110,
+                    "saplings": 15000,
+                    "source_id": "newsletter_july_2024",
+                    "pdf_page": 3
+                  }
+                ],
+                "limitation": "The newsletters give roster counts and selected examples, not a complete species-by-species nursery roster or survival data"
+              },
+              "note": "23 taxa are named in imported newsletters; the July 2024 snapshot reports 110 propagated species and 15,000 saplings, but the complete roster and survival data are not published",
+              "connector_events": [],
+              "entity": "nursery_inventory",
+              "input_entity": "EBTL nursery inventory"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "nursery_inventory",
+                "note": "23 taxa are named in imported newsletters; the July 2024 snapshot reports 110 propagated species and 15,000 saplings, but the complete roster and survival data are not published"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 22.72
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 23 evidence records: Buchanania lanzan, Diospyros melanoxylon, Ficus amplissima, Cochlospermum religiosum, Chukrasia tabularis, Dendrocalamus strictus, Schleichera oleosa, Terminalia bellirica. Source: Imported EBTL primary evidence. 23 taxa are named in imported newsletters; the July 2024 snapshot reports 110 propagated species and 15,000 saplings, but the complete roster and survival data are not published.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.001
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The EBTL nursery documentation explicitly names 23 native taxa, including *Buchanania lanzan*, *Diospyros melanoxylon*, and *Ficus amplissima*, sourced from June 2023 and March 2024 newsletters. While a July 2024 snapshot indicates a total of 110 propagated species and 15,000 saplings, the available records do not list the full roster or provide survival data.\n\nThese documents cannot support a claim about phylogenetic or functional diversity because they lack the necessary trait fields (such as wood density, leaf lifespan, or dispersal mode) and complete species lists required for such analysis. The evidence is limited to a partial taxonomic roster without ecological attributes.",
+          "raw_responder": "The EBTL nursery documentation explicitly names 23 native taxa, including *Buchanania lanzan*, *Diospyros melanoxylon*, and *Ficus amplissima*, sourced from June 2023 and March 2024 newsletters. While a July 2024 snapshot indicates a total of 110 propagated species and 15,000 saplings, the available records do not list the full roster or provide survival data.\n\nThese documents cannot support a claim about phylogenetic or functional diversity because they lack the necessary trait fields (such as wood density, leaf lifespan, or dispersal mode) and complete species lists required for such analysis. The evidence is limited to a partial taxonomic roster without ecological attributes.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 21.948
+        }
+      }
+    },
+    {
+      "number": 9,
+      "goal": "SNAKES — locally documented venomous/non-venomous species and survey-status boundary.",
+      "question": "Let us drill into snakes. Which species are documented for the property, which were encountered in the 2024 survey, and which documented species are venomous? Do not turn non-detection into absence.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "Let us drill into snakes. Which species are documented for the property, which were encountered in the 2024 survey, and which documented species are venomous? Do not turn non-detection into absence.",
+          "ir": {
+            "op": "RANK",
+            "order": "desc",
+            "items": [
+              {
+                "op": "AGGREGATE",
+                "by": "time",
+                "metric": "count",
+                "source": {
+                  "op": "SELECT",
+                  "entity": "snakes",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Elephants by the Lake"
+                  },
+                  "time": {
+                    "start": "2024",
+                    "end": "2024"
+                  }
+                }
+              },
+              {
+                "op": "AGGREGATE",
+                "by": "time",
+                "metric": "count",
+                "source": {
+                  "op": "SELECT",
+                  "entity": "EBTL venomous snake inventory",
+                  "region": {
+                    "op": "REGION",
+                    "place": "Elephants by the Lake"
+                  },
+                  "time": {
+                    "start": "2024",
+                    "end": "2024"
+                  }
+                }
+              }
+            ]
+          },
+          "raw_compiler": "{\"op\": \"RANK\", \"order\": \"desc\", \"items\": [{\"op\": \"AGGREGATE\", \"by\": \"time\", \"metric\": \"count\", \"source\": {\"op\": \"SELECT\", \"entity\": \"snakes\", \"region\": {\"op\": \"REGION\", \"place\": \"Kisumu, Kenya\"}, \"time\": {\"start\": \"2024\", \"end\": \"2024\"}}}, {\"op\": \"AGGREGATE\", \"by\": \"time\", \"metric\": \"count\", \"source\": {\"op\": \"SELECT\", \"entity\": \"EBTL venomous snake inventory\", \"region\": {\"op\": \"REGION\", \"place\": \"Kisumu, Kenya\"}, \"time\": {\"start\": \"2024\", \"end\": \"2024\"}}}]}",
+          "raw_selector": "{\n\"mode\": \"execute\",\n\"entities\": [\n\"snakes\",\n\"EBTL venomous snake inventory\"\n]\n}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:snakes,EBTL venomous snake inventory",
+            "capability_verifier:retained:snakes,EBTL venomous snake inventory",
+            "capability_selector:mode:execute",
+            "provenance:invented_place_demoted_to_hole"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "RANK",
+              "AGGREGATE",
+              "SELECT",
+              "REGION",
+              "AGGREGATE",
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "data_request",
+            "reason": "rank_unscorable",
+            "detail": {
+              "items": [
+                "Elephants by the Lake",
+                "Elephants by the Lake"
+              ],
+              "hint": "an item produced no comparable value"
+            },
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-taxon-inventory",
+                "resolved": "Snakes (Serpentes)",
+                "note": "published site inventory: 14 snake species; 3 encountered during the September 2024 VES and 11 previously recorded on the property but not encountered during that three-day survey"
+              },
+              {
+                "op": "AGGREGATE",
+                "by": "time",
+                "metric": "count",
+                "note": "binned to 0 years"
+              },
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "venomous_snake_inventory",
+                "note": "4 medically venomous species in the documented 14-species property inventory; all are earlier property records not encountered in the three-day September 2024 VES"
+              },
+              {
+                "op": "AGGREGATE",
+                "by": "time",
+                "metric": "count",
+                "note": "binned to 0 years"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 11.851
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (rank_unscorable). DATA REQUEST: an item produced no comparable value",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.001
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The available data contains no documented records of snake species, encounters from the 2024 survey, or classifications of venomous status for the Elephants by the Lake property. Because the audit returned no comparable values for these specific biological attributes, it is impossible to distinguish between non-detection and true absence.\n\nTo answer this question, a concrete data request is needed: conduct a targeted herpetological survey at the EBTL site (12.73394° N, 78.18344° E) to record all snake species encountered, explicitly noting any venomous individuals, and document the specific dates and locations of these observations.",
+          "raw_responder": "The available data contains no documented records of snake species, encounters from the 2024 survey, or classifications of venomous status for the Elephants by the Lake property. Because the audit returned no comparable values for these specific biological attributes, it is impossible to distinguish between non-detection and true absence.\n\nTo answer this question, a concrete data request is needed: conduct a targeted herpetological survey at the EBTL site (12.73394° N, 78.18344° E) to record all snake species encountered, explicitly noting any venomous individuals, and document the specific dates and locations of these observations.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 2.569
+        }
+      }
+    },
+    {
+      "number": 10,
+      "goal": "ARACHNIDS — sparse local data, regional discovery, and environmental transfer gates.",
+      "question": "What about arachnids at EBTL? Start with local public records, then tell me whether regional records or papers produce any defensible candidates rather than a made-up species list.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "What about arachnids at EBTL? Start with local public records, then tell me whether regional records or papers produce any defensible candidates rather than a made-up species list.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL arachnid transfer evidence",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL arachnid transfer evidence\", \"region\": {\"op\": \"REGION\", \"place\": \"EBTL\"}, \"time\": null}",
+          "raw_selector": "{\"mode\":\"execute\",\"entities\":[\"arachnids\",\"EBTL arachnid transfer evidence\"]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL arachnid transfer evidence",
+            "capability_verifier:retained:arachnids,EBTL arachnid transfer evidence",
+            "capability_selector:mode:execute",
+            "capability_binding:single_declared_template"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "gbif:6413989090",
+                  "lat": 12.728704,
+                  "lon": 78.188687,
+                  "name": "Arachnida",
+                  "scientific_name": "Thelacantha brevispina (Doleschall, 1857)",
+                  "time": "2026-06-19T10:09",
+                  "source": "GBIF",
+                  "source_record": "https://www.gbif.org/occurrence/6413989090",
+                  "dataset_key": "50c9509d-22c7-4a22-a47d-8c48425ef4a7",
+                  "basis": "HUMAN_OBSERVATION",
+                  "quality_issues": [
+                    "COORDINATE_ROUNDED",
+                    "CONTINENT_DERIVED_FROM_COORDINATES",
+                    "TAXON_ID_NOT_FOUND"
+                  ],
+                  "license": "http://creativecommons.org/publicdomain/zero/1.0/legalcode"
+                }
+              ],
+              "kind": "records",
+              "source": "GBIF+iNaturalist + exact origin points + typed environmental gates",
+              "label": "observed",
+              "grain": "local-occurrences-plus-regional-transfer-audit",
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "taxon_group_transfer_audit",
+              "local_inventory": {
+                "taxon": "Arachnida",
+                "deduplicated_records": 1,
+                "named_species": [
+                  "Thelacantha brevispina (Doleschall, 1857)"
+                ],
+                "gbif_api_total": 1,
+                "inat_api_total": 0,
+                "blocked_license_rows": 0
+              },
+              "regional_inventory": {
+                "taxon": "Arachnida",
+                "deduplicated_records": 58,
+                "named_species": [
+                  "Argiope aemula (Walckenaer, 1841)",
+                  "Argiope anasuja Thorell, 1887",
+                  "Bianor balius Thorell, 1890",
+                  "Chrysilla volupe (Karsch, 1879)",
+                  "Crossopriza lyoni (Blackwall, 1867)",
+                  "Cyrtophora cicatrosa (Stoliczka, 1869)",
+                  "Cyrtophora citricola (Forsskål, 1775)",
+                  "Gasteracantha geminata (Fabricius, 1798)",
+                  "Herennia multipuncta (Doleschall, 1859)",
+                  "Hersilia caudata Audouin, 1826",
+                  "Hyllus semicupreus (Simon, 1885)",
+                  "Icius kumariae Caleb, 2017",
+                  "Madhyattus jabalpurensis Prószyński, 1992",
+                  "Marengo sachintendulkar Malamel, Prajapati, Sudhikumar & Sebastian, 2019",
+                  "Menemerus bivittatus (Dufour, 1831)",
+                  "Myrmaplata plataleoides (O.Pickard-Cambridge, 1869)",
+                  "Myrmarachne melanocephala MacLeay, 1839",
+                  "Nesticodes rufipes (Lucas, 1846)",
+                  "Orientattus aurantius (Kanesharatnam & Benjamin, 2018)",
+                  "Oxyopes shweta Tikader, 1970",
+                  "Pellenes iva Caleb, 2018",
+                  "Phintella vittata (C.L.Koch, 1846)",
+                  "Plexippus paykulli (Audouin, 1826)",
+                  "Plexippus petersi (Karsch, 1878)",
+                  "Rhene flavigera (C.L.Koch, 1846)",
+                  "Sinothomisus hainanus (Song, 1994)",
+                  "Stenaelurillus lesserti Reimoser, 1934",
+                  "Telamonia dimidiata (Simon, 1899)",
+                  "Thomisus projectus Tikader, 1960",
+                  "Thomisus unidentatus Dippenaar-Schoeman & van Harten, 2007",
+                  "Thyene calebi (Kanesharatnam & Benjamin, 2018)"
+                ],
+                "gbif_api_total": 10437,
+                "inat_api_total": 0,
+                "blocked_license_rows": 242
+              },
+              "regional_returned_sample_counts": {
+                "Gasteracantha geminata (Fabricius, 1798)": 6,
+                "Myrmaplata plataleoides (O.Pickard-Cambridge, 1869)": 3,
+                "Cyrtophora citricola (Forsskål, 1775)": 1,
+                "Hyllus semicupreus (Simon, 1885)": 4,
+                "Argiope anasuja Thorell, 1887": 2,
+                "Thomisus projectus Tikader, 1960": 1,
+                "Argiope aemula (Walckenaer, 1841)": 2,
+                "Rhene flavigera (C.L.Koch, 1846)": 1,
+                "Plexippus petersi (Karsch, 1878)": 6,
+                "Icius kumariae Caleb, 2017": 3,
+                "Cyrtophora cicatrosa (Stoliczka, 1869)": 2,
+                "Plexippus paykulli (Audouin, 1826)": 1,
+                "Thomisus unidentatus Dippenaar-Schoeman & van Harten, 2007": 1,
+                "Madhyattus jabalpurensis Prószyński, 1992": 2,
+                "Menemerus bivittatus (Dufour, 1831)": 1,
+                "Sinothomisus hainanus (Song, 1994)": 2,
+                "Chrysilla volupe (Karsch, 1879)": 2,
+                "Oxyopes shweta Tikader, 1970": 1,
+                "Orientattus aurantius (Kanesharatnam & Benjamin, 2018)": 3,
+                "Herennia multipuncta (Doleschall, 1859)": 1,
+                "Telamonia dimidiata (Simon, 1899)": 3,
+                "Pellenes iva Caleb, 2018": 1,
+                "Phintella vittata (C.L.Koch, 1846)": 1,
+                "Hersilia caudata Audouin, 1826": 1,
+                "Crossopriza lyoni (Blackwall, 1867)": 1,
+                "Thyene calebi (Kanesharatnam & Benjamin, 2018)": 1,
+                "Bianor balius Thorell, 1890": 1,
+                "Nesticodes rufipes (Lucas, 1846)": 1,
+                "Marengo sachintendulkar Malamel, Prajapati, Sudhikumar & Sebastian, 2019": 1,
+                "Myrmarachne melanocephala MacLeay, 1839": 1,
+                "Stenaelurillus lesserti Reimoser, 1934": 1
+              },
+              "assessments": [
+                {
+                  "species": "Thelacantha brevispina",
+                  "donor_records": 84,
+                  "locally_observed": true,
+                  "feature_gate": {
+                    "pass": true,
+                    "strength": "AlphaEarth-NN-analog",
+                    "year": 2024,
+                    "analog_floor": 0.891,
+                    "mean_nearest_cosine": 0.887,
+                    "target_analog_fraction": 0.6,
+                    "reason": "target is a local feature analog",
+                    "ask": null
+                  },
+                  "climate_gate": {
+                    "pass": true,
+                    "strength": "WorldClim-MESS-envelope",
+                    "target_in_envelope_fraction": 1.0,
+                    "reason": "target climate is inside donor envelope",
+                    "ask": null
+                  },
+                  "transfer_admissible": false
+                },
+                {
+                  "species": "Gasteracantha geminata",
+                  "donor_records": 401,
+                  "locally_observed": false,
+                  "feature_gate": {
+                    "pass": false,
+                    "strength": "AlphaEarth-NN-analog",
+                    "year": 2024,
+                    "analog_floor": 0.8956,
+                    "mean_nearest_cosine": 0.8551,
+                    "target_analog_fraction": 0.28,
+                    "reason": "target is outside donor AlphaEarth analog space",
+                    "ask": "collect local target observations"
+                  },
+                  "climate_gate": {
+                    "pass": true,
+                    "strength": "WorldClim-MESS-envelope",
+                    "target_in_envelope_fraction": 1.0,
+                    "reason": "target climate is inside donor envelope",
+                    "ask": null
+                  },
+                  "transfer_admissible": false
+                },
+                {
+                  "species": "Plexippus petersi",
+                  "donor_records": 283,
+                  "locally_observed": false,
+                  "feature_gate": {
+                    "pass": false,
+                    "strength": "AlphaEarth-NN-analog",
+                    "year": 2024,
+                    "analog_floor": 0.92,
+                    "mean_nearest_cosine": 0.8362,
+                    "target_analog_fraction": 0.16,
+                    "reason": "target is outside donor AlphaEarth analog space",
+                    "ask": "collect local target observations"
+                  },
+                  "climate_gate": {
+                    "pass": true,
+                    "strength": "WorldClim-MESS-envelope",
+                    "target_in_envelope_fraction": 1.0,
+                    "reason": "target climate is inside donor envelope",
+                    "ask": null
+                  },
+                  "transfer_admissible": false
+                },
+                {
+                  "species": "Hyllus semicupreus",
+                  "donor_records": 392,
+                  "locally_observed": false,
+                  "feature_gate": {
+                    "pass": false,
+                    "strength": "AlphaEarth-NN-analog",
+                    "year": 2024,
+                    "analog_floor": 0.9191,
+                    "mean_nearest_cosine": 0.8884,
+                    "target_analog_fraction": 0.44,
+                    "reason": "target is outside donor AlphaEarth analog space",
+                    "ask": "collect local target observations"
+                  },
+                  "climate_gate": {
+                    "pass": true,
+                    "strength": "WorldClim-MESS-envelope",
+                    "target_in_envelope_fraction": 1.0,
+                    "reason": "target climate is inside donor envelope",
+                    "ask": null
+                  },
+                  "transfer_admissible": false
+                }
+              ],
+              "admitted_transfer_candidates": [],
+              "evidence_discovery": [],
+              "connector_events": [
+                {
+                  "tool": "gbif.occurrence.search",
+                  "parameters": {
+                    "higher_taxon": "Arachnida",
+                    "bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 1,
+                  "api_total": 1,
+                  "blocked_license_rows": 0
+                },
+                {
+                  "tool": "inat.observations",
+                  "parameters": {
+                    "higher_taxon": "Arachnida",
+                    "bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ],
+                    "limit": 200
+                  },
+                  "output_rows": 0,
+                  "api_total": 0
+                },
+                {
+                  "tool": "gbif.occurrence.search",
+                  "parameters": {
+                    "higher_taxon": "Arachnida",
+                    "bbox": [
+                      11.0,
+                      13.6,
+                      76.0,
+                      79.5
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 58,
+                  "api_total": 10437,
+                  "blocked_license_rows": 242
+                },
+                {
+                  "tool": "inat.observations",
+                  "parameters": {
+                    "higher_taxon": "Arachnida",
+                    "bbox": [
+                      11.0,
+                      13.6,
+                      76.0,
+                      79.5
+                    ],
+                    "limit": 200
+                  },
+                  "output_rows": 0,
+                  "api_total": 0
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Thelacantha brevispina",
+                    "bbox": [
+                      76.0,
+                      11.0,
+                      79.5,
+                      13.6
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 84,
+                  "cached": true
+                },
+                {
+                  "tool": "typed.transfer_gate.feature",
+                  "parameters": {
+                    "species": "Thelacantha brevispina",
+                    "target_bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ]
+                  },
+                  "output_rows": 1,
+                  "passed": true,
+                  "strength": "AlphaEarth-NN-analog"
+                },
+                {
+                  "tool": "typed.transfer_gate.envelope",
+                  "parameters": {
+                    "species": "Thelacantha brevispina",
+                    "target_bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ]
+                  },
+                  "output_rows": 1,
+                  "passed": true,
+                  "strength": "WorldClim-MESS-envelope"
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Gasteracantha geminata",
+                    "bbox": [
+                      76.0,
+                      11.0,
+                      79.5,
+                      13.6
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 401,
+                  "cached": true
+                },
+                {
+                  "tool": "typed.transfer_gate.feature",
+                  "parameters": {
+                    "species": "Gasteracantha geminata",
+                    "target_bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ]
+                  },
+                  "output_rows": 1,
+                  "passed": false,
+                  "strength": "AlphaEarth-NN-analog"
+                },
+                {
+                  "tool": "typed.transfer_gate.envelope",
+                  "parameters": {
+                    "species": "Gasteracantha geminata",
+                    "target_bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ]
+                  },
+                  "output_rows": 1,
+                  "passed": true,
+                  "strength": "WorldClim-MESS-envelope"
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Plexippus petersi",
+                    "bbox": [
+                      76.0,
+                      11.0,
+                      79.5,
+                      13.6
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 283,
+                  "cached": true
+                },
+                {
+                  "tool": "typed.transfer_gate.feature",
+                  "parameters": {
+                    "species": "Plexippus petersi",
+                    "target_bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ]
+                  },
+                  "output_rows": 1,
+                  "passed": false,
+                  "strength": "AlphaEarth-NN-analog"
+                },
+                {
+                  "tool": "typed.transfer_gate.envelope",
+                  "parameters": {
+                    "species": "Plexippus petersi",
+                    "target_bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ]
+                  },
+                  "output_rows": 1,
+                  "passed": true,
+                  "strength": "WorldClim-MESS-envelope"
+                },
+                {
+                  "tool": "origin.points.get",
+                  "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                  "parameters": {
+                    "species": "Hyllus semicupreus",
+                    "bbox": [
+                      76.0,
+                      11.0,
+                      79.5,
+                      13.6
+                    ],
+                    "sources": [
+                      "gbif",
+                      "inat",
+                      "paper"
+                    ],
+                    "limit": 300
+                  },
+                  "output_rows": 392,
+                  "cached": true
+                },
+                {
+                  "tool": "typed.transfer_gate.feature",
+                  "parameters": {
+                    "species": "Hyllus semicupreus",
+                    "target_bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ]
+                  },
+                  "output_rows": 1,
+                  "passed": false,
+                  "strength": "AlphaEarth-NN-analog"
+                },
+                {
+                  "tool": "typed.transfer_gate.envelope",
+                  "parameters": {
+                    "species": "Hyllus semicupreus",
+                    "target_bbox": [
+                      12.721,
+                      12.747,
+                      78.17,
+                      78.197
+                    ]
+                  },
+                  "output_rows": 1,
+                  "passed": true,
+                  "strength": "WorldClim-MESS-envelope"
+                }
+              ],
+              "note": "dynamic higher-taxon discovery widened the sparse local query to a declared donor belt, nominated three species from the returned licensed sample, then ran exact species point queries and separate AlphaEarth feature and WorldClim envelope gates; no failed gate is converted into a site expectation",
+              "entity": "Arachnida",
+              "input_entity": "EBTL arachnid transfer evidence"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "CONNECTOR",
+                "tool": "gbif.occurrence.search",
+                "parameters": {
+                  "higher_taxon": "Arachnida",
+                  "bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 1,
+                "api_total": 1,
+                "blocked_license_rows": 0
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "inat.observations",
+                "parameters": {
+                  "higher_taxon": "Arachnida",
+                  "bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ],
+                  "limit": 200
+                },
+                "output_rows": 0,
+                "api_total": 0
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "gbif.occurrence.search",
+                "parameters": {
+                  "higher_taxon": "Arachnida",
+                  "bbox": [
+                    11.0,
+                    13.6,
+                    76.0,
+                    79.5
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 58,
+                "api_total": 10437,
+                "blocked_license_rows": 242
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "inat.observations",
+                "parameters": {
+                  "higher_taxon": "Arachnida",
+                  "bbox": [
+                    11.0,
+                    13.6,
+                    76.0,
+                    79.5
+                  ],
+                  "limit": 200
+                },
+                "output_rows": 0,
+                "api_total": 0
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Thelacantha brevispina",
+                  "bbox": [
+                    76.0,
+                    11.0,
+                    79.5,
+                    13.6
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 84,
+                "cached": true
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "typed.transfer_gate.feature",
+                "parameters": {
+                  "species": "Thelacantha brevispina",
+                  "target_bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ]
+                },
+                "output_rows": 1,
+                "passed": true,
+                "strength": "AlphaEarth-NN-analog"
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "typed.transfer_gate.envelope",
+                "parameters": {
+                  "species": "Thelacantha brevispina",
+                  "target_bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ]
+                },
+                "output_rows": 1,
+                "passed": true,
+                "strength": "WorldClim-MESS-envelope"
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Gasteracantha geminata",
+                  "bbox": [
+                    76.0,
+                    11.0,
+                    79.5,
+                    13.6
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 401,
+                "cached": true
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "typed.transfer_gate.feature",
+                "parameters": {
+                  "species": "Gasteracantha geminata",
+                  "target_bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ]
+                },
+                "output_rows": 1,
+                "passed": false,
+                "strength": "AlphaEarth-NN-analog"
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "typed.transfer_gate.envelope",
+                "parameters": {
+                  "species": "Gasteracantha geminata",
+                  "target_bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ]
+                },
+                "output_rows": 1,
+                "passed": true,
+                "strength": "WorldClim-MESS-envelope"
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Plexippus petersi",
+                  "bbox": [
+                    76.0,
+                    11.0,
+                    79.5,
+                    13.6
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 283,
+                "cached": true
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "typed.transfer_gate.feature",
+                "parameters": {
+                  "species": "Plexippus petersi",
+                  "target_bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ]
+                },
+                "output_rows": 1,
+                "passed": false,
+                "strength": "AlphaEarth-NN-analog"
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "typed.transfer_gate.envelope",
+                "parameters": {
+                  "species": "Plexippus petersi",
+                  "target_bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ]
+                },
+                "output_rows": 1,
+                "passed": true,
+                "strength": "WorldClim-MESS-envelope"
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "origin.points.get",
+                "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+                "parameters": {
+                  "species": "Hyllus semicupreus",
+                  "bbox": [
+                    76.0,
+                    11.0,
+                    79.5,
+                    13.6
+                  ],
+                  "sources": [
+                    "gbif",
+                    "inat",
+                    "paper"
+                  ],
+                  "limit": 300
+                },
+                "output_rows": 392,
+                "cached": true
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "typed.transfer_gate.feature",
+                "parameters": {
+                  "species": "Hyllus semicupreus",
+                  "target_bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ]
+                },
+                "output_rows": 1,
+                "passed": false,
+                "strength": "AlphaEarth-NN-analog"
+              },
+              {
+                "op": "CONNECTOR",
+                "tool": "typed.transfer_gate.envelope",
+                "parameters": {
+                  "species": "Hyllus semicupreus",
+                  "target_bbox": [
+                    12.721,
+                    12.747,
+                    78.17,
+                    78.197
+                  ]
+                },
+                "output_rows": 1,
+                "passed": true,
+                "strength": "WorldClim-MESS-envelope"
+              },
+              {
+                "op": "SELECT",
+                "route": "dynamic-higher-taxon-transfer-audit",
+                "resolved": "Arachnida",
+                "note": "dynamic higher-taxon discovery widened the sparse local query to a declared donor belt, nominated three species from the returned licensed sample, then ran exact species point queries and separate AlphaEarth feature and WorldClim envelope gates; no failed gate is converted into a site expectation"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 2.838
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 1 evidence records: Thelacantha brevispina (Doleschall, 1857). Source: GBIF+iNaturalist + exact origin points + typed environmental gates. dynamic higher-taxon discovery widened the sparse local query to a declared donor belt, nominated three species from the returned licensed sample, then ran exact species point queries and separate AlphaEarth feature and WorldClim envelope gates; no failed gate is converted into a site expectation.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.002
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "Local public records for arachnids at Elephants by the Lake (EBTL) contain only one observation: *Thelacantha brevispina* (Doleschall, 1857), recorded in June 2026. This single record carries quality issues, including rounded coordinates and a missing taxon ID, and it is the only species currently admitted as a local feature analog.\n\nRegional records from the broader donor belt list multiple named species, such as *Gasteracantha geminata*, *Plexippus petersi*, and *Hyllus semicupreus*. However, none of these regional candidates are defensible for EBTL yet; they all failed the AlphaEarth feature gate, indicating they fall outside the local environmental analog space. While their climate envelopes are suitable, the specific ecological features do not match, so no regional species can be recommended without new local data.\n\nTo resolve this, you must collect local target observations for the regional candidates that passed the climate gate. Measure these specifically within the EBTL bounding box to determine if they can pass the feature gate and become admissible transfer candidates.",
+          "raw_responder": "Local public records for arachnids at Elephants by the Lake (EBTL) contain only one observation: *Thelacantha brevispina* (Doleschall, 1857), recorded in June 2026. This single record carries quality issues, including rounded coordinates and a missing taxon ID, and it is the only species currently admitted as a local feature analog.\n\nRegional records from the broader donor belt list multiple named species, such as *Gasteracantha geminata*, *Plexippus petersi*, and *Hyllus semicupreus*. However, none of these regional candidates are defensible for EBTL yet; they all failed the AlphaEarth feature gate, indicating they fall outside the local environmental analog space. While their climate envelopes are suitable, the specific ecological features do not match, so no regional species can be recommended without new local data.\n\nTo resolve this, you must collect local target observations for the regional candidates that passed the climate gate. Measure these specifically within the EBTL bounding box to determine if they can pass the feature gate and become admissible transfer candidates.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 2,
+          "fallback": false,
+          "render_latency_s": 28.835
+        }
+      }
+    },
+    {
+      "number": 11,
+      "goal": "HABITAT PROTECTION — which measured habitat features would support snake/arachnid protection; refuse invented tree dependencies.",
+      "question": "For the snakes already documented at EBTL, do we know which tree species they require? Separate measured habitat evidence from a plausible but untested dependency, and tell the field team what habitat variables to record.",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "execute",
+          "question": "For the snakes already documented at EBTL, do we know which tree species they require? Separate measured habitat evidence from a plausible but untested dependency, and tell the field team what habitat variables to record.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL snake habitat requirements",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL snake habitat requirements\", \"region\": {\"op\": \"REGION\", \"place\": \"Kisumu, Kenya\"}, \"time\": null}",
+          "raw_selector": "{\n\"mode\": \"execute\",\n\"entities\": [\n\"EBTL snake habitat requirements\"\n]\n}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:EBTL snake habitat requirements",
+            "capability_verifier:retained:EBTL snake habitat requirements",
+            "capability_selector:mode:execute",
+            "provenance:invented_place_demoted_to_hole"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:1",
+                  "group": "Snake",
+                  "family": "Boidae",
+                  "scientific_name": "Eryx conicus",
+                  "common_name": "Common Sand Boa",
+                  "record_status": "observed_during_survey",
+                  "individuals_observed": 1,
+                  "page": 23,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=23"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:2",
+                  "group": "Snake",
+                  "family": "Colubridae",
+                  "scientific_name": "Amphiesma stolatum",
+                  "common_name": "Striped Keelback",
+                  "record_status": "observed_during_survey",
+                  "individuals_observed": 1,
+                  "page": 23,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=23"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:3",
+                  "group": "Snake",
+                  "family": "Colubridae",
+                  "scientific_name": "Lycodon striatus",
+                  "common_name": "Barred Wolf Snake",
+                  "record_status": "observed_during_survey",
+                  "individuals_observed": 1,
+                  "page": 23,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=23"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:4",
+                  "group": "Snake",
+                  "family": "Typhlopidae",
+                  "scientific_name": "Indotyphlops braminus",
+                  "common_name": "Brahmini Blind Snake",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:5",
+                  "group": "Snake",
+                  "family": "Typhlopidae",
+                  "scientific_name": "Grypotyphlops acutus",
+                  "common_name": "Beaked Blind Snake",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:6",
+                  "group": "Snake",
+                  "family": "Colubridae",
+                  "scientific_name": "Ptyas mucosa",
+                  "common_name": "Rat Snake",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:7",
+                  "group": "Snake",
+                  "family": "Colubridae",
+                  "scientific_name": "Fowlea piscator",
+                  "common_name": "Checkered Keelback",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:8",
+                  "group": "Snake",
+                  "family": "Colubridae",
+                  "scientific_name": "Atretium schistosum",
+                  "common_name": "Olive Keelback",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:9",
+                  "group": "Snake",
+                  "family": "Colubridae",
+                  "scientific_name": "Lycodon aulicus",
+                  "common_name": "Common Wolf Snake",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:10",
+                  "group": "Snake",
+                  "family": "Colubridae",
+                  "scientific_name": "Lycodon fasciolatus",
+                  "common_name": "Russell's Wolf Snake",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:11",
+                  "group": "Snake",
+                  "family": "Elapidae",
+                  "scientific_name": "Naja naja",
+                  "common_name": "Spectacled Cobra",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:12",
+                  "group": "Snake",
+                  "family": "Viperidae",
+                  "scientific_name": "Daboia russelli",
+                  "common_name": "Russell's Viper",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:13",
+                  "group": "Snake",
+                  "family": "Viperidae",
+                  "scientific_name": "Echis carinatus",
+                  "common_name": "Saw-scaled Viper",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                },
+                {
+                  "id": "ebtl-faunal-survey-2024:snake-habitat-basis:14",
+                  "group": "Snake",
+                  "family": "Viperidae",
+                  "scientific_name": "Craspedocephalus gramineus",
+                  "common_name": "Bamboo Pit Viper",
+                  "record_status": "previous_property_record_not_observed_during_survey",
+                  "individuals_observed": null,
+                  "page": 24,
+                  "site": "Elephants by the Lake",
+                  "survey_dates": [
+                    "2024-09-05",
+                    "2024-09-06",
+                    "2024-09-07"
+                  ],
+                  "source": "Faunal Survey 2024 — Herpetofauna of EBTL",
+                  "source_record": "Faunal survey 2024.pdf#page=24"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "snake_habitat_requirements",
+              "source_metadata": {
+                "method": "Time-constrained Visual Encounter Survey (VES), two-hour sessions over three days",
+                "inventory_species": 14,
+                "tree_dependency_evidence": "not measured or reported in the source tables",
+                "required_field_covariates": [
+                  "canopy and shrub cover",
+                  "leaf-litter depth and ground cover",
+                  "rock, termite-mound, log and refuge availability",
+                  "water and hydroperiod",
+                  "prey indicators",
+                  "ground temperature and moisture",
+                  "repeat VES effort by habitat stratum and time of day"
+                ]
+              },
+              "note": "the local source supports a 14-species snake basis and survey status, but reports no snake-by-tree use, host-tree requirement, vegetation selection, or planting outcome",
+              "connector_events": [],
+              "entity": "snake_habitat_requirements",
+              "input_entity": "EBTL snake habitat requirements"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "snake_habitat_requirements",
+                "note": "the local source supports a 14-species snake basis and survey status, but reports no snake-by-tree use, host-tree requirement, vegetation selection, or planting outcome"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 9.295
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "Observed result: 14 evidence records: Common Sand Boa, Striped Keelback, Barred Wolf Snake, Brahmini Blind Snake, Beaked Blind Snake, Rat Snake, Checkered Keelback, Olive Keelback. Source: Imported EBTL primary evidence. the local source supports a 14-species snake basis and survey status, but reports no snake-by-tree use, host-tree requirement, vegetation selection, or planting outcome.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.001
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The 2024 Faunal Survey at Elephants by the Lake documented 14 snake species, including three observed during the survey (*Eryx conicus*, *Amphiesma stolatum*, *Lycodon striatus*) and 11 recorded as previous property findings. However, the source report contains no measured evidence linking these snakes to specific tree species, host requirements, or vegetation selection.\n\nBecause the audit explicitly states that snake-by-tree use and host-tree requirements were not measured or reported, no plausible but untested dependency can be inferred from the current data. To address this gap, the field team must record specific habitat covariates during repeat Visual Encounter Surveys: canopy and shrub cover, leaf-litter depth, availability of refuges (rocks, termite mounds, logs), water and hydroperiod, prey indicators, and ground temperature/moisture, stratified by time of day.",
+          "raw_responder": "The 2024 Faunal Survey at Elephants by the Lake documented 14 snake species, including three observed during the survey (*Eryx conicus*, *Amphiesma stolatum*, *Lycodon striatus*) and 11 recorded as previous property findings. However, the source report contains no measured evidence linking these snakes to specific tree species, host requirements, or vegetation selection.\n\nBecause the audit explicitly states that snake-by-tree use and host-tree requirements were not measured or reported, no plausible but untested dependency can be inferred from the current data. To address this gap, the field team must record specific habitat covariates during repeat Visual Encounter Surveys: canopy and shrub cover, leaf-litter depth, availability of refuges (rocks, termite mounds, logs), water and hydroperiod, prey indicators, and ground temperature/moisture, stratified by time of day.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 3.488
+        }
+      }
+    }
+  ]
+}

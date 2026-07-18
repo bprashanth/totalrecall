@@ -1,0 +1,101 @@
+{
+  "round": "v8_acceptance_candidate",
+  "arms": [
+    "SQ9DSC2-D",
+    "SQ9DSC2-RQ9"
+  ],
+  "arm_defs": {
+    "SQ9DSC2-D": {
+      "compiler": "qwen9b>deepseekv4@qwen2b",
+      "responder": "deterministic"
+    },
+    "SQ9DSC2-RQ9": {
+      "compiler": "qwen9b>deepseekv4@qwen2b",
+      "responder": "qwen9b"
+    }
+  },
+  "started": "2026-07-18T02:46:39+0530",
+  "turns": [
+    {
+      "number": 1,
+      "goal": "OPEN — map EBTL for a new conservation colleague: strongest local facts and major unknowns.",
+      "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+      "compiled": {
+        "qwen9b>deepseekv4@qwen2b": {
+          "compiler": "qwen9b>deepseekv4@qwen2b",
+          "base_compiler": "qwen2b",
+          "selector": "qwen9b>deepseekv4",
+          "critic": null,
+          "dialogue_mode": "synthesize_history",
+          "question": "I work with a conservation NGO around Elephants by the Lake. Map EBTL for a new field colleague: what are the strongest facts we actually have, and what are the important gaps?",
+          "ir": null,
+          "raw_compiler": null,
+          "raw_selector": "{\"mode\":\"synthesize_history\",\"entities\":[]}",
+          "raw_critic": null,
+          "parse_valid": true,
+          "repair_events": [
+            "capability_selector:selected:",
+            "capability_selector:mode:synthesize_history"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": []
+          },
+          "execution": {
+            "status": "data_request",
+            "reason": "no_audited_history",
+            "detail": {
+              "hint": "ask and execute the underlying data questions first"
+            }
+          },
+          "compile_execute_latency_s": 0.658
+        }
+      },
+      "arms": {
+        "SQ9DSC2-D": {
+          "responder": "deterministic",
+          "answer": "I cannot answer this from the available evidence yet (no_audited_history). DATA REQUEST: ask and execute the underlying data questions first",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "no_typed_holes": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "SQ9DSC2-RQ9": {
+          "responder": "qwen9b",
+          "answer": "We currently have no audited facts or historical data available for the \"Elephants by the Lake\" (EBTL) property to map for your new colleague. The system indicates that no prior records or evidence have been processed for this specific location yet.\n\nTo proceed, we need to execute the underlying data questions first. Please specify exactly which metrics or species records you require for the initial map, such as elephant population counts, habitat boundaries, or recent sighting logs, so we can request and retrieve the necessary information.",
+          "raw_responder": "We currently have no audited facts or historical data available for the \"Elephants by the Lake\" (EBTL) property to map for your new colleague. The system indicates that no prior records or evidence have been processed for this specific location yet.\n\nTo proceed, we need to execute the underlying data questions first. Please specify exactly which metrics or species records you require for the initial map, such as elephant population counts, habitat boundaries, or recent sighting logs, so we can request and retrieve the necessary information.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "no_typed_holes": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 0.0
+        }
+      }
+    }
+  ]
+}

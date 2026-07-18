@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "cases": [
+    {
+      "id": "site_fire_topic_repair",
+      "purpose": "An explicitly scoped opening must not be clarified as though no topic was given",
+      "context": "ebtl",
+      "turns": [
+        "tell me about fire at the site",
+        "i said fire",
+        "what exactly did you measure, over what area and period?"
+      ],
+      "checks": [
+        "explicit_topic_bypasses_generic_site_clarification",
+        "natural_language_menu_reply_retains_fire_topic",
+        "production_fire_connector_is_executed",
+        "metric_area_period_and_proxy_limit_are_stated"
+      ]
+    },
+    {
+      "id": "site_snake_inventory",
+      "purpose": "Broad site opening to complete taxon inventory and evidence audit",
+      "context": "ebtl",
+      "turns": [
+        "tell me about ebtl",
+        "what about snakes",
+        "what snake data do you have, and which records are direct observations versus estimates?",
+        "how did you decide on those species?"
+      ],
+      "checks": [
+        "opening_clarifies_without_computing",
+        "category_request_does_not_become_a_model_selected_shortlist",
+        "local_published_inventory_is_consulted",
+        "survey_encounters_are_distinguished_from_previous_property_records",
+        "modelled_or_transferred_claims_are_explicitly_labelled",
+        "species_selection_lineage_is_explainable"
+      ]
+    },
+    {
+      "id": "site_snake_transfer",
+      "purpose": "Separate documented inventory from gated donor-to-site inference",
+      "context": "ebtl",
+      "turns": [
+        "tell me about ebtl",
+        "what snakes are documented there?",
+        "could other snake species be likely there even if they have not been recorded?",
+        "show me which evidence is local, which is donor-region evidence, and whether the transfer gate passed"
+      ],
+      "checks": [
+        "documented_and_likely_are_not_conflated",
+        "donor_records_are_not_called_local_observations",
+        "transfer_requires_an_explicit_environmental_gate",
+        "failed_or_unsupported_transfer_returns_a_data_request"
+      ]
+    },
+    {
+      "id": "site_fire_risk",
+      "purpose": "Natural-language fire-risk phrasing, metric interpretation, and dialogue repair",
+      "context": "ebtl",
+      "turns": [
+        "tell me about ebtl",
+        "what is the risk of fire there?",
+        "you mean i have to ask you about fire risk specifically and not risk of fire?",
+        "what exactly did you measure, over what area and period?"
+      ],
+      "checks": [
+        "risk_of_fire_and_fire_risk_are_synonyms",
+        "production_fire_connector_is_executed",
+        "historical_exposure_is_not_called_a_forecast",
+        "pixel_fire_days_are_not_called_fires_or_burned_area",
+        "buffer_and_period_are_stated",
+        "meta_question_is_answered_as_dialogue_not_reparsed_as_a_new_entity"
+      ]
+    },
+    {
+      "id": "site_elephant_evidence",
+      "purpose": "Sparse public records, absence discipline, and transfer boundary",
+      "context": "ebtl",
+      "turns": [
+        "tell me about ebtl",
+        "what about elephants?",
+        "does that mean elephants are absent from the site?",
+        "what evidence would let you estimate whether they use the site?"
+      ],
+      "checks": [
+        "broad_taxon_followup_retains_site_context",
+        "empty_public_occurrence_query_is_not_absence",
+        "occurrence_records_are_not_population",
+        "regional_transfer_is_separate_and_labelled",
+        "next_data_request_is_specific"
+      ]
+    },
+    {
+      "id": "site_landcover_limits",
+      "purpose": "Current land-cover answer and point-versus-AOI limitation",
+      "context": "ebtl",
+      "turns": [
+        "tell me about ebtl",
+        "what is the current vegetation or land cover?",
+        "is that for the whole property or just one point?"
+      ],
+      "checks": [
+        "site_context_is_retained",
+        "production_landcover_source_is_executed",
+        "modelled_layer_is_labelled",
+        "point_proxy_is_not_generalized_to_whole_aoi"
+      ]
+    },
+    {
+      "id": "site_restoration_proxy",
+      "purpose": "Restoration-change proxy, spatial coverage, and causal restraint",
+      "context": "ebtl",
+      "turns": [
+        "tell me about ebtl",
+        "how has restoration progressed over time?",
+        "does that prove the restoration caused the change across the whole property?"
+      ],
+      "checks": [
+        "production_greenness_connector_is_executed",
+        "ndvi_start_end_slope_and_period_are_stated",
+        "point_pixel_is_not_generalized_to_property",
+        "greenness_change_is_not_causal_attribution"
+      ]
+    }
+  ]
+}

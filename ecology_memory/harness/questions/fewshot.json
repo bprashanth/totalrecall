@@ -1,0 +1,62 @@
+[
+  {
+    "q": "How many Lantana occurrence records are documented in Valparai from 2021 to 2025?",
+    "ir": {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"Lantana occurrence records","region":{"op":"REGION","place":"Valparai, India"},"time":{"start":"2021","end":"2025"}}}
+  },
+  {
+    "q": "Was vegetation greenness rising in Valparai between 2018 and 2024?",
+    "ir": {"op":"COMPARE","how":"trend_direction","left":{"op":"AGGREGATE","by":"time","metric":"mean","source":{"op":"SELECT","entity":"vegetation greenness","region":{"op":"REGION","place":"Valparai, India"},"time":{"start":"2018","end":"2024"}}}}
+  },
+  {
+    "q": "How many Lantana records in Valparai are within 1 km of survey sites but beyond 300 m from elephant records?",
+    "ir": {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"RELATE","relation":"beyond","threshold_km":0.3,"left":{"op":"RELATE","relation":"within","threshold_km":1.0,"left":{"op":"SELECT","entity":"Lantana records","region":{"op":"REGION","place":"Valparai, India"},"time":null},"right":{"op":"SELECT","entity":"survey sites","region":{"op":"REGION","place":"Valparai, India"},"time":null}},"right":{"op":"SELECT","entity":"elephant records","region":{"op":"REGION","place":"Valparai, India"},"time":null}}}
+  },
+  {
+    "q": "We have no Lantana survey in Pollachi; estimate from the Valparai records.",
+    "ir": {"op":"ESTIMATE","method":"envelope","target":{"op":"REGION","place":"Pollachi, India"},"source":{"op":"SELECT","entity":"Lantana records","region":{"op":"REGION","place":"Valparai, India"},"time":null}}
+  },
+  {
+    "q": "Tell me about the wildlife around here.",
+    "ir": {"op":"SELECT","entity":"?wildlife_type","region":"?place","time":null}
+  },
+  {
+    "q": "How many elephant observation records are there around here?",
+    "ir": {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"elephant observation records","region":"?place","time":null}}
+  },
+  {
+    "q": "What is the mean elevation of Anamalai survey sites in Valparai?",
+    "ir": {"op":"AGGREGATE","by":"space","metric":"mean","source":{"op":"ANNOTATE","layer":"elevation","source":{"op":"SELECT","entity":"Anamalai survey sites","region":{"op":"REGION","place":"Valparai, India"},"time":null}}}
+  },
+  {
+    "q": "What is the mean surface-water occurrence at Anamalai survey sites near Valparai?",
+    "ir": {"op":"AGGREGATE","by":"space","metric":"mean","source":{"op":"ANNOTATE","layer":"surface water occurrence","source":{"op":"SELECT","entity":"Anamalai survey sites","region":{"op":"REGION","place":"Valparai, India"},"time":null}}}
+  },
+  {
+    "q": "Which Lantana records in Valparai have no survey site within 300 metres?",
+    "ir": {"op":"RELATE","relation":"beyond","threshold_km":0.3,"left":{"op":"SELECT","entity":"Lantana records","region":{"op":"REGION","place":"Valparai, India"},"time":null},"right":{"op":"SELECT","entity":"survey sites","region":{"op":"REGION","place":"Valparai, India"},"time":null}}
+  },
+  {
+    "q": "Which has the most elephant observation records: Valparai, Mysuru, or Bengaluru?",
+    "ir": {"op":"RANK","order":"desc","items":[{"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"elephant observation records","region":{"op":"REGION","place":"Valparai, India"},"time":null}},{"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"elephant observation records","region":{"op":"REGION","place":"Mysuru, India"},"time":null}},{"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"elephant observation records","region":{"op":"REGION","place":"Bengaluru, India"},"time":null}}]}
+  },
+  {
+    "q": "How many elephants live in Valparai?",
+    "ir": {"op":"AGGREGATE","by":"space","metric":"count","source":{"op":"SELECT","entity":"elephants","region":{"op":"REGION","place":"Valparai, India"},"time":null}}
+  },
+  {
+    "q": "What is the elephant population in Valparai?",
+    "ir": {"op":"SELECT","entity":"elephant population","region":{"op":"REGION","place":"Valparai, India"},"time":null}
+  },
+  {
+    "q": "Add land cover to the vegetation survey sites around Valparai.",
+    "ir": {"op":"ANNOTATE","layer":"land cover","source":{"op":"SELECT","entity":"vegetation survey sites","region":{"op":"REGION","place":"Valparai, India"},"time":null}}
+  },
+  {
+    "q": "Show recent bird observations in Valparai.",
+    "ir": {"op":"SELECT","entity":"recent bird observations","region":{"op":"REGION","place":"Valparai, India"},"time":null}
+  },
+  {
+    "q": "Is green cat snake presence documented in India?",
+    "ir": {"op":"AGGREGATE","by":"space","metric":"presence","source":{"op":"SELECT","entity":"green cat snake","region":{"op":"REGION","place":"India"},"time":null}}
+  }
+]

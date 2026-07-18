@@ -104,7 +104,7 @@
    "id": "ALG-005",
    "title": "Unit-tagged derived arithmetic",
    "scope": "algebra",
-   "status": "accepted",
+   "status": "validated",
    "source": "livelihoods_memory/spec-proposals.md",
    "corroboration": [
     "transport_memory/spec-proposals.md"
@@ -115,10 +115,11 @@
     "alignment rules"
    ],
    "required_tests": [
-    "valid derived rate",
-    "scale",
-    "unit mismatch refusal",
-    "grain mismatch refusal",
+    "compatible difference",
+    "unit measure and grain mismatch refusal",
+    "ratio derived-unit lineage",
+    "declared grain-proxy taint",
+    "heterogeneous RANK refusal",
     "zero denominator"
    ],
    "decision": "decisions/20260716-ALG-contracts.md",
@@ -149,7 +150,7 @@
    "id": "ALG-007",
    "title": "Explicit temporal alignment and vintage",
    "scope": "algebra",
-   "status": "accepted",
+   "status": "validated",
    "source": "livelihoods_memory/spec-proposals.md",
    "corroboration": [
     "transport_memory/spec-proposals.md"
@@ -158,11 +159,13 @@
     "calendar and frequency metadata"
    ],
    "required_tests": [
-    "inner and outer calendar joins",
-    "missingness certificate",
-    "lag",
-    "interpolation refusal/default",
-    "vintage selection"
+    "exact inner period join",
+    "dropped-period certificate",
+    "zero-overlap DataRequest",
+    "duplicate-period refusal",
+    "declared mixed-frequency coarsening",
+    "scalar-window exemption",
+    "vintage passthrough"
    ],
    "decision": "decisions/20260716-ALG-contracts.md",
    "decision_note": "temporal alignment contract on Series operands (scalar-window exempt); v2.3.0, executor-only",

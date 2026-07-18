@@ -1,0 +1,2000 @@
+{
+  "bank": "final-032",
+  "eval_only": true,
+  "generated_after_freeze": true,
+  "provider": "deepseekv4",
+  "generator_model": "deepseek/deepseek-v4-flash",
+  "style": "ordinary concise ecology analyst requests using common production wording, preserve exact semantics literals numbers and polarity",
+  "variant": 41,
+  "questions": [
+    {
+      "id": "final-032-001",
+      "sector": "ecology",
+      "type": "ADVERSARIAL",
+      "q": "What is the total number of elephants located in Valparai?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "elephants",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "derived_from": "eco-s020",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-002",
+      "sector": "ecology",
+      "type": "ADVERSARIAL",
+      "q": "Count the number of elephants that are in Valparai.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "elephants",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "derived_from": "eco-s020",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-003",
+      "sector": "ecology",
+      "type": "AMBIGUOUS",
+      "q": "What condition is the Valparai ecosystem in?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?indicator",
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true,
+      "derived_from": "eco-s027",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-004",
+      "sector": "ecology",
+      "type": "AMBIGUOUS",
+      "q": "Give me details on the wildlife present here.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?wildlife_type",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true,
+      "derived_from": "eco-s017",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-005",
+      "sector": "ecology",
+      "type": "BEHAVIOUR",
+      "q": "For what reason do Mysuru residents choose native trees over others?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true,
+      "derived_from": "eco-s018",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-006",
+      "sector": "ecology",
+      "type": "BEHAVIOUR",
+      "q": "What drives residents of Mysuru to choose native trees?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true,
+      "derived_from": "eco-s018",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-007",
+      "sector": "ecology",
+      "type": "CHANGE",
+      "q": "What is the magnitude of the NDVI change in Valparai between 2018 and 2024?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "NDVI",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "NDVI",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": {
+            "start": "2018",
+            "end": "2018"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s006",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-008",
+      "sector": "ecology",
+      "type": "CHANGE",
+      "q": "By how much did NDVI shift in Valparai from 2018 to 2024?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "SELECT",
+          "entity": "NDVI",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": {
+            "start": "2024",
+            "end": "2024"
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "NDVI",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": {
+            "start": "2018",
+            "end": "2018"
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s006",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-009",
+      "sector": "ecology",
+      "type": "COMPARE",
+      "q": "Did Valparai or Pollachi have a larger mean NDVI value in 2024?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "NDVI",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "NDVI",
+            "region": {
+              "op": "REGION",
+              "place": "Pollachi, India"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s007",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-010",
+      "sector": "ecology",
+      "type": "COMPARE",
+      "q": "Was the average NDVI in Valparai greater than in Pollachi during 2024?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "NDVI",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          }
+        },
+        "right": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "NDVI",
+            "region": {
+              "op": "REGION",
+              "place": "Pollachi, India"
+            },
+            "time": {
+              "start": "2024",
+              "end": "2024"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s007",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-011",
+      "sector": "ecology",
+      "type": "COMPOSITE",
+      "q": "Count Lantana records in Valparai that fall within 1 km of survey sites and also beyond 300 m from elephant records.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.3,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "Lantana records",
+              "region": {
+                "op": "REGION",
+                "place": "Valparai, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "survey sites",
+              "region": {
+                "op": "REGION",
+                "place": "Valparai, India"
+              },
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "elephant records",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s022",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-012",
+      "sector": "ecology",
+      "type": "COMPOSITE",
+      "q": "Map Lantana and teak occurrence records in the Valparai area.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": [
+          "Lantana records",
+          "teak occurrence records"
+        ],
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s015",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-013",
+      "sector": "ecology",
+      "type": "RANKING",
+      "q": "Among Valparai, Mysuru, and Bengaluru, which location yields the highest number of Lantana observation records?",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "Lantana observation records",
+              "region": {
+                "op": "REGION",
+                "place": "Valparai, India"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "Lantana observation records",
+              "region": {
+                "op": "REGION",
+                "place": "Mysuru, India"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "Lantana observation records",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s023",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-014",
+      "sector": "ecology",
+      "type": "RANKING",
+      "q": "Order Valparai, Pollachi, and Mysuru by mean NDVI for 2024, starting with the highest.",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "NDVI",
+              "region": {
+                "op": "REGION",
+                "place": "Valparai, India"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "NDVI",
+              "region": {
+                "op": "REGION",
+                "place": "Pollachi, India"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "NDVI",
+              "region": {
+                "op": "REGION",
+                "place": "Mysuru, India"
+              },
+              "time": {
+                "start": "2024",
+                "end": "2024"
+              }
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s008",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-015",
+      "sector": "ecology",
+      "type": "RELATION",
+      "q": "Identify locations where elephant records are within 5 km of Lantana records around Valparai.",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "cooccur",
+        "threshold_km": 5.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "elephant records",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "Lantana records",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s014",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-016",
+      "sector": "ecology",
+      "type": "RELATION",
+      "q": "List Lantana records in Valparai located within 1 km of any vegetation survey site.",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "Lantana records",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "vegetation survey sites",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s012",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-017",
+      "sector": "ecology",
+      "type": "SOURCE_GAP",
+      "q": "Present frog acoustic survey data for Valparai.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "frog acoustic surveys",
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "derived_from": "eco-s021",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-018",
+      "sector": "ecology",
+      "type": "SOURCE_GAP",
+      "q": "Provide bird observation data for Valparai during January 2020.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "bird observations",
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": {
+          "start": "2020-01-01",
+          "end": "2020-01-31"
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "derived_from": "eco-s004",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-019",
+      "sector": "ecology",
+      "type": "STATE",
+      "q": "Is there any documentation of green cat snake presence within India?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "presence",
+        "source": {
+          "op": "SELECT",
+          "entity": "green cat snake",
+          "region": {
+            "op": "REGION",
+            "place": "India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s002",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-020",
+      "sector": "ecology",
+      "type": "STATE",
+      "q": "Show recent bird observation records from Valparai.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "recent bird observations",
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s003",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-021",
+      "sector": "ecology",
+      "type": "TRANSFER",
+      "q": "Apply the Lantana records from Valparai to estimate Lantana in Delhi, where no survey exists.",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "target": {
+          "op": "REGION",
+          "place": "Delhi, India"
+        },
+        "source": {
+          "op": "SELECT",
+          "entity": "Lantana records",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_estimate": true,
+      "derived_from": "eco-s016",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-022",
+      "sector": "ecology",
+      "type": "TRANSFER",
+      "q": "Use the Valparai Lantana records to predict Lantana in Delhi, a region with no survey data.",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "target": {
+          "op": "REGION",
+          "place": "Delhi, India"
+        },
+        "source": {
+          "op": "SELECT",
+          "entity": "Lantana records",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "ESTIMATE",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_estimate": true,
+      "derived_from": "eco-s016",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-023",
+      "sector": "ecology",
+      "type": "TREND",
+      "q": "Is there a general upward trend in NDVI within Valparai?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "NDVI",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s028",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-024",
+      "sector": "ecology",
+      "type": "TREND",
+      "q": "During the 2018 to 2024 period, was the vegetation greenness in Valparai trending upward or downward?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "vegetation greenness",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": {
+              "start": "2018",
+              "end": "2024"
+            }
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s005",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-025",
+      "sector": "ecology",
+      "type": "VALUE",
+      "q": "Incorporate land cover information at the vegetation survey sites around Valparai.",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "layer": "land cover",
+        "source": {
+          "op": "SELECT",
+          "entity": "vegetation survey sites",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s010",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-026",
+      "sector": "ecology",
+      "type": "VALUE",
+      "q": "Report the mean surface-water occurrence at Anamalai survey sites near Valparai.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "mean",
+        "source": {
+          "op": "ANNOTATE",
+          "layer": "surface water occurrence",
+          "source": {
+            "op": "SELECT",
+            "entity": "Anamalai survey sites",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s011",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-027",
+      "sector": "ecology",
+      "type": "BEHAVIOUR",
+      "q": "What is the reason residents of Mysuru prefer native trees?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?proxy",
+        "region": "?place",
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true,
+      "derived_from": "eco-s018",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-028",
+      "sector": "ecology",
+      "type": "SOURCE_GAP",
+      "q": "Provide the elephant population number for Valparai.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "elephant population",
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "derived_from": "eco-s019",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-029",
+      "sector": "ecology",
+      "type": "ADVERSARIAL",
+      "q": "Determine the number of elephants present within Valparai.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "elephants",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "derived_from": "eco-s020",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-030",
+      "sector": "ecology",
+      "type": "SOURCE_GAP",
+      "q": "Retrieve frog acoustic survey records for Valparai.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "frog acoustic surveys",
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "derived_from": "eco-s021",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-031",
+      "sector": "ecology",
+      "type": "COMPOSITE",
+      "q": "Count Lantana records in Valparai that are within 1 km of survey sites but beyond 300 m from elephant records.",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "beyond",
+          "threshold_km": 0.3,
+          "left": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "Lantana records",
+              "region": {
+                "op": "REGION",
+                "place": "Valparai, India"
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "survey sites",
+              "region": {
+                "op": "REGION",
+                "place": "Valparai, India"
+              },
+              "time": null
+            }
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "elephant records",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "RELATE",
+        "RELATE",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s022",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-032",
+      "sector": "ecology",
+      "type": "RANKING",
+      "q": "Which location has the most Lantana observation records: Valparai, Mysuru, or Bengaluru?",
+      "gold_ir": {
+        "op": "RANK",
+        "order": "desc",
+        "items": [
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "Lantana observation records",
+              "region": {
+                "op": "REGION",
+                "place": "Valparai, India"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "Lantana observation records",
+              "region": {
+                "op": "REGION",
+                "place": "Mysuru, India"
+              },
+              "time": null
+            }
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "source": {
+              "op": "SELECT",
+              "entity": "Lantana observation records",
+              "region": {
+                "op": "REGION",
+                "place": "Bengaluru, India"
+              },
+              "time": null
+            }
+          }
+        ]
+      },
+      "gold_shape": [
+        "RANK",
+        "SELECT",
+        "SELECT",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s023",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-033",
+      "sector": "ecology",
+      "type": "STATE",
+      "q": "What is the density of recorded Lantana occurrences in the Valparai bounding box?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "density",
+        "source": {
+          "op": "SELECT",
+          "entity": "documented Lantana records",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s024",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-034",
+      "sector": "ecology",
+      "type": "VALUE",
+      "q": "List the ecoregions that contain the Anamalai survey sites near Valparai.",
+      "gold_ir": {
+        "op": "ANNOTATE",
+        "layer": "ecoregion",
+        "source": {
+          "op": "SELECT",
+          "entity": "Anamalai survey sites",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": null
+        }
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s025",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-035",
+      "sector": "ecology",
+      "type": "AMBIGUOUS",
+      "q": "Is NDVI recovering at this location?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "NDVI",
+            "region": "?place",
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true,
+      "derived_from": "eco-s026",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-036",
+      "sector": "ecology",
+      "type": "AMBIGUOUS",
+      "q": "What is the ecological health status of Valparai?",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "?indicator",
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "data_request",
+      "must_hole": true,
+      "derived_from": "eco-s027",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-037",
+      "sector": "ecology",
+      "type": "TREND",
+      "q": "Has NDVI generally gone up in Valparai?",
+      "gold_ir": {
+        "op": "COMPARE",
+        "how": "trend_direction",
+        "left": {
+          "op": "AGGREGATE",
+          "by": "time",
+          "metric": "mean",
+          "source": {
+            "op": "SELECT",
+            "entity": "NDVI",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "COMPARE",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s028",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-038",
+      "sector": "ecology",
+      "type": "STATE",
+      "q": "List the published vegetation survey sites surrounding Valparai.",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "vegetation survey sites",
+        "region": {
+          "op": "REGION",
+          "place": "Valparai, India"
+        },
+        "time": null
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s029",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-039",
+      "sector": "ecology",
+      "type": "VALUE",
+      "q": "What is the mean slope of terrain at the Anamalai survey sites in Valparai?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "mean",
+        "source": {
+          "op": "ANNOTATE",
+          "layer": "terrain slope",
+          "source": {
+            "op": "SELECT",
+            "entity": "Anamalai survey sites",
+            "region": {
+              "op": "REGION",
+              "place": "Valparai, India"
+            },
+            "time": null
+          }
+        }
+      },
+      "gold_shape": [
+        "ANNOTATE",
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s030",
+      "generation_family": "deepseekv4"
+    },
+    {
+      "id": "final-032-040",
+      "sector": "ecology",
+      "type": "STATE",
+      "q": "How many Lantana occurrence records have been documented in Valparai from 2021 through 2025?",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "Lantana occurrence records",
+          "region": {
+            "op": "REGION",
+            "place": "Valparai, India"
+          },
+          "time": {
+            "start": "2021",
+            "end": "2025"
+          }
+        }
+      },
+      "gold_shape": [
+        "SELECT"
+      ],
+      "expect": "answer",
+      "derived_from": "eco-s001",
+      "generation_family": "deepseekv4"
+    }
+  ],
+  "rejections": [
+    {
+      "key": "slot-001",
+      "attempt": 1,
+      "q": "What is the count of elephants in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-002",
+      "attempt": 1,
+      "q": "What is the number of elephants in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-006",
+      "attempt": 1,
+      "q": "What causes residents of Mysuru to favour native trees?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-007",
+      "attempt": 1,
+      "q": "What was the magnitude of NDVI change in Valparai between 2018 and 2024?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-010",
+      "attempt": 1,
+      "q": "Was the 2024 average NDVI greater in Valparai or in Pollachi?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-013",
+      "attempt": 1,
+      "q": "Among Valparai, Mysuru, and Bengaluru, which has the highest number of Lantana observation records?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-019",
+      "attempt": 1,
+      "q": "Is the green cat snake recorded anywhere in India?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-021",
+      "attempt": 1,
+      "q": "Apply the Valparai Lantana records to estimate Lantana in Delhi, where no survey exists.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-023",
+      "attempt": 1,
+      "q": "Did NDVI show a general increase in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-024",
+      "attempt": 1,
+      "q": "Between 2018 and 2024, did vegetation greenness rise or fall in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 1,
+      "q": "Attach land cover to the vegetation survey sites around Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 1,
+      "q": "What is the mean surface-water occurrence at the Anamalai survey sites near Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-027",
+      "attempt": 1,
+      "q": "Why do Mysuru residents prefer native trees?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 1,
+      "q": "What is the elephant population count in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-029",
+      "attempt": 1,
+      "q": "How many elephants are present in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-030",
+      "attempt": 1,
+      "q": "Display frog acoustic surveys conducted in Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-032",
+      "attempt": 1,
+      "q": "Among Valparai, Mysuru, and Bengaluru, which has the most Lantana observation records?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 1,
+      "q": "Calculate the density of documented Lantana records in the Valparai bounding box.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 1,
+      "q": "Is NDVI recovering around here?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 1,
+      "q": "How healthy is the ecosystem in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-037",
+      "attempt": 1,
+      "q": "Has NDVI generally increased in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-038",
+      "attempt": 1,
+      "q": "List the published vegetation survey sites around Valparai.",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-039",
+      "attempt": 1,
+      "q": "What is the mean terrain slope at the Anamalai survey sites in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-040",
+      "attempt": 1,
+      "q": "How many Lantana occurrence records were documented in Valparai from 2021 through 2025?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-001",
+      "attempt": 2,
+      "q": "What is the count of elephants in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-002",
+      "attempt": 2,
+      "q": "Provide the number of elephants present in Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-006",
+      "attempt": 2,
+      "q": "What reasons explain the preference of Mysuru residents for native trees?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-013",
+      "attempt": 2,
+      "q": "Among Valparai, Mysuru, and Bengaluru, which location has the highest number of Lantana observation records?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-021",
+      "attempt": 2,
+      "q": "Apply the Valparai Lantana records to produce an estimate for Lantana in Delhi, where surveys are absent.",
+      "reason": "negation dropped"
+    },
+    {
+      "key": "slot-023",
+      "attempt": 2,
+      "q": "Has NDVI in Valparai shown a general upward trend?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-024",
+      "attempt": 2,
+      "q": "Between 2018 and 2024, was vegetation greenness in Valparai increasing or decreasing?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 2,
+      "q": "Include land cover for the vegetation survey sites around Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 2,
+      "q": "What is the mean surface-water occurrence at the Anamalai survey sites near Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 2,
+      "q": "What is the number of elephants in Valparai?",
+      "reason": "invented entity 'elephant population'"
+    },
+    {
+      "key": "slot-029",
+      "attempt": 2,
+      "q": "How many elephants are present in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-030",
+      "attempt": 2,
+      "q": "Show frog acoustic surveys conducted in Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 2,
+      "q": "What is the density of documented Lantana records within the Valparai bounding box?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 2,
+      "q": "Is NDVI recovering around here?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 2,
+      "q": "How healthy is the ecosystem in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-037",
+      "attempt": 2,
+      "q": "Has NDVI shown a general increase in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-001",
+      "attempt": 3,
+      "q": "What is the elephant count in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-002",
+      "attempt": 3,
+      "q": "What is the number of elephants present in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-006",
+      "attempt": 3,
+      "q": "What causes Mysuru residents to prefer native trees?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-021",
+      "attempt": 3,
+      "q": "Apply Valparai Lantana records to produce a Lantana estimate for Delhi, which lacks any survey data.",
+      "reason": "negation dropped"
+    },
+    {
+      "key": "slot-023",
+      "attempt": 3,
+      "q": "Has NDVI shown a general increase in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 3,
+      "q": "Attach land-cover data to the vegetation survey locations around Valparai.",
+      "reason": "invented entity 'vegetation survey sites'"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 3,
+      "q": "What is the average surface-water occurrence across the Anamalai survey sites near Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 3,
+      "q": "What is the size of the elephant population in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-029",
+      "attempt": 3,
+      "q": "What is the elephant count for Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 3,
+      "q": "What is the density of documented Lantana records within the Valparai bounding box?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 3,
+      "q": "Is NDVI showing recovery around here?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 3,
+      "q": "What is the ecosystem health in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-037",
+      "attempt": 3,
+      "q": "Has NDVI experienced a general increase in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-006",
+      "attempt": 4,
+      "q": "What is the reason that residents of Mysuru prefer native trees?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 4,
+      "q": "Include land cover data for the vegetation survey sites around Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 4,
+      "q": "What is the average surface-water occurrence at the Anamalai survey sites near Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 4,
+      "q": "How many elephants reside in Valparai?",
+      "reason": "invented entity 'elephant population'"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 4,
+      "q": "What is the density of recorded Lantana occurrences within the Valparai bounding box?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 4,
+      "q": "Is NDVI recovering in this area?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 4,
+      "q": "What is the ecosystem health condition in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-037",
+      "attempt": 4,
+      "q": "Has NDVI shown an overall increase in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 5,
+      "q": "Add land cover to the vegetation survey sites around Valparai.",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 5,
+      "q": "What is the mean surface-water occurrence at Anamalai survey sites near Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 5,
+      "q": "What is the elephant population in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 5,
+      "q": "What is the density of documented Lantana records in the Valparai bounding box?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 5,
+      "q": "Is NDVI recovering around here?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 5,
+      "q": "How healthy is the ecosystem in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-037",
+      "attempt": 5,
+      "q": "Has NDVI generally increased in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 6,
+      "q": "Incorporate land cover into the vegetation survey sites around Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 6,
+      "q": "What is the average surface-water occurrence at Anamalai survey sites near Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 6,
+      "q": "What is the elephant count in Valparai?",
+      "reason": "invented entity 'elephant population'"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 6,
+      "q": "What is the density of documented Lantana records in the Valparai bounding box?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 6,
+      "q": "Is NDVI recovering here?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 6,
+      "q": "How healthy is the ecosystem in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 7,
+      "q": "Incorporate land cover into the vegetation survey sites around Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 7,
+      "q": "What is the mean surface-water occurrence at the Anamalai survey sites near Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 7,
+      "q": "What is the elephant population of Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 7,
+      "q": "What is the density of documented Lantana records inside the Valparai bounding box?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 7,
+      "q": "Is NDVI in the process of recovery around here?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 7,
+      "q": "How healthy is the Valparai ecosystem?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 8,
+      "q": "Add land cover to the vegetation survey sites around Valparai.",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 8,
+      "q": "What is the mean surface-water occurrence at Anamalai survey sites near Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 8,
+      "q": "What is the elephant population in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 8,
+      "q": "What is the density of documented Lantana records in the Valparai bounding box?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 8,
+      "q": "Is NDVI recovering around here?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 8,
+      "q": "How healthy is the ecosystem in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 9,
+      "q": "Add land cover to the vegetation survey sites around Valparai.",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 9,
+      "q": "What is the mean surface-water occurrence at Anamalai survey sites near Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 9,
+      "q": "What is the elephant population in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-033",
+      "attempt": 9,
+      "q": "What is the density of documented Lantana records in the Valparai bounding box?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 9,
+      "q": "Is NDVI recovering around here?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 9,
+      "q": "How healthy is the ecosystem in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 10,
+      "q": "Include land cover for the vegetation monitoring locations around Valparai.",
+      "reason": "invented entity 'vegetation survey sites'"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 10,
+      "q": "What is the average surface-water occurrence at Anamalai sampling points near Valparai?",
+      "reason": "invented entity 'Anamalai survey sites'"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 10,
+      "q": "What is the number of elephants in Valparai?",
+      "reason": "invented entity 'elephant population'"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 10,
+      "q": "Is NDVI recovering in this area?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 10,
+      "q": "How healthy is the ecosystem in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-025",
+      "attempt": 11,
+      "q": "Add land cover to the vegetation survey sites around Valparai.",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-026",
+      "attempt": 11,
+      "q": "What is the mean surface-water occurrence at Anamalai survey sites near Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 11,
+      "q": "What is the elephant population in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 11,
+      "q": "Is NDVI recovering around here?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 11,
+      "q": "How healthy is the ecosystem in Valparai?",
+      "reason": "empty/unchanged"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 12,
+      "q": "What is the elephant count in Valparai?",
+      "reason": "invented entity 'elephant population'"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 12,
+      "q": "Is NDVI recovering in this area?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 12,
+      "q": "What is the ecosystem health condition in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 13,
+      "q": "Provide the elephant population count for Valparai.",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 13,
+      "q": "Is NDVI recovering in this area?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 13,
+      "q": "How healthy is the Valparai ecosystem?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 14,
+      "q": "What is the population size of elephants in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 14,
+      "q": "Is NDVI showing recovery around here?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-036",
+      "attempt": 14,
+      "q": "What is the health condition of the ecosystem in Valparai?",
+      "reason": "faithful"
+    },
+    {
+      "key": "slot-028",
+      "attempt": 15,
+      "q": "What is the current count of elephants in Valparai?",
+      "reason": "invented entity 'elephant population'"
+    },
+    {
+      "key": "slot-035",
+      "attempt": 15,
+      "q": "Is NDVI showing recovery in this area?",
+      "reason": "faithful"
+    }
+  ]
+}

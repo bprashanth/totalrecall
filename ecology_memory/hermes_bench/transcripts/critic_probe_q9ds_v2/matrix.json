@@ -1,0 +1,323 @@
+{
+  "round": "critic_probe_q9ds_v2",
+  "arms": [
+    "CQ9DS-D",
+    "CQ9DS-RQ9"
+  ],
+  "arm_defs": {
+    "CQ9DS-D": {
+      "compiler": "qwen9b+deepseekv4",
+      "responder": "deterministic"
+    },
+    "CQ9DS-RQ9": {
+      "compiler": "qwen9b+deepseekv4",
+      "responder": "qwen9b"
+    }
+  },
+  "started": "2026-07-18T01:46:42+0530",
+  "turns": [
+    {
+      "number": 1,
+      "goal": "OPEN — map EBTL for a new conservation colleague: strongest local facts and major unknowns.",
+      "question": "What can the available data honestly say about fire at EBTL—observed fire history versus present or future risk? Give the measured scale and the missing fuel or weather data.",
+      "compiled": {
+        "qwen9b+deepseekv4": {
+          "compiler": "qwen9b+deepseekv4",
+          "base_compiler": "qwen9b",
+          "critic": "deepseekv4",
+          "question": "What can the available data honestly say about fire at EBTL—observed fire history versus present or future risk? Give the measured scale and the missing fuel or weather data.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL evidence summary",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\n  \"op\": \"SELECT\",\n  \"entity\": \"EBTL restoration site\",\n  \"region\": {\n    \"op\": \"REGION\",\n    \"place\": \"EBTL\"\n  },\n  \"time\": null\n}",
+          "raw_critic": "{\"op\": \"SELECT\", \"entity\": \"EBTL evidence summary\", \"region\": {\"op\": \"REGION\", \"place\": \"EBTL\"}, \"time\": null}",
+          "parse_valid": true,
+          "repair_events": [
+            "top_level_array:rejected",
+            "parse_error:invalid_or_truncated_json",
+            "llm_parse_repair:accepted",
+            "semantic_critic:corrected"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-summary:birds",
+                  "topic": "birds",
+                  "finding": "67 species in a local 2024 transit survey",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:snakes",
+                  "topic": "snakes",
+                  "finding": "14 documented property species; 3 encountered in the three-day 2024 VES",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:elephants",
+                  "topic": "elephants",
+                  "finding": "two passage events supported by indirect physical signs",
+                  "label": "indirect"
+                },
+                {
+                  "id": "ebtl-summary:nursery",
+                  "topic": "nursery",
+                  "finding": "110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues",
+                  "label": "reported"
+                },
+                {
+                  "id": "ebtl-summary:invasives",
+                  "topic": "non-native management",
+                  "finding": "roughly one acre of Eucalyptus removal documented; no local Lantana confirmation",
+                  "label": "reported"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "evidence_summary",
+              "source_metadata": {},
+              "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations",
+              "connector_events": [],
+              "entity": "evidence_summary",
+              "input_entity": "EBTL evidence summary"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "evidence_summary",
+                "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 38.153
+        }
+      },
+      "arms": {
+        "CQ9DS-D": {
+          "responder": "deterministic",
+          "answer": "Mixed-evidence result: 5 evidence records: [observed] 67 species in a local 2024 transit survey, [observed] 14 documented property species; 3 encountered in the three-day 2024 VES, [indirect] two passage events supported by indirect physical signs, [reported] 110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues, [reported] roughly one acre of Eucalyptus removal documented; no local Lantana confirmation. Source: Imported EBTL primary evidence. local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "CQ9DS-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The available data contains no information regarding fire history, present fire risk, or future fire risk at Elephants by the Lake (EBTL). The current evidence pack only documents biodiversity records (birds, snakes, elephants) and nursery/invasive species status from 2024 surveys and reports.\n\nBecause there are no measured scales for fire activity or missing fuel/weather data in the provided records, it is impossible to distinguish between observed fire history and projected risk. To address this gap, a concrete data request is needed: measure local fire occurrence and document specific fuel loads and weather conditions across the EBTL site boundary during the upcoming dry season.",
+          "raw_responder": "The available data contains no information regarding fire history, present fire risk, or future fire risk at Elephants by the Lake (EBTL). The current evidence pack only documents biodiversity records (birds, snakes, elephants) and nursery/invasive species status from 2024 surveys and reports.\n\nBecause there are no measured scales for fire activity or missing fuel/weather data in the provided records, it is impossible to distinguish between observed fire history and projected risk. To address this gap, a concrete data request is needed: measure local fire occurrence and document specific fuel loads and weather conditions across the EBTL site boundary during the upcoming dry season.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 20.53
+        }
+      }
+    },
+    {
+      "number": 2,
+      "goal": "WILDLIFE BASELINE — what groups were actually surveyed, when, and what “recorded” means.",
+      "question": "We also work with neighbouring communities. What evidence do we have on grazing, fuelwood collection, restoration jobs, crop loss or coexistence around EBTL? If none, propose an ethical household and resource-use data request without inventing percentages.",
+      "compiled": {
+        "qwen9b+deepseekv4": {
+          "compiler": "qwen9b+deepseekv4",
+          "base_compiler": "qwen9b",
+          "critic": "deepseekv4",
+          "question": "We also work with neighbouring communities. What evidence do we have on grazing, fuelwood collection, restoration jobs, crop loss or coexistence around EBTL? If none, propose an ethical household and resource-use data request without inventing percentages.",
+          "ir": {
+            "op": "SELECT",
+            "entity": "EBTL evidence summary",
+            "region": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "time": null
+          },
+          "raw_compiler": "{\"op\": \"SELECT\", \"entity\": \"EBTL evidence summary\", \"region\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"time\": null}",
+          "raw_critic": "[llm-error] llm chat failed for deepseekv4: 'empty content (finish=length)'",
+          "parse_valid": true,
+          "repair_events": [
+            "semantic_critic:call_failed"
+          ],
+          "schema": {
+            "valid": true,
+            "errors": [],
+            "holes": [],
+            "ops": [
+              "SELECT",
+              "REGION"
+            ]
+          },
+          "execution": {
+            "status": "answer",
+            "value": {
+              "rows": [
+                {
+                  "id": "ebtl-summary:birds",
+                  "topic": "birds",
+                  "finding": "67 species in a local 2024 transit survey",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:snakes",
+                  "topic": "snakes",
+                  "finding": "14 documented property species; 3 encountered in the three-day 2024 VES",
+                  "label": "observed"
+                },
+                {
+                  "id": "ebtl-summary:elephants",
+                  "topic": "elephants",
+                  "finding": "two passage events supported by indirect physical signs",
+                  "label": "indirect"
+                },
+                {
+                  "id": "ebtl-summary:nursery",
+                  "topic": "nursery",
+                  "finding": "110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues",
+                  "label": "reported"
+                },
+                {
+                  "id": "ebtl-summary:invasives",
+                  "topic": "non-native management",
+                  "finding": "roughly one acre of Eucalyptus removal documented; no local Lantana confirmation",
+                  "label": "reported"
+                }
+              ],
+              "kind": "records",
+              "source": "Imported EBTL primary evidence",
+              "label": "observed",
+              "grain": "published-evidence-record",
+              "count_admissible": true,
+              "query_time": null,
+              "region": {
+                "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+                "bbox": [
+                  12.721,
+                  12.747,
+                  78.17,
+                  78.197
+                ],
+                "lat": 12.73394,
+                "lon": 78.18344,
+                "orig": "EBTL",
+                "source": "SITE_EBTL.json"
+              },
+              "query_semantics": "evidence_summary",
+              "source_metadata": {},
+              "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations",
+              "connector_events": [],
+              "entity": "evidence_summary",
+              "input_entity": "EBTL evidence summary"
+            },
+            "label": "observed",
+            "provenance": [
+              {
+                "op": "SELECT",
+                "route": "published-site-evidence",
+                "resolved": "evidence_summary",
+                "note": "local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations"
+              }
+            ]
+          },
+          "compile_execute_latency_s": 18.391
+        }
+      },
+      "arms": {
+        "CQ9DS-D": {
+          "responder": "deterministic",
+          "answer": "Mixed-evidence result: 5 evidence records: [observed] 67 species in a local 2024 transit survey, [observed] 14 documented property species; 3 encountered in the three-day 2024 VES, [indirect] two passage events supported by indirect physical signs, [reported] 110-species/15,000-sapling July 2024 snapshot; 23 taxa named in imported issues, [reported] roughly one acre of Eucalyptus removal documented; no local Lantana confirmation. Source: Imported EBTL primary evidence. local evidence summary; satellite layers and regional literature are separate proxy/modelled evidence and are not promoted to local observations.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 0,
+          "fallback": false,
+          "render_latency_s": 0.0
+        },
+        "CQ9DS-RQ9": {
+          "responder": "qwen9b",
+          "answer": "The available audited evidence for Elephants by the Lake (EBTL) contains no records regarding grazing, fuelwood collection, restoration jobs, crop loss, or coexistence with neighbouring communities. The only human-related data present is a reported removal of roughly one acre of Eucalyptus and the presence of 67 bird species and 14 snake species observed in 2024 surveys, along with two indirect elephant passage events.\n\nBecause there is no local data on community resource use or conflict, we cannot assess the scale of these activities or their impact on the site. To address this gap, we need to conduct a structured household survey in the surrounding villages to measure the frequency of grazing and fuelwood collection, document any crop loss incidents, and record participation in restoration jobs over a three-month period.",
+          "raw_responder": "The available audited evidence for Elephants by the Lake (EBTL) contains no records regarding grazing, fuelwood collection, restoration jobs, crop loss, or coexistence with neighbouring communities. The only human-related data present is a reported removal of roughly one acre of Eucalyptus and the presence of 67 bird species and 14 snake species observed in 2024 surveys, along with two indirect elephant passage events.\n\nBecause there is no local data on community resource use or conflict, we cannot assess the scale of these activities or their impact on the site. To address this gap, we need to conduct a structured household survey in the surrounding villages to measure the frequency of grazing and fuelwood collection, document any crop loss incidents, and record participation in restoration jobs over a three-month period.",
+          "audit": {
+            "nonempty": true,
+            "no_new_numbers": true,
+            "no_internal_leak": true,
+            "no_chat_envelope": true,
+            "length": true,
+            "proxy_label": true,
+            "modelled_label": true,
+            "data_gap": true,
+            "passed": true,
+            "new_numbers": []
+          },
+          "responder_attempts": 1,
+          "fallback": false,
+          "render_latency_s": 10.592
+        }
+      }
+    }
+  ]
+}
