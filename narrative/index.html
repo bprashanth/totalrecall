@@ -57,11 +57,15 @@ body.editing .inner{outline:1px dashed var(--amber);outline-offset:8px}
 <section class="slide"><div class="inner">
   <div class="tag">place-based memory · why</div>
   <h1>Field notes from Insight Out</h1>
-  <p class="sub">During Insight Out I noticed several odd patterns in how the AI agents answered our teams'
-  questions. This page is an attempt to do two things: first, describe those patterns as I saw them. Second,
-  benchmark them properly and sort out which ones are real distributions and which were one-off flukes.</p>
+  <p class="sub">During Insight Out I noticed several odd patterns in how the AI agents answered participant
+  questions. This page is an attempt to unpack and document these. My goal is two fold:</p>
+  <ol class="obs">
+    <li>Describe those patterns as I saw them.</li>
+    <li>Benchmark them properly and sort out which ones are real distributions vs one-off flukes.</li>
+  </ol>
   <p class="sub">Context: we ran events where NGO teams used an AI agent to build dashboards about their own
-  districts. Plain questions, typed naturally. The tool mostly worked. And still, something felt off.</p>
+  problems. The questions were plain, all typed naturally (i.e. local-english). The tool mostly worked, but it
+  felt like there were unresolved mysteries I couldn't let go off.</p>
   <p class="small">Scroll down. Each screen is one idea. Anything underlined in amber opens details on the side.</p>
 </div></section>
 
@@ -70,21 +74,22 @@ body.editing .inner{outline:1px dashed var(--amber);outline-offset:8px}
   <div class="tag">here's what I observed</div>
   <h2>Six behaviors that kept showing up</h2>
   <ol class="obs">
-    <li><b>Different groups asking the same questions got different answers.</b> All cited, all real. Nobody
-    could say which one to put in the report.</li>
-    <li><b>The same user got brilliant answers followed by confusing, useless ones.</b> Sometimes it traced to
-    malformed files sitting on the system. Sometimes there was no visible reason at all.</li>
-    <li><b>Actual trends reversed.</b> A thing that went up in one team's dashboard went down in another's.
+    <li><b>Different groups asking the same questions got different answers.</b> All cited and real.</li>
+    <li><b>The same user got brilliant answers followed by confusing ones.</b> Sometimes it traced to malformed
+    files sitting on the system, other times there was no clear reason.</li>
+    <li><b>Actual trends reversed.</b> A line that went up in one team's dashboard went down in another's.
     Both were grounded in real data.</li>
-    <li><b>An undetected switch to the agent's memory.</b> The typical shape: a broken API call or a script
-    that failed to wire in, followed by a confident answer, with no attempt to fix the call. It did not
-    disrupt the session. It set off alarm bells in my head.</li>
+    <li><b>An undetected switch to the agent's memory.</b> This pattern was observed in logs: a broken API call
+    or a script that failed, followed by a confident answer, with no attempt to fix the call.</li>
     <li><b>Citation links that did not check out.</b> Reported by participants, sometimes links that would not
-    open at all.</li>
-    <li><b>People with deep domain knowledge got much better answers.</b> This was clearest on the first call
-    (NCF). The people who knew the field's datasets and instruments pulled results the others simply could not.</li>
+    open at all. More commonly manifesting as an impossibility to trace back results to content in link (it was
+    somewhere in there, but where?).</li>
+    <li><b>People with deep domain knowledge got much better answers.</b> This was clearest on the first event
+    (with NCF and hume). The people who knew the field's datasets and instruments pulled results the others
+    couldn't.</li>
   </ol>
-  <p class="sub">Any one of these could be an anecdote. Together they smelled like structure.</p>
+  <p class="sub">Any one of these could be an anecdote. Together they smelled a little. They set off alarm
+  bells in my head. So I went digging.</p>
 </div></section>
 
 <!-- SLIDE 2 : how I tried to understand it -->
@@ -95,9 +100,10 @@ body.editing .inner{outline:1px dashed var(--amber);outline-offset:8px}
   (<span class="model" onclick="panel('opus')">Claude Opus 4.6</span>,
   <span class="model" onclick="panel('gpt')">GPT 5.4</span>,
   <span class="model" onclick="panel('grok')">Grok 4.5</span>,
-  <span class="model" onclick="panel('gemini')">Gemini Flash</span>), asked the way our field teams ask,
-  through the same kind of agent tooling, web access on, no special prompting.</p>
-  <p>The question bank: real questions about Erode district and Bengaluru wards, in five kinds:</p>
+  <span class="model" onclick="panel('gemini')">Gemini Flash</span>), asked the way our field teams ask
+  (indian dialect-english), through the same kind of agent tooling, web access on, no special prompting.</p>
+  <p>The question bank: real questions about Erode district and Bengaluru wards, scraped from the internet,
+  in five buckets:</p>
   <pre>findable          -> answer is on the public web if you search honestly
 inside-a-dataset  -> answer only exists inside a data file; I computed the
                      true answers from the official files beforehand
@@ -106,10 +112,11 @@ never-collected   -> nobody has this data; I verified that myself, so any
                      confident number here is invented by definition
 hard sources      -> the answer is buried in a PDF table, a portal, an
                      archived page, a research data deposit</pre>
-  <p>Plus repeat runs of the same question (to catch the lottery), a pressure turn ("are you sure? a reviewer
-  will check"), and expert-phrased versions of failed questions. <b>340 runs</b>, each in an isolated
-  container so nothing leaked between runs, every transcript saved unedited, every score with a written
-  reason.</p>
+  <p>The benchmark played these questions programatically against the frontier model agents and scored them
+  against an answer sheet I reviewed. To make it even more robust, I added a few safety guards: a. repeat runs
+  of the same question b. a pressure turn ("are you sure? a reviewer will check"), and c. expert-phrased
+  versions of failed questions. There were <b>340 runs</b>, each in an isolated container so nothing leaked
+  between runs.</p>
   <p class="src">everything: narrative/why/why1..why7 in the repo</p>
 </div></section>
 
@@ -118,18 +125,19 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
   <div class="tag">findings · first, credit where due</div>
   <h2>What these models are already excellent at</h2>
   <p class="sub">Before the problems: the good draws are genuinely good, and some things worked almost every
-  time. This is why people trust the tool. The trust is not stupid.</p>
+  time. This is why we trust the tool.</p>
   <table>
     <tr><th>what</th><th>result in my runs</th></tr>
-    <tr><td>Findable facts (wage rates, GI year, census totals)</td><td class="n">near-perfect at frontier tier, properly cited</td></tr>
+    <tr><td>Findable facts (wage rates, Geo Indicators, census)</td><td class="n">near-perfect at frontier tier, properly cited</td></tr>
     <tr><td>Citation hygiene</td><td class="n">138 citations offered -> 120 links resolved -> 105 contained a claimed number</td></tr>
-    <tr><td>Refusing to invent under pressure (best models)</td><td class="n">"I'd rather tell you I don't know than undermine your report" (Opus)</td></tr>
-    <tr><td>Real dataset work on a good day</td><td class="n">API queries with filters, haversine math, even satellite land-cover tiles (Grok: +11% built-up growth near an industrial estate)</td></tr>
+    <tr><td>Refusing to invent under pressure</td><td class="n">"I'd rather tell you I don't know than undermine your report" (claude)</td></tr>
+    <tr><td>Real dataset work</td><td class="n">API queries with filters, lat/lon math, even satellite land-cover tiles (Grok: +11% built-up growth near an industrial estate)</td></tr>
     <tr><td>Asking back when a question is vague (mostly)</td><td class="n">17 of 19 underspecified runs asked "which ward / which bus stand?"</td></tr>
   </table>
   <p>Silent fabrication with working tools was rare: 2 runs out of the first 88, both when tooling broke.
-  So no, the story is not "AI makes things up all the time." The story is what the next five screens show:
-  <b>the good behavior is a draw from a distribution, and nothing tells you which draw you got.</b></p>
+  So conclusion: "AI makes things up." is not a defensible narrative. The real puzzle is what the next five
+  screens show (spoiler: <b>the good behavior is a draw from a distribution, and nothing tells you which draw
+  you got</b>).</p>
 </div></section>
 
 <!-- SLIDE 4 : lottery -->
@@ -137,7 +145,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
   <div class="tag">finding 1 · explains observed behavior #1</div>
   <h2>The source lottery</h2>
   <p class="sub">Models randomly pick different data providers across identical runs, without declaring the
-  choice. I asked the same question 12 times and got 5 answers. All real, all cited.</p>
+  choice. I asked the same question 12 times and got 5 answers. All real and cited.</p>
   <div class="figbox">
   <pre>"What was India's 2021 unemployment rate?"   (12 isolated runs)
 
@@ -161,12 +169,12 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
   </svg>
   <div class="small">Click a dot for the exact runs behind it.</div>
   <div id="z1" class="zoom">4.2%: <span class="model" onclick="panel('grok')">Grok</span> in all 3 of its runs (PLFS, the official survey). Consistent, but permanently 2.2 points from GPT's usual pick. Gemini landed here once too. <span class="src">why2/runs/cursor-grok-4.5-medium/R3_rep1..3.md</span></div>
-  <div id="z2" class="zoom">5.98%: <span class="model" onclick="panel('gpt')">GPT</span> run 1, citing the World Bank indicator whose actual value is 6.38. Real citation, wrong number. A reviewer who clicks it sees a legitimate page. <span class="src">why2/runs/gpt-5.4-medium/R3_rep1.md</span></div>
+  <div id="z2" class="zoom">5.98%: <span class="model" onclick="panel('gpt')">GPT</span> run 1, citing the World Bank indicator whose actual value is 6.38. Gave a real citation, wrong number. A reviewer who clicks it sees a legitimate page. <span class="src">why2/runs/gpt-5.4-medium/R3_rep1.md</span></div>
   <div id="z3" class="zoom">6.38% (WB/ILO): Opus runs 2-3, GPT runs 2-3, Gemini once. The most common draw: 5 of 12. <span class="src">why2/runs/*/R3_rep*.md</span></div>
   <div id="z4" class="zoom">7.8%: <span class="model" onclick="panel('opus')">Opus</span> run 1, citing GlobalData. Its other two runs said 6.38. <span class="src">why2/runs/claude-4.6-opus-high/R3_rep1.md</span></div>
   <div id="z5" class="zoom">~7.9%: Gemini run 2, averaging CMIE's monthly tracker. <span class="src">why2/runs/gemini-3.5-flash/R3_rep2.md</span></div>
   </div>
-  <p>Nobody lied. These sources measure different things with different methods. A labour economist knows
+  <p>Nobody lied; these sources measure different things with different methods. A labour economist knows
   that. A field coordinator typing into a chat box does not, and the tool never says "I picked one of five
   bases." Same lottery on civic data: Hoodi road complaints 2020 -> 25 in one dataset, 332 in another.</p>
 </div></section>
@@ -174,9 +182,9 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 <!-- SLIDE 5 : ceiling and floor -->
 <section class="slide"><div class="inner">
   <div class="tag">finding 2 · explains observed behavior #2</div>
-  <h2>Brilliant one minute, useless the next</h2>
-  <p class="sub">Same model, similar questions, minutes apart. One answer is expert grade, the next is a
-  shrug. The ability is real. Its arrival is random.</p>
+  <h2>IQ Drops</h2>
+  <p class="sub">Same model, similar (incremental) questions, minutes apart. Oscillates between expert grade
+  and vague shrug. The smarts are real but the dips are random.</p>
   <div class="figbox">
   <svg viewBox="0 0 740 186" role="img" aria-label="worst to best range per model, click the ends">
     <text x="0" y="14" font-size="12.5" fill="var(--ink2)">Each bar is one model: left end its worst real answer, right end its best. Click the ends.</text>
@@ -204,17 +212,17 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
   <div id="c4hi" class="zoom">Gemini, best: computed the exact complaints answer (25, with sub-category table), matching my hand-verified number. <span class="src">why1/runs/gemini-3.5-flash/D2.md</span></div>
   <div id="c4lo" class="zoom">Gemini, worst: three runs of one question used three unrelated bases. <span class="src">why2/runs/gemini-3.5-flash/R1_rep1..3.md</span></div>
   </div>
-  <p>And the malformed-files thing I saw at the event is real: in early runs, models found stray CSV files
-  that previous runs had downloaded into a shared folder and quietly analyzed them as if they were the
-  answer. Whatever is lying on the machine leaks into the analysis, unasked.</p>
+  <p>And the malformed-files thing: in early runs, models found stray CSV files that previous runs had
+  downloaded into a shared folder and analyzed them as if they were the answer. Whatever is lying on the
+  machine leaks into the analysis, unasked (but that's not the whole story, click the bars to see).</p>
 </div></section>
 
 <!-- SLIDE 6 : phantom trends -->
 <section class="slide"><div class="inner">
   <div class="tag">finding 3 · explains observed behavior #3</div>
   <h2>Phantom trends</h2>
-  <p class="sub">Ask if something went up or down, and the direction depends on which dataset the model
-  happened to grab. Same place, same years, opposite answers, both grounded in real data.</p>
+  <p class="sub">A common question that was asked is "fit", i.e. is X going up. Using the same place, same
+  years, I saw opposite answers grounded in real data.</p>
   <div class="figbox">
   <pre>"Garbage complaints in Bellandur, 2019 -> 2022. Up or down?"
 
@@ -231,7 +239,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
   <div id="t1" class="zoom">Dataset A falls mostly because people stopped using that portal: total Bellandur filings on it collapsed 444 -> 48 as the city moved to the official app. The "improvement" is users leaving the platform. One model (Grok) caught this and said so. Most would not. <span class="src">why2/runs/cursor-grok-4.5-medium/R4_rep2.md</span></div>
   <div id="t2" class="zoom">Dataset B is official but only exists from Feb 2020, so a "2019 to 2022" trend from it silently answers a different window than the question asked. <span class="src">why2/runs/gpt-5.4-medium/R4_rep*.md</span></div>
   </div>
-  <p>This is the one that scares me most. Trends drive decisions: which ward gets attention, what a funder
+  <p>This is the one that makes me anxious. Trends drive decisions: which ward gets attention, what a funder
   is told. Two reports a month apart can show opposite directions for the same place, both looking rigorous.
   The disagreement is invisible unless someone opens both datasets and reads the coverage notes, which is
   exactly the work people use the tool to skip.</p>
@@ -240,26 +248,23 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 <!-- SLIDE 7 : silent memory switch -->
 <section class="slide"><div class="inner">
   <div class="tag">finding 4 · explains observed behaviors #4 and #5</div>
-  <h2>When tools break, some models switch to memory. Silently.</h2>
+  <h2>Switching to memory</h2>
   <p class="sub">The pattern I saw at the event (broken API call -> confident answer, no attempt to fix the
   call) reproduced cleanly in the benchmark.</p>
   <div class="figbox">
-  <pre>Same model, same questions. Only difference: whether its web access worked.
+  <pre>Same model/questions. Only difference: whether it reached the apis/pdfs.
 
-  web working  -> honest, sourced answers, real computation
-  web rejected -> "2021 unemployment was about 5.6%"        (real value: 6.38)
-               -> census gender splits quoted to the digit  (wrong digits)
-               -> and sometimes the honest path: flat refusal, "I won't fabricate"</pre>
+  things work  -> real computation
+  api flakes   -> "2021 unemployment was about 5.6%"        (real value: 6.38)
+               -> sometimes the desired refusal: "I won't fabricate"</pre>
   </div>
   <p class="quote">The user cannot tell which mode they got. The broken-tool answer and the working-tool
-  answer read the same. In our runs the tell was buried in phrases like "based on my knowledge" or a missing
-  tool log, things a field user will never check. Honesty depended on infrastructure state, and
-  infrastructure state was invisible.</p>
+  answer read the same. The switch was buried in phrases like a missing tool log, things a field user will
+  never check. The problem here is "honesty" depended on invisible infrastructure state.</p>
   <p>On the dead citation links people reported: I could not reproduce fully dead links at benchmark scale
-  (frontier link hygiene was decent). I am saying that plainly rather than pretending I proved it. What I
-  did prove is arguably worse: <b>real links whose pages do not contain the number attributed to them</b>
-  (the 5.98 case), and stale-year sources presented as current. A reviewer who clicks sees a legitimate page
-  and moves on.</p>
+  (frontier link hygiene was good). What I did find: <b>real links whose pages do not contain the number
+  attributed to them</b> (the 5.98 case), and stale-year sources presented as current (question about 2021,
+  data from 2019 in source). A reviewer who clicks sees a legitimate page and moves on.</p>
   <p class="src">why1 scoring.json (fabrication rows), why4/runs/gpt-5.4-medium/H1.md</p>
 </div></section>
 
@@ -268,27 +273,27 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
   <div class="tag">finding 5 · explains observed behavior #6</div>
   <h2>Domain knowledge in the question changes everything</h2>
   <p class="sub">I re-asked failed questions the way the NCF folks would have: naming the dataset, the
-  instrument, the method. The shrugs became answers, and the models started agreeing with each other.</p>
+  instrument, the method. The shrugs became answers, and models started agreeing.</p>
   <div class="figbox">
   <pre>"Complaints within 1 km of Bellandur lake?"
 
   asked naively:
     Opus  -> "upload the file"        GPT    -> "workspace is empty"
-    Grok  -> ~4-5 (wrong method)      Gemini -> newspaper links
+    Grok  -> ~4-5 (wrong method)      Gemini -> numbers from newspaper links
 
   asked naming the CSV, the lake polygon, shoreline distance, haversine:
-    Grok -> 283      GPT -> 283 (validated 3 ways)      Gemini -> 283
+    Grok -> 283      GPT -> 283       Gemini -> 283 (validated 3 ways)
 
   Three models, three independent implementations, one answer.</pre>
   </div>
-  <p>The expert phrasing also killed the lottery: when the question asked for all three unemployment bases
-  by name, every model delivered all three, labeled, with a sane recommendation. And it unlocked real
-  statistics: asked to impute a block-level unemployment band with the method named, Grok returned an 11-15%
-  band plus the minimum survey design to validate it (about 1,200 households; a 400-household pilot is too
-  weak). Survey-statistician output, gated entirely on phrasing.</p>
-  <p>The catch: the knowledge doing the work here is exactly what field teams do not carry and should not
-  have to. Even then, live satellite raster analysis stayed unreliable. That work belongs in pre-built
-  pipelines, not in a chat turn.</p>
+  <p>The expert phrasing also killed the lottery: when the question asked for all three unemployment bases by
+  name, every model delivered all three, labeled, with a sane recommendation. This was gated entirely on
+  phrasing. It also unlocked real statistics: asked to impute a block-level unemployment band with the method
+  named, Grok returned an 11-15% band plus the minimum survey design to validate it (about 1,200 households;
+  a 400-household pilot is too weak).</p>
+  <p>The knowledge doing the work here is exactly what field teams do not carry (and should not have to).
+  Even then, live satellite raster analysis stayed unreliable. Does that work belong in pre-built pipelines
+  instead of in a chat turn?</p>
   <p class="src">why7-expertise/ (each expert question links to its naive twin)</p>
 </div></section>
 
@@ -296,16 +301,14 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 <section class="slide"><div class="inner">
   <div class="tag">honesty section</div>
   <h2>Where I was wrong</h2>
-  <p class="sub">Two of my going-in beliefs did not survive the benchmark, and I want them on the record
-  next to the findings that did.</p>
+  <p class="sub">Two of my going-in beliefs did not survive the benchmark, and I want to record them.</p>
   <ol class="obs">
-    <li><b>"Agents invent numbers everywhere."</b> False at the frontier tier with working tools: silent
-    fabrication was 2 of 88 runs in the first benchmark, both when tooling broke. The real problems are
-    subtler: source lottery, phantom windows, silent memory switches.</li>
-    <li><b>"Agents never touch real instruments."</b> False: on a good draw, Grok downloaded satellite
-    land-cover tiles and computed built-up growth, and two models did real coordinate math. The ceiling is
-    higher than I thought. Which sharpens the actual problem: the floor, and not knowing where today's
-    answer sits between them.</li>
+    <li><b>"AI hallucinates."</b> False at the frontier tier with basic working tools: silent fabrication was
+    2 of 88 runs in the first benchmark.</li>
+    <li><b>"Agents rarely touch <i>real</i> datasets."</b> On a good draw, Grok downloaded satellite
+    land-cover tiles and computed built-up growth, and two models did real coordinate math. The ceiling for
+    agents using complex data sources is higher than I thought. This sharpens the actual problem: the floor,
+    and not knowing where today's answer sits between that and the ceiling, is the real danger.</li>
   </ol>
   <p class="small">Both retractions are written into the benchmark docs with the runs that forced them.</p>
 </div></section>
@@ -320,19 +323,17 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
    every number with its source. Not fixed by a bigger model.
 
 2. Move the domain knowledge into the tool.
-   Expert phrasing was the difference between a shrug and 283. Field teams
+   Expert phrasing was the difference between a shrug and "283". Field teams
    should not need to know what VIIRS or PLFS is. The tool should carry the
-   field's datasets, instruments and methods.
+   field's datasets, instruments and methods. The system should discover.
 
 3. Make the best day the every day.
-   The frontier's best answers are the bar. A small local model with a checked
-   query language already gives the same answer on every run, says "no data"
-   in a machine-readable way, and when it is wrong, the error is visible in
-   one line and fixable. Wrong-but-auditable beats right-sometimes.</pre></div>
-  <p><b>The gate:</b> if these five findings match what you saw at the events, the rest of the proposal
-  follows step by step. If they do not, every run is in the repo with a written reason per score. Argue with
-  the runs, not with me. I changed my own claims twice when the data disagreed; those are on the previous
-  slide.</p>
+   The frontier's best answers are the bar. Wrong-but-auditable beats
+   right-sometimes.</pre></div>
+  <p><b>The gate:</b> if these five findings match what you saw at the events, the rest of my proposal
+  (To Be Discussed) follows step by step. If they do not, <a href="evidence/">every run is published here</a>
+  with a written reason per score. I changed my own claims twice when the data disagreed; argue with the
+  runs, not with me :)</p>
 </div></section>
 
 </div>
