@@ -35,12 +35,18 @@ The tree uses these operations (ops). Each node is a JSON object with an "op" fi
   RANK      {op, items:[node,...], order, k?}     order 3+ things; order: desc|asc; items is a LIST
                                                   of subtrees, ONE PER thing being ranked
   REGION    {op:"REGION", place:"<name>"}         a place; use as a `region` or `target` value
+  BUFFER    {op:"BUFFER", source:<REGION>, radius_km:<positive number>}
+                                                  expand the SEARCH region by a stated radius
 
 region/time values: region is usually a REGION node. time is {"start":"YYYY","end":"YYYY"} or null.
 
 HOW QUESTION TYPES MAP TO TREES:
   "how many / where is X here"      -> SELECT  (wrap in AGGREGATE by:space metric:count for a count)
   "X near/within Y"                 -> RELATE(SELECT X, SELECT Y, relation: within)
+  "X and Y across a D km area around P"
+                                    -> RELATE(SELECT X@BUFFER(P,D), SELECT Y@BUFFER(P,D), ...)
+                                       BUFFER controls retrieval extent; RELATE.threshold_km controls
+                                       point-to-point proximity. Never use one as the other.
   "X with NO Y nearby / X not near Y / X without Y within D"
                                     -> RELATE(SELECT X, SELECT Y, relation: beyond [, threshold_km])
                                        NEVER use relation "within" for a negated constraint.
@@ -184,17 +190,28 @@ def build_messages(question, fewshot=None, history=None, capabilities=None):
                     line += (f"; required shape=ANNOTATE(layer=\"{item.get('entity')}\", "
                              f"source=SELECT(entity=\"{item.get('source_entity')}\", "
                              "region=<requested REGION>, time=<requested time or null>))")
+                if item.get("binding") == "operator":
+                    line += (f"; operator ingredient only; authorize/compose {item.get('ops')} "
+                             "but NEVER SELECT this entity")
+                if item.get("binding") == "region":
+                    line += (f"; region support only; use REGION(place={item.get('place')!r}) "
+                             "where the request asks for this scope; NEVER SELECT this entity")
                 lines.append(line)
             else:
                 lines.append(f"- {item}")
         selected = any(isinstance(item, dict) and item.get("selected") for item in capabilities)
         selection_rule = (
             "A semantic lookup already selected every catalog row below for the CURRENT request. "
-            "Bind each selected capability using its EXACT backticked entity string—never shorten, "
-            "paraphrase, replace, or turn a SELECT capability into ANNOTATE. A selected SELECT row "
+            "Treat the selected rows as the minimal ingredients for one complete tree. Data rows "
+            "bind leaf connectors; operator rows choose/authorize algebra composition; region rows "
+            "bind spatial scope. Never turn an operator or region row into SELECT. Preserve every "
+            "operand the current request requires. Bind selected data capabilities using their EXACT "
+            "backticked entity string—never shorten, paraphrase, replace, or turn a SELECT capability "
+            "into ANNOTATE. A selected SELECT row "
             "uses SELECT(entity=<exact string>, region=<requested REGION>, time=<requested time or "
-            "null). A selected ANNOTATE row uses its required shape exactly. Compose multiple rows "
-            "only when the question truly requires it. " if selected else ""
+            "null), except binding=compiler_entity means copy the requested concrete entity into "
+            "the SELECT leaf. A selected ANNOTATE row uses its required shape exactly. Compose "
+            "multiple rows when the question requires it. " if selected else ""
         )
         system_parts.append(
             selection_rule +
@@ -1516,7 +1533,7 @@ def mech_add_relate(ir, question):
 
 def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True,
           history=None, capabilities=None, semantic_repairs=True):
-    from ir_schema import validate  # local import to avoid cycles
+    from ir_schema import canonicalize, validate  # local import to avoid cycles
     msgs = build_messages(question, fewshot, history=history, capabilities=capabilities)
     # reasoning-style remote models emit reasoning tokens before the JSON; give big headroom.
     # local small models: room for wide trees (truncation at 800 broke tick-009).
@@ -1600,6 +1617,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True,
             if ir3 is not ir and validate(ir3)["valid"]:
                 ir, repaired = ir3, True
                 events.append("mech_synthesis:relate_wrap_or_polarity_flip")
+    ir = canonicalize(ir)
     return {"question": question, "raw": raw, "ir": ir, "parse_valid": ir is not None,
             "repaired": repaired, "events": events}
 

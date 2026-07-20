@@ -8,8 +8,11 @@ scorer and executor both consume.
 See ../algebra/ir-spec.md for the spec this checks (v0).
 """
 
+import math
+import json
+
 KERNEL_OPS = {"SELECT", "ANNOTATE", "RELATE", "AGGREGATE", "COMPARE", "ESTIMATE", "RANK"}
-SUPPORT_OPS = {"REGION"}
+SUPPORT_OPS = {"REGION", "BUFFER"}
 ALL_OPS = KERNEL_OPS | SUPPORT_OPS
 
 # op -> (required scalar/leaf fields, required child-node fields)
@@ -22,6 +25,7 @@ REQUIRED = {
     "ESTIMATE":  (["target", "method"], ["source"]),
     "RANK":      (["order"], []),  # items (a LIST of >=2 nodes) checked specially below
     "REGION":    (["place"], []),
+    "BUFFER":    (["radius_km"], ["source"]),
 }
 
 # strict field sets: an unknown field on a known op is an ERROR, not noise — a parser that
@@ -35,6 +39,7 @@ ALLOWED_FIELDS = {
     "ESTIMATE": {"op", "source", "target", "method"},
     "RANK": {"op", "items", "order", "k"},
     "REGION": {"op", "place"},
+    "BUFFER": {"op", "source", "radius_km"},
 }
 
 # Natural-language synonyms at the language boundary get NORMALIZED, not enumerated in the
@@ -95,7 +100,7 @@ def _walk(node, path, errs, holes, ops, depth):
         node["relation"] = canon_relation(node["relation"])
     for f in req_leaf:
         # SELECT.region is handled below (it may be a REGION node, not a leaf)
-        if op == "SELECT" and f == "region":
+        if (op == "SELECT" and f == "region") or (op == "ESTIMATE" and f == "target"):
             continue
         if f not in node:
             errs.append(f"{path}: {op} missing required field {f!r}")
@@ -129,6 +134,15 @@ def _walk(node, path, errs, holes, ops, depth):
             errs.append(f"{path}: {op} missing required child {f!r}")
         else:
             _walk(node[f], f"{path}.{f}", errs, holes, ops, depth + 1)
+    if op == "BUFFER":
+        radius = node.get("radius_km")
+        if (not is_hole(radius) and
+                (not isinstance(radius, (int, float)) or isinstance(radius, bool) or
+                 not math.isfinite(radius) or radius <= 0)):
+            errs.append(f"{path}: BUFFER.radius_km must be a positive finite number")
+        source = node.get("source")
+        if isinstance(source, dict) and source.get("op") not in {"REGION", "BUFFER"}:
+            errs.append(f"{path}: BUFFER.source must produce REGION support")
     # RANK takes a LIST of >=2 item nodes (the n-ary op the binary COMPARE cannot express;
     # tick-008: both models degraded 3-way rankings by dropping cities or nesting COMPAREs).
     if op == "RANK":
@@ -151,11 +165,60 @@ def _walk(node, path, errs, holes, ops, depth):
     if op == "SELECT":
         reg = node.get("region")
         if isinstance(reg, dict):
+            if reg.get("op") not in {"REGION", "BUFFER"}:
+                errs.append(f"{path}: SELECT.region must be REGION or BUFFER support")
             _walk(reg, f"{path}.region", errs, holes, ops, depth + 1)
         elif is_hole(reg):
             holes.append({"path": f"{path}.region", "op": op, "field": "region", "name": reg})
         elif reg is None:
             errs.append(f"{path}: SELECT missing required field 'region'")
+    if op == "ESTIMATE":
+        target = node.get("target")
+        if isinstance(target, dict):
+            if target.get("op") not in {"REGION", "BUFFER"}:
+                errs.append(f"{path}: ESTIMATE.target must be REGION or BUFFER support")
+            _walk(target, f"{path}.target", errs, holes, ops, depth + 1)
+        elif is_hole(target):
+            holes.append({"path": f"{path}.target", "op": op, "field": "target",
+                          "name": target})
+        elif target is None:
+            errs.append(f"{path}: ESTIMATE missing required field 'target'")
+
+
+def canonicalize(ir):
+    """Return canonical IR and intern identical support nodes.
+
+    Accepted ALG-015 identity: BUFFER(BUFFER(R,a),b) == BUFFER(R,a+b) for concrete radii.
+    Hole-valued radii remain written and unbound. Identical REGION/BUFFER values share one Python
+    object after normalization; no missing support is copied between operands.
+    """
+    interned = {}
+
+    def walk(node):
+        if isinstance(node, list):
+            return [walk(item) for item in node]
+        if not isinstance(node, dict):
+            return node
+        out = {key: walk(value) for key, value in node.items()}
+        if out.get("op") == "BUFFER":
+            source = out.get("source")
+            outer = out.get("radius_km")
+            if (isinstance(source, dict) and source.get("op") == "BUFFER" and
+                    isinstance(outer, (int, float)) and not isinstance(outer, bool) and
+                    math.isfinite(outer) and
+                    isinstance(source.get("radius_km"), (int, float)) and
+                    not isinstance(source.get("radius_km"), bool) and
+                    math.isfinite(source["radius_km"])):
+                out = {"op": "BUFFER", "source": source["source"],
+                       "radius_km": source["radius_km"] + outer}
+        if out.get("op") in {"REGION", "BUFFER"}:
+            key = json.dumps(out, sort_keys=True, separators=(",", ":"))
+            if key in interned:
+                return interned[key]
+            interned[key] = out
+        return out
+
+    return walk(ir)
 
 
 def validate(ir):

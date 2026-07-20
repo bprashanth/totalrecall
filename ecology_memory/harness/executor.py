@@ -13,7 +13,7 @@ A typed value = {"kind": records|series|scalar|field, "rows"/"value", "label", "
 """
 import math
 import statistics
-from ir_schema import validate, is_hole
+from ir_schema import canonicalize, validate, is_hole
 import connectors as C
 
 
@@ -32,9 +32,25 @@ def _merge_label(*labels):
     return "observed"
 
 
-def _resolve_region(region):
+def _resolve_region(region, prov=None):
     if isinstance(region, dict) and region.get("op") == "REGION":
         return C.resolve_region(region["place"])
+    if isinstance(region, dict) and region.get("op") == "BUFFER":
+        source = _resolve_region(region["source"], prov)
+        try:
+            out = C.buffer_region(source, region["radius_km"])
+        except ValueError as exc:
+            raise DataRequest("unsupported_region_geometry", {
+                "method": "bbox-approx", "radius_km": region.get("radius_km"),
+                "reason": str(exc), "ask": "use exact geometry or a bounded region away from the discontinuity"})
+        if prov is not None:
+            prov.append({"op": "BUFFER", "method": "bbox-approx", "approximate": True,
+                         "radius_km": region["radius_km"],
+                         "source_region": source.get("name"), "source_support": source,
+                         "result_bbox": out.get("bbox"),
+                         "note": ("approximate latitude-adjusted search bbox; not an exact "
+                                  "geodesic polygon or surveyed boundary")})
+        return out
     if isinstance(region, str) and not is_hole(region):
         return C.resolve_region(region)
     raise DataRequest("unresolved_region", {"region": region})
@@ -112,8 +128,13 @@ def _ev(node, prov, region_ctx):
     if op == "REGION":
         return {"kind": "region", "value": C.resolve_region(node["place"]), "label": "observed"}
 
+    if op == "BUFFER":
+        return {"kind": "region", "value": _resolve_region(node, prov), "label": "observed",
+                "source": "derived-latitude-adjusted-bbox-expansion", "method": "bbox-approx",
+                "approximate": True}
+
     if op == "SELECT":
-        region = _resolve_region(node["region"])
+        region = _resolve_region(node["region"], prov)
         region_ctx["region"] = region
         ent = node["entity"]
         if isinstance(ent, list):  # v2.2 entity UNION: run each, merge rows, weakest label wins
@@ -169,13 +190,45 @@ def _ev(node, prov, region_ctx):
     if op == "RELATE":
         left = _ev(node["left"], prov, region_ctx)
         right = _ev(node["right"], prov, region_ctx)
+        if left.get("kind") != "records" or right.get("kind") != "records":
+            raise DataRequest("incompatible_grain", {
+                "op": "RELATE", "left_kind": left.get("kind"),
+                "right_kind": right.get("kind"),
+                "hint": "RELATE requires two georeferenced record sets"})
         rel = node["relation"]
         thresh = node.get("threshold_km")
         rows = _relate(left.get("rows", []), right.get("rows", []), rel, thresh)
+        reverse_rows = _relate(right.get("rows", []), left.get("rows", []), rel, thresh)
+        effective_threshold = (thresh if isinstance(thresh, (int, float)) and thresh > 0 else
+                               (5.0 if rel == "cooccur" else
+                                1.0 if rel in {"within", "beyond"} else None))
         prov.append({"op": "RELATE", "relation": rel, "threshold_km": thresh,
-                     "note": f"{len(left.get('rows',[]))} x {len(right.get('rows',[]))} -> {len(rows)}"})
+                     "note": (f"{len(left.get('rows',[]))} left x "
+                              f"{len(right.get('rows',[]))} right -> {len(rows)} matched left and "
+                              f"{len(reverse_rows)} matched right; "
+                              "occurrence proximity is not interaction or simultaneous observation")})
         return {"kind": "records", "rows": rows,
-                "label": _merge_label(left["label"], right["label"]), "source": "relate"}
+                "label": "proxy", "source": "deterministic occurrence-point relation",
+                "grain": "occurrence-proximity-relation", "relation": rel,
+                "threshold_km": effective_threshold,
+                "left_entity": left.get("input_entity") or left.get("entity"),
+                "right_entity": right.get("input_entity") or right.get("entity"),
+                "left_record_count": len(left.get("rows", [])),
+                "right_record_count": len(right.get("rows", [])),
+                "matched_left_count": len(rows),
+                "matched_right_count": len(reverse_rows),
+                "matched_left_fraction": round(len(rows) / len(left.get("rows", [])), 4)
+                if left.get("rows") else None,
+                "matched_right_fraction": round(len(reverse_rows) / len(right.get("rows", [])), 4)
+                if right.get("rows") else None,
+                "matched_left_percent": round(100 * len(rows) / len(left.get("rows", [])), 1)
+                if left.get("rows") else None,
+                "matched_right_percent": round(100 * len(reverse_rows) / len(right.get("rows", [])), 1)
+                if right.get("rows") else None,
+                "left_region": left.get("region"), "right_region": right.get("region"),
+                "temporal_alignment": "not established",
+                "note": ("spatial proximity among occurrence records; not evidence of ecological "
+                         "interaction, same-time co-observation, abundance, or site presence")}
 
     if op == "AGGREGATE":
         src = _ev(node["source"], prov, region_ctx)
@@ -233,8 +286,13 @@ def _ev(node, prov, region_ctx):
 
     if op == "ESTIMATE":
         src = _ev(node["source"], prov, region_ctx)
-        target = _resolve_region(node["target"]) if not isinstance(node["target"], dict) or \
-            node["target"].get("op") == "REGION" else node["target"]
+        if src.get("grain") == "occurrence-proximity-relation":
+            raise DataRequest("unsupported_relational_transfer", {
+                "method": node["method"],
+                "reason": "joint relation transfer has no admitted sampling or gate contract",
+                "ask": ("estimate each taxon independently with declared donor occurrence data, "
+                        "or collect aligned interaction/co-observation data at the target")})
+        target = _resolve_region(node["target"], prov)
         try:
             out = C.estimate_transfer(src, target, node["method"])
         except Exception as e:
@@ -250,7 +308,11 @@ def _ev(node, prov, region_ctx):
                                "ask": gate["ask"]})
         prov.append({"op": "ESTIMATE", "method": node["method"], "source": out["source"],
                      "note": out["note"]})
-        return out
+        return {**out,
+                "donor_entity": src.get("input_entity") or src.get("entity"),
+                "donor_region": src.get("region"),
+                "donor_record_count": len(src.get("rows", [])),
+                "target_region": target}
 
     raise DataRequest("unknown_op", {"op": op})
 
@@ -459,6 +521,7 @@ def _gate(src, target, method):
 
 # ---- top level ---------------------------------------------------------------
 def execute(ir):
+    ir = canonicalize(ir)
     rep = validate(ir)
     if not rep["valid"]:
         return {"status": "data_request", "reason": "parse_invalid",

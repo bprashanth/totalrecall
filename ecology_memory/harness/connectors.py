@@ -50,6 +50,18 @@ EBTL_REGION = {
     "orig": "EBTL",
     "source": "SITE_EBTL.json",
 }
+DONOR_ALIASES = {
+    "dry-deccan donor belt", "dry deccan donor belt", "ebtl donor belt",
+    "eastern ghats donor belt", "regional donor belt",
+}
+DONOR_REGION = {
+    "name": "dry-Deccan donor belt",
+    "bbox": [11.0, 13.6, 76.0, 79.5],
+    "lat": 12.3,
+    "lon": 77.75,
+    "orig": "dry-Deccan donor belt",
+    "source": "declared-donor-belt",
+}
 
 
 def _cache_get(key):
@@ -104,6 +116,8 @@ def resolve_region(place, min_span_deg=0.03):
     normalized = " ".join(str(place).lower().split()).strip(" .,;:")
     if normalized in EBTL_ALIASES:
         return dict(EBTL_REGION)
+    if normalized in DONOR_ALIASES:
+        return dict(DONOR_REGION)
 
     # dedupe repeated comma segments ("Brazil, Brazil" → "Brazil"): a redundant segment sent
     # Nominatim to an unrelated same-named hamlet in another country (tick-009)
@@ -140,6 +154,39 @@ def resolve_region(place, min_span_deg=0.03):
     return {"name": r.get("display_name", place), "bbox": [s, n, w, e],
             "lat": float(r["lat"]), "lon": float(r["lon"]), "orig": place,
             "osm_class": r.get("class"), "osm_type": r.get("type")}
+
+
+def buffer_region(region, radius_km):
+    """Return a deterministic bbox expansion around a resolved region.
+
+    This is a search extent, not a proximity threshold. RELATE.threshold_km remains the distance
+    used to compare returned points. The approximation is conservative and transparent at the
+    small/regional radii used by the harness.
+    """
+    radius = float(radius_km)
+    if radius <= 0:
+        raise ValueError("buffer radius must be positive")
+    s, n, w, e = region["bbox"]
+    mid_lat = (s + n) / 2
+    lat_delta = radius / 111.32
+    lon_scale = max(0.05, math.cos(math.radians(mid_lat)))
+    lon_delta = radius / (111.32 * lon_scale)
+    bbox = [s - lat_delta, n + lat_delta, w - lon_delta, e + lon_delta]
+    if bbox[0] <= -90 or bbox[1] >= 90 or bbox[2] <= -180 or bbox[3] >= 180:
+        raise ValueError("bbox buffer crosses a polar or dateline boundary; exact geometry required")
+    return {
+        "name": f"{radius:g} km buffer around {region['name']}",
+        "bbox": bbox,
+        "lat": region.get("lat", (s + n) / 2),
+        "lon": region.get("lon", (w + e) / 2),
+        "orig": region.get("orig") or region.get("name"),
+        "source": "derived-latitude-adjusted-bbox-expansion",
+        "method": "bbox-approx",
+        "approximate": True,
+        "support_type": "analysis-search-bbox",
+        "parent_region": region,
+        "buffer_km": radius,
+    }
 
 
 # ---------------------------------------------------------------- ecology entity resolver
@@ -233,30 +280,32 @@ CAPABILITY_CATALOG = (
     {"entity": "EBTL evidence summary", "kind": "SELECT",
      "description": "orientation ledger limited to bird/snake counts, indirect elephant passage, nursery snapshot, Eucalyptus removal, and gaps explicitly named in those source cards",
      "grain": "mixed page-addressed site evidence", "evidence": "observed/reported/indirect",
-     "excludes": ["treatment comparison or outcome", "human behavior or livelihoods",
+     "scope": "declared EBTL site", "excludes": ["treatment comparison or outcome", "human behavior or livelihoods",
                   "absence claims for topics not named in the ledger"]},
     {"entity": "EBTL wildlife inventory", "kind": "SELECT",
      "description": "local 2024 butterfly, odonate, bird and herpetofauna survey summaries",
-     "grain": "survey-period group inventory", "evidence": "observed + older property records"},
+     "grain": "survey-period group inventory", "evidence": "observed + older property records",
+     "scope": "declared EBTL site"},
     {"entity": "EBTL bird inventory", "kind": "SELECT",
      "description": "complete local 2024 bird checklist with survey method",
-     "grain": "published site species record", "evidence": "observed"},
+     "grain": "published site species record", "evidence": "observed", "scope": "declared EBTL site"},
     {"entity": "snakes", "kind": "SELECT",
      "description": "complete documented EBTL snake inventory; executor separates 2024 VES from older records and marks the declared medically venomous subset",
      "grain": "published site species record", "evidence": "observed/previously recorded",
+     "scope": "declared EBTL site",
      "includes": ["EBTL venomous snake inventory"]},
     {"entity": "EBTL cobra inventory", "kind": "SELECT",
      "description": "cobra-only subset of the documented site snake inventory, including which cobra taxa are not listed",
-     "grain": "published site species record", "evidence": "previous property record"},
+     "grain": "published site species record", "evidence": "previous property record", "scope": "declared EBTL site"},
     {"entity": "EBTL venomous snake inventory", "kind": "SELECT",
      "description": "medically venomous subset of the documented site snake inventory",
-     "grain": "published site species record", "evidence": "previous property record"},
+     "grain": "published site species record", "evidence": "previous property record", "scope": "declared EBTL site"},
     {"entity": "EBTL elephant evidence", "kind": "SELECT",
      "description": "page-addressed local passage evidence; not abundance or frequency",
-     "grain": "site event", "evidence": "indirect"},
+     "grain": "site event", "evidence": "indirect", "scope": "declared EBTL site"},
     {"entity": "EBTL nursery inventory", "kind": "SELECT",
      "description": "reported nursery snapshots and published named taxa; not survival outcomes",
-     "grain": "site report/taxon", "evidence": "reported"},
+     "grain": "site report/taxon", "evidence": "reported", "scope": "declared EBTL site"},
     {"entity": "EBTL invasive evidence", "kind": "SELECT",
      "description": "local management documentation, public occurrence records in the analysis bbox, regional semantic literature leads, and an explicit satellite-extent evidence gap",
      "grain": "site report + bbox occurrence + regional document lead", "evidence": "reported/observed/retrieval lead"},
@@ -298,9 +347,28 @@ CAPABILITY_CATALOG = (
      "description": "MODIS annual NDVI trend at declared centre; annotate site point",
      "grain": "250 m pixel", "evidence": "proxy"},
     {"entity": "taxon occurrence records", "kind": "SELECT",
-     "description": "GBIF + iNaturalist + paper-data merger for a named taxon and region",
+     "description": "bounded GBIF + iNaturalist point merger for a named taxon and requested region; semantic paper discovery is a separate operation",
      "grain": "public occurrence point", "evidence": "observed record, not abundance",
-     "binding": "compiler_entity"},
+     "binding": "compiler_entity", "scope": "requested region"},
+    {"entity": "spatial relation between occurrence records", "kind": "RELATE operator",
+     "description": "derive nearest distance, within, beyond, or cooccurrence-proxy results from two georeferenced occurrence sets; proximity is not interaction or simultaneous observation",
+     "grain": "pairwise occurrence proximity", "evidence": "derived proxy",
+     "binding": "operator", "ops": ["RELATE"],
+     "requires": ["taxon occurrence records"]},
+    {"entity": "regional-to-target occurrence transfer", "kind": "ESTIMATE operator",
+     "description": "apply an explicit environmental or interpolation gate to occurrence records from a donor region before estimating at a target; rejection remains a data request",
+     "grain": "taxon-specific gated transfer", "evidence": "modelled",
+     "binding": "operator", "ops": ["ESTIMATE"],
+     "requires": ["taxon occurrence records"]},
+    {"entity": "buffered search region", "kind": "REGION operator",
+     "description": "expand a named search region by an explicit radius; this controls retrieval extent and is distinct from a RELATE distance threshold",
+     "grain": "derived search bbox", "evidence": "declared geometry",
+     "binding": "operator", "ops": ["BUFFER"],
+     "scope_policy": "compiler_must_write_each_operand_support"},
+    {"entity": "declared EBTL donor belt", "kind": "REGION support",
+     "description": "declared dry-Deccan donor belt used for regional evidence around the target site; bbox south 11.0 north 13.6 west 76.0 east 79.5",
+     "grain": "declared regional search bbox", "evidence": "declared geometry",
+     "binding": "region", "place": "dry-Deccan donor belt"},
 )
 
 
@@ -583,13 +651,7 @@ def arachnid_transfer_evidence(region):
     admitted as a site expectation unless both pass; a species already observed locally remains
     observed rather than being relabelled as an estimate.
     """
-    donor = {
-        "name": "dry-Deccan donor belt",
-        "bbox": [11.0, 13.6, 76.0, 79.5],
-        "lat": 12.3,
-        "lon": 77.75,
-        "source": "declared-donor-belt",
-    }
+    donor = dict(DONOR_REGION)
     local = taxon_group_occurrences({"taxon": "Arachnida"}, region, limit=300)
     regional = taxon_group_occurrences({"taxon": "Arachnida"}, donor, limit=300)
     counts = collections.Counter(
@@ -1330,48 +1392,8 @@ def annotate_records(records, layer, query_time=None, region=None):
 
 
 # ---------------------------------------------------------------- transfer gates and estimates
-AE_COLLECTION = "GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL"
-AE_BANDS = [f"A{i:02d}" for i in range(64)]
-WORLDCLIM_IMAGE = "WORLDCLIM/V1/BIO"
-BIO_BANDS = [f"bio{i:02d}" for i in range(1, 20)]
 TRANSFER_ABSENCE_ASK = ("provide designed presence/absence survey points; the admitted model uses "
                         "deterministic background points as pseudo-absence")
-
-
-def _target_grid(region, side=5):
-    """Deterministic interior AOI points; avoids random gate drift and makes responses cacheable."""
-    s, n, w, e = region["bbox"]
-    return [{"lat": s + (i + 0.5) * (n - s) / side,
-             "lon": w + (j + 0.5) * (e - w) / side}
-            for i in range(side) for j in range(side)]
-
-
-def _sample_vectors(ee, image, rows, bands, scale):
-    features = [ee.Feature(ee.Geometry.Point([r["lon"], r["lat"]]), {"_i": i})
-                for i, r in enumerate(rows)]
-    got = image.sampleRegions(ee.FeatureCollection(features), scale=scale,
-                              geometries=False).getInfo().get("features", [])
-    out = [None] * len(rows)
-    for feature in got:
-        p = feature.get("properties") or {}
-        i = int(p.get("_i", -1))
-        if 0 <= i < len(out) and all(isinstance(p.get(b), (int, float)) for b in bands):
-            out[i] = [float(p[b]) for b in bands]
-    return out
-
-
-def _transfer_images(ee, year):
-    year = min(2024, max(2017, int(year)))
-    ae = (ee.ImageCollection(AE_COLLECTION)
-          .filterDate(f"{year}-01-01", f"{year + 1}-01-01").mosaic().select(AE_BANDS))
-    climate = ee.Image(WORLDCLIM_IMAGE).select(BIO_BANDS)
-    return year, ae, climate
-
-
-def _cosine(a, b):
-    na = math.sqrt(sum(x * x for x in a)) or 1e-12
-    nb = math.sqrt(sum(x * x for x in b)) or 1e-12
-    return sum(x * y for x, y in zip(a, b)) / (na * nb)
 
 
 def transfer_gate(src, target, method, min_occurrences=20):
@@ -1419,8 +1441,8 @@ def transfer_gate(src, target, method, min_occurrences=20):
                 "ask": "use observed records for the target instead of ESTIMATE"}
 
     start, end = _time_window(src.get("query_time"))
-    year = int((end or start or "2024")[:4])
-    cache_key = "transfer-gate-v2 " + hashlib.sha256(json.dumps({
+    year = int((end or start or "2023")[:4])
+    cache_key = "origin-predict-gate-v1 " + hashlib.sha256(json.dumps({
         "method": method, "year": year, "target": target["bbox"],
         "rows": [[round(r["lat"], 5), round(r["lon"], 5)] for r in rows]
     }, sort_keys=True).encode()).hexdigest()
@@ -1432,111 +1454,65 @@ def transfer_gate(src, target, method, min_occurrences=20):
             cached.setdefault("target_in_envelope_fraction_threshold", 0.8)
         return cached
 
-    ee = _init_ee()
-    year, ae, climate = _transfer_images(ee, year)
-    # Bound public-service payload without selecting on ecological outcomes.
-    donor = rows if len(rows) <= 200 else rows[::max(1, len(rows) // 200)][:200]
-    target_rows = _target_grid(target, side=5)
-
-    if method == "feature":
-        dv = [v for v in _sample_vectors(ee, ae, donor, AE_BANDS, 10) if v]
-        tv = [v for v in _sample_vectors(ee, ae, target_rows, AE_BANDS, 10) if v]
-        if len(dv) < min_occurrences or not tv:
-            out = {"pass": False, "strength": "feature-coverage",
-                   "reason": "AlphaEarth did not sample enough donor/target pixels",
-                   "ask": "provide pixels within AlphaEarth coverage or collect local data"}
-        else:
-            # Calibrate novelty against donor internal nearest-neighbour similarity, with a
-            # conservative floor. A target pixel must resemble an actual donor, not a washed-out
-            # centroid.
-            self_nn = sorted(max(_cosine(v, u) for j, u in enumerate(dv) if i != j)
-                             for i, v in enumerate(dv))
-            floor = min(0.92, max(0.85, self_nn[max(0, len(self_nn) // 10)]))
-            nearest = [max(_cosine(v, u) for u in dv) for v in tv]
-            frac = sum(x >= floor for x in nearest) / len(nearest)
-            out = {"pass": frac >= 0.5, "strength": "AlphaEarth-NN-analog",
-                   "year": year, "analog_floor": round(floor, 4),
-                   "mean_nearest_cosine": round(sum(nearest) / len(nearest), 4),
-                   "target_analog_fraction": round(frac, 3),
-                   "target_analog_fraction_threshold": 0.5,
-                   "reason": "target is a local feature analog" if frac >= 0.5 else
-                             "target is outside donor AlphaEarth analog space",
-                   "ask": None if frac >= 0.5 else "collect local target observations"}
-    elif method == "envelope":
-        dv = [v for v in _sample_vectors(ee, climate, donor, BIO_BANDS, 1000) if v]
-        tv = [v for v in _sample_vectors(ee, climate, target_rows, BIO_BANDS, 1000) if v]
-        if len(dv) < min_occurrences or not tv:
-            out = {"pass": False, "strength": "climate-coverage",
-                   "reason": "WorldClim did not sample enough donor/target pixels",
-                   "ask": "provide coordinates within WorldClim coverage or collect local data"}
-        else:
-            mins, maxs = [min(x) for x in zip(*dv)], [max(x) for x in zip(*dv)]
-            def in_envelope(v):
-                return all(lo <= x <= hi for x, lo, hi in zip(v, mins, maxs))
-            frac = sum(in_envelope(v) for v in tv) / len(tv)
-            out = {"pass": frac >= 0.8, "strength": "WorldClim-MESS-envelope",
-                   "target_in_envelope_fraction": round(frac, 3),
-                   "target_in_envelope_fraction_threshold": 0.8,
-                   "reason": "target climate is inside donor envelope" if frac >= 0.8 else
-                             "target climate is outside donor WorldClim envelope",
-                   "ask": None if frac >= 0.8 else "collect local data; climate projection would extrapolate"}
-    else:
+    if method not in {"feature", "envelope"}:
         out = {"pass": False, "strength": "method", "reason": f"unsupported transfer method {method}",
                "ask": "choose feature, envelope, or interpolate"}
+    else:
+        raw = ORIGIN.predict_gate(rows, target, year=year)
+        if method == "feature":
+            frac = raw.get("frac_aoi_analog") or 0
+            passed = raw.get("verdict") == "transfer_rf" and frac >= 0.5
+            out = {"pass": passed, "strength": "AlphaEarth-NN-analog",
+                   "year": year, "analog_floor": raw.get("emb_analog_floor"),
+                   "mean_nearest_cosine": raw.get("emb_nn_cosine_mean"),
+                   "target_analog_fraction": frac,
+                   "target_analog_fraction_threshold": 0.5,
+                   "reason": raw.get("why"),
+                   "ask": None if passed else "collect local target observations",
+                   "origin_verdict": raw.get("verdict")}
+        else:
+            frac = raw.get("climate_mess_frac_in_envelope") or 0
+            passed = frac >= 0.8
+            out = {"pass": passed, "strength": "WorldClim-MESS-envelope",
+                   "year": year, "target_in_envelope_fraction": frac,
+                   "target_in_envelope_fraction_threshold": 0.8,
+                   "reason": raw.get("why"),
+                   "ask": None if passed else
+                          "collect local data; climate projection would extrapolate",
+                   "origin_verdict": raw.get("verdict")}
     _cache_put(cache_key, out)
     return out
 
 
 def _presence_model(src, target, method, gate):
-    """Presence-vs-deterministic-background RF after a successful environmental gate."""
+    """Normalize the locked origin predictor after a successful environmental gate."""
     rows = [r for r in src["rows"] if "lat" in r and "lon" in r]
     start, end = _time_window(src.get("query_time"))
-    year = int((end or start or "2024")[:4])
-    cache_key = "presence-model-v2 " + hashlib.sha256(json.dumps({
+    year = int((end or start or "2023")[:4])
+    cache_key = "origin-presence-model-v1 " + hashlib.sha256(json.dumps({
         "method": method, "year": year, "target": target["bbox"],
         "rows": [[round(r["lat"], 5), round(r["lon"], 5)] for r in rows]
     }, sort_keys=True).encode()).hexdigest()
     cached = _cache_get(cache_key)
     if cached is not None:
         return cached
-    ee = _init_ee()
-    year, ae, climate = _transfer_images(ee, year)
-    image, bands, scale = ((ae, AE_BANDS, 10) if method == "feature"
-                           else (climate, BIO_BANDS, 1000))
-    donor = rows if len(rows) <= 300 else rows[::max(1, len(rows) // 300)][:300]
-    lat_lo, lat_hi = min(r["lat"] for r in donor), max(r["lat"] for r in donor)
-    lon_lo, lon_hi = min(r["lon"] for r in donor), max(r["lon"] for r in donor)
-    pad_lat, pad_lon = max(0.03, (lat_hi - lat_lo) * 0.15), max(0.03, (lon_hi - lon_lo) * 0.15)
-    train_geom = ee.Geometry.Rectangle([lon_lo - pad_lon, lat_lo - pad_lat,
-                                        lon_hi + pad_lon, lat_hi + pad_lat], geodesic=False)
-    presence = ee.FeatureCollection([
-        ee.Feature(ee.Geometry.Point([r["lon"], r["lat"]]), {"y": 1}) for r in donor])
-    n_bg = max(100, min(300, len(donor) * 3))
-    background = ee.FeatureCollection.randomPoints(train_geom, n_bg, 7411).map(
-        lambda f: f.set("y", 0))
-    samples = image.sampleRegions(presence.merge(background), properties=["y"],
-                                  scale=scale, geometries=False).randomColumn("split", 4242)
-    train = samples.filter(ee.Filter.lt("split", 0.7))
-    test = samples.filter(ee.Filter.gte("split", 0.7))
-    classifier = ee.Classifier.smileRandomForest(120).train(train, "y", bands)
-    n_test = test.size().getInfo()
-    accuracy = (test.classify(classifier).errorMatrix("y", "classification").accuracy().getInfo()
-                if n_test else None)
-    s, n, w, e = target["bbox"]
-    target_geom = ee.Geometry.Rectangle([w, s, e, n], geodesic=False)
-    fraction = image.classify(classifier).reduceRegion(
-        reducer=ee.Reducer.mean(), geometry=target_geom,
-        scale=200 if method == "feature" else 1000, maxPixels=1e9
-    ).get("classification").getInfo()
+    raw = (ORIGIN.predict_presence(rows, target, year=year) if method == "feature" else
+           ORIGIN.predict_sdm(rows, target, year=year))
+    fraction = (raw.get("modelled_present_fraction") if method == "feature" else
+                raw.get("modelled_suitable_fraction"))
+    accuracy = raw.get("test_accuracy")
     row = {"lat": target["lat"], "lon": target["lon"],
            "target": target.get("name"), "suitability_fraction": round(float(fraction), 4),
-           "test_accuracy": round(float(accuracy), 3) if accuracy is not None else None,
-           "method": "AlphaEarth RF" if method == "feature" else "WorldClim RF",
+           "test_accuracy": accuracy,
+           "method": "origin AlphaEarth RF" if method == "feature" else "origin WorldClim RF",
+           "model_year": year,
+           "top_feature_bands": raw.get("top_feature_bands"),
            "modelled": True}
     out = {"rows": [row], "kind": "field", "source": row["method"], "label": "modelled",
            "grain": "target-bbox-suitability-fraction", "measure_field": "suitability_fraction",
            "unit": "fraction", "gate": gate,
-           "note": (f"MODELLED presence suitability using {row['method']} after its gate passed; "
+           "note": (f"MODELLED presence suitability using the locked {row['method']} connector "
+                    f"after its gate passed; model year {year}; "
                     f"{TRANSFER_ABSENCE_ASK}; occurrence bias, spatial autocorrelation, land-use, "
                     "biotic interactions and dispersal remain limitations")}
     _cache_put(cache_key, out)

@@ -67,8 +67,15 @@ def points_occurrences(resolution, region, time_value=None, limit=200):
     points = _module("points")
     s, n, w, e = region["bbox"]
     bbox = [w, s, e, n]
+    # A typed occurrence leaf needs coordinate records. The imported `paper_data.search` path can
+    # invoke an interactive LLM column matcher for up to several minutes on a cache miss, which is
+    # neither a bounded point query nor an appropriate hidden side effect of RELATE. Keep the exact
+    # origin merger, but admit its GBIF+iNaturalist point sources here; semantic paper discovery and
+    # paper-dataset extraction remain explicit connector operations with their own provenance.
+    point_sources = ("gbif", "inat")
     result = points.get(
-        resolution["canonical"], bbox=bbox, limit=min(int(limit), 500), resolve_name=False
+        resolution["canonical"], bbox=bbox, sources=point_sources,
+        limit=min(int(limit), 500), resolve_name=False
     )
     raw_rows = []
     path = result.get("path")
@@ -93,7 +100,7 @@ def points_occurrences(resolution, region, time_value=None, limit=200):
     return {
         "rows": rows,
         "kind": "records",
-        "source": "origin points.py → GBIF + iNaturalist + paper_data",
+        "source": "origin points.py → GBIF + iNaturalist",
         "label": "observed",
         "grain": "occurrence",
         "resolution": resolution,
@@ -106,16 +113,41 @@ def points_occurrences(resolution, region, time_value=None, limit=200):
             "implementation": os.path.join(ORIGIN_CONNECTORS, "points.py"),
             "parameters": {
                 "species": resolution["canonical"], "bbox": bbox,
-                "sources": ["gbif", "inat", "paper"], "limit": min(int(limit), 500),
+                "sources": list(point_sources), "limit": min(int(limit), 500),
             },
             "output_rows": len(rows),
             "cached": result.get("cached", False),
         }],
         "note": (
-            f"{len(rows)} coordinate-deduplicated occurrence points from the exact origin resolver; "
+            f"{len(rows)} coordinate-deduplicated occurrence points from the exact origin resolver "
+            "using its bounded GBIF+iNaturalist sources; paper discovery/extraction is separate; "
             "the origin common CSV omits record URLs and licenses, an import incompatibility"
         ),
     }
+
+
+def predict_gate(rows, target, year=2023):
+    """Run the locked origin environmental gate and return its native audit fields."""
+    _verify(["_base.py", "predict.py"])
+    predict = _module("predict")
+    s, n, w, e = target["bbox"]
+    return predict.gate(rows, [w, s, e, n], year=int(year))
+
+
+def predict_presence(rows, target, year=2023):
+    """Run the locked origin AlphaEarth presence model after a separately audited gate."""
+    _verify(["_base.py", "predict.py"])
+    predict = _module("predict")
+    s, n, w, e = target["bbox"]
+    return predict.presence(rows, [w, s, e, n], year=int(year))
+
+
+def predict_sdm(rows, target, year=2023):
+    """Run the locked origin WorldClim SDM branch after a separately audited gate."""
+    _verify(["_base.py", "predict.py"])
+    predict = _module("predict")
+    s, n, w, e = target["bbox"]
+    return predict.sdm_climate(rows, [w, s, e, n], year=int(year))
 
 
 def semantic_discovery(query, k=5, points_only=True):

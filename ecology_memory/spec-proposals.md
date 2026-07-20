@@ -55,3 +55,20 @@ the proposed change · evidence (trace path). The cross-sector supervisor reconc
   causal-estimation, artifact rendering, and authorized acquisition capabilities; bridge them with
   typed inputs/outputs and provenance rather than overloading `SELECT` or `ESTIMATE`.
 - Evidence: `runs/expressiveness-001/traces.jsonl` (`eco-x041`, `eco-x043`, `eco-x045`, `eco-x050`).
+
+## 2026-07-18 · Explicit bounded search support (ALG-015)
+
+- Forcing question: compare two named occurrence sets in a 100 km search extent around a declared
+  target while using 10 km as the pairwise proximity threshold.
+- Incompatibility: `REGION` can name the target or a predeclared donor region, while
+  `RELATE.threshold_km` controls distance between records. Reusing that threshold as the search
+  extent conflates two independent spatial quantities; inventing a named 100 km region hides how
+  the support was constructed.
+- Proposed change: admit a support-only `BUFFER(source: REGION, radius_km > 0) -> REGION` node.
+  The result must declare that it is an expanded analysis/search bbox rather than a surveyed
+  property polygon or exact geodesic polygon. A relation still carries its own independent
+  threshold, and each operand must explicitly declare its support.
+- Evidence: the local experimental dialect executes a 100 km buffered two-record-set relation
+  while retaining a 10 km relation threshold and both operand denominators. Unit and live Hermes
+  traces are recorded in `chronology/20260718_relate_estimate_composition.md`. This is local
+  experimental evidence, not kit release authority.

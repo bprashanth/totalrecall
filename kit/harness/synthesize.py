@@ -16,6 +16,8 @@ from a structured result computed by deterministic tools. Rules:
 - If evidence_label is "modelled": say clearly it is a modelled estimate needing local corroboration.
 - If alignment is present, name the exact common coverage window and that unmatched periods were
   dropped; never imply interpolation. If source vintages differ, name both vintages.
+- If spatial_support or provenance has method "bbox-approx", explicitly call it an approximate
+  search bbox/extent. Never describe it as an exact radius polygon, surveyed boundary, or property.
 - If status is data_request: do NOT invent an answer. Say exactly what is missing or ambiguous and
   ask the ONE most useful question (or name the data to collect).
 - Never invent numbers not present in the result. Mention the data source in passing."""
@@ -33,6 +35,9 @@ def _context(exec_result):
            "measure": v.get("measure"), "unit": v.get("unit"), "grain": v.get("grain"),
            "alignment": alignments[-1] if alignments else v.get("alignment"),
            "vintage": v.get("vintage"),
+           "spatial_support": v.get("spatial_support"),
+           "buffer_provenance": [p for p in exec_result.get("provenance", [])
+                                 if p.get("op") == "BUFFER"],
            "provenance_notes": [p.get("note") for p in exec_result.get("provenance", [])
                                 if p.get("note")][:4],
            "sources": list({p.get("route") for p in exec_result.get("provenance", [])
@@ -81,6 +86,16 @@ def score_synthesis(question, exec_result, prose):
         s["modelled_flagged"] = bool(re.search(r"model|estimat|approximat", prose.lower()))
     else:
         s["modelled_flagged"] = True
+    approximate_support = bool(
+        (isinstance(v.get("spatial_support"), dict) and
+         v["spatial_support"].get("method") == "bbox-approx") or
+        any(p.get("method") == "bbox-approx" for p in exec_result.get("provenance", [])))
+    if approximate_support:
+        s["approximation_surfaced"] = bool(
+            re.search(r"\bapproximat\w*\b", prose, re.I) and
+            re.search(r"\b(?:bbox|bounding box|search (?:area|extent|support))\b", prose, re.I))
+    else:
+        s["approximation_surfaced"] = True
     alignment = next((p.get("alignment") for p in exec_result.get("provenance", [])
                       if p.get("alignment")), None)
     if alignment and alignment.get("used_window"):

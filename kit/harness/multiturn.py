@@ -23,7 +23,7 @@ import os
 import time
 
 import parser as P
-from ir_schema import validate, is_hole
+from ir_schema import RELEASED_ALGEBRA_VERSION, validate, is_hole
 from executor import execute
 from scorer import _shape
 from llm import chat
@@ -80,13 +80,13 @@ def mech_bind(ir, slot_values):
     return walk(ir)
 
 
-def run_case(case, role="qwen2b"):
+def run_case(case, role="qwen2b", algebra_version=RELEASED_ALGEBRA_VERSION):
     q, reply, slots = case["q"], case["reply"], case.get("slots", {})
     rec = {"id": case["id"], "question": q, "reply": reply, "ts": time.time()}
-    pr = P.parse(q, role=role)
+    pr = P.parse(q, role=role, algebra_version=algebra_version)
     ir1 = pr["ir"]
     rec["ir_turn1"] = ir1
-    rep1 = validate(ir1) if ir1 else None
+    rep1 = validate(ir1, algebra_version) if ir1 else None
     rec["holes"] = [h["name"] for h in rep1["holes"]] if rep1 else []
     s = {"asked_when_needed": bool(rep1 and rep1["holes"])}
     if not s["asked_when_needed"]:
@@ -97,10 +97,10 @@ def run_case(case, role="qwen2b"):
     for name, bind in (("model", lambda: model_bind(ir1, reply, role)),
                        ("mech", lambda: mech_bind(ir1, slots))):
         b = bind()
-        rep2 = validate(b) if b else None
+        rep2 = validate(b, algebra_version) if b else None
         ok_bound = bool(rep2 and rep2["valid"] and not rep2["holes"])
         same_skeleton = (_shape(b) == _shape(ir1)) if b else False
-        ex = execute(b) if ok_bound else {"status": "not_run"}
+        ex = execute(b, algebra_version=algebra_version) if ok_bound else {"status": "not_run"}
         s[f"{name}_bound"] = ok_bound
         s[f"{name}_skeleton_kept"] = same_skeleton
         s[f"{name}_exec_ok"] = ex.get("status") == case.get("expect", "answer")

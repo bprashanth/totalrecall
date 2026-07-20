@@ -522,3 +522,57 @@ an evidence-backed question that cannot preserve its meaning in the frozen tree 
   saturation, does not authorize LoRA retraining or deployment claims, and does not export changes
   into origin `dss/`. Back-integration remains a separately reviewed, explicitly authorized step;
   the current parallel runtime is the reproducible candidate.
+
+## 2026-07-18 — composed relation and independently gated transfer
+
+- [HARNESS][ROOT CAUSE] `RELATE` and `ESTIMATE` failures were caused by atomic capability
+  selection and destructive leaf binding, not simply by missing connectors. The compiler could
+  produce a composed tree, but the routing boundary replaced it with one selected dataset.
+- [HARNESS][FIXED] Capability retrieval now selects the minimal operator/data/support ingredients;
+  the contract binder fills declared slots, removes non-schema metadata, aligns only explicitly
+  declared supports, and never changes a valid composed root.
+- [ALGEBRA] Occurrence `RELATE` returns bidirectional denominators and match rates under an explicit
+  threshold and is permanently labelled a spatial record proxy. `ESTIMATE` of that relational
+  grain fails closed; each taxon must instead pass an independent donor-to-target gate.
+- [CONNECTOR] Transfer now calls the locked origin `predict.py` through a thin typed adapter. A
+  locally reproduced predictor that returned 0.4337 against production's 0.039 was discarded.
+  Typed and origin now both return the 2023 elephant suitability fraction 0.039 on the shared path.
+- [ANSWER AUDIT] A suitability fraction is the fraction of target analysis cells classified
+  suitable, not calibrated occurrence probability, occupancy, abundance, or prevalence. The
+  audit now rejects “low fraction means limited presence” and falls back to measurement-faithful
+  prose.
+- [EVALUATION] Real resumed session `20260718_185102_333e6c` completed the four-turn relation,
+  interpretation challenge, elephant estimate, and independent Little Cormorant estimate in
+  79.571 s. The matched origin DeepSeek-v4 run took 326.205 s and added unsupported shared-habitat
+  and acreage interpretations. Typed preserves the origin numerical estimator while improving the
+  evidence boundary.
+- [GOVERNANCE] Arbitrary bounded search support is a genuine algebra gap because search radius and
+  relation threshold are independent. The local experimental `BUFFER` node is recorded as ALG-015
+  with a domain-neutral review packet; it is not promoted to `kit/` or a released manifest.
+- [STOP] The narrow RELATE/ESTIMATE composition stop is met. The final wall passes 190 ecology
+  tests, 18 framework tests, the Hermes CLI contract, governance validation, syntax/JSON checks,
+  diff integrity, and origin read-only status. This is not ecology saturation: generic
+  open-category discovery, systematic literature expansion, remaining ALG-015 geographic/canonical
+  semantics, and untouched holdouts remain open.
+
+## 2026-07-19 — reviewed BUFFER contract implemented conditionally
+
+- [GOVERNANCE] Fable accepted the ALG-015 semantic core conditionally. The kit candidate is now
+  version-gated as `v2.4.0-draft`; default v2.3 behavior and the release manifest are unchanged.
+- [HARNESS][FIXED] Removed silent cross-operand buffer copying. Identical explicitly written
+  supports canonicalize to one value, intentionally different supports remain different, and
+  nested concrete radii add.
+- [EVIDENCE] `method:bbox-approx`, approximation status, source support, radius, and result bbox
+  now survive execution. Dateline/pole cases fail closed and response audits require approximate
+  search-extent wording.
+- [LIVE] A natural Qwen-2B typed query preserved a 100 km search bbox separately from a 10 km
+  relation threshold, executed both point connectors, returned both denominators/directions, and
+  passed the response audit in 9.186 s.
+- [CORPUS] Ten neutral ALG-015 golds validate and fixture-execute 10/10; their generated training
+  rows are isolated from holdouts in `kit/conformance/buffer_parse_v2.4.jsonl`.
+- [MODEL][OPEN] The untrained base 2B matches 5/8 required canonical parses; the existing merged
+  9B adapter matches 4/8. More prompt-specific routing was rejected. A trained v2.4 model bundle
+  and green parser wall remain release conditions, so ALG-015 is implemented but not validated.
+- [REGRESSION] The implementation wall passes 193 sector tests, 29 framework tests, Hermes CLI,
+  governance, syntax/JSON, diff integrity, and origin read-only checks. The explicit parser-perfect
+  promotion command fails as intended; the released manifest remains at algebra v2.3.0.

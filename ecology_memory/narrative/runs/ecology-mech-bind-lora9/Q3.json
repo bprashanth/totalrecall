@@ -1,0 +1,179 @@
+{
+  "arm": "ecology-mech-bind-lora9",
+  "model": "merged-9b-002 audited responder",
+  "protocol": "frozen benchmark plan -> deterministic connectors/executor -> LoRA-9B",
+  "diagnostic_ceiling_not_end_to_end": true,
+  "question_id": "Q3",
+  "question": "What can satellite data actually say about fire at Elephants by the Lake from 2020 through 2025? Separate active-fire detections inside the declared analysis box from the 5 km exposure calculation, report the units, and tell me whether that is enough to call today's fire risk low or high.",
+  "elapsed_wall_s": 74.629,
+  "status": "answer",
+  "answer": "For the period 2020–2025, satellite data show two different fire metrics for Elephants by the Lake (EBTL).\n\nInside the declared analysis box (bbox: 78.17, 12.721, 78.197, 12.747), there were 0 MODIS active-fire locations. That is a zero detection count by that sensor for that area.\n\nWithin a 5-km buffer around the EBTL site centre point (12.73394, 78.18344), the fire exposure proxy measured 1.6 pixel-fire-days, with a fire density of 0.021 pixel-fire-days/km². These are pressure proxy values, not burned area or fire probability.\n\nThese numbers are not themselves a calibrated risk class. The zero inside the analysis box and the low exposure proxy outside it cannot be used to call today's fire risk low or high without an explicit threshold. The analysis bbox is not a surveyed property polygon, so the zero does not prove no fires occurred at the site itself. Repeat detection effort with its place, season and method is needed.",
+  "ir": {
+    "op": "ANNOTATE",
+    "layer": "historical fire exposure",
+    "source": {
+      "op": "SELECT",
+      "entity": "EBTL restoration site",
+      "region": {
+        "op": "REGION",
+        "place": "Elephants by the Lake"
+      },
+      "time": {
+        "start": "2020",
+        "end": "2025"
+      }
+    }
+  },
+  "execution": {
+    "status": "answer",
+    "value": {
+      "rows": [
+        {
+          "id": "site:ebtl-center",
+          "lat": 12.73394,
+          "lon": 78.18344,
+          "name": "EBTL site center",
+          "time": null,
+          "source": "SITE_EBTL.json",
+          "source_record": null,
+          "license": "project metadata",
+          "fire_density": 0.021,
+          "radius_km": 5,
+          "pixel_fire_days": 1.6,
+          "period": "2020-2025",
+          "analysis_bbox_active_fire_locations": 0,
+          "analysis_bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ]
+        }
+      ],
+      "kind": "records",
+      "source": "SITE_EBTL.json + origin fire.py → MODIS/061/MOD14A1 via Earth Engine",
+      "label": "proxy",
+      "grain": "5-km-buffer-around-point",
+      "count_admissible": false,
+      "region": {
+        "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+        "bbox": [
+          12.721,
+          12.747,
+          78.17,
+          78.197
+        ],
+        "lat": 12.73394,
+        "lon": 78.18344,
+        "orig": "EBTL",
+        "source": "SITE_EBTL.json"
+      },
+      "note": "0 historical 2020-2025 MODIS active-fire locations inside the declared analysis bbox; that bbox is not a surveyed property polygon; point exposure was also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area",
+      "entity": "EBTL site center",
+      "input_entity": "EBTL restoration site",
+      "measure_field": "fire_density",
+      "unit": "pixel-fire-days/km²",
+      "field_units": {
+        "pixel_fire_days": "pixel-fire-days",
+        "fire_density": "pixel-fire-days/km²",
+        "analysis_bbox_active_fire_locations": "active-fire locations"
+      },
+      "measurement_scopes": [
+        {
+          "scope": "declared analysis bbox",
+          "geometry": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "measure": "MODIS active-fire locations",
+          "value": 0,
+          "period": "2020-2025",
+          "warning": "This bbox is not a surveyed property polygon."
+        },
+        {
+          "scope": "5-km buffer around the EBTL site-centre point",
+          "measure": "MODIS fire exposure proxy",
+          "pixel_fire_days": 1.6,
+          "fire_density": 0.021,
+          "units": {
+            "pixel_fire_days": "pixel-fire-days",
+            "fire_density": "pixel-fire-days/km²"
+          },
+          "period": "2020-2025"
+        }
+      ],
+      "layer": "fire_exposure",
+      "query_time": {
+        "start": "2020",
+        "end": "2025"
+      },
+      "connector_events": [
+        {
+          "tool": "origin.fire.points",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/fire.py",
+          "parameters": {
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "years": "2020-2025",
+            "project": "plantwars"
+          },
+          "output_rows": 0
+        },
+        {
+          "tool": "origin.fire.exposure",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/fire.py",
+          "input_rows": 1,
+          "parameters": {
+            "radius_km": 5,
+            "years": "2020-2025",
+            "project": "plantwars"
+          },
+          "output_rows": 1
+        }
+      ]
+    },
+    "label": "proxy",
+    "provenance": [
+      {
+        "op": "SELECT",
+        "route": "site-metadata",
+        "resolved": "EBTL site center",
+        "note": "1 declared site-center point; raster value is a point proxy, not AOI coverage"
+      },
+      {
+        "op": "ANNOTATE",
+        "layer": "fire_exposure",
+        "source": "origin fire.py → MODIS/061/MOD14A1 via Earth Engine",
+        "note": "0 historical 2020-2025 MODIS active-fire locations inside the declared analysis bbox; that bbox is not a surveyed property polygon; point exposure was also measured within 5 km; pixel-fire-days are a pressure proxy, not fire probability or burned area"
+      }
+    ]
+  },
+  "audit": {
+    "nonempty": true,
+    "no_new_numbers": true,
+    "no_internal_leak": true,
+    "no_chat_envelope": true,
+    "no_typed_holes": true,
+    "length": true,
+    "proxy_label": true,
+    "modelled_label": true,
+    "data_gap": true,
+    "history_boundary": true,
+    "absence_boundary": true,
+    "threshold_boundary": true,
+    "count_grain": true,
+    "interaction_boundary": true,
+    "suitability_boundary": true,
+    "approximate_support_boundary": true,
+    "passed": true,
+    "new_numbers": []
+  },
+  "fallback": false,
+  "render_latency_s": 68.344
+}

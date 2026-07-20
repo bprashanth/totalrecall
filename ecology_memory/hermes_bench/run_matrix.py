@@ -55,6 +55,8 @@ ARMS = {
     "SQ9C9-D": ("qwen9b@lora9b", "deterministic"),
     "SQ9CQ9-D": ("qwen9b@qwen9b", "deterministic"),
     "SQ9CQ9-RQ9": ("qwen9b@qwen9b", "qwen9b"),
+    # `>` is a post-compilation IR verifier: Qwen retrieves capabilities, the compiler composes
+    # the full tree, then DeepSeek audits/corrects that complete tree before deterministic execution.
     "SQ9DSC2-D": ("qwen9b>deepseekv4@qwen2b", "deterministic"),
     "SQ9DSC2-RQ9": ("qwen9b>deepseekv4@qwen2b", "qwen9b"),
     "SQ9DSC9-D": ("qwen9b>deepseekv4@lora9b", "deterministic"),

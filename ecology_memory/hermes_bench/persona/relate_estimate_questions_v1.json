@@ -1,0 +1,70 @@
+{
+  "description": "Frozen NGO analyst drill-down for composed relations, widened evidence searches, and gated transfer. Questions stay natural; expected contracts score algebra/evidence behavior rather than wording.",
+  "turns": [
+    {
+      "question": "Before we plan a corridor survey, tell me what EBTL itself documents about elephants and waterbirds.",
+      "expected_status": "answer",
+      "expected_ops": ["SELECT"],
+      "note": "Establish local evidence before requesting a regional relation."
+    },
+    {
+      "question": "Widen to the declared donor belt. Do elephant and Little Cormorant occurrence records tend to lie near one another? Use a 5 km proximity threshold and show both denominators.",
+      "expected_status": "answer",
+      "expected_ops": ["RELATE", "SELECT", "SELECT"],
+      "expected_label": "proxy",
+      "required_fields": ["left_record_count", "right_record_count", "matched_left_count", "matched_right_count", "threshold_km"]
+    },
+    {
+      "question": "Does that mean the animals use the same habitat or were present together at the same time?",
+      "expected_mode": "synthesize_history",
+      "required_boundary": "Spatial occurrence proximity does not establish interaction, habitat preference, or temporal co-observation."
+    },
+    {
+      "question": "Then can we conclude both occur inside EBTL itself?",
+      "expected_status": "data_request",
+      "required_boundary": "A donor-belt relation is not target-site presence evidence."
+    },
+    {
+      "question": "Estimate elephant presence at EBTL from elephant occurrence records in the donor belt, but only if the environmental gate passes.",
+      "expected_ops": ["ESTIMATE", "SELECT"],
+      "expected_label_if_answer": "modelled",
+      "allowed_status": ["answer", "data_request"]
+    },
+    {
+      "question": "Apply the same independent transfer test to Little Cormorant. Do not transfer the previous relation itself.",
+      "expected_ops": ["ESTIMATE", "SELECT"],
+      "expected_label_if_answer": "modelled",
+      "allowed_status": ["answer", "data_request"]
+    },
+    {
+      "question": "Search a 100 km buffer around EBTL for king cobra and Indian cobra records, then compare which records fall within 10 km of elephant records.",
+      "expected_ops": ["RELATE", "BUFFER", "SELECT", "SELECT"],
+      "expected_label": "proxy",
+      "required_boundary": "The 100 km retrieval buffer is distinct from the 10 km relation threshold."
+    },
+    {
+      "question": "What snake groups or species should we investigate next based on the records actually returned by that search, not a model-made shortlist?",
+      "allowed_status": ["answer", "data_request"],
+      "required_boundary": "Candidate discovery must derive from returned records or retrieved literature."
+    },
+    {
+      "question": "Among those candidates, which have enough donor occurrences for a site estimate and which fail before environmental comparison?",
+      "allowed_status": ["answer", "data_request"],
+      "required_boundary": "Sample-size and environmental gates remain explicit per taxon."
+    },
+    {
+      "question": "Can the relation records tell us whether elephants avoid Lantana, or whether birds disperse it?",
+      "expected_status": "data_request",
+      "required_boundary": "Occurrence proximity alone cannot establish avoidance or dispersal."
+    },
+    {
+      "question": "Design the smallest additional field data needed to test one of those interactions without claiming that one survey proves absence.",
+      "expected_status": "data_request",
+      "required_boundary": "Request aligned detections/non-detections, time, effort, habitat, and interaction observations."
+    },
+    {
+      "question": "Give me a short decision brief: observed local evidence, regional proximity proxies, independently gated site estimates, rejected inferences, and next collection priorities.",
+      "expected_mode": "synthesize_history"
+    }
+  ]
+}

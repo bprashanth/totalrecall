@@ -2,6 +2,25 @@
   "schema": 1,
   "cases": [
     {
+      "id": "regional_relation_then_transfer",
+      "purpose": "Separate observed regional proximity from target-site inference and independently gated transfer",
+      "context": "ebtl",
+      "turns": [
+        "Across the declared donor belt, do elephant and Little Cormorant occurrence records lie near one another within 5 km? Show both denominators.",
+        "Does that mean they use the same habitat, were there together at the same time, or both occur inside EBTL?",
+        "Then estimate elephant presence at EBTL from the donor-belt elephant records, but only if the environmental feature gate passes.",
+        "Now apply that same independent transfer test to Little Cormorant. Do not transfer the earlier relation itself."
+      ],
+      "checks": [
+        "regional_relation_executes_two_occurrence_connectors",
+        "both_directional_denominators_and_match_rates_are_reported",
+        "proximity_is_labelled_proxy_not_interaction_or_temporal_coobservation",
+        "donor_relation_is_not_called_target_site_presence",
+        "each_taxon_transfer_has_its_own_environmental_gate",
+        "relation_output_is_never_used_as_an_estimate_source"
+      ]
+    },
+    {
       "id": "site_fire_topic_repair",
       "purpose": "An explicitly scoped opening must not be clarified as though no topic was given",
       "context": "ebtl",

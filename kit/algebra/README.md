@@ -1,5 +1,10 @@
 # The algebra, layered — language → primitives → tool calls
 
+The released machine contract is [ir-spec.md](ir-spec.md) at v2.3.0. The reviewed but unreleased
+ALG-015 implementation candidate is isolated in
+[ir-spec-v2.4.0-draft.md](ir-spec-v2.4.0-draft.md); it requires an explicit draft profile and is
+not part of the bootstrap manifest.
+
 *(Design write-up produced in the memory-architecture brainstorm, 2026-07-10. Kept as-is; the harness in
 `../harness/` exists to test it. Findings that confirm or overturn parts of this live in `FINDINGS.md` and
 the per-run docs under `../runs/`.)*

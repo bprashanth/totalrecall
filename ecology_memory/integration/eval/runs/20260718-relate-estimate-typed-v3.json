@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "created_at": "2026-07-19T00:22:18.612581",
+  "case": {
+    "id": "regional_relation_then_transfer",
+    "purpose": "Separate observed regional proximity from target-site inference and independently gated transfer",
+    "context": "ebtl",
+    "turns": [
+      "Across the declared donor belt, do elephant and Little Cormorant occurrence records lie near one another within 5 km? Show both denominators.",
+      "Does that mean they use the same habitat, were there together at the same time, or both occur inside EBTL?",
+      "Then estimate elephant presence at EBTL from the donor-belt elephant records, but only if the environmental feature gate passes.",
+      "Now apply that same independent transfer test to Little Cormorant. Do not transfer the earlier relation itself."
+    ],
+    "checks": [
+      "regional_relation_executes_two_occurrence_connectors",
+      "both_directional_denominators_and_match_rates_are_reported",
+      "proximity_is_labelled_proxy_not_interaction_or_temporal_coobservation",
+      "donor_relation_is_not_called_target_site_presence",
+      "each_taxon_transfer_has_its_own_environmental_gate",
+      "relation_output_is_never_used_as_an_estimate_source"
+    ]
+  },
+  "arms": [
+    {
+      "case": "regional_relation_then_transfer",
+      "runtime": "typed",
+      "model": "qwen2b",
+      "context": "ebtl",
+      "session": "20260718_185102_333e6c",
+      "source": "mt-regional_relation_then_transfer-typed-qwen2b-1784400659",
+      "checks": [
+        "regional_relation_executes_two_occurrence_connectors",
+        "both_directional_denominators_and_match_rates_are_reported",
+        "proximity_is_labelled_proxy_not_interaction_or_temporal_coobservation",
+        "donor_relation_is_not_called_target_site_presence",
+        "each_taxon_transfer_has_its_own_environmental_gate",
+        "relation_output_is_never_used_as_an_estimate_source"
+      ],
+      "turns": [
+        {
+          "turn": 1,
+          "prompt": "Across the declared donor belt, do elephant and Little Cormorant occurrence records lie near one another within 5 km? Show both denominators.",
+          "exit_code": 0,
+          "latency_s": 14.537,
+          "output": "Query: Across the declared donor belt, do elephant and Little Cormorant \noccurrence records lie near one another within 5 km? Show both denominators.\nInitializing agent...\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  answer\n  \u250a \ud83d\udd0c origin.points.get  735 rows\n  \u250a \ud83d\udd0c origin-points\n  \u250a \ud83d\udd0c origin.points.get  547 rows\n  \u250a \ud83d\udd0c origin-points\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     Yes, occurrence records for elephants (Elephas maximus) and Little         \n     Cormorants (Microcarbo niger) lie near one another within 5 km across      \n     the dry-Deccan donor belt. The analysis shows that 31.4% of the 735        \n     elephant records and 39.3% of the 547 Little Cormorant records have at     \n     least one counterpart within this 5 km threshold.                          \n                                                                                \n     However, these figures represent a spatial occurrence-record proxy         \n     based on coordinate proximity, not simultaneous observation or             \n     ecological interaction. The data indicates that 231 elephant records       \n     and 215 Little Cormorant records were matched under the 5 km search        \n     scope, but the temporal alignment between these records was not            \n     established.                                                               \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260718_185102_333e6c -p dss-eval\n\nSession:        20260718_185102_333e6c\nDuration:       10s\nMessages:       2 (1 user, 0 tool calls)"
+        },
+        {
+          "turn": 2,
+          "prompt": "Does that mean they use the same habitat, were there together at the same time, or both occur inside EBTL?",
+          "exit_code": 0,
+          "latency_s": 6.538,
+          "output": "Query: Does that mean they use the same habitat, were there together at the same\ntime, or both occur inside EBTL?\nInitializing agent...\n\u21bb Resumed session 20260718_185102_333e6c (1 user message, 4 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  data_request\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     The current data does not indicate whether elephants and Little            \n     Cormorants share the same habitat, were observed together at the same      \n     time, or both occur inside the EBTL. The previous analysis only            \n     established that 31.4% of elephant records and 39.3% of Little             \n     Cormorant records had spatial proximity within 5 km, but it explicitly     \n     states that temporal alignment is not established and that this            \n     proximity does not prove ecological interaction or simultaneous            \n     presence.                                                                  \n                                                                                \n     To determine if they co-occur in the EBTL or share habitat, a concrete     \n     data request is needed: conduct a field survey within the EBTL             \n     boundaries to record direct observations of both species, noting the       \n     specific date, time, and location for each encounter to verify if they     \n     are present simultaneously.                                                \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260718_185102_333e6c -p dss-eval\n\nSession:        20260718_185102_333e6c\nDuration:       2s\nMessages:       6 (2 user, 2 tool calls)"
+        },
+        {
+          "turn": 3,
+          "prompt": "Then estimate elephant presence at EBTL from the donor-belt elephant records, but only if the environmental feature gate passes.",
+          "exit_code": 0,
+          "latency_s": 14.392,
+          "output": "Query: Then estimate elephant presence at EBTL from the donor-belt elephant \nrecords, but only if the environmental feature gate passes.\nInitializing agent...\n\u21bb Resumed session 20260718_185102_333e6c (2 user messages, 8 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  answer\n  \u250a \ud83d\udd0c origin.points.get  735 rows\n  \u250a \ud83d\udd0c origin-points\n  \u250a \ud83d\udd0c origin AlphaEarth RF\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     The environmental feature gate passed successfully, validating the         \n     transfer of the AlphaEarth Random Forest model from the dry-Deccan         \n     donor belt to the Elephants by the Lake (EBTL) site. Based on this         \n     model, the suitability fraction for Elephas maximus at EBTL is 0.039,      \n     derived from 735 donor occurrence records.                                 \n                                                                                \n     This result is a modelled suitability score, not a direct observation      \n     or calibrated probability of current presence. The analysis explicitly     \n     notes that occurrence bias, spatial autocorrelation, land-use changes,     \n     biotic interactions, and dispersal limitations remain unaccounted for.     \n     Consequently, this figure estimates habitat potential rather than          \n     confirming actual elephant presence at the site.                           \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260718_185102_333e6c -p dss-eval\n\nSession:        20260718_185102_333e6c\nDuration:       10s\nMessages:       10 (3 user, 4 tool calls)"
+        },
+        {
+          "turn": 4,
+          "prompt": "Now apply that same independent transfer test to Little Cormorant. Do not transfer the earlier relation itself.",
+          "exit_code": 0,
+          "latency_s": 44.104,
+          "output": "Query: Now apply that same independent transfer test to Little Cormorant. Do not\ntransfer the earlier relation itself.\nInitializing agent...\n\u21bb Resumed session 20260718_185102_333e6c (3 user messages, 12 total messages)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n  \u250a \ud83e\uddee typed_evaluate  answer\n  \u250a \ud83d\udd0c origin.points.get  547 rows\n  \u250a \ud83d\udd0c origin-points\n  \u250a \ud83d\udd0c origin AlphaEarth RF\n \u2500  \u2695 Hermes  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n                                                                                \n     Modelled result: suitability_fraction=0.047 fraction; gate pass=True       \n     (AlphaEarth-NN-analog: AOI is an AlphaEarth analog of the training         \n     area \u2014 RF/embedding transfer valid.). Source: origin AlphaEarth RF.        \n     MODELLED presence suitability using the locked origin AlphaEarth RF        \n     connector after its gate passed; model year 2023; provide designed         \n     presence/absence survey points; the admitted model uses deterministic      \n     background points as pseudo-absence; occurrence bias, spatial              \n     autocorrelation, land-use, biotic interactions and dispersal remain        \n     limitations.                                                               \n                                                                                \n \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 \n\nResume this session with:\n  hermes --resume 20260718_185102_333e6c -p dss-eval\n\nSession:        20260718_185102_333e6c\nDuration:       40s\nMessages:       14 (4 user, 6 tool calls)"
+        }
+      ]
+    }
+  ]
+}
