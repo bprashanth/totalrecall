@@ -12,6 +12,7 @@ import json
 import os
 import re
 from llm import chat
+from ir_schema import RELEASED_ALGEBRA_VERSION, buffer_enabled, canonicalize, validate
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FEWSHOT_PATH = os.path.join(HERE, "questions", "fewshot.json")
@@ -75,6 +76,20 @@ CRITICAL RULES:
    shorten to "internet"); "school enrollment" stays "school enrollment". The tools resolve
    phrases better than fragments.
 4. Output ONLY the JSON tree. No prose, no markdown fences, no explanation.
+"""
+
+BUFFER_SYSTEM_SUFFIX = """
+
+ALGEBRA PROFILE v2.4.0-draft adds one support transformation:
+  BUFFER    {op:"BUFFER", source:<REGION>, radius_km:<positive number>}
+            construct an approximate search bbox around REGION support.
+
+Use BUFFER only when the question explicitly gives a search/analysis radius around a place.
+BUFFER.radius_km controls retrieval extent. RELATE.threshold_km independently controls the
+distance between returned records; when a question gives both distances, preserve both. If two
+operands share a search support, write the same BUFFER node explicitly under EACH operand. Never
+copy a buffer onto an operand whose support the question states differently. Unknown radius is the
+typed hole "?radius_km". Output syntax and every other rule remain unchanged.
 """
 
 DEFAULT_FEWSHOT = [
@@ -159,6 +174,28 @@ DEFAULT_FEWSHOT = [
                      "region": {"op": "REGION", "place": "Tamale, Ghana"}, "time": None}}]}},
 ]
 
+BUFFER_FEWSHOT = {
+    "q": ("Search 10 km around Erode town, then list clinics that are within 2 km of schools "
+          "inside that search extent."),
+    "ir": {"op": "RELATE", "relation": "within", "threshold_km": 2.0,
+           "left": {"op": "SELECT", "entity": "clinic", "region": {
+               "op": "BUFFER", "radius_km": 10.0,
+               "source": {"op": "REGION", "place": "Erode town"}}, "time": None},
+           "right": {"op": "SELECT", "entity": "school", "region": {
+               "op": "BUFFER", "radius_km": 10.0,
+               "source": {"op": "REGION", "place": "Erode town"}}, "time": None}},
+}
+
+BUFFER_TARGET_FEWSHOT = {
+    "q": ("Estimate clinic access from Coimbatore, India records onto a 10 km search support "
+          "around Tiruppur, India."),
+    "ir": {"op": "ESTIMATE", "method": "envelope",
+           "source": {"op": "SELECT", "entity": "clinic",
+                      "region": {"op": "REGION", "place": "Coimbatore, India"}, "time": None},
+           "target": {"op": "BUFFER", "radius_km": 10.0,
+                      "source": {"op": "REGION", "place": "Tiruppur, India"}}},
+}
+
 
 def load_fewshot():
     if os.path.exists(FEWSHOT_PATH):
@@ -167,9 +204,16 @@ def load_fewshot():
     return DEFAULT_FEWSHOT
 
 
-def build_messages(question, fewshot=None):
-    fewshot = fewshot if fewshot is not None else load_fewshot()
-    msgs = [{"role": "system", "content": SYSTEM}]
+def build_messages(question, fewshot=None, algebra_version=RELEASED_ALGEBRA_VERSION):
+    fewshot = list(fewshot if fewshot is not None else load_fewshot())
+    system = SYSTEM
+    if buffer_enabled(algebra_version):
+        system += BUFFER_SYSTEM_SUFFIX
+        if not any('"BUFFER"' in json.dumps(item.get("ir")) for item in fewshot):
+            if len(fewshot) + 2 > 15:
+                raise ValueError("v2.4 BUFFER curriculum would exceed the 15-few-shot limit")
+            fewshot.extend([BUFFER_FEWSHOT, BUFFER_TARGET_FEWSHOT])
+    msgs = [{"role": "system", "content": system}]
     for ex in fewshot:
         msgs.append({"role": "user", "content": ex["q"]})
         msgs.append({"role": "assistant", "content": json.dumps(ex["ir"])})
@@ -223,6 +267,15 @@ def mech_repair(ir):
     def walk(n):
         if not isinstance(n, dict):
             return n
+        # Small models occasionally attach SELECT.time to its BUFFER.region child. The intended
+        # ownership is structurally unique: BUFFER has no time field and SELECT requires one.
+        if (n.get("op") == "SELECT" and "time" not in n and
+                isinstance(n.get("region"), dict) and n["region"].get("op") == "BUFFER" and
+                "time" in n["region"]):
+            n = dict(n)
+            region = dict(n["region"])
+            n["time"] = region.pop("time")
+            n["region"] = region
         if n.get("op") == "AGGREGATE" and "right" in n and "source" in n:
             n = dict(n)
             right = n.pop("right")
@@ -337,6 +390,74 @@ def semantic_lints(ir, question):
     return []
 
 
+def buffer_semantic_lints(ir, question, algebra_version):
+    """Audit explicit search-support radii without constructing or routing a tree in code."""
+    if not buffer_enabled(algebra_version) or not isinstance(ir, dict):
+        return []
+    ql = question.lower()
+    radii = []
+    patterns = (
+        r"\bsearch(?:ed)?(?:\s+within)?\s+(\d+(?:\.\d+)?)\s*km\b",
+        r"\bwithin\s+(?:an?\s+)?(\d+(?:\.\d+)?)\s*km\s+search\b",
+        r"\b(\d+(?:\.\d+)?)\s*km\s+search\s+(?:support|extent|area)\b",
+    )
+    for pattern in patterns:
+        radii.extend(float(value) for value in re.findall(pattern, ql))
+    expansion = re.search(r"\bexpand\b[^.!?]{0,50}\banother\s+(\d+(?:\.\d+)?)\s*km\b", ql)
+    if expansion and radii:
+        radii.append(float(expansion.group(1)))
+    if not radii:
+        return []
+
+    buffers = []
+    selects = []
+
+    def walk(node):
+        if not isinstance(node, dict):
+            return
+        if node.get("op") == "BUFFER":
+            buffers.append(node)
+        if node.get("op") == "SELECT":
+            selects.append(node)
+        for value in node.values():
+            if isinstance(value, dict):
+                walk(value)
+            elif isinstance(value, list):
+                for item in value:
+                    walk(item)
+
+    walk(ir)
+    if not buffers:
+        return ["The question explicitly declares a search-support radius, but the tree has no "
+                "BUFFER. Preserve search extent separately from any RELATE threshold."]
+    written = [node.get("radius_km") for node in buffers
+               if isinstance(node.get("radius_km"), (int, float))]
+    if expansion:
+        expected_total = sum(radii)
+        if expected_total not in written and not all(radius in written for radius in radii):
+            return [f"The nested search expansion must preserve radii {radii} or their canonical "
+                    f"sum {expected_total} km in BUFFER support."]
+    else:
+        missing = [radius for radius in set(radii) if radius not in written]
+        if missing:
+            return [f"The question declares search-support radius/radii {sorted(set(radii))} km; "
+                    f"the BUFFER nodes dropped {missing}."]
+    if ir.get("op") == "RELATE" and len(set(radii)) == 1:
+        expected = radii[0]
+        bad = [node for node in selects if not (
+            isinstance(node.get("region"), dict) and node["region"].get("op") == "BUFFER" and
+            node["region"].get("radius_km") == expected)]
+        if bad:
+            return [f"The stated {expected} km search extent applies to the relation query. Write "
+                    "that BUFFER explicitly under each SELECT operand; do not copy it at execution."]
+    if ir.get("op") == "ESTIMATE" and re.search(r"\bonto\b[^.!?]{0,80}\bsearch\s+support\b", ql):
+        target = ir.get("target")
+        if not isinstance(target, dict) or target.get("op") != "BUFFER":
+            return ["The requested target is a buffered search support. ESTIMATE.target must retain "
+                    "the explicit BUFFER rather than collapsing it to REGION."]
+    return []
+
+
 def mech_add_relate(ir, question):
     """Deterministic fixes for proximity lints — the fix is fully determined, no model needed:
     - no RELATE: wrap the main SELECT in RELATE(anchor, within|beyond, threshold).
@@ -381,12 +502,12 @@ def mech_add_relate(ir, question):
     return ir
 
 
-def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
-    from ir_schema import validate  # local import to avoid cycles
-    msgs = build_messages(question, fewshot)
+def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True,
+          algebra_version=RELEASED_ALGEBRA_VERSION):
+    msgs = build_messages(question, fewshot, algebra_version=algebra_version)
     # reasoning-style remote models emit reasoning tokens before the JSON; give big headroom.
     # local small models: room for wide trees (truncation at 800 broke tick-009).
-    mt = 1500 if role in ("qwen2b", "loravb") else 8000
+    mt = (600 if role == "lora9b" else 1500 if role in ("qwen2b", "loravb") else 8000)
     events = []  # interpretability: every mechanical/LLM intervention on the raw parse is logged
     try:
         raw = chat(role, msgs, temperature=temperature, max_tokens=mt)
@@ -398,7 +519,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     before = json.dumps(ir)
     ir = mech_repair(ir)
     if json.dumps(ir) != before:
-        events.append("peephole:aggregate_relate_unmerge")
+        events.append("peephole:structural_owner_repair")
     before = json.dumps(ir)
     ir = faithfulness_pass(ir, question)
     if json.dumps(ir) != before:
@@ -406,7 +527,7 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
     # repair-with-feedback (tick-010): a schema-invalid tree gets ONE correction round with the
     # validator's exact errors — compiler-style error recovery, generic across failure patterns.
     if repair and ir is not None:
-        rep = validate(ir)
+        rep = validate(ir, algebra_version)
         if not rep["valid"]:
             # schema errors -> one LLM correction round with the exact errors
             fix_msgs = msgs + [
@@ -421,22 +542,46 @@ def parse(question, role="qwen2b", fewshot=None, temperature=0.0, repair=True):
                 raw2 = chat(role, fix_msgs, temperature=temperature, max_tokens=mt)
                 ir2 = extract_json(raw2, events)
                 ir2 = faithfulness_pass(mech_repair(ir2), question)
-                if ir2 is not None and validate(ir2)["valid"]:
+                if ir2 is not None and validate(ir2, algebra_version)["valid"]:
                     ir, raw, repaired = ir2, raw2, True
                     events.append("llm_repair:accepted")
                 else:
                     events.append("llm_repair:rejected")
             except RuntimeError:
                 events.append("llm_repair:call_failed")
+        buffer_lints = buffer_semantic_lints(ir, question, algebra_version)
+        if buffer_lints:
+            events.append("buffer_lint:" + buffer_lints[0][:120])
+            fix_msgs = msgs + [
+                {"role": "assistant", "content": json.dumps(ir)},
+                {"role": "user", "content": (
+                    "That tree is syntactically valid but lost a spatial-support contract:\n- " +
+                    "\n- ".join(buffer_lints[:3]) +
+                    "\nRecompile the SAME question. Preserve every explicit search radius in "
+                    "BUFFER and every independent pairwise distance in RELATE.threshold_km. "
+                    "Output ONLY the corrected complete JSON tree.")},
+            ]
+            try:
+                raw3 = chat(role, fix_msgs, temperature=temperature, max_tokens=mt)
+                ir3 = faithfulness_pass(mech_repair(extract_json(raw3, events)), question)
+                if (ir3 is not None and validate(ir3, algebra_version)["valid"] and
+                        not buffer_semantic_lints(ir3, question, algebra_version)):
+                    ir, raw, repaired = ir3, raw3, True
+                    events.append("llm_buffer_repair:accepted")
+                else:
+                    events.append("llm_buffer_repair:rejected")
+            except RuntimeError:
+                events.append("llm_buffer_repair:call_failed")
         # semantic lints -> DIRECT mechanical synthesis (the fix is fully determined; asking the
         # model re-rolls the dice — tick-019: it wrapped the wrong node and used a bad anchor)
         lints = semantic_lints(ir, question)
         if lints:
             events.append("lint:" + lints[0][:90])
             ir3 = mech_add_relate(ir, question)
-            if ir3 is not ir and validate(ir3)["valid"]:
+            if ir3 is not ir and validate(ir3, algebra_version)["valid"]:
                 ir, repaired = ir3, True
                 events.append("mech_synthesis:relate_wrap_or_polarity_flip")
+    ir = canonicalize(ir, algebra_version)
     return {"question": question, "raw": raw, "ir": ir, "parse_valid": ir is not None,
             "repaired": repaired, "events": events}
 

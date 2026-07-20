@@ -26,7 +26,7 @@ for path in (HARNESS, RUNTIME):
 import connectors as C  # noqa: E402
 import parser as P  # noqa: E402
 from executor import execute  # noqa: E402
-from ir_schema import validate  # noqa: E402
+from ir_schema import ALLOWED_FIELDS, canonicalize, validate  # noqa: E402
 from llm import chat  # noqa: E402
 
 
@@ -125,6 +125,18 @@ Hard rules:
     them separately and never describe the record count as species or taxa.
 19. If local_interaction_admissible=false, say the local interaction is unknown or unsupported.
     Never turn a zero local record count into a claim that the interaction cannot occur.
+20. If value.grain is occurrence-proximity-relation, report the left/right record denominators,
+    matched-left count, threshold and search scope. Call it a spatial occurrence-record proxy.
+    It does not establish interaction, avoidance, habitat preference, simultaneous presence, or
+    target-site occurrence when the search region is broader than the target.
+21. If value.grain is target-bbox-suitability-fraction, describe it only as the fraction of target
+    analysis cells classified suitable by the named model. It is not a calibrated probability of
+    occurrence, occupancy, abundance, prevalence, or current presence. Do not call the fraction
+    low/high or infer limited/likely/widespread presence unless the audited result supplies an
+    explicit calibration category for that inference.
+22. If any spatial support has method=bbox-approx, explicitly call the search support an
+    approximate bbox (or approximate search extent). Never call it an exact radius polygon,
+    surveyed boundary, property, or complete survey area.
 """
 
 
@@ -168,10 +180,12 @@ def sanitize_user_answer(text: str) -> str:
 
 
 def _semantic_critic(question: str, ir: dict | None, critic: str,
-                     history: list[dict]) -> tuple[dict | None, str, list[str]]:
+                     history: list[dict], capabilities: list[dict] | None = None
+                     ) -> tuple[dict | None, str, list[str]]:
     """General LLM IR verifier: measurement faithfulness, catalog selection, and tree shape."""
     messages = P.build_messages(
-        question, fewshot=GENERIC_FEWSHOT, history=history, capabilities=C.capability_catalog()
+        question, fewshot=GENERIC_FEWSHOT, history=history,
+        capabilities=capabilities or C.capability_catalog()
     )
     messages.extend([
         {"role": "assistant", "content": json.dumps(ir, ensure_ascii=False)},
@@ -182,12 +196,21 @@ def _semantic_critic(question: str, ir: dict | None, critic: str,
             "site summary is not evidence about a named unsupported human, treatment, causal, or "
             "time-series measure. Human motives/resource use require ?proxy. Preserve an honest "
             "hole when the requested measure is absent. Obey every catalog required shape, "
-            "especially ANNOTATE layers. Do not add facts or explain. Output ONLY the corrected "
+            "especially ANNOTATE layers. A valid composed root is semantic: never collapse RELATE, "
+            "ESTIMATE, COMPARE, RANK, or AGGREGATE into a convenient SELECT. RELATE needs both "
+            "requested operands; occurrence proximity is not interaction or same-time observation. "
+            "BUFFER controls search extent while RELATE.threshold_km controls pairwise distance. "
+            "ESTIMATE needs donor records and a distinct target; do not wrap a RELATE result in "
+            "ESTIMATE because joint-relation transfer has no admitted contract. A selected data row "
+            "with binding=compiler_entity is a connector class, never a literal SELECT entity: bind "
+            "each leaf to the concrete entity or taxon named in the current request. A selected "
+            "region support row supplies its declared place to the relevant search leaves. Do not add facts or "
+            "explain. Output ONLY the corrected "
             "complete JSON tree."
         )},
     ])
     try:
-        raw = chat(critic, messages, temperature=0.0, max_tokens=1200, use_cache=True,
+        raw = chat(critic, messages, temperature=0.0, max_tokens=3000, use_cache=True,
                    timeout=90, retries=1)
     except RuntimeError as exc:
         return ir, f"[llm-error] {exc}", ["semantic_critic:call_failed"]
@@ -211,7 +234,9 @@ def _select_capabilities(question: str, selector: str,
     catalog = C.capability_catalog()
     compact = [{key: item.get(key) for key in
                 ("entity", "kind", "source_entity", "description", "grain", "evidence",
-                 "includes", "excludes", "binding") if item.get(key) is not None}
+                 "includes", "excludes", "binding", "ops", "requires", "place", "scope",
+                 "scope_policy")
+                if item.get(key) is not None}
                for item in catalog]
     context = [{"role": item.get("role"), "content": str(item.get("content") or "")[:700]}
                for item in history[-6:] if isinstance(item, dict)]
@@ -224,10 +249,16 @@ def _select_capabilities(question: str, selector: str,
         "Use synthesize_history only when the current request explicitly asks to summarize, brief, "
         "or prioritize evidence already established in this conversation without collecting a new "
         "measurement; then return no entities. Otherwise use execute. "
-        "For execute, return exactly one smallest atomic or declared-composite capability whenever "
-        "one covers the core measurement. Do not add capabilities for variables the user explicitly "
-        "asks you to identify as missing. If several independent capabilities are truly required and "
-        "no declared composite covers them, return an empty list. Do "
+        "For execute, return the smallest sufficient SET of at most four ingredients. An atomic "
+        "request normally needs one data capability. A relation, estimate, comparison, ranking, or "
+        "buffered search may require an operator capability, one or more data capabilities, and a "
+        "declared region support capability. Operator and region rows are executable grammar/support, "
+        "not datasets and never replace the operands. Do not add capabilities for variables the user "
+        "explicitly asks you to identify as missing. If the required measurement or operand is not "
+        "declared, return an empty list. When a request names taxa and explicitly asks for occurrence "
+        "records in a widened or nonlocal search region, use the generic named-taxon occurrence "
+        "capability for every taxon operand; do not also select a site-only event, inventory, or "
+        "overview merely because a taxon or place name overlaps. Do "
         "not choose a broad site summary merely because the place matches. If the request is for "
         "an unsupported human behavior, treatment comparison, causal claim, or time series, return "
         "an empty list so the compiler emits a typed hole/DataRequest. A raster layer capability "
@@ -286,19 +317,23 @@ def _select_capabilities(question: str, selector: str,
     if verify_sep and mode == "execute" and selected:
         verify_prompt = (
             "Audit a semantic capability selection for the CURRENT request. Capabilities return "
-            "only the measurements in their descriptions. Return zero or one capability: choose "
-            "the single smallest catalog capability whose returned fields answer the core requested "
-            "measurement. Prefer a declared composite capability when it includes needed leaves. "
+            "only the measurements in their descriptions. Return the smallest sufficient SET of "
+            "zero to four catalog capabilities. An atomic request normally needs one data row; a "
+            "composed request may need operator, operand-data, and region-support rows. Operator and "
+            "region rows are ingredients, never answer datasets. Prefer a declared composite data "
+            "capability when it includes all needed leaves. "
             "Variables that the user asks you to identify as MISSING are evidence gaps, not extra "
             "capabilities to execute. If the request genuinely needs multiple independent capabilities "
-            "and no declared composite covers them, return none. You may retain the initial "
+            "and the catalog lacks a required operator or operand, return none. You may retain the initial "
             "selection, replace a relevant-but-too-broad capability with a more specific catalog "
             "capability, or return no capability when the measurement is unsupported. Retain a capability when its described "
             "domain and fields directly supply the evidence needed to answer, including when the "
             "request explicitly asks whether that evidence is insufficient for a stronger claim. "
             "Insufficient relevant evidence is useful; an unrelated source is not. A broad overview cannot "
             "establish absence of a named treatment outcome, causal claim, time series, or human "
-            "behavior. Return ONLY JSON {\"entities\":[] or [one exact catalog name]}."
+            "behavior. For a relation, both operand measurements plus the RELATE operator must be "
+            "admitted; a site summary is not an operand. Return ONLY JSON {\"entities\":[zero to "
+            "four exact catalog names]}."
             "\n\nREQUEST:\n" + question + "\n\nSELECTED:\n" +
             json.dumps(selected, ensure_ascii=False) + "\n\nFULL CATALOG:\n" +
             json.dumps(compact, ensure_ascii=False)
@@ -310,7 +345,7 @@ def _select_capabilities(question: str, selector: str,
             verified_obj = P.extract_json(verify_raw)
             verified_names = verified_obj.get("entities") if isinstance(verified_obj, dict) else None
             admitted = set(by_name)
-            if isinstance(verified_names, list) and len(verified_names) <= 1 and all(
+            if isinstance(verified_names, list) and len(verified_names) <= 4 and all(
                     isinstance(name, str) and name in admitted for name in verified_names):
                 initial_names = [item["entity"] for item in selected]
                 # An empty verifier decision contradicts a non-empty semantic selection. Resolve
@@ -323,15 +358,15 @@ def _select_capabilities(question: str, selector: str,
                         verify_prompt + "\n\nDISAGREEMENT: The initial selector chose " +
                         json.dumps(initial_names, ensure_ascii=False) +
                         " but the verifier returned no capability. Adjudicate whether one exact "
-                        "catalog capability directly returns evidence for the requested measurement. "
+                        "catalog capability SET directly supplies the requested measurement. "
                         "A broad overview does not answer a treatment, causal, human-behavior or "
                         "time-series request. For a requested interaction or relationship between "
-                        "two entities, a capability must explicitly return both entities or their "
-                        "declared relation; evidence about only one subject is insufficient. A "
+                        "two entities, the set must include a relation operator and executable data "
+                        "for both operands; evidence about only one subject is insufficient. A "
                         "capability that explicitly returns the requested "
                         "audit, gates, insufficiency or bounded proxy is relevant even if it cannot "
-                        "support the stronger conclusion. Return ONLY JSON {\"entities\":[] or "
-                        "[one exact catalog name]}."
+                        "support the stronger conclusion. Return ONLY JSON {\"entities\":[zero to "
+                        "four exact catalog names]}."
                     )
                     try:
                         adjudication_raw = chat(
@@ -344,7 +379,7 @@ def _select_capabilities(question: str, selector: str,
                     except RuntimeError:
                         adjudicated_names = None
                     if (isinstance(adjudicated_names, list) and
-                            len(adjudicated_names) <= 1 and all(
+                            len(adjudicated_names) <= 4 and all(
                                 isinstance(name, str) and name in admitted
                                 for name in adjudicated_names)):
                         selected = [{**by_name[name], "selected": True}
@@ -375,7 +410,7 @@ def _select_capabilities(question: str, selector: str,
                 fallback_obj = P.extract_json(fallback_raw)
                 fallback_names = (fallback_obj.get("entities")
                                   if isinstance(fallback_obj, dict) else None)
-                if isinstance(fallback_names, list) and len(fallback_names) <= 1 and all(
+                if isinstance(fallback_names, list) and len(fallback_names) <= 4 and all(
                         isinstance(name, str) and name in by_name for name in fallback_names):
                     selected = [{**by_name[name], "selected": True} for name in fallback_names]
                     events = ["capability_verifier:fallback_selector:" +
@@ -388,12 +423,30 @@ def _select_capabilities(question: str, selector: str,
                 events = ["capability_verifier:call_failed_closed"]
     else:
         events = []
+    # Operator dependencies are part of the catalog contract. Expand them mechanically so a
+    # selector cannot authorize ESTIMATE/RELATE while omitting the executable data leaf it needs.
+    required_names = {name for item in selected for name in item.get("requires", [])}
+    present_names = {item["entity"] for item in selected}
+    for name in required_names - present_names:
+        if name in by_name:
+            selected.append({**by_name[name], "selected": True})
+            events.append("capability_selector:required_added:" + name)
     # Capability containment is declared by the connector, so a composite capability can dominate
     # redundant leaves without a question/topic rule. This is what lets dynamic discovery expose a
     # single executable contract even when the selector asks for both its local and regional parts.
     covered = {name for item in selected for name in item.get("includes", [])}
     if covered:
         selected = [item for item in selected if item["entity"] not in covered]
+    # A declared nonlocal search support plus a generic region-bindable data leaf makes site-only
+    # rows incompatible redundant ingredients. This is metadata containment, not a topic route.
+    # It prevents a local event card from replacing one operand of a regional point relation.
+    has_region_support = (any(item.get("binding") == "region" for item in selected) or
+                          any("BUFFER" in item.get("ops", []) for item in selected))
+    has_region_data = any(item.get("binding") == "compiler_entity" and
+                          item.get("scope") == "requested region" for item in selected)
+    has_composition = any(item.get("binding") == "operator" for item in selected)
+    if has_region_support and has_region_data and has_composition:
+        selected = [item for item in selected if item.get("scope") != "declared EBTL site"]
     unknown = [name for name in names if name not in by_name]
     events.insert(0, "capability_selector:selected:" +
                   ",".join(item["entity"] for item in selected))
@@ -487,8 +540,13 @@ def audited_history_entry(question: str, compiled: dict) -> dict:
         assessments.append(assessment)
     if assessments:
         facts["assessments"] = assessments
-    for key in ("gate_contract", "assessment_counts", "admitted_transfer_candidates",
-                "measurement_scopes"):
+    for key in ("gate", "gate_contract", "assessment_counts", "admitted_transfer_candidates",
+                "measurement_scopes", "relation", "threshold_km", "left_entity",
+                "right_entity", "left_record_count", "right_record_count",
+                "matched_left_count", "matched_right_count", "left_region", "right_region",
+                "matched_left_fraction", "matched_right_fraction", "matched_left_percent",
+                "matched_right_percent", "temporal_alignment", "donor_entity", "donor_region",
+                "donor_record_count", "target_region"):
         if value.get(key) is not None:
             facts[key] = value[key]
     detail = execution.get("detail")
@@ -508,11 +566,68 @@ def audited_history_entry(question: str, compiled: dict) -> dict:
 def _selected_examples(capabilities: list[dict]) -> list[dict]:
     """Turn retrieved capability metadata into last-mile algebra curriculum examples."""
     examples = []
+    selected = [item for item in capabilities if item.get("selected")]
+    selected_ops = {op for item in selected for op in item.get("ops", [])}
+    region_support = next((item for item in selected if item.get("binding") == "region"), None)
+    generic_data = any(item.get("binding") == "compiler_entity" for item in selected)
+    if "RELATE" in selected_ops and generic_data:
+        region = ({"op": "REGION", "place": region_support["place"]}
+                  if region_support else "?search_region")
+        examples.append({
+            "q": "Across the selected search region, are Species Alpha and Species Beta occurrence records within 5 km?",
+            "ir": {"op": "RELATE", "relation": "cooccur", "threshold_km": 5.0,
+                   "left": {"op": "SELECT", "entity": "Species Alpha",
+                            "region": region, "time": None},
+                   "right": {"op": "SELECT", "entity": "Species Beta",
+                             "region": region, "time": None}},
+        })
+    if {"RELATE", "BUFFER"} <= selected_ops and generic_data:
+        buffered = {"op": "BUFFER", "radius_km": 25.0,
+                    "source": {"op": "REGION", "place": "?place"}}
+        examples.insert(0, {
+            "q": "Search a 25 km buffer around here, then find Species Alpha records within 5 km of Species Beta records.",
+            "ir": {"op": "RELATE", "relation": "within", "threshold_km": 5.0,
+                   "left": {"op": "SELECT", "entity": "Species Alpha",
+                            "region": buffered, "time": None},
+                   "right": {"op": "SELECT", "entity": "Species Beta",
+                             "region": buffered, "time": None}},
+        })
+    if "ESTIMATE" in selected_ops and generic_data:
+        donor = ({"op": "REGION", "place": region_support["place"]}
+                 if region_support else "?donor_region")
+        examples.append({
+            "q": "Estimate Species Alpha at the target from occurrence records in the selected donor region.",
+            "ir": {"op": "ESTIMATE", "method": "feature",
+                   "source": {"op": "SELECT", "entity": "Species Alpha",
+                              "region": donor, "time": None},
+                   "target": "?target_region"},
+        })
     for item in capabilities:
         if not item.get("selected"):
             continue
         region = "?place"
-        if str(item.get("kind", "SELECT")).startswith("ANNOTATE"):
+        binding = item.get("binding")
+        ops = item.get("ops") or []
+        if binding == "operator" and "RELATE" in ops:
+            ir = {"op": "RELATE", "relation": "cooccur", "threshold_km": 5.0,
+                  "left": {"op": "SELECT", "entity": "?left_taxon",
+                           "region": "?search_region", "time": None},
+                  "right": {"op": "SELECT", "entity": "?right_taxon",
+                            "region": "?search_region", "time": None}}
+        elif binding == "operator" and "ESTIMATE" in ops:
+            ir = {"op": "ESTIMATE", "method": "feature",
+                  "source": {"op": "SELECT", "entity": "?taxon",
+                             "region": "?donor_region", "time": None},
+                  "target": "?target_region"}
+        elif binding == "operator" and "BUFFER" in ops:
+            ir = {"op": "SELECT", "entity": "?entity",
+                  "region": {"op": "BUFFER", "radius_km": 25.0,
+                             "source": {"op": "REGION", "place": "?place"}},
+                  "time": None}
+        elif binding == "region":
+            ir = {"op": "SELECT", "entity": "?entity",
+                  "region": {"op": "REGION", "place": item["place"]}, "time": None}
+        elif str(item.get("kind", "SELECT")).startswith("ANNOTATE"):
             ir = {"op": "ANNOTATE", "layer": item["entity"],
                   "source": {"op": "SELECT", "entity": item["source_entity"],
                              "region": region, "time": None}}
@@ -527,12 +642,58 @@ def _selected_examples(capabilities: list[dict]) -> list[dict]:
 
 
 def _bind_single_capability(draft: dict | None, capabilities: list[dict]) -> dict | None:
-    """Instantiate one semantically selected catalog template without model-added wrappers."""
+    """Bind an atomic declared dataset without destroying compiler-owned composition.
+
+    Capability retrieval supplies ingredients. It never has authority to change a valid root
+    operator. In particular, a RELATE/ESTIMATE/COMPARE tree must not collapse to whichever single
+    catalog row looked most semantically similar to the question.
+    """
     selected = [item for item in capabilities if item.get("selected")]
+    if not isinstance(draft, dict):
+        return draft
+    root = draft.get("op")
+    region_support = [item for item in selected if item.get("binding") == "region"
+                      and item.get("place")]
+    if len(region_support) == 1 and root in {"RELATE", "ESTIMATE"}:
+        place = region_support[0]["place"]
+
+        def bind_search_regions(node):
+            if not isinstance(node, dict):
+                return node
+            out = {key: bind_search_regions(value) if isinstance(value, dict) else value
+                   for key, value in node.items()}
+            if out.get("op") == "SELECT":
+                out["region"] = {"op": "REGION", "place": place}
+            return out
+
+        out = deepcopy(draft)
+        if root == "ESTIMATE":
+            out["source"] = bind_search_regions(out.get("source"))
+        else:
+            out = bind_search_regions(out)
+        draft = out
+    authorized_ops = {op for item in selected if item.get("binding") == "operator"
+                      for op in item.get("ops", [])}
+    if authorized_ops:
+        def project_selected_operators(node):
+            if not isinstance(node, dict):
+                return node
+            out = {key: (project_selected_operators(value) if isinstance(value, dict) else
+                         [project_selected_operators(item) if isinstance(item, dict) else item
+                          for item in value] if isinstance(value, list) else value)
+                   for key, value in node.items()}
+            op = out.get("op")
+            if op in authorized_ops and op in ALLOWED_FIELDS:
+                out = {key: value for key, value in out.items() if key in ALLOWED_FIELDS[op]}
+            return out
+
+        draft = project_selected_operators(draft)
+    if root not in {"SELECT", "ANNOTATE"}:
+        return draft
     if len(selected) != 1:
         return draft
     item = selected[0]
-    if item.get("binding") == "compiler_entity":
+    if item.get("binding") in {"compiler_entity", "operator", "region"}:
         return draft
     time_value = None
 
@@ -563,13 +724,14 @@ def compile_turn(question: str, compiler: str, history: list[dict], context: str
     selector, sep, base_compiler = compile_spec.partition("@")
     if not sep:
         base_compiler, selector = selector, ""
+    capability_selector, verifier_sep, ir_verifier = selector.partition(">")
     capabilities = C.capability_catalog()
     raw_selector = None
     selector_events: list[str] = []
     dialogue_mode = "execute"
     if selector:
         capabilities, raw_selector, selector_events, dialogue_mode = _select_capabilities(
-            question, selector, history
+            question, capability_selector, history
         )
     if dialogue_mode == "synthesize_history":
         execution = _history_synthesis_execution(history)
@@ -612,13 +774,23 @@ def compile_turn(question: str, compiler: str, history: list[dict], context: str
         selector_events.append("capability_binding:empty_to_typed_hole")
     bound_ir = _bind_single_capability(draft_ir, capabilities) if selector else draft_ir
     if json.dumps(bound_ir, sort_keys=True) != json.dumps(draft_ir, sort_keys=True):
-        selector_events.append("capability_binding:single_declared_template")
+        selector_events.append("capability_binding:declared_contract_applied")
     draft_ir = bound_ir
-    if critic:
-        draft_ir, raw_critic, critic_events = _semantic_critic(
-            question, draft_ir, critic, history
+    if verifier_sep:
+        draft_ir, raw_critic, verifier_events = _semantic_critic(
+            question, draft_ir, ir_verifier, history, capabilities=capabilities
         )
-    ir = _bind_context(draft_ir, context)
+        critic_events.extend("ir_verifier:" + event for event in verifier_events)
+        rebound = _bind_single_capability(draft_ir, capabilities)
+        if json.dumps(rebound, sort_keys=True) != json.dumps(draft_ir, sort_keys=True):
+            selector_events.append("capability_binding:post_verifier_declared_contract")
+        draft_ir = rebound
+    if critic:
+        draft_ir, raw_critic, final_critic_events = _semantic_critic(
+            question, draft_ir, critic, history, capabilities=capabilities
+        )
+        critic_events.extend(final_critic_events)
+    ir = canonicalize(_bind_context(draft_ir, context))
     schema = validate(ir) if ir is not None else {
         "valid": False, "errors": ["no IR"], "holes": [], "ops": [], "unbound": True,
     }
@@ -705,6 +877,43 @@ def deterministic_render(question: str, compiled: dict) -> str:
         finding = str(value.get("value"))
         if value.get("unit"):
             finding += " " + str(value["unit"])
+    elif value.get("grain") == "occurrence-proximity-relation":
+        threshold = value.get("threshold_km")
+        distance = f" within {threshold:g} km" if isinstance(threshold, (int, float)) else ""
+        left_name = re.sub(r"\s+(?:occurrence\s+)?records?$", "",
+                           str(value.get("left_entity") or "left"), flags=re.I)
+        right_name = re.sub(r"\s+(?:occurrence\s+)?records?$", "",
+                            str(value.get("right_entity") or "right"), flags=re.I)
+        left_percent = value.get("matched_left_percent")
+        right_percent = value.get("matched_right_percent")
+        left_pct = (f" ({left_percent}%)" if isinstance(left_percent, (int, float)) else "")
+        right_pct = (f" ({right_percent}%)" if isinstance(right_percent, (int, float)) else "")
+        finding = (f"{value.get('matched_left_count', 0)} of "
+                   f"{value.get('left_record_count', 0)} {left_name} "
+                   f"records{left_pct} "
+                   f"had at least one of "
+                   f"{value.get('right_record_count', 0)} "
+                   f"{right_name} records{distance}; "
+                   f"{value.get('matched_right_count', 0)} of those right-side records{right_pct} had a "
+                   "left-side neighbour at the same threshold")
+        supports = [value.get("left_region"), value.get("right_region")]
+        if any(isinstance(item, dict) and item.get("method") == "bbox-approx"
+               for item in supports):
+            finding += "; the search support is an approximate bbox, not an exact radius polygon"
+    elif value.get("kind") == "field" and value.get("measure_field"):
+        field = value["measure_field"]
+        measured = [row.get(field) for row in value.get("rows") or []
+                    if isinstance(row.get(field), (int, float))]
+        if measured and value.get("grain") == "target-bbox-suitability-fraction":
+            finding = (f"{measured[0]} of target analysis cells were classified suitable by "
+                       f"the model; this fraction is not a calibrated occurrence probability")
+        else:
+            finding = (f"{field}={measured[0]} {value.get('unit') or ''}".rstrip()
+                       if measured else f"{len(value.get('rows') or [])} model output records")
+        gate = value.get("gate") if isinstance(value.get("gate"), dict) else {}
+        if gate:
+            finding += (f"; gate pass={gate.get('pass')} ({gate.get('strength')}: "
+                        f"{gate.get('reason')})")
     elif value.get("kind") in {"records", "field"}:
         finding = f"{value.get('n_rows', len(value.get('rows') or []))} evidence records"
         sample = value.get("rows") or []
@@ -898,12 +1107,15 @@ def _count_grain_ok(pack: dict, answer: str) -> bool:
 def _interaction_boundary_ok(pack: dict, answer: str) -> bool:
     """Fail closed when an unknown local interaction is stated as ecologically impossible."""
     unsupported = False
+    relation_proxy = False
 
     def walk(node):
-        nonlocal unsupported
+        nonlocal unsupported, relation_proxy
         if isinstance(node, dict):
             if node.get("local_interaction_admissible") is False:
                 unsupported = True
+            if node.get("grain") == "occurrence-proximity-relation":
+                relation_proxy = True
             for value in node.values():
                 walk(value)
         elif isinstance(node, list):
@@ -911,11 +1123,87 @@ def _interaction_boundary_ok(pack: dict, answer: str) -> bool:
                 walk(item)
 
     walk(pack)
-    if not unsupported:
+    if unsupported and re.search(
+            r"\b(?:cannot|can't|can’t|could not|couldn't|couldn’t)\b[^.!?]{0,55}"
+            r"\b(?:interact|feed|disperse|act as|occur)\b", answer, re.I):
+        return False
+    if relation_proxy:
+        for sentence in re.split(r"(?<=[.!?])\s+", answer):
+            if not re.search(
+                    r"\b(?:interact\w*|feed\w*|dispers\w*|avoid\w*|prefer\w*|same[- ]time|simultaneous|"
+                    r"together|associated?)\b", sentence, re.I):
+                continue
+            if not re.search(
+                    r"\b(?:not|cannot|can't|can’t|does not|doesn't|doesn’t|unknown|"
+                    r"unsupported|no temporal|not established)\b", sentence, re.I):
+                return False
+    return True
+
+
+def _suitability_boundary_ok(pack: dict, answer: str) -> bool:
+    """Keep a classified-cell fraction from becoming occurrence probability or prevalence."""
+    has_suitability_fraction = False
+
+    def walk(node):
+        nonlocal has_suitability_fraction
+        if isinstance(node, dict):
+            if (node.get("grain") == "target-bbox-suitability-fraction" or
+                    node.get("measure_field") == "suitability_fraction"):
+                has_suitability_fraction = True
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    walk(pack)
+    if not has_suitability_fraction:
         return True
-    return not bool(re.search(
-        r"\b(?:cannot|can't|can’t|could not|couldn't|couldn’t)\b[^.!?]{0,55}"
-        r"\b(?:interact|feed|disperse|act as|occur)\b", answer, re.I))
+    for sentence in re.split(r"(?<=[.!?])\s+", answer):
+        lowered = sentence.lower()
+        if not re.search(r"\b(?:suitab\w*|fraction|model(?:led|ed)?|score)\b", lowered):
+            continue
+        # A caution may name these interpretations in order to reject them.
+        rejects_inference = bool(re.search(
+            r"\b(?:not|isn't|isn’t|cannot|can't|can’t|does not|doesn't|doesn’t|"
+            r"should not|must not|no calibrated)\b", lowered))
+        if re.search(
+                r"\b(?:low|high|minimal|severe)\b[^.!?]{0,70}"
+                r"\b(?:presence|occurrence|occupancy|abundance|prevalence|likelihood|probability|chance)\b|"
+                r"\b(?:limited|likely|unlikely|widespread|rare|abundant)\b[^.!?]{0,55}"
+                r"\b(?:presence|occurrence|occupancy|abundance|prevalence)\b|"
+                r"\b(?:probability|likelihood|chance)\s+of\s+(?:presence|occurrence)\b",
+                lowered) and not rejects_inference:
+            return False
+        if re.search(r"\b(?:proves?|confirms?|establishes?)\b[^.!?]{0,60}"
+                     r"\b(?:presence|occurrence|occupancy|abundance)\b", lowered) and not rejects_inference:
+            return False
+    return True
+
+
+def _approximate_support_boundary_ok(pack: dict, answer: str) -> bool:
+    """An approximate bbox construction must remain visible on the answer surface."""
+    approximate = False
+
+    def walk(node):
+        nonlocal approximate
+        if isinstance(node, dict):
+            if node.get("method") == "bbox-approx":
+                approximate = True
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    walk(pack)
+    if not approximate:
+        return True
+    return (bool(re.search(r"\bapproximat\w*\b", answer, re.I)) and
+            bool(re.search(r"\b(?:bbox|bounding box|search (?:area|extent|support))\b",
+                           answer, re.I)) and
+            not bool(re.search(r"\b(?:exact|surveyed|property)\s+(?:polygon|boundary|area)\b",
+                               answer, re.I)))
 
 
 def audit_response(question: str, compiled: dict, answer: str,
@@ -955,6 +1243,8 @@ def audit_response(question: str, compiled: dict, answer: str,
         "threshold_boundary": _threshold_boundary_ok(pack, answer),
         "count_grain": _count_grain_ok(pack, answer),
         "interaction_boundary": _interaction_boundary_ok(pack, answer),
+        "suitability_boundary": _suitability_boundary_ok(pack, answer),
+        "approximate_support_boundary": _approximate_support_boundary_ok(pack, answer),
     }
     checks["passed"] = all(checks.values())
     checks["new_numbers"] = sorted(stated_numbers - allowed_numbers)

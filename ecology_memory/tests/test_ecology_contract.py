@@ -13,6 +13,7 @@ import origin_adapters as OA
 import parser as P
 from executor import _aggregate, _relate, DataRequest, execute
 from parser import sector_semantic_repairs, faithfulness_pass
+from ir_schema import validate
 from scorer import score
 from synthesize import (_safe_fallback, _fire_exposure_answer, _inventory_answer,
                         _greenness_answer, _group_transfer_answer, _landcover_answer,
@@ -21,6 +22,115 @@ from synthesize import (_safe_fallback, _fire_exposure_answer, _inventory_answer
 
 
 class EcologyContractTests(unittest.TestCase):
+    def test_buffer_region_is_distinct_valid_search_extent(self):
+        node = {"op": "BUFFER", "radius_km": 25.0,
+                "source": {"op": "REGION", "place": "EBTL"}}
+        self.assertTrue(validate(node)["valid"])
+        original = C.resolve_region("EBTL")
+        expanded = C.buffer_region(original, 25.0)
+        self.assertLess(expanded["bbox"][0], original["bbox"][0])
+        self.assertGreater(expanded["bbox"][1], original["bbox"][1])
+        self.assertEqual(expanded["buffer_km"], 25.0)
+
+    def test_invalid_buffer_radius_fails_schema(self):
+        node = {"op": "BUFFER", "radius_km": 0,
+                "source": {"op": "REGION", "place": "EBTL"}}
+        self.assertFalse(validate(node)["valid"])
+        node["radius_km"] = float("inf")
+        self.assertFalse(validate(node)["valid"])
+        node["radius_km"] = "?radius_km"
+        report = validate(node)
+        self.assertTrue(report["valid"])
+        self.assertTrue(report["unbound"])
+
+    def test_nested_buffers_add_radii_and_identical_supports_are_interned(self):
+        from ir_schema import canonicalize
+        region = {"op": "REGION", "place": "EBTL"}
+        nested = {"op": "BUFFER", "radius_km": 15.0, "source": {
+            "op": "BUFFER", "radius_km": 10.0, "source": region}}
+        self.assertEqual(canonicalize(nested), {
+            "op": "BUFFER", "radius_km": 25.0, "source": region})
+        relation = {"op": "RELATE", "relation": "within",
+                    "left": {"op": "SELECT", "entity": "a", "region": nested, "time": None},
+                    "right": {"op": "SELECT", "entity": "b", "region": nested, "time": None}}
+        canonical = canonicalize(relation)
+        self.assertIs(canonical["left"]["region"], canonical["right"]["region"])
+
+    def test_buffer_rejects_non_region_source(self):
+        node = {"op": "BUFFER", "radius_km": 10, "source": {
+            "op": "SELECT", "entity": "clinic",
+            "region": {"op": "REGION", "place": "x"}, "time": None}}
+        self.assertFalse(validate(node)["valid"])
+
+    def test_bbox_buffer_fails_closed_at_dateline(self):
+        region = {"name": "edge", "bbox": [-1, 1, 179.5, 179.9],
+                  "lat": 0, "lon": 179.7}
+        with self.assertRaisesRegex(ValueError, "dateline"):
+            C.buffer_region(region, 100)
+
+    def test_relation_execution_returns_proxy_contract_and_denominators(self):
+        region = C.resolve_region("EBTL")
+        left = {"kind": "records", "rows": [
+                    {"id": "l1", "lat": 12.73, "lon": 78.18},
+                    {"id": "l2", "lat": 13.0, "lon": 78.18}],
+                "label": "observed", "source": "left", "grain": "occurrence",
+                "region": region, "input_entity": "elephant"}
+        right = {"kind": "records", "rows": [
+                    {"id": "r1", "lat": 12.731, "lon": 78.181}],
+                 "label": "observed", "source": "right", "grain": "occurrence",
+                 "region": region, "input_entity": "cormorant"}
+        ir = {"op": "RELATE", "relation": "cooccur", "threshold_km": 5.0,
+              "left": {"op": "SELECT", "entity": "elephant",
+                       "region": {"op": "REGION", "place": "EBTL"}, "time": None},
+              "right": {"op": "SELECT", "entity": "cormorant",
+                        "region": {"op": "REGION", "place": "EBTL"}, "time": None}}
+        with mock.patch.object(EX, "_route_select", side_effect=[left, right]):
+            got = execute(ir)
+        value = got["value"]
+        self.assertEqual(got["label"], "proxy")
+        self.assertEqual(value["grain"], "occurrence-proximity-relation")
+        self.assertEqual((value["left_record_count"], value["right_record_count"],
+                          value["matched_left_count"]), (2, 1, 1))
+        self.assertEqual(value["matched_right_count"], 1)
+        self.assertEqual(value["matched_left_fraction"], 0.5)
+        self.assertEqual(value["matched_right_fraction"], 1.0)
+        self.assertEqual(value["matched_left_percent"], 50.0)
+        self.assertEqual(value["matched_right_percent"], 100.0)
+        self.assertEqual(value["temporal_alignment"], "not established")
+
+    def test_joint_relation_estimate_fails_explicitly(self):
+        relation = {"kind": "records", "rows": [{"lat": 1, "lon": 1}],
+                    "label": "proxy", "source": "relation",
+                    "grain": "occurrence-proximity-relation"}
+        ir = {"op": "ESTIMATE", "method": "feature",
+              "source": {"op": "SELECT", "entity": "relation evidence",
+                         "region": {"op": "REGION", "place": "EBTL"}, "time": None},
+              "target": {"op": "REGION", "place": "EBTL"}}
+        with mock.patch.object(EX, "_route_select", return_value=relation):
+            got = execute(ir)
+        self.assertEqual(got["reason"], "unsupported_relational_transfer")
+
+    def test_estimate_output_retains_donor_and_target_for_followups(self):
+        donor_region = C.resolve_region("dry-Deccan donor belt")
+        target_region = C.resolve_region("EBTL")
+        source = {"kind": "records", "rows": [{"lat": 11.5, "lon": 77.0}],
+                  "label": "observed", "source": "points", "grain": "occurrence",
+                  "region": donor_region, "input_entity": "test taxon"}
+        model = {"kind": "field", "rows": [{"suitability_fraction": 0.1}],
+                 "label": "modelled", "source": "predict", "grain": "target",
+                 "gate": {"pass": True}, "note": "modelled"}
+        ir = {"op": "ESTIMATE", "method": "feature",
+              "source": {"op": "SELECT", "entity": "test taxon",
+                         "region": {"op": "REGION", "place": "dry-Deccan donor belt"},
+                         "time": None},
+              "target": {"op": "REGION", "place": "EBTL"}}
+        with mock.patch.object(EX, "_route_select", return_value=source), \
+             mock.patch.object(C, "estimate_transfer", return_value=model):
+            got = execute(ir)["value"]
+        self.assertEqual(got["donor_entity"], "test taxon")
+        self.assertEqual(got["donor_region"], donor_region)
+        self.assertEqual(got["target_region"], target_region)
+
     def test_connector_exception_becomes_source_request_not_unbound_route_crash(self):
         resolution = {"kind": "published_site_evidence", "canonical": "invasive_evidence"}
         with mock.patch.object(C, "resolve_ecology_entity", return_value=resolution), \
@@ -315,7 +425,7 @@ class EcologyContractTests(unittest.TestCase):
                 resolution, {"bbox": [12.721, 12.747, 78.170, 78.197]}, None, 200)
         fake.get.assert_called_once_with(
             "Elephas maximus", bbox=[78.17, 12.721, 78.197, 12.747],
-            limit=200, resolve_name=False)
+            sources=("gbif", "inat"), limit=200, resolve_name=False)
         self.assertEqual(got["connector_events"][0]["tool"], "origin.points.get")
         self.assertEqual(got["rows"], [])
 
@@ -325,6 +435,23 @@ class EcologyContractTests(unittest.TestCase):
             {"bbox": [12.721, 12.747, 78.170, 78.197]},
             {"start": "2020", "end": "2025"})
         self.assertTrue(got["unsupported_time"])
+
+    def test_predict_adapters_preserve_origin_bbox_order_and_year(self):
+        fake = mock.Mock()
+        fake.gate.return_value = {"pass": True}
+        fake.presence.return_value = {"fraction": 0.039}
+        fake.sdm_climate.return_value = {"fraction": 0.1}
+        rows = [{"lat": 12.0, "lon": 77.0}]
+        target = {"bbox": [12.721, 12.747, 78.170, 78.197]}
+        with mock.patch.object(OA, "_verify"), mock.patch.object(
+                OA, "_module", return_value=fake):
+            self.assertEqual(OA.predict_gate(rows, target, 2023), {"pass": True})
+            self.assertEqual(OA.predict_presence(rows, target, 2023), {"fraction": 0.039})
+            self.assertEqual(OA.predict_sdm(rows, target, 2024), {"fraction": 0.1})
+        bbox = [78.17, 12.721, 78.197, 12.747]
+        fake.gate.assert_called_once_with(rows, bbox, year=2023)
+        fake.presence.assert_called_once_with(rows, bbox, year=2023)
+        fake.sdm_climate.assert_called_once_with(rows, bbox, year=2024)
 
     def test_fire_answer_states_metric_and_limitation(self):
         result = {"status": "answer", "value": {"layer": "fire_exposure", "rows": [{

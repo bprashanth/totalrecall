@@ -1,0 +1,1673 @@
+{
+  "schema_version": "buffer-conformance-evidence-v1",
+  "created_at": "2026-07-19T15:35:23.819027+00:00",
+  "algebra_version": "v2.4.0-draft",
+  "model": "lora9b",
+  "questions": "kit/conformance/buffer_questions_v2.4.json",
+  "summary": {
+    "n": 10,
+    "gold_execution_failures": 0,
+    "parser_required": 8,
+    "parser_exact_canonical_matches": 4,
+    "parser_exact_canonical_rate": 0.5,
+    "parser_promotion_pass": false
+  },
+  "rows": [
+    {
+      "id": "buf-001",
+      "question": "Search within 10 km around Erode town for clinics.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "clinic",
+        "region": {
+          "op": "BUFFER",
+          "radius_km": 10.0,
+          "source": {
+            "op": "REGION",
+            "place": "Erode town"
+          }
+        },
+        "time": null
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "answer",
+        "value": {
+          "kind": "records",
+          "rows": [
+            {
+              "id": "clinic:0",
+              "lat": 11.32,
+              "lon": 77.7,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:1",
+              "lat": 11.33,
+              "lon": 77.71,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:2",
+              "lat": 11.34,
+              "lon": 77.72,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:3",
+              "lat": 11.344,
+              "lon": 77.724,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:4",
+              "lat": 11.35,
+              "lon": 77.73,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:5",
+              "lat": 11.36,
+              "lon": 77.74,
+              "name": "clinic"
+            }
+          ],
+          "entity": "clinic",
+          "label": "observed",
+          "source": "neutral-conformance-fixture",
+          "measure": "records:clinic",
+          "unit": "record",
+          "grain": "point",
+          "lineage": [
+            {
+              "source": "fixture"
+            }
+          ],
+          "spatial_support": {
+            "name": "10 km approximate bbox around Erode town",
+            "bbox": [
+              11.170168882500898,
+              11.509831117499102,
+              77.54838024717986,
+              77.89161975282013
+            ],
+            "lat": 11.34,
+            "lon": 77.72,
+            "orig": "Erode town",
+            "source": "derived-latitude-adjusted-bbox-expansion",
+            "method": "bbox-approx",
+            "approximate": true,
+            "support_type": "analysis-search-bbox",
+            "parent_region": {
+              "name": "Erode town",
+              "bbox": [
+                11.26,
+                11.42,
+                77.64,
+                77.8
+              ],
+              "lat": 11.34,
+              "lon": 77.72,
+              "orig": "Erode town"
+            },
+            "buffer_km": 10.0
+          }
+        },
+        "label": "observed",
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 10.0,
+            "source_region": "Erode town",
+            "source_support": {
+              "name": "Erode town",
+              "bbox": [
+                11.26,
+                11.42,
+                77.64,
+                77.8
+              ],
+              "lat": 11.34,
+              "lon": 77.72,
+              "orig": "Erode town"
+            },
+            "result_bbox": [
+              11.170168882500898,
+              11.509831117499102,
+              77.54838024717986,
+              77.89161975282013
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "clinic",
+            "note": "6 neutral conformance rows"
+          }
+        ]
+      },
+      "compiled_ir": {
+        "op": "SELECT",
+        "entity": "clinic",
+        "region": {
+          "op": "BUFFER",
+          "radius_km": 10.0,
+          "source": {
+            "op": "REGION",
+            "place": "Erode town"
+          }
+        },
+        "time": null
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": true,
+      "parser_required": true,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-002",
+      "question": "Search 10 km around Erode town, then list clinics within 2 km of schools in that search extent.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 2.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 10.0,
+            "source": {
+              "op": "REGION",
+              "place": "Erode town"
+            }
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "school",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 10.0,
+            "source": {
+              "op": "REGION",
+              "place": "Erode town"
+            }
+          },
+          "time": null
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "answer",
+        "value": {
+          "kind": "records",
+          "rows": [
+            {
+              "id": "clinic:0",
+              "lat": 11.32,
+              "lon": 77.7,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:1",
+              "lat": 11.33,
+              "lon": 77.71,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:2",
+              "lat": 11.34,
+              "lon": 77.72,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:3",
+              "lat": 11.344,
+              "lon": 77.724,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:4",
+              "lat": 11.35,
+              "lon": 77.73,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:5",
+              "lat": 11.36,
+              "lon": 77.74,
+              "name": "clinic",
+              "dist_km": 0.0
+            }
+          ],
+          "label": "observed",
+          "source": "relate"
+        },
+        "label": "observed",
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 10.0,
+            "source_region": "Erode town",
+            "source_support": {
+              "name": "Erode town",
+              "bbox": [
+                11.26,
+                11.42,
+                77.64,
+                77.8
+              ],
+              "lat": 11.34,
+              "lon": 77.72,
+              "orig": "Erode town"
+            },
+            "result_bbox": [
+              11.170168882500898,
+              11.509831117499102,
+              77.54838024717986,
+              77.89161975282013
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "clinic",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 10.0,
+            "source_region": "Erode town",
+            "source_support": {
+              "name": "Erode town",
+              "bbox": [
+                11.26,
+                11.42,
+                77.64,
+                77.8
+              ],
+              "lat": 11.34,
+              "lon": 77.72,
+              "orig": "Erode town"
+            },
+            "result_bbox": [
+              11.170168882500898,
+              11.509831117499102,
+              77.54838024717986,
+              77.89161975282013
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "school",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 2.0,
+            "note": "6 x 6 -> 6"
+          }
+        ]
+      },
+      "compiled_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 2.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 10.0,
+            "source": {
+              "op": "REGION",
+              "place": "Erode town"
+            }
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "school",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 10.0,
+            "source": {
+              "op": "REGION",
+              "place": "Erode town"
+            }
+          },
+          "time": null
+        }
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": true,
+      "parser_required": true,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-003",
+      "question": "Within a 25 km search around Pune, India, find pharmacies that have a hospital within 1 km.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "pharmacy",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 25.0,
+            "source": {
+              "op": "REGION",
+              "place": "Pune, India"
+            }
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "hospital",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 25.0,
+            "source": {
+              "op": "REGION",
+              "place": "Pune, India"
+            }
+          },
+          "time": null
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "answer",
+        "value": {
+          "kind": "records",
+          "rows": [
+            {
+              "id": "pharmacy:0",
+              "lat": 9.98,
+              "lon": 76.98,
+              "name": "pharmacy",
+              "dist_km": 0.0
+            },
+            {
+              "id": "pharmacy:1",
+              "lat": 9.99,
+              "lon": 76.99,
+              "name": "pharmacy",
+              "dist_km": 0.0
+            },
+            {
+              "id": "pharmacy:2",
+              "lat": 10.0,
+              "lon": 77.0,
+              "name": "pharmacy",
+              "dist_km": 0.0
+            },
+            {
+              "id": "pharmacy:3",
+              "lat": 10.004,
+              "lon": 77.004,
+              "name": "pharmacy",
+              "dist_km": 0.0
+            },
+            {
+              "id": "pharmacy:4",
+              "lat": 10.01,
+              "lon": 77.01,
+              "name": "pharmacy",
+              "dist_km": 0.0
+            },
+            {
+              "id": "pharmacy:5",
+              "lat": 10.02,
+              "lon": 77.02,
+              "name": "pharmacy",
+              "dist_km": 0.0
+            }
+          ],
+          "label": "observed",
+          "source": "relate"
+        },
+        "label": "observed",
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 25.0,
+            "source_region": "Pune, India",
+            "source_support": {
+              "name": "Pune, India",
+              "bbox": [
+                9.92,
+                10.08,
+                76.92,
+                77.08
+              ],
+              "lat": 10.0,
+              "lon": 77.0,
+              "orig": "Pune, India"
+            },
+            "result_bbox": [
+              9.695422206252246,
+              10.304577793747754,
+              76.69195773178994,
+              77.30804226821006
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "pharmacy",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 25.0,
+            "source_region": "Pune, India",
+            "source_support": {
+              "name": "Pune, India",
+              "bbox": [
+                9.92,
+                10.08,
+                76.92,
+                77.08
+              ],
+              "lat": 10.0,
+              "lon": 77.0,
+              "orig": "Pune, India"
+            },
+            "result_bbox": [
+              9.695422206252246,
+              10.304577793747754,
+              76.69195773178994,
+              77.30804226821006
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "hospital",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 1.0,
+            "note": "6 x 6 -> 6"
+          }
+        ]
+      },
+      "compiled_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 1.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "pharmacy",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 25.0,
+            "source": {
+              "op": "REGION",
+              "place": "Pune, India"
+            }
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "hospital",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 25.0,
+            "source": {
+              "op": "REGION",
+              "place": "Pune, India"
+            }
+          },
+          "time": null
+        }
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": true,
+      "parser_required": true,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-004",
+      "question": "Relate clinics searched within 5 km of Mysuru, India, to schools searched within 15 km of Mysuru, India, using a 2 km pairwise threshold.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 2.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 5.0,
+            "source": {
+              "op": "REGION",
+              "place": "Mysuru, India"
+            }
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "school",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 15.0,
+            "source": {
+              "op": "REGION",
+              "place": "Mysuru, India"
+            }
+          },
+          "time": null
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "answer",
+        "value": {
+          "kind": "records",
+          "rows": [
+            {
+              "id": "clinic:0",
+              "lat": 12.280000000000001,
+              "lon": 76.62,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:1",
+              "lat": 12.290000000000001,
+              "lon": 76.63,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:2",
+              "lat": 12.3,
+              "lon": 76.64,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:3",
+              "lat": 12.304,
+              "lon": 76.644,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:4",
+              "lat": 12.31,
+              "lon": 76.65,
+              "name": "clinic",
+              "dist_km": 0.0
+            },
+            {
+              "id": "clinic:5",
+              "lat": 12.32,
+              "lon": 76.66,
+              "name": "clinic",
+              "dist_km": 0.0
+            }
+          ],
+          "label": "observed",
+          "source": "relate"
+        },
+        "label": "observed",
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 5.0,
+            "source_region": "Mysuru, India",
+            "source_support": {
+              "name": "Mysuru, India",
+              "bbox": [
+                12.22,
+                12.38,
+                76.56,
+                76.72
+              ],
+              "lat": 12.3,
+              "lon": 76.64,
+              "orig": "Mysuru, India"
+            },
+            "result_bbox": [
+              12.17508444125045,
+              12.424915558749552,
+              76.51402920813032,
+              76.76597079186968
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "clinic",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 15.0,
+            "source_region": "Mysuru, India",
+            "source_support": {
+              "name": "Mysuru, India",
+              "bbox": [
+                12.22,
+                12.38,
+                76.56,
+                76.72
+              ],
+              "lat": 12.3,
+              "lon": 76.64,
+              "orig": "Mysuru, India"
+            },
+            "result_bbox": [
+              12.085253323751347,
+              12.514746676248654,
+              76.42208762439098,
+              76.85791237560902
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "school",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 2.0,
+            "note": "6 x 6 -> 6"
+          }
+        ]
+      },
+      "compiled_ir": {
+        "op": "RELATE",
+        "relation": "distance",
+        "left": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 5.0,
+            "source": {
+              "op": "REGION",
+              "place": "Mysuru, India"
+            }
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "school",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 15.0,
+            "source": {
+              "op": "REGION",
+              "place": "Mysuru, India"
+            }
+          },
+          "time": null
+        },
+        "threshold_km": 2.0
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": false,
+      "parser_required": true,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-005",
+      "question": "Start with a 5 km search around Surat, India, and expand that support by another 3 km for hospitals.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "hospital",
+        "time": null,
+        "region": {
+          "op": "BUFFER",
+          "source": {
+            "op": "REGION",
+            "place": "Surat, India"
+          },
+          "radius_km": 8.0
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "answer",
+        "value": {
+          "kind": "records",
+          "rows": [
+            {
+              "id": "hospital:0",
+              "lat": 21.150000000000002,
+              "lon": 72.81,
+              "name": "hospital"
+            },
+            {
+              "id": "hospital:1",
+              "lat": 21.16,
+              "lon": 72.82,
+              "name": "hospital"
+            },
+            {
+              "id": "hospital:2",
+              "lat": 21.17,
+              "lon": 72.83,
+              "name": "hospital"
+            },
+            {
+              "id": "hospital:3",
+              "lat": 21.174000000000003,
+              "lon": 72.834,
+              "name": "hospital"
+            },
+            {
+              "id": "hospital:4",
+              "lat": 21.180000000000003,
+              "lon": 72.84,
+              "name": "hospital"
+            },
+            {
+              "id": "hospital:5",
+              "lat": 21.19,
+              "lon": 72.85,
+              "name": "hospital"
+            }
+          ],
+          "entity": "hospital",
+          "label": "observed",
+          "source": "neutral-conformance-fixture",
+          "measure": "records:hospital",
+          "unit": "record",
+          "grain": "point",
+          "lineage": [
+            {
+              "source": "fixture"
+            }
+          ],
+          "spatial_support": {
+            "name": "8 km approximate bbox around Surat, India",
+            "bbox": [
+              21.018135106000724,
+              21.32186489399928,
+              72.6729341655401,
+              72.9870658344599
+            ],
+            "lat": 21.17,
+            "lon": 72.83,
+            "orig": "Surat, India",
+            "source": "derived-latitude-adjusted-bbox-expansion",
+            "method": "bbox-approx",
+            "approximate": true,
+            "support_type": "analysis-search-bbox",
+            "parent_region": {
+              "name": "Surat, India",
+              "bbox": [
+                21.090000000000003,
+                21.25,
+                72.75,
+                72.91
+              ],
+              "lat": 21.17,
+              "lon": 72.83,
+              "orig": "Surat, India"
+            },
+            "buffer_km": 8.0
+          }
+        },
+        "label": "observed",
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 8.0,
+            "source_region": "Surat, India",
+            "source_support": {
+              "name": "Surat, India",
+              "bbox": [
+                21.090000000000003,
+                21.25,
+                72.75,
+                72.91
+              ],
+              "lat": 21.17,
+              "lon": 72.83,
+              "orig": "Surat, India"
+            },
+            "result_bbox": [
+              21.018135106000724,
+              21.32186489399928,
+              72.6729341655401,
+              72.9870658344599
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "hospital",
+            "note": "6 neutral conformance rows"
+          }
+        ]
+      },
+      "compiled_ir": {
+        "op": "BUFFER",
+        "source": {
+          "op": "REGION",
+          "place": "Surat, India"
+        },
+        "radius_km": 8.0
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": false,
+      "parser_required": false,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-006",
+      "question": "Search for clinics within some radius around Erode town.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "clinic",
+        "time": null,
+        "region": {
+          "op": "BUFFER",
+          "radius_km": "?radius_km",
+          "source": {
+            "op": "REGION",
+            "place": "Erode town"
+          }
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [
+          {
+            "path": "root.region.radius_km",
+            "op": "BUFFER",
+            "field": "radius_km",
+            "name": "?radius_km"
+          }
+        ],
+        "ops": [
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": true
+      },
+      "gold_execution": {
+        "status": "data_request",
+        "reason": "unbound_holes",
+        "detail": {
+          "holes": [
+            "?radius_km"
+          ],
+          "ask": "clarify: ?radius_km"
+        },
+        "provenance": []
+      },
+      "compiled_ir": {
+        "op": "BUFFER",
+        "source": {
+          "op": "REGION",
+          "place": {
+            "op": "REGION",
+            "place": "Erode town"
+          }
+        },
+        "radius_km": "?radius_km"
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [
+          {
+            "path": "root.radius_km",
+            "op": "BUFFER",
+            "field": "radius_km",
+            "name": "?radius_km"
+          }
+        ],
+        "ops": [
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": true
+      },
+      "parser_exact_canonical_match": false,
+      "parser_required": true,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-007",
+      "question": "Estimate clinic access from Coimbatore, India records onto a 10 km search support around Tiruppur, India.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "source": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "REGION",
+            "place": "Coimbatore, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "BUFFER",
+          "radius_km": 10.0,
+          "source": {
+            "op": "REGION",
+            "place": "Tiruppur, India"
+          }
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "ESTIMATE",
+          "SELECT",
+          "REGION",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": true,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "answer",
+        "value": {
+          "kind": "field",
+          "rows": [
+            {
+              "id": "clinic:0",
+              "lat": 11.0,
+              "lon": 76.94,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:1",
+              "lat": 11.01,
+              "lon": 76.94999999999999,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:2",
+              "lat": 11.02,
+              "lon": 76.96,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:3",
+              "lat": 11.024,
+              "lon": 76.964,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:4",
+              "lat": 11.03,
+              "lon": 76.97,
+              "name": "clinic"
+            },
+            {
+              "id": "clinic:5",
+              "lat": 11.04,
+              "lon": 76.97999999999999,
+              "name": "clinic"
+            }
+          ],
+          "label": "modelled",
+          "source": "estimate:envelope",
+          "gate": {
+            "pass": true,
+            "strength": "envelope",
+            "reason": "target within source envelope",
+            "ask": null
+          }
+        },
+        "label": "modelled",
+        "provenance": [
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "clinic",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 10.0,
+            "source_region": "Tiruppur, India",
+            "source_support": {
+              "name": "Tiruppur, India",
+              "bbox": [
+                11.03,
+                11.19,
+                77.26,
+                77.42
+              ],
+              "lat": 11.11,
+              "lon": 77.34,
+              "orig": "Tiruppur, India"
+            },
+            "result_bbox": [
+              10.940168882500897,
+              11.279831117499102,
+              77.16845320844016,
+              77.51154679155985
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "ESTIMATE",
+            "method": "envelope",
+            "gate": {
+              "pass": true,
+              "strength": "envelope",
+              "reason": "target within source envelope",
+              "ask": null
+            }
+          }
+        ]
+      },
+      "compiled_ir": {
+        "op": "ESTIMATE",
+        "method": "interpolate",
+        "source": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "REGION",
+            "place": "Coimbatore, India"
+          },
+          "time": null
+        },
+        "target": {
+          "op": "BUFFER",
+          "radius_km": 10.0,
+          "source": {
+            "op": "REGION",
+            "place": "Tiruppur, India"
+          }
+        }
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "ESTIMATE",
+          "SELECT",
+          "REGION",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": true,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": false,
+      "parser_required": true,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-008",
+      "question": "How many clinics are in Kisumu, Kenya?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "REGION",
+            "place": "Kisumu, Kenya"
+          },
+          "time": null
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "AGGREGATE",
+          "SELECT",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "answer",
+        "value": {
+          "kind": "scalar",
+          "value": 6,
+          "note": "count=6",
+          "measure": "record_count",
+          "unit": "count",
+          "grain": "point",
+          "lineage": [
+            {
+              "source": "fixture"
+            }
+          ],
+          "label": "observed",
+          "entity": "clinic"
+        },
+        "label": "observed",
+        "provenance": [
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "clinic",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "note": "count=6"
+          }
+        ]
+      },
+      "compiled_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "SELECT",
+          "entity": "clinic",
+          "region": {
+            "op": "REGION",
+            "place": "Kisumu, Kenya"
+          },
+          "time": null
+        }
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "AGGREGATE",
+          "SELECT",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": true,
+      "parser_required": true,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-009",
+      "question": "Search 100 km around Dateline Station for schools.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "school",
+        "time": null,
+        "region": {
+          "op": "BUFFER",
+          "radius_km": 100.0,
+          "source": {
+            "op": "REGION",
+            "place": "Dateline Station"
+          }
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "data_request",
+        "reason": "unsupported_region_geometry",
+        "detail": {
+          "method": "bbox-approx",
+          "radius_km": 100.0,
+          "reason": "bbox buffer crosses a polar or dateline boundary; exact geometry required",
+          "ask": "use exact geometry or a bounded region away from the discontinuity"
+        },
+        "provenance": []
+      },
+      "compiled_ir": {
+        "op": "BUFFER",
+        "source": {
+          "op": "REGION",
+          "place": "Dateline Station"
+        },
+        "radius_km": 100.0
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": false,
+      "parser_required": false,
+      "repair_events": [],
+      "raw_parse": null
+    },
+    {
+      "id": "buf-010",
+      "question": "Search 12 km around Jaipur for hotels with no restaurant within 300 metres.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 0.3,
+        "left": {
+          "op": "SELECT",
+          "entity": "hotel",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 12.0,
+            "source": {
+              "op": "REGION",
+              "place": "Jaipur"
+            }
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "restaurant",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 12.0,
+            "source": {
+              "op": "REGION",
+              "place": "Jaipur"
+            }
+          },
+          "time": null
+        }
+      },
+      "gold_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "gold_execution": {
+        "status": "answer",
+        "value": {
+          "kind": "records",
+          "rows": [],
+          "label": "observed",
+          "source": "relate"
+        },
+        "label": "observed",
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 12.0,
+            "source_region": "Jaipur",
+            "source_support": {
+              "name": "Jaipur",
+              "bbox": [
+                26.830000000000002,
+                26.99,
+                75.71000000000001,
+                75.87
+              ],
+              "lat": 26.91,
+              "lon": 75.79,
+              "orig": "Jaipur"
+            },
+            "result_bbox": [
+              26.72220265900108,
+              27.09779734099892,
+              75.58911282001989,
+              75.99088717998012
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "hotel",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 12.0,
+            "source_region": "Jaipur",
+            "source_support": {
+              "name": "Jaipur",
+              "bbox": [
+                26.830000000000002,
+                26.99,
+                75.71000000000001,
+                75.87
+              ],
+              "lat": 26.91,
+              "lon": 75.79,
+              "orig": "Jaipur"
+            },
+            "result_bbox": [
+              26.72220265900108,
+              27.09779734099892,
+              75.58911282001989,
+              75.99088717998012
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "fixture",
+            "resolved": "restaurant",
+            "note": "6 neutral conformance rows"
+          },
+          {
+            "op": "RELATE",
+            "relation": "beyond",
+            "threshold_km": 0.3,
+            "note": "6 x 6 -> 0"
+          }
+        ]
+      },
+      "compiled_ir": {
+        "op": "RELATE",
+        "relation": "beyond",
+        "threshold_km": 0.3,
+        "left": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 12.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "hotel",
+            "region": {
+              "op": "BUFFER",
+              "radius_km": 12.0,
+              "source": {
+                "op": "REGION",
+                "place": "Jaipur, India"
+              }
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "restaurant",
+            "region": {
+              "op": "BUFFER",
+              "radius_km": 12.0,
+              "source": {
+                "op": "REGION",
+                "place": "Jaipur, India"
+              }
+            },
+            "time": null
+          }
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "restaurant",
+          "region": {
+            "op": "BUFFER",
+            "radius_km": 12.0,
+            "source": {
+              "op": "REGION",
+              "place": "Jaipur, India"
+            }
+          },
+          "time": null
+        }
+      },
+      "compiled_schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "parser_exact_canonical_match": false,
+      "parser_required": true,
+      "repair_events": [],
+      "raw_parse": null
+    }
+  ]
+}

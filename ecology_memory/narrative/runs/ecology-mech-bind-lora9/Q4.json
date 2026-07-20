@@ -1,0 +1,526 @@
+{
+  "arm": "ecology-mech-bind-lora9",
+  "model": "merged-9b-002 audited responder",
+  "protocol": "frozen benchmark plan -> deterministic connectors/executor -> LoRA-9B",
+  "diagnostic_ceiling_not_end_to_end": true,
+  "question_id": "Q4",
+  "question": "Join the EBTL 2024 bird checklist to the raw tree-watch data behind Dryad DOI 10.5061/dryad.gc6dm. Which locally recorded birds overlap with Lantana fruit-use observations, what does the raw table say for them, and does that prove those birds disperse Lantana at EBTL? Give the smallest field check that would decide the local claim.",
+  "elapsed_wall_s": 96.151,
+  "status": "answer",
+  "answer": "Modelled result: 5 evidence records: White-browed Bulbul, Red-vented Bulbul, Yellow-billed Babbler, Pale-billed Flowerpecker, Purple-rumped Sunbird. Source: Imported EBTL primary evidence. The overlap shows a plausible regional interaction mechanism only. It is not evidence that Lantana occurs at EBTL or that these birds disperse it there; local plant mapping plus bird-plant feeding observations are required.",
+  "ir": {
+    "op": "SELECT",
+    "entity": "EBTL bird Lantana transfer evidence",
+    "region": {
+      "op": "REGION",
+      "place": "Elephants by the Lake"
+    },
+    "time": null
+  },
+  "execution": {
+    "status": "answer",
+    "value": {
+      "rows": [
+        {
+          "id": "dryad-10.5061-dryad.gc6dm:overlap:1",
+          "common_name": "White-browed Bulbul",
+          "code": "WBB",
+          "lantana_observation_rows": 3,
+          "feeding_rows": 3,
+          "fruits_swallowed": 12,
+          "scientific_name": "Pycnonotus luteolus",
+          "site_bbox_public_point_records": 4,
+          "source": "Plant-disperser mutualisms in a semi-arid habitat invaded by Lantana camara",
+          "source_record": "doi:10.5061/dryad.gc6dm"
+        },
+        {
+          "id": "dryad-10.5061-dryad.gc6dm:overlap:2",
+          "common_name": "Red-vented Bulbul",
+          "code": "RVB",
+          "lantana_observation_rows": 8,
+          "feeding_rows": 1,
+          "fruits_swallowed": 1,
+          "scientific_name": "Pycnonotus cafer",
+          "site_bbox_public_point_records": 6,
+          "source": "Plant-disperser mutualisms in a semi-arid habitat invaded by Lantana camara",
+          "source_record": "doi:10.5061/dryad.gc6dm"
+        },
+        {
+          "id": "dryad-10.5061-dryad.gc6dm:overlap:3",
+          "common_name": "Yellow-billed Babbler",
+          "code": "YBB",
+          "lantana_observation_rows": 14,
+          "feeding_rows": 11,
+          "fruits_swallowed": 54,
+          "scientific_name": "Argya affinis",
+          "site_bbox_public_point_records": 6,
+          "source": "Plant-disperser mutualisms in a semi-arid habitat invaded by Lantana camara",
+          "source_record": "doi:10.5061/dryad.gc6dm"
+        },
+        {
+          "id": "dryad-10.5061-dryad.gc6dm:overlap:4",
+          "common_name": "Pale-billed Flowerpecker",
+          "code": "PBFP",
+          "lantana_observation_rows": 1,
+          "feeding_rows": 1,
+          "fruits_swallowed": 0,
+          "scientific_name": "Dicaeum erythrorhynchos",
+          "site_bbox_public_point_records": 6,
+          "source": "Plant-disperser mutualisms in a semi-arid habitat invaded by Lantana camara",
+          "source_record": "doi:10.5061/dryad.gc6dm"
+        },
+        {
+          "id": "dryad-10.5061-dryad.gc6dm:overlap:5",
+          "common_name": "Purple-rumped Sunbird",
+          "code": "PRSB",
+          "lantana_observation_rows": 4,
+          "feeding_rows": 4,
+          "fruits_swallowed": 0,
+          "scientific_name": "Leptocoma zeylonica",
+          "site_bbox_public_point_records": 5,
+          "source": "Plant-disperser mutualisms in a semi-arid habitat invaded by Lantana camara",
+          "source_record": "doi:10.5061/dryad.gc6dm"
+        }
+      ],
+      "kind": "records",
+      "source": "Imported EBTL primary evidence",
+      "label": "modelled",
+      "grain": "published-evidence-record",
+      "count_admissible": true,
+      "query_time": null,
+      "region": {
+        "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+        "bbox": [
+          12.721,
+          12.747,
+          78.17,
+          78.197
+        ],
+        "lat": 12.73394,
+        "lon": 78.18344,
+        "orig": "EBTL",
+        "source": "SITE_EBTL.json"
+      },
+      "query_semantics": "bird_lantana_transfer",
+      "source_metadata": {
+        "doi": "10.5061/dryad.gc6dm",
+        "method": "scan and focal tree-watch observations",
+        "source_scope": "semi-arid study habitat; not EBTL",
+        "lantana_rows": 35,
+        "local_interaction_admissible": false,
+        "local_interaction_status": "unknown; regional feeding overlap is not a local bird-plant interaction",
+        "site_bbox_public_plant_points": {
+          "Lantana camara": 0,
+          "Jatropha gossypiifolia": 1,
+          "Dichrostachys cinerea": 1,
+          "Abrus precatorius": 3
+        }
+      },
+      "note": "The overlap shows a plausible regional interaction mechanism only. It is not evidence that Lantana occurs at EBTL or that these birds disperse it there; local plant mapping plus bird-plant feeding observations are required.",
+      "connector_events": [
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Pycnonotus luteolus",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 4,
+          "cached": true
+        },
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Pycnonotus cafer",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 6,
+          "cached": true
+        },
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Argya affinis",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 6,
+          "cached": true
+        },
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Dicaeum erythrorhynchos",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 6,
+          "cached": true
+        },
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Leptocoma zeylonica",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 5,
+          "cached": true
+        },
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Lantana camara",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 0,
+          "cached": false
+        },
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Jatropha gossypiifolia",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 1,
+          "cached": true
+        },
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Dichrostachys cinerea",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 1,
+          "cached": true
+        },
+        {
+          "tool": "origin.points.get",
+          "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+          "parameters": {
+            "species": "Abrus precatorius",
+            "bbox": [
+              78.17,
+              12.721,
+              78.197,
+              12.747
+            ],
+            "sources": [
+              "gbif",
+              "inat"
+            ],
+            "limit": 300
+          },
+          "output_rows": 3,
+          "cached": true
+        }
+      ],
+      "entity": "bird_lantana_transfer",
+      "input_entity": "EBTL bird Lantana transfer evidence"
+    },
+    "label": "modelled",
+    "provenance": [
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Pycnonotus luteolus",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 4,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Pycnonotus cafer",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 6,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Argya affinis",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 6,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Dicaeum erythrorhynchos",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 6,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Leptocoma zeylonica",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 5,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Lantana camara",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 0,
+        "cached": false
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Jatropha gossypiifolia",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 1,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Dichrostachys cinerea",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 1,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Abrus precatorius",
+          "bbox": [
+            78.17,
+            12.721,
+            78.197,
+            12.747
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 3,
+        "cached": true
+      },
+      {
+        "op": "SELECT",
+        "route": "published-site-evidence",
+        "resolved": "bird_lantana_transfer",
+        "note": "The overlap shows a plausible regional interaction mechanism only. It is not evidence that Lantana occurs at EBTL or that these birds disperse it there; local plant mapping plus bird-plant feeding observations are required."
+      }
+    ]
+  },
+  "audit": {
+    "nonempty": true,
+    "no_new_numbers": true,
+    "no_internal_leak": true,
+    "no_chat_envelope": true,
+    "no_typed_holes": true,
+    "length": true,
+    "proxy_label": true,
+    "modelled_label": true,
+    "data_gap": true,
+    "history_boundary": true,
+    "absence_boundary": true,
+    "threshold_boundary": true,
+    "count_grain": true,
+    "interaction_boundary": true,
+    "suitability_boundary": true,
+    "approximate_support_boundary": true,
+    "passed": true,
+    "new_numbers": []
+  },
+  "fallback": true,
+  "render_latency_s": 93.862
+}

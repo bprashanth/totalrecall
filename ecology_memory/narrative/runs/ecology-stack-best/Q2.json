@@ -1,0 +1,75 @@
+{
+  "arm": "ecology-stack-best",
+  "model": "qwen2b",
+  "protocol": "typed algebra + deterministic connectors/executor + audited responder",
+  "question_id": "Q2",
+  "elapsed_wall_s": 12.707,
+  "runtime": "typed",
+  "selector": "qwen9b>deepseekv4",
+  "compiler": "qwen2b",
+  "responder": "qwen9b",
+  "context": "ebtl",
+  "question": "Use the coordinate file in Zenodo record 10077040, not just its landing-page abstract. How many published vegetation survey sites fall inside the Valparai town bounding box, and what 2021 ESA WorldCover class is returned at each of those points? Name the operation and give links or file locators so I can reproduce it.",
+  "status": "data_request",
+  "answer": "The current data does not contain the specific coordinate file from Zenodo record 10077040 or the resulting vegetation survey counts and ESA WorldCover classes for Valparai town. The available evidence only lists general candidate capabilities such as taxon occurrence records and buffered search regions, but does not include the specific measurement you requested.\n\nTo proceed, please clarify which specific measurement from the candidate list applies to your need for Valparai town vegetation data. Once the correct capability is identified, I can provide the exact operation name, links, and file locators required to reproduce the analysis.",
+  "ir": null,
+  "dialogue_mode": "clarify",
+  "schema": {
+    "valid": true,
+    "errors": [],
+    "holes": [],
+    "ops": []
+  },
+  "execution": {
+    "status": "data_request",
+    "reason": "ambiguous_request",
+    "detail": {
+      "ask": "Which measurement should I use?",
+      "candidate_capabilities": [
+        "taxon occurrence records",
+        "spatial relation between occurrence records",
+        "buffered search region",
+        "declared EBTL donor belt",
+        "EBTL invasive evidence",
+        "EBTL Lantana literature"
+      ]
+    }
+  },
+  "repair_events": [
+    "capability_selector:selected:taxon occurrence records,spatial relation between occurrence records,buffered search region,declared EBTL donor belt,EBTL invasive evidence,EBTL Lantana literature,EBTL bird Lantana transfer evidence,EBTL soil dryness evidence,NASA POWER soil wetness proxy,EBTL snake habitat requirements,EBTL arachnid transfer evidence,EBTL restoration site,land cover,historical fire exposure,greenness trend",
+    "capability_selector:mode:clarify"
+  ],
+  "parse_valid": true,
+  "audit": {
+    "nonempty": true,
+    "no_new_numbers": true,
+    "no_internal_leak": true,
+    "no_chat_envelope": true,
+    "no_typed_holes": true,
+    "length": true,
+    "proxy_label": true,
+    "modelled_label": true,
+    "data_gap": true,
+    "history_boundary": true,
+    "absence_boundary": true,
+    "threshold_boundary": true,
+    "count_grain": true,
+    "interaction_boundary": true,
+    "suitability_boundary": true,
+    "approximate_support_boundary": true,
+    "passed": true,
+    "new_numbers": []
+  },
+  "fallback": false,
+  "history_record": [
+    {
+      "role": "user",
+      "content": "Use the coordinate file in Zenodo record 10077040, not just its landing-page abstract. How many published vegetation survey sites fall inside the Valparai town bounding box, and what 2021 ESA WorldCover class is returned at each of those points? Name the operation and give links or file locators so I can reproduce it."
+    },
+    {
+      "role": "assistant",
+      "content": "AUDITED EVIDENCE: {\"status\": \"data_request\", \"label\": null, \"reason\": \"ambiguous_request\", \"summary\": \"That request could mean several different measurements. Which aspect do you want? Options: taxon occurrence records; spatial relation between occurrence records; buffered search region; declared EBTL donor belt; EBTL invasive evidence; EBTL Lantana literature.\", \"facts\": {\"data_request\": {\"ask\": \"Which measurement should I use?\"}}}"
+    }
+  ],
+  "latency_s": 12.707
+}

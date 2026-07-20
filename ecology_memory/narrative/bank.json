@@ -1,0 +1,70 @@
+{
+  "version": "ecology-narrative-pilot-1",
+  "frozen_at": "2026-07-19",
+  "persona": "Kavya, a conservation NGO programme manager who needs claims she can defend to field teams and donors",
+  "questions": [
+    {
+      "id": "Q1",
+      "bucket": "local-table-control",
+      "q": "At Elephants by the Lake, which snake species were actually encountered in the September 2024 survey, how many other snake species are only older property records, and how many medically venomous species are documented? Please cite the exact source pages and do not turn a short non-detection into absence.",
+      "gold": {
+        "source": "Faunal Survey 2024 — Herpetofauna of EBTL, pages 23–24, SHA-256 3b9c21031bfb27fde27854bc4ed350f9f7a3142bec96c0a58257bdabfa3e5d5a",
+        "observed_2024": ["Common Sand Boa", "Striped Keelback", "Barred Wolf Snake"],
+        "older_not_seen_in_2024": 11,
+        "medically_venomous_documented": ["Spectacled Cobra", "Russell's Viper", "Saw-scaled Viper", "Bamboo Pit Viper"],
+        "boundary": "14 documented species is an inventory count; only 3 were encountered in the three-day VES, and none of the 4 medically venomous species was encountered then"
+      }
+    },
+    {
+      "id": "Q2",
+      "bucket": "zenodo-spatial-raster-join",
+      "q": "Use the coordinate file in Zenodo record 10077040, not just its landing-page abstract. How many published vegetation survey sites fall inside the Valparai town bounding box, and what 2021 ESA WorldCover class is returned at each of those points? Name the operation and give links or file locators so I can reproduce it.",
+      "gold": {
+        "source": "Zenodo 10077040 / 01_sites.csv (CC-BY-4.0), DOI https://doi.org/10.5281/zenodo.10077040; ESA/WorldCover/v200",
+        "operation": "filter 26 published coordinates to the Nominatim Valparai bbox, then sample the 10 m WorldCover 2021 raster at each retained point",
+        "result": "10 sites inside the resolved Valparai town bbox; all 10 sampled points return WorldCover class 10, tree cover",
+        "boundary": "the points include rainforest fragments and coffee plantations; a raster class is modelled land cover, not proof of floristic composition or restoration intervention"
+      }
+    },
+    {
+      "id": "Q3",
+      "bucket": "satellite-to-risk-boundary",
+      "q": "What can satellite data actually say about fire at Elephants by the Lake from 2020 through 2025? Separate active-fire detections inside the declared analysis box from the 5 km exposure calculation, report the units, and tell me whether that is enough to call today's fire risk low or high.",
+      "gold": {
+        "source": "MODIS/061/MOD14A1 through the imported origin fire connector; site geometry from SITE_EBTL.json",
+        "operation": "active-fire point search in bbox 78.170,12.721,78.197,12.747 plus exposure around the site-centre point with radius_km=5, years=2020–2025",
+        "result": "0 active-fire locations in the declared analysis bbox; 1.6 pixel-fire-days in the 5 km calculation, density 0.021 pixel-fire-days/km²",
+        "boundary": "the bbox is not a surveyed property polygon; exposure is a historical pressure proxy, not burned area, ignition probability, or a calibrated present-risk class; fuel and local weather measurements are missing"
+      }
+    },
+    {
+      "id": "Q4",
+      "bucket": "cross-dataset-interaction-gate",
+      "q": "Join the EBTL 2024 bird checklist to the raw tree-watch data behind Dryad DOI 10.5061/dryad.gc6dm. Which locally recorded birds overlap with Lantana fruit-use observations, what does the raw table say for them, and does that prove those birds disperse Lantana at EBTL? Give the smallest field check that would decide the local claim.",
+      "gold": {
+        "source": "EBTL Faunal Survey 2024 pages 16–21 + Dryad 10.5061/dryad.gc6dm Plant_Ecol_files_TWdata.csv",
+        "operation": "normalize bird names/codes, filter 35 Lantana rows, join to the 67-species local checklist, and query public site-bbox occurrences without treating them as interactions",
+        "result": [
+          "White-browed Bulbul: 3 Lantana rows, 3 feeding rows, 12 fruits swallowed",
+          "Red-vented Bulbul: 8 rows, 1 feeding row, 1 fruit swallowed",
+          "Yellow-billed Babbler: 14 rows, 11 feeding rows, 54 fruits swallowed",
+          "Pale-billed Flowerpecker: 1 row, 1 feeding row, 0 fruits swallowed",
+          "Purple-rumped Sunbird: 4 rows, 4 feeding rows, 0 fruits swallowed"
+        ],
+        "boundary": "the Dryad study is a different semi-arid habitat; overlap is a regional mechanism hypothesis, not local interaction evidence; zero public Lantana points in the analysis bbox is not absence",
+        "request": "map Lantana on the actual property and record standardized bird visits, feeding, fruit handling/swallowing, and effort at those plants"
+      }
+    },
+    {
+      "id": "Q5",
+      "bucket": "dynamic-discovery-transfer-gates",
+      "q": "We have very sparse arachnid data at Elephants by the Lake. Search public occurrences and research deposits in the declared dry-Deccan donor belt, nominate regional species only from retrieved evidence, then apply both an environmental-feature gate and a climate-envelope gate before calling any species expected at EBTL. Which candidates pass, which fail, and what should we survey next?",
+      "gold": {
+        "source": "licensed GBIF+iNaturalist occurrence records; semantic deposit lead including Zenodo 10596480; AlphaEarth 2023 embeddings; WorldClim climate envelope",
+        "operation": "local higher-taxon lookup; regional donor-belt lookup; named-taxon nomination from returned evidence; exact species queries; per-candidate AlphaEarth analog and WorldClim envelope gates",
+        "result": "one local public record, Thelacantha brevispina; three audited nonlocal candidates (Gasteracantha geminata, Plexippus petersi, Hyllus semicupreus) pass climate but fail the AlphaEarth analog-fraction threshold, so zero transfers are admitted",
+        "boundary": "Thelacantha is observed, not estimated; a regional candidate must pass both gates to be modelled at the target; a failed gate remains a field-survey request"
+      }
+    }
+  ]
+}

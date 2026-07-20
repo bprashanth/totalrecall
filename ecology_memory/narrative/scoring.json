@@ -1,0 +1,314 @@
+{
+  "rubric_version": "ecology-narrative-pilot-1",
+  "scored_at": "2026-07-19",
+  "scorer": "manual evidence review against frozen bank.json golds and raw run traces",
+  "dimensions": [
+    "task_completion",
+    "source_reach",
+    "executed_analysis",
+    "evidence_boundary",
+    "auditability"
+  ],
+  "arms": {
+    "gemini-flash-agent": {
+      "role": "primary frontier agent",
+      "questions": {
+        "Q1": {
+          "scores": [0, 0, 0, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It does not recover the three September encounters, the 11 older records, or the correct local venomous list.",
+            "source_reach": "It cannot reach the requested local survey and substitutes regional context.",
+            "executed_analysis": "Web searches are performed, but the requested report extraction is not.",
+            "evidence_boundary": "It explicitly labels the snake list as general regional context and asks for the private report instead of calling it local evidence.",
+            "auditability": "It gives one checkable project link, but no page, report locator, or extraction trace for the requested result."
+          }
+        },
+        "Q2": {
+          "scores": [2, 2, 2, 1, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It correctly reports 10 retained high-level sites and class 10 at every point.",
+            "source_reach": "It directly retrieves Zenodo 10077040/01_sites.csv and the ESA WorldCover layer.",
+            "executed_analysis": "The trace shows coordinate filtering and raster point sampling actually ran.",
+            "evidence_boundary": "It distinguishes high-level sites from PCQ points, but does not explicitly say modelled land cover is not floristics or restoration evidence.",
+            "auditability": "It supplies the bbox, site table, source URLs, raster locator, operation name, and reproducible code."
+          }
+        },
+        "Q3": {
+          "scores": [0, 0, 0, 0, 0],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "No final answer was produced within the fixed 900-second agent budget.",
+            "source_reach": "No completed source result is present in the retained output.",
+            "executed_analysis": "No completed analysis is present in the retained output.",
+            "evidence_boundary": "There is no final claim to evaluate.",
+            "auditability": "The timeout itself is recorded, but there is no answer basis to audit."
+          }
+        },
+        "Q4": {
+          "scores": [0, 0, 0, 0, 0],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "No final answer was produced within the fixed 900-second agent budget.",
+            "source_reach": "Temporary work shows an attempted Dryad retrieval, but no completed source result was returned.",
+            "executed_analysis": "No completed join is present in the retained output.",
+            "evidence_boundary": "There is no final claim to evaluate.",
+            "auditability": "The timeout is recorded, but no completed evidentiary chain is available."
+          }
+        },
+        "Q5": {
+          "scores": [1, 1, 1, 0, 1],
+          "critical_errors": ["regional candidates presented as expected locally without the requested quantitative gates"],
+          "rationale": {
+            "task_completion": "It nominates candidates and describes two qualitative filters, but misses the observed local record and the requested evidence-derived pass/fail result.",
+            "source_reach": "It finds regional literature, but not the specified occurrence inventory, Zenodo lead, AlphaEarth features, or WorldClim envelope.",
+            "executed_analysis": "The trace contains substantial web research, but the environmental and climate gates are narrative judgements rather than executed measurements.",
+            "evidence_boundary": "It calls three nonlocal taxa expected at EBTL from qualitative habitat assertions, which is exactly the transfer boundary the prompt required it to gate.",
+            "auditability": "Literature links are supplied, but no gate parameters, retrieved occurrence rows, feature values, or climate values support the local classifications."
+          }
+        }
+      }
+    },
+    "deepseek-v4-web": {
+      "role": "primary frontier model with one-shot web search",
+      "questions": {
+        "Q1": {
+          "scores": [0, 0, 0, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It declines because the requested survey is absent from its search results.",
+            "source_reach": "The returned papers are unrelated to the EBTL survey.",
+            "executed_analysis": "The requested report extraction is not executed.",
+            "evidence_boundary": "It refuses to infer local facts from unrelated snake studies.",
+            "auditability": "It links the irrelevant search coverage, making the refusal checkable, but provides no requested basis."
+          }
+        },
+        "Q2": {
+          "scores": [0, 0, 0, 0, 0],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "The API request produced no answer and was interrupted after 660 seconds.",
+            "source_reach": "No source result was returned.",
+            "executed_analysis": "No operation result was returned.",
+            "evidence_boundary": "There is no final claim to evaluate.",
+            "auditability": "The timeout is retained, but there is no answer basis to audit."
+          }
+        },
+        "Q3": {
+          "scores": [1, 1, 0, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It gives a sound generic framework and correctly rejects a present-risk class, but supplies none of the requested EBTL values.",
+            "source_reach": "It reaches authoritative fire-product documentation, not the requested site extraction.",
+            "executed_analysis": "It describes spatial filtering but does not execute the 2020–2025 box and 5-km calculations.",
+            "evidence_boundary": "It clearly separates historical detections from current risk and lists missing weather and fuel inputs.",
+            "auditability": "Product links and units are checkable, but site parameters and results are absent."
+          }
+        },
+        "Q4": {
+          "scores": [1, 1, 0, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It offers three plausible overlaps and a field check, but misses two species and all requested raw-table counts.",
+            "source_reach": "It finds an associated article but states that it cannot access either requested raw input.",
+            "executed_analysis": "No EBTL-to-Dryad join is executed.",
+            "evidence_boundary": "It correctly says regional fruit use does not prove dispersal at EBTL.",
+            "auditability": "It provides article links and a method, but no raw file locator or joined rows."
+          }
+        },
+        "Q5": {
+          "scores": [1, 1, 0, 0, 1],
+          "critical_errors": ["regional families presented as likely present locally without the requested species-level gates"],
+          "rationale": {
+            "task_completion": "It returns a family/guild-level method instead of the requested species nominations and two-gate outcome.",
+            "source_reach": "It finds related dry-forest literature, but not the target occurrences, deposit, AlphaEarth, or WorldClim evidence.",
+            "executed_analysis": "No candidate-level feature or climate gate is computed.",
+            "evidence_boundary": "It labels regional dry-forest families likely present at EBTL without executing the required transfer gates.",
+            "auditability": "Regional links are provided, but no occurrence rows or gate measurements support the target claim."
+          }
+        }
+      }
+    },
+    "ecology-stack-best": {
+      "role": "primary accepted end-to-end ecology stack",
+      "questions": {
+        "Q1": {
+          "scores": [2, 2, 2, 2, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It gives all three encounter names, the 11 older records, all four medically venomous taxa, and the non-detection caveat.",
+            "source_reach": "It selects the imported primary EBTL faunal-survey table and exact pages.",
+            "executed_analysis": "The typed SELECT executes against normalized survey rows.",
+            "evidence_boundary": "It separates the three-day observations from older property records and does not infer absence.",
+            "auditability": "The saved IR, normalized rows, page locators, provenance, and passing response audit are retained."
+          }
+        },
+        "Q2": {
+          "scores": [0, 0, 0, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It incorrectly asks the user to choose a measurement and returns none of the requested result.",
+            "source_reach": "The selector does not reach the declared Zenodo-to-WorldCover capability.",
+            "executed_analysis": "No coordinate filter or raster sampling runs in this end-to-end turn.",
+            "evidence_boundary": "It fabricates no ecological claim while blocked.",
+            "auditability": "The failed selector decision and candidate list are retained, but there is no result trace."
+          }
+        },
+        "Q3": {
+          "scores": [2, 2, 2, 2, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It reports both exact site metrics and answers the low/high question.",
+            "source_reach": "It reaches the imported MODIS fire connector and declared EBTL geometry.",
+            "executed_analysis": "The 2020–2025 analysis-box and 5-km exposure operation executes.",
+            "evidence_boundary": "It labels pixel-fire-days as a historical pressure proxy, distinguishes the bbox from a property polygon, and refuses a current-risk class.",
+            "auditability": "IR, connector source, geometry, period, units, values, provenance, and passing audit are retained."
+          }
+        },
+        "Q4": {
+          "scores": [0, 2, 0, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It clarifies instead of performing the explicit join.",
+            "source_reach": "The selector identifies the exact combined EBTL bird–Lantana transfer capability among its candidates.",
+            "executed_analysis": "The combined connector is not executed.",
+            "evidence_boundary": "It does not claim that a regional interaction occurred locally.",
+            "auditability": "The clarification decision and candidate capabilities are retained, but no joined result is produced."
+          }
+        },
+        "Q5": {
+          "scores": [0, 1, 1, 2, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It returns a data request and hides the available candidate outcomes from the user.",
+            "source_reach": "The inner composite reaches occurrences and semantic discovery, but the redundant outer ESTIMATE prevents the intended capability result.",
+            "executed_analysis": "Regional occurrence retrieval and discovery run, but the outer feature estimate rejects their record shape before the complete composite can be returned.",
+            "evidence_boundary": "It admits no unsupported species and turns the failed gate into a request.",
+            "auditability": "The redundant IR, 58 returned occurrence records, discovery provenance, gate failure, and passing output audit are retained."
+          }
+        }
+      }
+    },
+    "ecology-stack-lora9": {
+      "role": "end-to-end LoRA-9B compiler/responder ablation",
+      "questions": {
+        "Q1": {
+          "scores": [1, 2, 2, 2, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It contains the correct result but truncates partway through the fourth venomous species.",
+            "source_reach": "The selected operation reaches the exact primary survey rows and pages.",
+            "executed_analysis": "The deterministic survey operation executes.",
+            "evidence_boundary": "Observed and historical statuses remain separate.",
+            "auditability": "The IR, execution, page-level rows, and passing responder audit are retained."
+          }
+        },
+        "Q2": {
+          "scores": [0, 0, 0, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It asks the user to disambiguate an already explicit operation.",
+            "source_reach": "The upstream selector misses the declared Zenodo-to-WorldCover capability before LoRA-9B compiles.",
+            "executed_analysis": "No coordinate filter or raster sampling executes.",
+            "evidence_boundary": "It makes no unsupported ecological claim.",
+            "auditability": "The failed selection and candidate list are retained, but there is no result trace."
+          }
+        },
+        "Q3": {
+          "scores": [2, 2, 2, 2, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It returns both exact fire metrics and the present-risk answer.",
+            "source_reach": "It reaches the imported MODIS connector and declared site geometry.",
+            "executed_analysis": "Both fire operations execute.",
+            "evidence_boundary": "Historical pressure, present risk, bbox, buffer, and non-detection limits are exact.",
+            "auditability": "Parameters, values, provenance, execution, and passing audit are retained."
+          }
+        },
+        "Q4": {
+          "scores": [0, 2, 0, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It clarifies instead of performing the explicit join.",
+            "source_reach": "The selector identifies the exact combined EBTL bird–Lantana transfer capability.",
+            "executed_analysis": "The combined connector is not executed.",
+            "evidence_boundary": "It makes no unsupported local interaction claim.",
+            "auditability": "The clarification and capability candidates are retained, but no joined result is produced."
+          }
+        },
+        "Q5": {
+          "scores": [1, 1, 1, 1, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It lists donor-belt records and states the gate policy, but omits the local record and candidate-level pass/fail outcomes.",
+            "source_reach": "It reaches licensed occurrence data and the composite capability, but compiles the target region as the donor belt rather than EBTL.",
+            "executed_analysis": "The composite executes, but against the wrong outer region, so its local inventory is not the requested local inventory.",
+            "evidence_boundary": "It does not admit failed transfers, but the phrase 'observed result' leaves the donor-belt scope too implicit.",
+            "auditability": "The wrong-region IR, occurrence rows, connector provenance, response, and passing audit are retained."
+          }
+        }
+      }
+    },
+    "ecology-mech-bind-lora9": {
+      "role": "diagnostic substrate/responder ceiling; not end-to-end",
+      "questions": {
+        "Q1": {
+          "scores": [1, 2, 2, 2, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It contains the correct result but truncates partway through the fourth venomous species.",
+            "source_reach": "The frozen plan reaches the exact primary survey rows and pages.",
+            "executed_analysis": "The deterministic survey operation executes.",
+            "evidence_boundary": "Observed and historical statuses remain separate.",
+            "auditability": "The plan, execution, page-level rows, and passing responder audit are retained."
+          }
+        },
+        "Q2": {
+          "scores": [1, 2, 2, 1, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It returns the correct count but omits the class value, operation name, and file locators.",
+            "source_reach": "The plan reaches Zenodo 10077040 and WorldCover 2021.",
+            "executed_analysis": "Ten coordinates are filtered and raster-annotated.",
+            "evidence_boundary": "It labels the result modelled but does not state that land cover is not floristics or intervention evidence.",
+            "auditability": "It names both sources, while the saved plan/execution—not the response—contains the detailed basis."
+          }
+        },
+        "Q3": {
+          "scores": [2, 2, 2, 2, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It returns both metrics, units, period, geometry, and the risk answer.",
+            "source_reach": "The plan reaches the imported MODIS connector and site geometry.",
+            "executed_analysis": "Both fire operations execute.",
+            "evidence_boundary": "Historical pressure, present risk, bbox, buffer, and non-detection limits are exact.",
+            "auditability": "Parameters, values, provenance, execution, and passing audit are retained."
+          }
+        },
+        "Q4": {
+          "scores": [1, 2, 2, 2, 1],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It names all five overlaps and the right field check, but omits the raw per-species row/feeding/fruit counts.",
+            "source_reach": "The plan reaches the local checklist and imported raw Dryad table.",
+            "executed_analysis": "The normalized Lantana join executes and returns five records.",
+            "evidence_boundary": "It explicitly calls the result a regional mechanism hypothesis, not a local interaction.",
+            "auditability": "The saved plan/execution contains the rows, but the terse fallback response exposes only a broad source label."
+          }
+        },
+        "Q5": {
+          "scores": [2, 2, 2, 2, 2],
+          "critical_errors": [],
+          "rationale": {
+            "task_completion": "It reports the local observation, three candidates, both gate outcomes, zero admitted transfers, and a next survey.",
+            "source_reach": "The plan reaches occurrences, semantic discovery, AlphaEarth, and WorldClim.",
+            "executed_analysis": "The donor inventory, exact species checks, and two per-candidate gates execute.",
+            "evidence_boundary": "Observed and estimated states are separate and every failed transfer remains unadmitted.",
+            "auditability": "The frozen plan, connector provenance, gate rows, answer, and passing audit are retained."
+          }
+        }
+      }
+    }
+  }
+}

@@ -11,6 +11,9 @@ sys.path.insert(0, str(ROOT / "kit" / "harness"))
 
 import executor  # noqa: E402
 import connectors  # noqa: E402
+import ir_schema  # noqa: E402
+import parser  # noqa: E402
+import synthesize  # noqa: E402
 
 
 def series(value: float, year: int, entity: str, **metadata):
@@ -205,6 +208,144 @@ class ConnectorMetadataTests(unittest.TestCase):
         self.assertEqual(out["frequency"], "annual")
         self.assertEqual(out["vintage"], "2026-07-01")
         self.assertEqual(out["fields"]["value"], "number")
+
+
+class BufferDraftContractTests(unittest.TestCase):
+    PROFILE = "v2.4.0-draft"
+
+    @staticmethod
+    def region(place="Erode town"):
+        return {"op": "REGION", "place": place}
+
+    def buffer(self, radius=10, place="Erode town"):
+        return {"op": "BUFFER", "radius_km": radius, "source": self.region(place)}
+
+    def test_released_profile_rejects_buffer_and_draft_accepts_it(self):
+        node = self.buffer()
+        self.assertFalse(ir_schema.validate(node)["valid"])
+        self.assertTrue(ir_schema.validate(node, self.PROFILE)["valid"])
+
+    def test_radius_contract_including_typed_hole(self):
+        for radius in (0, -1, float("inf"), float("nan"), True):
+            with self.subTest(radius=radius):
+                self.assertFalse(ir_schema.validate(self.buffer(radius), self.PROFILE)["valid"])
+        report = ir_schema.validate(self.buffer("?radius_km"), self.PROFILE)
+        self.assertTrue(report["valid"])
+        self.assertTrue(report["unbound"])
+
+    def test_buffer_requires_region_producer(self):
+        bad = {"op": "BUFFER", "radius_km": 10, "source": {
+            "op": "SELECT", "entity": "clinic", "region": self.region(), "time": None}}
+        self.assertFalse(ir_schema.validate(bad, self.PROFILE)["valid"])
+
+    def test_nested_identity_and_support_interning(self):
+        nested = {"op": "BUFFER", "radius_km": 3,
+                  "source": {"op": "BUFFER", "radius_km": 5,
+                             "source": self.region("Surat")}}
+        canonical = ir_schema.canonicalize(nested, self.PROFILE)
+        self.assertEqual(canonical, self.buffer(8, "Surat"))
+        relation = {"op": "RELATE", "relation": "within", "threshold_km": 2,
+                    "left": {"op": "SELECT", "entity": "clinic",
+                             "region": nested, "time": None},
+                    "right": {"op": "SELECT", "entity": "school",
+                              "region": nested, "time": None}}
+        canonical = ir_schema.canonicalize(relation, self.PROFILE)
+        self.assertIs(canonical["left"]["region"], canonical["right"]["region"])
+
+    def test_intentionally_different_supports_are_not_copied(self):
+        calls = []
+
+        def fake_route(entity, region, time, provenance):
+            calls.append((entity, region["buffer_km"]))
+            return {"kind": "records", "rows": [{"lat": 11.0, "lon": 77.0}],
+                    "entity": entity, "label": "observed", "source": "fixture"}
+
+        relation = {"op": "RELATE", "relation": "within", "threshold_km": 2,
+                    "left": {"op": "SELECT", "entity": "clinic",
+                             "region": self.buffer(5), "time": None},
+                    "right": {"op": "SELECT", "entity": "school",
+                              "region": self.buffer(15), "time": None}}
+        resolved = {"name": "Erode", "bbox": [11.2, 11.4, 77.6, 77.8],
+                    "lat": 11.3, "lon": 77.7, "orig": "Erode town"}
+        with mock.patch.object(executor.C, "resolve_region", return_value=resolved), \
+                mock.patch.object(executor, "_route_select", side_effect=fake_route):
+            out = executor.execute(relation, algebra_version=self.PROFILE)
+        self.assertEqual(out["status"], "answer")
+        self.assertEqual(calls, [("clinic", 5.0), ("school", 15.0)])
+        relation_event = next(item for item in out["provenance"] if item["op"] == "RELATE")
+        self.assertEqual(relation_event["threshold_km"], 2)
+
+    def test_execution_preserves_unerasable_bbox_approx_provenance(self):
+        resolved = {"name": "Erode", "bbox": [11.2, 11.4, 77.6, 77.8],
+                    "lat": 11.3, "lon": 77.7, "orig": "Erode town"}
+        selected = {"kind": "records", "rows": [{"lat": 11.3, "lon": 77.7}],
+                    "entity": "clinic", "label": "observed", "source": "fixture"}
+        ir = {"op": "SELECT", "entity": "clinic", "region": self.buffer(), "time": None}
+        with mock.patch.object(executor.C, "resolve_region", return_value=resolved), \
+                mock.patch.object(executor, "_route_select", return_value=selected):
+            out = executor.execute(ir, algebra_version=self.PROFILE)
+        event = next(item for item in out["provenance"] if item["op"] == "BUFFER")
+        self.assertEqual(event["method"], "bbox-approx")
+        self.assertTrue(event["approximate"])
+        self.assertEqual(event["radius_km"], 10)
+        self.assertEqual(event["source_support"]["orig"], "Erode town")
+        self.assertEqual(len(event["result_bbox"]), 4)
+        self.assertEqual(out["value"]["spatial_support"]["method"], "bbox-approx")
+
+    def test_dateline_and_pole_cases_return_typed_request(self):
+        edge = {"name": "edge", "bbox": [-0.1, 0.1, 179.5, 179.9],
+                "lat": 0, "lon": 179.7, "orig": "edge"}
+        ir = {"op": "SELECT", "entity": "school", "region": self.buffer(100, "edge"),
+              "time": None}
+        with mock.patch.object(executor.C, "resolve_region", return_value=edge):
+            out = executor.execute(ir, algebra_version=self.PROFILE)
+        self.assertEqual(out["status"], "data_request")
+        self.assertEqual(out["reason"], "unsupported_region_geometry")
+        self.assertEqual(out["detail"]["method"], "bbox-approx")
+        polar = {"name": "polar", "bbox": [89.8, 89.9, 0, 1],
+                 "lat": 89.85, "lon": 0.5, "orig": "polar"}
+        with self.assertRaisesRegex(ValueError, "pole"):
+            connectors.buffer_region(polar, 10)
+
+    def test_estimate_target_accepts_buffer_support(self):
+        ir = {"op": "ESTIMATE", "method": "envelope",
+              "source": {"op": "SELECT", "entity": "clinic",
+                         "region": self.region("Coimbatore"), "time": None},
+              "target": self.buffer(10, "Tiruppur")}
+        report = ir_schema.validate(ir, self.PROFILE)
+        self.assertTrue(report["valid"])
+        self.assertEqual(report["ops"].count("BUFFER"), 1)
+
+    def test_parser_surface_is_profile_gated_and_below_fewshot_cap(self):
+        released = parser.build_messages("Search 10 km around Erode for clinics.")
+        draft = parser.build_messages("Search 10 km around Erode for clinics.",
+                                      algebra_version=self.PROFILE)
+        self.assertNotIn("BUFFER", released[0]["content"])
+        self.assertIn("BUFFER", draft[0]["content"])
+        assistant_examples = [m for m in draft if m["role"] == "assistant"]
+        self.assertLessEqual(len(assistant_examples), 15)
+        self.assertTrue(any('"BUFFER"' in m["content"] for m in assistant_examples))
+
+    def test_buffer_time_owner_peephole_is_structural_not_semantic_routing(self):
+        malformed = {"op": "SELECT", "entity": "clinic", "region": {
+            "op": "BUFFER", "radius_km": 10, "source": self.region(), "time": None}}
+        repaired = parser.mech_repair(malformed)
+        self.assertEqual(repaired["time"], None)
+        self.assertNotIn("time", repaired["region"])
+        self.assertTrue(ir_schema.validate(repaired, self.PROFILE)["valid"])
+
+    def test_synthesis_audit_requires_approximation_language(self):
+        support = {"method": "bbox-approx", "approximate": True,
+                   "name": "10 km approximate bbox around Erode"}
+        result = {"status": "answer", "label": "observed", "value": {
+            "kind": "records", "rows": [{"name": "clinic"}], "n_rows": 1,
+            "spatial_support": support}, "provenance": [{
+                "op": "BUFFER", "method": "bbox-approx", "approximate": True}]}
+        bad = synthesize.score_synthesis("Where?", result, "One clinic was returned.")
+        good = synthesize.score_synthesis(
+            "Where?", result, "One clinic was returned from the approximate search bbox.")
+        self.assertFalse(bad["approximation_surfaced"])
+        self.assertTrue(good["approximation_surfaced"])
 
 if __name__ == "__main__":
     unittest.main()

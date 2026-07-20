@@ -8,9 +8,23 @@ scorer and executor both consume.
 See ../algebra/ir-spec.md for the spec this checks (v0).
 """
 
+import json
+import math
+
 KERNEL_OPS = {"SELECT", "ANNOTATE", "RELATE", "AGGREGATE", "COMPARE", "ESTIMATE", "RANK"}
-SUPPORT_OPS = {"REGION"}
-ALL_OPS = KERNEL_OPS | SUPPORT_OPS
+RELEASED_SUPPORT_OPS = {"REGION"}
+DRAFT_SUPPORT_OPS = {"BUFFER"}
+RELEASED_ALGEBRA_VERSION = "v2.3.0"
+BUFFER_ALGEBRA_VERSIONS = {"v2.4.0", "v2.4.0-draft"}
+
+
+def buffer_enabled(algebra_version=None):
+    return (algebra_version or RELEASED_ALGEBRA_VERSION) in BUFFER_ALGEBRA_VERSIONS
+
+
+def allowed_ops(algebra_version=None):
+    support = RELEASED_SUPPORT_OPS | (DRAFT_SUPPORT_OPS if buffer_enabled(algebra_version) else set())
+    return KERNEL_OPS | support
 
 # op -> (required scalar/leaf fields, required child-node fields)
 REQUIRED = {
@@ -22,6 +36,7 @@ REQUIRED = {
     "ESTIMATE":  (["target", "method"], ["source"]),
     "RANK":      (["order"], []),  # items (a LIST of >=2 nodes) checked specially below
     "REGION":    (["place"], []),
+    "BUFFER":    (["radius_km"], ["source"]),
 }
 
 # strict field sets: an unknown field on a known op is an ERROR, not noise — a parser that
@@ -35,6 +50,7 @@ ALLOWED_FIELDS = {
     "ESTIMATE": {"op", "source", "target", "method"},
     "RANK": {"op", "items", "order", "k"},
     "REGION": {"op", "place"},
+    "BUFFER": {"op", "source", "radius_km"},
 }
 
 # Natural-language synonyms at the language boundary get NORMALIZED, not enumerated in the
@@ -71,7 +87,7 @@ def is_hole(v):
     return isinstance(v, str) and v.startswith("?")
 
 
-def _walk(node, path, errs, holes, ops, depth):
+def _walk(node, path, errs, holes, ops, depth, active_ops):
     if depth > 12:
         errs.append(f"{path}: tree too deep (>12)")
         return
@@ -82,7 +98,10 @@ def _walk(node, path, errs, holes, ops, depth):
     if op is None:
         errs.append(f"{path}: missing 'op'")
         return
-    if op not in ALL_OPS:
+    if op not in active_ops:
+        if op == "BUFFER":
+            errs.append(f"{path}: BUFFER requires algebra profile v2.4.0-draft or v2.4.0")
+            return
         errs.append(f"{path}: unknown op {op!r}")
         return
     ops.append(op)
@@ -95,7 +114,7 @@ def _walk(node, path, errs, holes, ops, depth):
         node["relation"] = canon_relation(node["relation"])
     for f in req_leaf:
         # SELECT.region is handled below (it may be a REGION node, not a leaf)
-        if op == "SELECT" and f == "region":
+        if (op == "SELECT" and f == "region") or (op == "ESTIMATE" and f == "target"):
             continue
         if f not in node:
             errs.append(f"{path}: {op} missing required field {f!r}")
@@ -128,7 +147,16 @@ def _walk(node, path, errs, holes, ops, depth):
         if f not in node:
             errs.append(f"{path}: {op} missing required child {f!r}")
         else:
-            _walk(node[f], f"{path}.{f}", errs, holes, ops, depth + 1)
+            _walk(node[f], f"{path}.{f}", errs, holes, ops, depth + 1, active_ops)
+    if op == "BUFFER":
+        radius = node.get("radius_km")
+        if (not is_hole(radius) and
+                (not isinstance(radius, (int, float)) or isinstance(radius, bool) or
+                 not math.isfinite(radius) or radius <= 0)):
+            errs.append(f"{path}: BUFFER.radius_km must be a positive finite number")
+        source = node.get("source")
+        if isinstance(source, dict) and source.get("op") not in {"REGION", "BUFFER"}:
+            errs.append(f"{path}: BUFFER.source must produce REGION support")
     # RANK takes a LIST of >=2 item nodes (the n-ary op the binary COMPARE cannot express;
     # tick-008: both models degraded 3-way rankings by dropping cities or nesting COMPAREs).
     if op == "RANK":
@@ -137,7 +165,7 @@ def _walk(node, path, errs, holes, ops, depth):
             errs.append(f"{path}: RANK needs 'items' as a list of >=2 nodes")
         else:
             for i, it in enumerate(items):
-                _walk(it, f"{path}.items[{i}]", errs, holes, ops, depth + 1)
+                _walk(it, f"{path}.items[{i}]", errs, holes, ops, depth + 1, active_ops)
     # COMPARE needs a 'right' operand for binary hows; trend_direction is unary (one series).
     if op == "COMPARE" and node.get("how") != "trend_direction":
         if "right" not in node:
@@ -146,25 +174,75 @@ def _walk(node, path, errs, holes, ops, depth):
             holes.append({"path": f"{path}.right", "op": op, "field": "right",
                           "name": node["right"]})
         else:
-            _walk(node["right"], f"{path}.right", errs, holes, ops, depth + 1)
+            _walk(node["right"], f"{path}.right", errs, holes, ops, depth + 1, active_ops)
     # SELECT.region may be a REGION node or a leaf string/hole
     if op == "SELECT":
         reg = node.get("region")
         if isinstance(reg, dict):
-            _walk(reg, f"{path}.region", errs, holes, ops, depth + 1)
+            if reg.get("op") not in {"REGION", "BUFFER"}:
+                errs.append(f"{path}: SELECT.region must be REGION or BUFFER support")
+            _walk(reg, f"{path}.region", errs, holes, ops, depth + 1, active_ops)
         elif is_hole(reg):
             holes.append({"path": f"{path}.region", "op": op, "field": "region", "name": reg})
         elif reg is None:
             errs.append(f"{path}: SELECT missing required field 'region'")
+    if op == "ESTIMATE":
+        target = node.get("target")
+        if isinstance(target, dict):
+            if target.get("op") not in {"REGION", "BUFFER"}:
+                errs.append(f"{path}: ESTIMATE.target must be REGION or BUFFER support")
+            _walk(target, f"{path}.target", errs, holes, ops, depth + 1, active_ops)
+        elif is_hole(target):
+            holes.append({"path": f"{path}.target", "op": op, "field": "target",
+                          "name": target})
+        elif target is None:
+            errs.append(f"{path}: ESTIMATE missing required field 'target'")
 
 
-def validate(ir):
+def canonicalize(ir, algebra_version=None):
+    """Canonicalize IR without changing released-v2.3 behavior.
+
+    Under the v2.4 draft, concrete nested BUFFER radii add and identical REGION/BUFFER values are
+    interned. This deduplicates supports that are already written; it never supplies a missing
+    operand support.
+    """
+    if not buffer_enabled(algebra_version):
+        return ir
+    interned = {}
+
+    def walk(node):
+        if isinstance(node, list):
+            return [walk(item) for item in node]
+        if not isinstance(node, dict):
+            return node
+        out = {key: walk(value) for key, value in node.items()}
+        if out.get("op") == "BUFFER":
+            source = out.get("source")
+            outer = out.get("radius_km")
+            inner = source.get("radius_km") if isinstance(source, dict) else None
+            if (isinstance(source, dict) and source.get("op") == "BUFFER" and
+                    isinstance(outer, (int, float)) and not isinstance(outer, bool) and
+                    math.isfinite(outer) and isinstance(inner, (int, float)) and
+                    not isinstance(inner, bool) and math.isfinite(inner)):
+                out = {"op": "BUFFER", "source": source["source"],
+                       "radius_km": inner + outer}
+        if out.get("op") in {"REGION", "BUFFER"}:
+            key = json.dumps(out, sort_keys=True, separators=(",", ":"))
+            if key in interned:
+                return interned[key]
+            interned[key] = out
+        return out
+
+    return walk(ir)
+
+
+def validate(ir, algebra_version=None):
     """Return {valid, errors, holes, ops, has_estimate, unbound}."""
     errs, holes, ops = [], [], []
     if not isinstance(ir, dict):
         return {"valid": False, "errors": ["root is not an object"], "holes": [],
                 "ops": [], "has_estimate": False, "unbound": True}
-    _walk(ir, "root", errs, holes, ops, 0)
+    _walk(ir, "root", errs, holes, ops, 0, allowed_ops(algebra_version))
     return {
         "valid": len(errs) == 0,
         "errors": errs,

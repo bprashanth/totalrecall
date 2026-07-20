@@ -1,0 +1,409 @@
+{
+  "arm": "ecology-stack-best",
+  "model": "qwen2b",
+  "protocol": "typed algebra + deterministic connectors/executor + audited responder",
+  "question_id": "Q5",
+  "elapsed_wall_s": 115.783,
+  "runtime": "typed",
+  "selector": "qwen9b>deepseekv4",
+  "compiler": "qwen2b",
+  "responder": "qwen9b",
+  "context": "ebtl",
+  "question": "We have very sparse arachnid data at Elephants by the Lake. Search public occurrences and research deposits in the declared dry-Deccan donor belt, nominate regional species only from retrieved evidence, then apply both an environmental-feature gate and a climate-envelope gate before calling any species expected at EBTL. Which candidates pass, which fail, and what should we survey next?",
+  "status": "data_request",
+  "answer": "The current analysis cannot nominate any arachnid species for Elephants by the Lake because the environmental-feature gate failed. This failure occurred because the system requires georeferenced species occurrence records from the dry-Deccan donor belt to evaluate transfer, but no such records were provided in the evidence.\n\nTo proceed, you must provide georeferenced species occurrence records for the arachnids in question. Once these records are supplied, the analysis can be repeated to determine which candidates pass both the environmental-feature and climate-envelope gates, allowing for a concrete list of species expected at the site.",
+  "ir": {
+    "op": "ESTIMATE",
+    "method": "feature",
+    "target": {
+      "op": "REGION",
+      "place": "Elephants by the Lake"
+    },
+    "source": {
+      "op": "SELECT",
+      "entity": "EBTL arachnid transfer evidence",
+      "region": {
+        "op": "REGION",
+        "place": "dry-Deccan donor belt"
+      },
+      "time": null
+    }
+  },
+  "dialogue_mode": "execute",
+  "schema": {
+    "valid": true,
+    "errors": [],
+    "holes": [],
+    "ops": [
+      "ESTIMATE",
+      "SELECT",
+      "REGION",
+      "REGION"
+    ]
+  },
+  "execution": {
+    "status": "data_request",
+    "reason": "gate_failed",
+    "detail": {
+      "method": "feature",
+      "reason": "feature presence transfer requires occurrence-grain donor records",
+      "ask": "provide georeferenced species occurrence records"
+    },
+    "provenance": [
+      {
+        "op": "CONNECTOR",
+        "tool": "gbif.occurrence.search",
+        "parameters": {
+          "higher_taxon": "Arachnida",
+          "bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ],
+          "limit": 300
+        },
+        "output_rows": 58,
+        "api_total": 10437,
+        "blocked_license_rows": 242
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "inat.observations",
+        "parameters": {
+          "higher_taxon": "Arachnida",
+          "bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ],
+          "limit": 200
+        },
+        "output_rows": 0,
+        "api_total": 0
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.discovery.search",
+        "implementation": "hermes-live:/opt/data/connectors/discovery.py",
+        "parameters": {
+          "query": "Arachnida spider arachnid survey Eastern Ghats Krishnagiri Tamil Nadu species occurrence dataset",
+          "k": 5,
+          "points_only": true
+        },
+        "output_rows": 5
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "gbif.occurrence.search",
+        "parameters": {
+          "higher_taxon": "Arachnida",
+          "bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ],
+          "limit": 300
+        },
+        "output_rows": 58,
+        "api_total": 10437,
+        "blocked_license_rows": 242
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "inat.observations",
+        "parameters": {
+          "higher_taxon": "Arachnida",
+          "bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ],
+          "limit": 200
+        },
+        "output_rows": 0,
+        "api_total": 0
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.discovery.search",
+        "implementation": "hermes-live:/opt/data/connectors/discovery.py",
+        "parameters": {
+          "query": "Arachnida spider arachnid survey Eastern Ghats Krishnagiri Tamil Nadu species occurrence dataset",
+          "k": 5,
+          "points_only": true
+        },
+        "output_rows": 5
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Argiope aemula",
+          "bbox": [
+            76.0,
+            11.0,
+            79.5,
+            13.6
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 368,
+        "cached": false
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "typed.transfer_gate.feature",
+        "parameters": {
+          "species": "Argiope aemula",
+          "target_bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ]
+        },
+        "output_rows": 1,
+        "passed": false,
+        "strength": "observed-overlap"
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "typed.transfer_gate.envelope",
+        "parameters": {
+          "species": "Argiope aemula",
+          "target_bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ]
+        },
+        "output_rows": 1,
+        "passed": false,
+        "strength": "observed-overlap"
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Gasteracantha geminata",
+          "bbox": [
+            76.0,
+            11.0,
+            79.5,
+            13.6
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 401,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "typed.transfer_gate.feature",
+        "parameters": {
+          "species": "Gasteracantha geminata",
+          "target_bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ]
+        },
+        "output_rows": 1,
+        "passed": false,
+        "strength": "observed-overlap"
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "typed.transfer_gate.envelope",
+        "parameters": {
+          "species": "Gasteracantha geminata",
+          "target_bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ]
+        },
+        "output_rows": 1,
+        "passed": false,
+        "strength": "observed-overlap"
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Plexippus petersi",
+          "bbox": [
+            76.0,
+            11.0,
+            79.5,
+            13.6
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 283,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "typed.transfer_gate.feature",
+        "parameters": {
+          "species": "Plexippus petersi",
+          "target_bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ]
+        },
+        "output_rows": 1,
+        "passed": false,
+        "strength": "observed-overlap"
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "typed.transfer_gate.envelope",
+        "parameters": {
+          "species": "Plexippus petersi",
+          "target_bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ]
+        },
+        "output_rows": 1,
+        "passed": false,
+        "strength": "observed-overlap"
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "origin.points.get",
+        "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+        "parameters": {
+          "species": "Hyllus semicupreus",
+          "bbox": [
+            76.0,
+            11.0,
+            79.5,
+            13.6
+          ],
+          "sources": [
+            "gbif",
+            "inat"
+          ],
+          "limit": 300
+        },
+        "output_rows": 392,
+        "cached": true
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "typed.transfer_gate.feature",
+        "parameters": {
+          "species": "Hyllus semicupreus",
+          "target_bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ]
+        },
+        "output_rows": 1,
+        "passed": false,
+        "strength": "observed-overlap"
+      },
+      {
+        "op": "CONNECTOR",
+        "tool": "typed.transfer_gate.envelope",
+        "parameters": {
+          "species": "Hyllus semicupreus",
+          "target_bbox": [
+            11.0,
+            13.6,
+            76.0,
+            79.5
+          ]
+        },
+        "output_rows": 1,
+        "passed": false,
+        "strength": "observed-overlap"
+      },
+      {
+        "op": "SELECT",
+        "route": "dynamic-higher-taxon-transfer-audit",
+        "resolved": "Arachnida",
+        "note": "dynamic higher-taxon discovery widened the sparse local query to a declared donor belt, nominated three species from the returned licensed sample, then ran exact species point queries and separate AlphaEarth feature and WorldClim envelope gates; no failed gate is converted into a site expectation"
+      },
+      {
+        "op": "ESTIMATE",
+        "method": "feature",
+        "gate": {
+          "pass": false,
+          "strength": "type",
+          "reason": "feature presence transfer requires occurrence-grain donor records",
+          "ask": "provide georeferenced species occurrence records"
+        }
+      }
+    ]
+  },
+  "repair_events": [
+    "capability_selector:selected:EBTL arachnid transfer evidence,declared EBTL donor belt",
+    "capability_selector:mode:execute",
+    "ir_verifier:semantic_critic:invalid_rejected"
+  ],
+  "parse_valid": true,
+  "audit": {
+    "nonempty": true,
+    "no_new_numbers": true,
+    "no_internal_leak": true,
+    "no_chat_envelope": true,
+    "no_typed_holes": true,
+    "length": true,
+    "proxy_label": true,
+    "modelled_label": true,
+    "data_gap": true,
+    "history_boundary": true,
+    "absence_boundary": true,
+    "threshold_boundary": true,
+    "count_grain": true,
+    "interaction_boundary": true,
+    "suitability_boundary": true,
+    "approximate_support_boundary": true,
+    "passed": true,
+    "new_numbers": []
+  },
+  "fallback": false,
+  "history_record": [
+    {
+      "role": "user",
+      "content": "We have very sparse arachnid data at Elephants by the Lake. Search public occurrences and research deposits in the declared dry-Deccan donor belt, nominate regional species only from retrieved evidence, then apply both an environmental-feature gate and a climate-envelope gate before calling any species expected at EBTL. Which candidates pass, which fail, and what should we survey next?"
+    },
+    {
+      "role": "assistant",
+      "content": "AUDITED EVIDENCE: {\"status\": \"data_request\", \"label\": null, \"reason\": \"gate_failed\", \"summary\": \"I cannot answer this from the available evidence yet. DATA REQUEST: provide georeferenced species occurrence records\", \"facts\": {\"data_request\": {\"ask\": \"provide georeferenced species occurrence records\"}}}"
+    }
+  ],
+  "latency_s": 115.783
+}

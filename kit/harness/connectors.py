@@ -14,6 +14,7 @@ on disk so the loop is cheap and resilient to rate limits.
 import json
 import hashlib
 import http.client
+import math
 import os
 import time
 import urllib.parse
@@ -111,6 +112,41 @@ def resolve_region(place, min_span_deg=0.03):
     return {"name": r.get("display_name", place), "bbox": [s, n, w, e],
             "lat": float(r["lat"]), "lon": float(r["lon"]), "orig": place,
             "osm_class": r.get("class"), "osm_type": r.get("type")}
+
+
+def buffer_region(region, radius_km):
+    """Construct the accepted ALG-015 bbox approximation around resolved REGION support.
+
+    The returned object is deliberately difficult to mistake for exact geometry: method and
+    approximate fields are part of the typed support and the executor repeats them in provenance.
+    Dateline/polar cases fail closed until an exact-geometry implementation is governed.
+    """
+    radius = float(radius_km)
+    if not math.isfinite(radius) or radius <= 0:
+        raise ValueError("buffer radius must be a positive finite number")
+    s, n, w, e = region["bbox"]
+    mid_lat = (s + n) / 2
+    lat_delta = radius / 111.32
+    lon_scale = math.cos(math.radians(mid_lat))
+    if abs(lon_scale) < 0.05:
+        raise ValueError("bbox buffer is unsupported near a pole; exact geometry required")
+    lon_delta = radius / (111.32 * lon_scale)
+    bbox = [s - lat_delta, n + lat_delta, w - lon_delta, e + lon_delta]
+    if bbox[0] <= -90 or bbox[1] >= 90 or bbox[2] <= -180 or bbox[3] >= 180:
+        raise ValueError("bbox buffer crosses a polar or dateline boundary; exact geometry required")
+    return {
+        "name": f"{radius:g} km approximate bbox around {region['name']}",
+        "bbox": bbox,
+        "lat": region.get("lat", mid_lat),
+        "lon": region.get("lon", (w + e) / 2),
+        "orig": region.get("orig") or region.get("name"),
+        "source": "derived-latitude-adjusted-bbox-expansion",
+        "method": "bbox-approx",
+        "approximate": True,
+        "support_type": "analysis-search-bbox",
+        "parent_region": region,
+        "buffer_km": radius,
+    }
 
 
 # ---------------------------------------------------------------- OSM Overpass (point entities)

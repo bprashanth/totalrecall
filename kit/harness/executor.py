@@ -12,7 +12,7 @@ Return: {"status": "answer"|"data_request", "value": <typed>, "label", "provenan
 A typed value = {"kind": records|series|scalar|field, "rows"/"value", "label", "source"}.
 """
 import statistics
-from ir_schema import validate, is_hole
+from ir_schema import RELEASED_ALGEBRA_VERSION, canonicalize, validate, is_hole
 import connectors as C
 
 
@@ -60,9 +60,25 @@ def _compatibility_tuple(value):
     return metadata["measure"], metadata["unit"], metadata["grain"]
 
 
-def _resolve_region(region):
+def _resolve_region(region, prov=None):
     if isinstance(region, dict) and region.get("op") == "REGION":
         return C.resolve_region(region["place"])
+    if isinstance(region, dict) and region.get("op") == "BUFFER":
+        source = _resolve_region(region["source"], prov)
+        try:
+            out = C.buffer_region(source, region["radius_km"])
+        except ValueError as exc:
+            raise DataRequest("unsupported_region_geometry", {
+                "method": "bbox-approx", "radius_km": region.get("radius_km"),
+                "reason": str(exc), "ask": "use exact geometry or a bounded region away from the discontinuity"})
+        if prov is not None:
+            prov.append({"op": "BUFFER", "method": "bbox-approx", "approximate": True,
+                         "radius_km": region["radius_km"],
+                         "source_region": source.get("name"), "source_support": source,
+                         "result_bbox": out.get("bbox"),
+                         "note": ("approximate latitude-adjusted search bbox; not an exact "
+                                  "geodesic polygon or surveyed boundary")})
+        return out
     if isinstance(region, str) and not is_hole(region):
         return C.resolve_region(region)
     raise DataRequest("unresolved_region", {"region": region})
@@ -101,8 +117,13 @@ def _ev(node, prov, region_ctx):
     if op == "REGION":
         return {"kind": "region", "value": C.resolve_region(node["place"]), "label": "observed"}
 
+    if op == "BUFFER":
+        return {"kind": "region", "value": _resolve_region(node, prov), "label": "observed",
+                "source": "derived-latitude-adjusted-bbox-expansion", "method": "bbox-approx",
+                "approximate": True}
+
     if op == "SELECT":
-        region = _resolve_region(node["region"])
+        region = _resolve_region(node["region"], prov)
         region_ctx["region"] = region
         ent = node["entity"]
         if isinstance(ent, list):  # v2.2 entity UNION: run each, merge rows, weakest label wins
@@ -126,6 +147,7 @@ def _ev(node, prov, region_ctx):
                          "note": f"union of {ent} -> {len(rows)} rows"})
         else:
             val = _route_select(ent, region, node.get("time"), prov)
+        val["spatial_support"] = region
         if not val["rows"]:
             raise DataRequest("empty_select",
                               {"entity": node["entity"], "region": region["name"],
@@ -212,8 +234,7 @@ def _ev(node, prov, region_ctx):
 
     if op == "ESTIMATE":
         src = _ev(node["source"], prov, region_ctx)
-        target = _resolve_region(node["target"]) if not isinstance(node["target"], dict) or \
-            node["target"].get("op") == "REGION" else node["target"]
+        target = _resolve_region(node["target"], prov)
         gate = _gate(src, target, node["method"])
         prov.append({"op": "ESTIMATE", "method": node["method"], "gate": gate})
         if not gate["pass"]:
@@ -597,8 +618,9 @@ def _gate(src, target, method):
 
 
 # ---- top level ---------------------------------------------------------------
-def execute(ir):
-    rep = validate(ir)
+def execute(ir, algebra_version=RELEASED_ALGEBRA_VERSION):
+    ir = canonicalize(ir, algebra_version)
+    rep = validate(ir, algebra_version)
     if not rep["valid"]:
         return {"status": "data_request", "reason": "parse_invalid",
                 "detail": {"errors": rep["errors"]}, "provenance": []}

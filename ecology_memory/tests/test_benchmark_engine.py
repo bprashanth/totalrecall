@@ -11,6 +11,155 @@ import engine as E
 
 
 class BenchmarkEngineTests(unittest.TestCase):
+    def test_composed_relation_is_never_replaced_by_single_selected_dataset(self):
+        relation = {
+            "op": "RELATE", "relation": "cooccur",
+            "left": {"op": "SELECT", "entity": "elephant",
+                     "region": "?place", "time": None},
+            "right": {"op": "SELECT", "entity": "cormorant",
+                      "region": "?place", "time": None},
+        }
+        selected = [{"entity": "EBTL evidence summary", "kind": "SELECT",
+                     "selected": True}]
+        bound = E._bind_single_capability(relation, selected)
+        self.assertEqual(bound, relation)
+        self.assertEqual(bound["op"], "RELATE")
+
+    def test_composed_relation_survives_operator_data_and_region_ingredients(self):
+        relation = {
+            "op": "RELATE", "relation": "cooccur",
+            "left": {"op": "SELECT", "entity": "elephant",
+                     "region": {"op": "REGION", "place": "dry-Deccan donor belt"},
+                     "time": None},
+            "right": {"op": "SELECT", "entity": "cormorant",
+                      "region": {"op": "REGION", "place": "dry-Deccan donor belt"},
+                      "time": None},
+        }
+        selected = [
+            {"entity": "spatial relation between occurrence records", "kind": "RELATE operator",
+             "binding": "operator", "ops": ["RELATE"], "selected": True},
+            {"entity": "taxon occurrence records", "kind": "SELECT",
+             "binding": "compiler_entity", "selected": True},
+            {"entity": "declared EBTL donor belt", "kind": "REGION support",
+             "binding": "region", "place": "dry-Deccan donor belt", "selected": True},
+        ]
+        bound = E._bind_single_capability(relation, selected)
+        self.assertEqual(bound, relation)
+        self.assertEqual(bound["op"], "RELATE")
+
+    def test_verifier_admits_minimal_multi_capability_composition(self):
+        names = ["spatial relation between occurrence records", "taxon occurrence records",
+                 "declared EBTL donor belt"]
+        replies = iter([
+            __import__("json").dumps({"mode": "execute", "entities": names}),
+            __import__("json").dumps({"entities": names}),
+        ])
+        with mock.patch.object(E, "chat", side_effect=lambda *args, **kwargs: next(replies)):
+            selected, _, _, mode = E._select_capabilities(
+                "Compare elephant and cormorant occurrence proximity across the donor belt.",
+                "qwen9b>deepseekv4", [])
+        self.assertEqual(mode, "execute")
+        self.assertEqual([item["entity"] for item in selected], names)
+
+    def test_regional_composition_prunes_incompatible_site_only_card(self):
+        names = ["EBTL elephant evidence", "taxon occurrence records",
+                 "spatial relation between occurrence records", "declared EBTL donor belt"]
+        raw = __import__("json").dumps({"mode": "execute", "entities": names})
+        with mock.patch.object(E, "chat", return_value=raw):
+            selected, _, _, _ = E._select_capabilities(
+                "Compare named taxa occurrence records in the donor region.", "qwen9b", [])
+        self.assertEqual([item["entity"] for item in selected], [
+            "taxon occurrence records", "spatial relation between occurrence records",
+            "declared EBTL donor belt"])
+
+    def test_buffer_relation_curriculum_keeps_search_and_pairwise_distances_separate(self):
+        selected = [
+            {"entity": "taxon occurrence records", "binding": "compiler_entity",
+             "kind": "SELECT", "selected": True},
+            {"entity": "spatial relation between occurrence records", "binding": "operator",
+             "kind": "RELATE operator", "ops": ["RELATE"], "selected": True},
+            {"entity": "buffered search region", "binding": "operator",
+             "kind": "REGION operator", "ops": ["BUFFER"], "selected": True},
+        ]
+        ir = E._selected_examples(selected)[0]["ir"]
+        self.assertEqual((ir["op"], ir["threshold_km"]), ("RELATE", 5.0))
+        self.assertEqual(ir["left"]["region"]["op"], "BUFFER")
+        self.assertEqual(ir["left"]["region"]["radius_km"], 25.0)
+
+    def test_buffer_contract_never_copies_support_between_relation_operands(self):
+        buffer_node = {"op": "BUFFER", "radius_km": 100.0,
+                       "source": {"op": "REGION", "place": "EBTL"}}
+        relation = {"op": "RELATE", "relation": "within", "threshold_km": 10.0,
+                    "left": {"op": "SELECT", "entity": "cobra", "region": buffer_node,
+                             "time": None},
+                    "right": {"op": "SELECT", "entity": "elephant",
+                              "region": {"op": "REGION", "place": "EBTL"}, "time": None}}
+        selected = [{"entity": "buffered search region", "binding": "operator",
+                     "ops": ["BUFFER"], "scope_policy": "shared_across_relation_operands",
+                     "selected": True}]
+        bound = E._bind_single_capability(relation, selected)
+        self.assertEqual(bound["right"]["region"], {"op": "REGION", "place": "EBTL"})
+        self.assertEqual(bound["threshold_km"], 10.0)
+
+    def test_selected_operator_contract_projects_non_executable_metadata(self):
+        estimate = {"op": "ESTIMATE", "method": "feature", "method_gate": "environmental",
+                    "source": {"op": "SELECT", "entity": "elephant",
+                               "region": "?donor", "time": None},
+                    "target": "?target"}
+        selected = [{"entity": "regional transfer", "binding": "operator",
+                     "ops": ["ESTIMATE"], "selected": True}]
+        bound = E._bind_single_capability(estimate, selected)
+        self.assertNotIn("method_gate", bound)
+        self.assertEqual(bound["op"], "ESTIMATE")
+
+    def test_relation_proxy_audit_rejects_ungated_interaction_claim(self):
+        compiled = {"dialogue_mode": "execute", "execution": {
+            "status": "answer", "label": "proxy", "value": {
+                "kind": "records", "grain": "occurrence-proximity-relation",
+                "rows": [], "source": "relation", "left_record_count": 10,
+                "right_record_count": 12, "matched_left_count": 3}, "provenance": []}}
+        bad = "Proxy result: the species interact in this habitat."
+        good = "Proxy result: three occurrence records were nearby; this does not establish interaction."
+        self.assertFalse(E.audit_response("Are they related?", compiled, bad)["interaction_boundary"])
+        self.assertTrue(E.audit_response("Are they related?", compiled, good)["interaction_boundary"])
+
+    def test_suitability_fraction_cannot_become_presence_probability(self):
+        compiled = {"dialogue_mode": "execute", "execution": {
+            "status": "answer", "label": "modelled", "provenance": [], "value": {
+                "kind": "field", "grain": "target-bbox-suitability-fraction",
+                "measure_field": "suitability_fraction", "unit": "fraction",
+                "rows": [{"suitability_fraction": 0.047}],
+                "source": "AlphaEarth RF"}}}
+        bad = ("The modelled suitability fraction is 0.047; this low value suggests limited "
+               "potential presence.")
+        good = ("The modelled suitability fraction is 0.047: the fraction of target analysis "
+                "cells classified suitable. It is not a calibrated probability of presence.")
+        self.assertFalse(E.audit_response("What is the estimate?", compiled, bad)[
+            "suitability_boundary"])
+        self.assertTrue(E.audit_response("What is the estimate?", compiled, good)[
+            "suitability_boundary"])
+        rendered = E.deterministic_render("What is the estimate?", compiled)
+        self.assertIn("target analysis cells", rendered)
+        self.assertIn("not a calibrated occurrence probability", rendered)
+        self.assertTrue(E.audit_response("What is the estimate?", compiled, rendered)["passed"])
+
+    def test_bbox_approximation_must_survive_response(self):
+        support = {"name": "10 km buffer around X", "bbox": [0, 1, 0, 1],
+                   "method": "bbox-approx", "approximate": True}
+        compiled = {"dialogue_mode": "execute", "execution": {
+            "status": "answer", "label": "proxy", "provenance": [], "value": {
+                "kind": "records", "grain": "occurrence-proximity-relation", "rows": [],
+                "left_record_count": 10, "right_record_count": 12,
+                "matched_left_count": 3, "matched_right_count": 2,
+                "left_region": support, "right_region": support}}}
+        bad = "Proxy result: three records had a nearby counterpart in the 10 km area."
+        good = ("Proxy result: three records had a nearby counterpart; the search support is an "
+                "approximate bbox, not an exact radius polygon.")
+        self.assertFalse(E.audit_response("Compare them.", compiled, bad)[
+            "approximate_support_boundary"])
+        self.assertTrue(E.audit_response("Compare them.", compiled, good)[
+            "approximate_support_boundary"])
+
     def test_declared_composite_capability_dominates_included_leaf(self):
         raw = ('{"mode":"execute","entities":["arachnids",'
                '"EBTL arachnid transfer evidence"]}')

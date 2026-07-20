@@ -22,6 +22,7 @@ CACHE_DIR = os.path.join(HERE, "cache", "llm")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 LOCAL_BASE = "http://172.17.0.1:8001/v1"
+LORA9B_BASE = "http://172.17.0.1:8004/v1"
 OPENROUTER_BASE = "https://openrouter.ai/api/v1"
 
 # role -> (base_url, model_id, needs_openrouter_key)
@@ -38,6 +39,7 @@ MODELS = {
     "deepseekv4": (OPENROUTER_BASE, "deepseek/deepseek-v4-flash", True),
     "glm":        (OPENROUTER_BASE, "z-ai/glm-5.2", True),
     "loravb":     (LOCAL_BASE, "qwen3.5-2b-lora", False),     # placeholder; wired when LoRA lands
+    "lora9b":     (LORA9B_BASE, "lora9b", False),             # merged-9b-002 comparison arm
 }
 
 

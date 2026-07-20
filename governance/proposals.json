@@ -40,7 +40,7 @@
    "id": "ALG-002",
    "title": "Typed FILTER over records and source dimensions",
    "scope": "algebra",
-   "status": "accepted-conditional",
+   "status": "implemented",
    "source": "livelihoods_memory/spec-proposals.md",
    "corroboration": [
     "transport_memory/spec-proposals.md"
@@ -859,7 +859,7 @@
    "dependencies": [
     "REGION"
    ],
-   "note": "A support-only BUFFER(REGION, radius_km) keeps constructed search extent distinct from downstream relation distance. The sector implementation is experimental and does not authorize kit promotion.",
+   "note": "The accepted core is implemented behind the explicit v2.4.0-draft profile. Released v2.3 APIs still reject BUFFER and the framework manifest is unchanged. Deterministic gold execution is 10/10, but the untrained base 2B and existing 9B adapter reach only 5/8 and 4/8 required exact parser matches; a trained v2.4 bundle remains a release blocker.",
    "required_tests": [
     "positive finite radius",
     "REGION input typing",
@@ -872,7 +872,17 @@
     "REGION-only backward compatibility"
    ],
    "decision": "decisions/20260718-ALG-015-BUFFER.md",
-   "decided": "2026-07-18"
+   "decided": "2026-07-18",
+   "implementation": "kit/algebra/ir-spec-v2.4.0-draft.md",
+   "evidence": [
+    "governance/evidence/ALG-015-buffer-qwen2b-v4.json",
+    "governance/evidence/ALG-015-buffer-lora9b-v2.json"
+   ],
+   "release_blockers": [
+    "trained v2.4.0 parser/model bundle",
+    "parser conformance wall",
+    "ALG-002 bundle coordination"
+   ]
   }
  ]
 }

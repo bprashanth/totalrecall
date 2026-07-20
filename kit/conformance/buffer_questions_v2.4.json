@@ -1,0 +1,129 @@
+{
+  "schema_version": "buffer-conformance-v1",
+  "algebra_version": "v2.4.0-draft",
+  "questions": [
+    {
+      "id": "buf-001",
+      "q": "Search within 10 km around Erode town for clinics.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT",
+        "entity": "clinic",
+        "region": {"op": "BUFFER", "radius_km": 10.0,
+                   "source": {"op": "REGION", "place": "Erode town"}},
+        "time": null
+      }
+    },
+    {
+      "id": "buf-002",
+      "q": "Search 10 km around Erode town, then list clinics within 2 km of schools in that search extent.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE", "relation": "within", "threshold_km": 2.0,
+        "left": {"op": "SELECT", "entity": "clinic",
+                 "region": {"op": "BUFFER", "radius_km": 10.0,
+                            "source": {"op": "REGION", "place": "Erode town"}}, "time": null},
+        "right": {"op": "SELECT", "entity": "school",
+                  "region": {"op": "BUFFER", "radius_km": 10.0,
+                             "source": {"op": "REGION", "place": "Erode town"}}, "time": null}
+      }
+    },
+    {
+      "id": "buf-003",
+      "q": "Within a 25 km search around Pune, India, find pharmacies that have a hospital within 1 km.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE", "relation": "within", "threshold_km": 1.0,
+        "left": {"op": "SELECT", "entity": "pharmacy",
+                 "region": {"op": "BUFFER", "radius_km": 25.0,
+                            "source": {"op": "REGION", "place": "Pune, India"}}, "time": null},
+        "right": {"op": "SELECT", "entity": "hospital",
+                  "region": {"op": "BUFFER", "radius_km": 25.0,
+                             "source": {"op": "REGION", "place": "Pune, India"}}, "time": null}
+      }
+    },
+    {
+      "id": "buf-004",
+      "q": "Relate clinics searched within 5 km of Mysuru, India, to schools searched within 15 km of Mysuru, India, using a 2 km pairwise threshold.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE", "relation": "within", "threshold_km": 2.0,
+        "left": {"op": "SELECT", "entity": "clinic",
+                 "region": {"op": "BUFFER", "radius_km": 5.0,
+                            "source": {"op": "REGION", "place": "Mysuru, India"}}, "time": null},
+        "right": {"op": "SELECT", "entity": "school",
+                  "region": {"op": "BUFFER", "radius_km": 15.0,
+                             "source": {"op": "REGION", "place": "Mysuru, India"}}, "time": null}
+      }
+    },
+    {
+      "id": "buf-005",
+      "q": "Start with a 5 km search around Surat, India, and expand that support by another 3 km for hospitals.",
+      "parser_required": false,
+      "expect": "answer",
+      "gold_ir": {
+        "op": "SELECT", "entity": "hospital", "time": null,
+        "region": {"op": "BUFFER", "radius_km": 3.0,
+                   "source": {"op": "BUFFER", "radius_km": 5.0,
+                              "source": {"op": "REGION", "place": "Surat, India"}}}
+      }
+    },
+    {
+      "id": "buf-006",
+      "q": "Search for clinics within some radius around Erode town.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "SELECT", "entity": "clinic", "time": null,
+        "region": {"op": "BUFFER", "radius_km": "?radius_km",
+                   "source": {"op": "REGION", "place": "Erode town"}}
+      }
+    },
+    {
+      "id": "buf-007",
+      "q": "Estimate clinic access from Coimbatore, India records onto a 10 km search support around Tiruppur, India.",
+      "expect": "answer_or_data_request",
+      "gold_ir": {
+        "op": "ESTIMATE", "method": "envelope",
+        "source": {"op": "SELECT", "entity": "clinic",
+                   "region": {"op": "REGION", "place": "Coimbatore, India"}, "time": null},
+        "target": {"op": "BUFFER", "radius_km": 10.0,
+                   "source": {"op": "REGION", "place": "Tiruppur, India"}}
+      }
+    },
+    {
+      "id": "buf-008",
+      "q": "How many clinics are in Kisumu, Kenya?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "AGGREGATE", "by": "space", "metric": "count",
+        "source": {"op": "SELECT", "entity": "clinic",
+                   "region": {"op": "REGION", "place": "Kisumu, Kenya"}, "time": null}
+      }
+    },
+    {
+      "id": "buf-009",
+      "q": "Search 100 km around Dateline Station for schools.",
+      "expect": "data_request",
+      "parser_required": false,
+      "gold_ir": {
+        "op": "SELECT", "entity": "school", "time": null,
+        "region": {"op": "BUFFER", "radius_km": 100.0,
+                   "source": {"op": "REGION", "place": "Dateline Station"}}
+      }
+    },
+    {
+      "id": "buf-010",
+      "q": "Search 12 km around Jaipur for hotels with no restaurant within 300 metres.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "RELATE", "relation": "beyond", "threshold_km": 0.3,
+        "left": {"op": "SELECT", "entity": "hotel",
+                 "region": {"op": "BUFFER", "radius_km": 12.0,
+                            "source": {"op": "REGION", "place": "Jaipur"}}, "time": null},
+        "right": {"op": "SELECT", "entity": "restaurant",
+                  "region": {"op": "BUFFER", "radius_km": 12.0,
+                             "source": {"op": "REGION", "place": "Jaipur"}}, "time": null}
+      }
+    }
+  ]
+}

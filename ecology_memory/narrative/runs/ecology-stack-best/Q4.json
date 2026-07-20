@@ -1,0 +1,72 @@
+{
+  "arm": "ecology-stack-best",
+  "model": "qwen2b",
+  "protocol": "typed algebra + deterministic connectors/executor + audited responder",
+  "question_id": "Q4",
+  "elapsed_wall_s": 4.619,
+  "runtime": "typed",
+  "selector": "qwen9b>deepseekv4",
+  "compiler": "qwen2b",
+  "responder": "qwen9b",
+  "context": "ebtl",
+  "question": "Join the EBTL 2024 bird checklist to the raw tree-watch data behind Dryad DOI 10.5061/dryad.gc6dm. Which locally recorded birds overlap with Lantana fruit-use observations, what does the raw table say for them, and does that prove those birds disperse Lantana at EBTL? Give the smallest field check that would decide the local claim.",
+  "status": "data_request",
+  "answer": "The current data does not confirm which specific measurement to use for linking bird records to Lantana fruit-use observations at EBTL. The available options are the EBTL bird inventory, EBTL Lantana literature, or EBTL bird Lantana transfer evidence, but it is unclear which source contains the necessary overlap data.\n\nTo decide the local claim, a data request is needed to specify whether the analysis should rely on direct field observations of birds consuming Lantana fruit from the inventory, documented transfer events from the literature, or a combined transfer evidence dataset. Clarifying which of these three capabilities provides the verified local interaction records will determine if birds are confirmed dispersers at this site.",
+  "ir": null,
+  "dialogue_mode": "clarify",
+  "schema": {
+    "valid": true,
+    "errors": [],
+    "holes": [],
+    "ops": []
+  },
+  "execution": {
+    "status": "data_request",
+    "reason": "ambiguous_request",
+    "detail": {
+      "ask": "Which measurement should I use?",
+      "candidate_capabilities": [
+        "EBTL bird inventory",
+        "EBTL Lantana literature",
+        "EBTL bird Lantana transfer evidence"
+      ]
+    }
+  },
+  "repair_events": [
+    "capability_selector:selected:EBTL bird inventory,EBTL Lantana literature,EBTL bird Lantana transfer evidence",
+    "capability_selector:mode:clarify"
+  ],
+  "parse_valid": true,
+  "audit": {
+    "nonempty": true,
+    "no_new_numbers": true,
+    "no_internal_leak": true,
+    "no_chat_envelope": true,
+    "no_typed_holes": true,
+    "length": true,
+    "proxy_label": true,
+    "modelled_label": true,
+    "data_gap": true,
+    "history_boundary": true,
+    "absence_boundary": true,
+    "threshold_boundary": true,
+    "count_grain": true,
+    "interaction_boundary": true,
+    "suitability_boundary": true,
+    "approximate_support_boundary": true,
+    "passed": true,
+    "new_numbers": []
+  },
+  "fallback": false,
+  "history_record": [
+    {
+      "role": "user",
+      "content": "Join the EBTL 2024 bird checklist to the raw tree-watch data behind Dryad DOI 10.5061/dryad.gc6dm. Which locally recorded birds overlap with Lantana fruit-use observations, what does the raw table say for them, and does that prove those birds disperse Lantana at EBTL? Give the smallest field check that would decide the local claim."
+    },
+    {
+      "role": "assistant",
+      "content": "AUDITED EVIDENCE: {\"status\": \"data_request\", \"label\": null, \"reason\": \"ambiguous_request\", \"summary\": \"That request could mean several different measurements. Which aspect do you want? Options: EBTL bird inventory; EBTL Lantana literature; EBTL bird Lantana transfer evidence.\", \"facts\": {\"data_request\": {\"ask\": \"Which measurement should I use?\"}}}"
+    }
+  ],
+  "latency_s": 4.619
+}
