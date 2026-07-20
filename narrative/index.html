@@ -7,7 +7,9 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-#deck{height:100vh;overflow-y:auto;scroll-snap-type:y proximity;scroll-behavior:smooth}
+#deck{height:100vh;overflow-y:auto;scroll-snap-type:y proximity;scroll-behavior:smooth;
+  scrollbar-width:none;-ms-overflow-style:none}
+#deck::-webkit-scrollbar{width:0;height:0;display:none}
 .slide{min-height:100vh;scroll-snap-align:start;padding:0 0 40px}
 .inner{max-width:800px;margin:0 auto;padding:64px 22px 30px}
 h1{font-size:clamp(28px,5vw,46px);line-height:1.15;margin:.4em 0;text-wrap:balance;font-weight:700}
@@ -37,14 +39,21 @@ svg .hit:hover{opacity:.75}
 #panel.on{right:0}
 #panel h4{margin:0 0 8px;color:var(--amber)}
 #panel .x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
-.dots{position:fixed;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:6}
-.dots button{width:9px;height:9px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0}
-.dots button.on{background:var(--amber)}
+.dots{position:fixed;right:calc(50% - 448px);top:50%;transform:translateY(-50%);display:flex;
+  flex-direction:column;align-items:center;gap:10px;z-index:6}
+.dots button{width:10px;height:10px;border-radius:50%;border:none;background:var(--line);cursor:pointer;
+  padding:0;transition:background .15s,transform .15s}
+.dots button:hover{background:var(--ink2);transform:scale(1.35)}
+.dots button.on{background:var(--amber);transform:scale(1.25)}
+@media (max-width:1000px){.dots{right:14px}}
 .bar{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;
   padding:8px 16px;background:linear-gradient(transparent,var(--bg) 55%);z-index:5;pointer-events:none}
 .bar .hintbar{font-size:12px;color:var(--muted)}
 .editbtn{pointer-events:auto;font-size:12px;background:var(--chip);color:var(--ink2);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
 body.editing .inner{outline:1px dashed var(--amber);outline-offset:8px}
+a.ev{color:var(--ink2);text-decoration:underline;text-decoration-color:var(--line);
+  text-underline-offset:3px}
+a.ev:hover{color:var(--amber);text-decoration-color:var(--amber)}
 .src{font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
 .quote{border-left:2px solid var(--amber);padding:2px 0 2px 14px;margin:12px 0;color:var(--ink2);font-size:15px;max-width:62ch}
 @media (prefers-reduced-motion: reduce){#deck{scroll-behavior:auto}}
@@ -55,7 +64,7 @@ body.editing .inner{outline:1px dashed var(--amber);outline-offset:8px}
 
 <!-- SLIDE 0 : title -->
 <section class="slide"><div class="inner">
-  <div class="tag">place-based memory · why</div>
+  <div class="tag">place-based memory - why</div>
   <h1>Field notes from Insight Out</h1>
   <p class="sub">During Insight Out I noticed several odd patterns in how the AI agents answered participant
   questions. This page is an attempt to unpack and document these. My goal is two fold:</p>
@@ -122,7 +131,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 
 <!-- SLIDE 3 : what they're great at -->
 <section class="slide"><div class="inner">
-  <div class="tag">findings · first, credit where due</div>
+  <div class="tag">findings - first, credit where due</div>
   <h2>What these models are already excellent at</h2>
   <p class="sub">Before the problems: the good draws are genuinely good, and some things worked almost every
   time. This is why we trust the tool.</p>
@@ -142,7 +151,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 
 <!-- SLIDE 4 : lottery -->
 <section class="slide"><div class="inner">
-  <div class="tag">finding 1 · explains observed behavior #1</div>
+  <div class="tag">finding 1 - explains observed behavior #1</div>
   <h2>The source lottery</h2>
   <p class="sub">Models randomly pick different data providers across identical runs, without declaring the
   choice. I asked the same question 12 times and got 5 answers. All real and cited.</p>
@@ -181,7 +190,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 
 <!-- SLIDE 5 : ceiling and floor -->
 <section class="slide"><div class="inner">
-  <div class="tag">finding 2 · explains observed behavior #2</div>
+  <div class="tag">finding 2 - explains observed behavior #2</div>
   <h2>IQ Drops</h2>
   <p class="sub">Same model, similar (incremental) questions, minutes apart. Oscillates between expert grade
   and vague shrug. The smarts are real but the dips are random.</p>
@@ -219,7 +228,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 
 <!-- SLIDE 6 : phantom trends -->
 <section class="slide"><div class="inner">
-  <div class="tag">finding 3 · explains observed behavior #3</div>
+  <div class="tag">finding 3 - explains observed behavior #3</div>
   <h2>Phantom trends</h2>
   <p class="sub">A common question that was asked is "fit", i.e. is X going up. Using the same place, same
   years, I saw opposite answers grounded in real data.</p>
@@ -247,7 +256,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 
 <!-- SLIDE 7 : silent memory switch -->
 <section class="slide"><div class="inner">
-  <div class="tag">finding 4 · explains observed behaviors #4 and #5</div>
+  <div class="tag">finding 4 - explains observed behaviors #4 and #5</div>
   <h2>Switching to memory</h2>
   <p class="sub">The pattern I saw at the event (broken API call -> confident answer, no attempt to fix the
   call) reproduced cleanly in the benchmark.</p>
@@ -270,7 +279,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 
 <!-- SLIDE 8 : expertise -->
 <section class="slide"><div class="inner">
-  <div class="tag">finding 5 · explains observed behavior #6</div>
+  <div class="tag">finding 5 - explains observed behavior #6</div>
   <h2>Domain knowledge in the question changes everything</h2>
   <p class="sub">I re-asked failed questions the way the NCF folks would have: naming the dataset, the
   instrument, the method. The shrugs became answers, and models started agreeing.</p>
@@ -299,7 +308,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 
 <!-- SLIDE 9 : where I was wrong -->
 <section class="slide"><div class="inner">
-  <div class="tag">honesty section</div>
+  <div class="tag">clarifications</div>
   <h2>Where I was wrong</h2>
   <p class="sub">Two of my going-in beliefs did not survive the benchmark, and I want to record them.</p>
   <ol class="obs">
@@ -331,7 +340,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
    The frontier's best answers are the bar. Wrong-but-auditable beats
    right-sometimes.</pre></div>
   <p><b>The gate:</b> if these five findings match what you saw at the events, the rest of my proposal
-  (To Be Discussed) follows step by step. If they do not, <a href="evidence/">every run is published here</a>
+  (To Be Discussed) follows step by step. If they do not, <a class="ev" href="evidence/">every run is published here</a>
   with a written reason per score. I changed my own claims twice when the data disagreed; argue with the
   runs, not with me :)</p>
 </div></section>
@@ -340,7 +349,7 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
 
 <div class="dots" id="dots"></div>
 <div class="bar">
-  <span class="hintbar">scroll or up/down arrows · amber text opens details</span>
+  <span class="hintbar">scroll or up/down arrows - amber text opens details</span>
   <button class="editbtn" onclick="toggleEdit()">edit text</button>
 </div>
 <div id="panel"><button class="x" onclick="panel(null)">x</button><div id="pbody"></div></div>
@@ -351,6 +360,9 @@ const slides = [...document.querySelectorAll('.slide')];
 const dots = document.getElementById('dots');
 slides.forEach((s, i) => {
   const b = document.createElement('button');
+  const h = s.querySelector('h1, h2');
+  b.title = (i + 1) + '. ' + (h ? h.textContent.trim() : 'slide ' + (i + 1));
+  b.setAttribute('aria-label', b.title);
   b.onclick = () => slides[i].scrollIntoView({behavior: 'smooth'});
   dots.appendChild(b);
 });
