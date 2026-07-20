@@ -15,3 +15,19 @@
   from = "/why"
   to = "/index.html"
   status = 200
+
+# raw transcripts and banks should render in-browser, not download
+[[headers]]
+  for = "/evidence/*.md"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/evidence/*/*.md"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+
+[[headers]]
+  for = "/evidence/*/runs/*/*.md"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
