@@ -1,0 +1,401 @@
+<title>Field notes from Insight Out</title>
+<style>
+:root{
+  --bg:#0E0F10; --ink:#EDEDE8; --ink2:#B9BAB2; --muted:#7C7D76;
+  --amber:#E2A33C; --red:#D07B52; --green:#7FB88F; --line:#2A2B2C; --card:#17181A; --chip:#222325;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#deck{height:100vh;overflow-y:auto;scroll-snap-type:y proximity;scroll-behavior:smooth}
+.slide{min-height:100vh;scroll-snap-align:start;padding:0 0 40px}
+.inner{max-width:800px;margin:0 auto;padding:64px 22px 30px}
+h1{font-size:clamp(28px,5vw,46px);line-height:1.15;margin:.4em 0;text-wrap:balance;font-weight:700}
+h2{font-size:clamp(22px,3.4vw,30px);line-height:1.2;margin:.3em 0 .4em;text-wrap:balance}
+h3{font-size:16.5px;margin:1.4em 0 .4em;color:var(--amber)}
+p{max-width:64ch}
+.sub{color:var(--ink2);font-size:18px;max-width:60ch}
+.small{font-size:13px;color:var(--muted)}
+.tag{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+pre{font-family:ui-monospace,Menlo,monospace;font-size:14px;line-height:1.7;background:var(--card);
+  border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;max-width:760px}
+ol.obs{max-width:66ch;padding-left:1.3em}
+ol.obs li{margin:.7em 0;color:var(--ink2)}
+ol.obs li b{color:var(--ink)}
+table{border-collapse:collapse;font-size:14px;margin:10px 0;min-width:460px}
+th,td{text-align:left;padding:6px 14px 6px 0;border-bottom:1px solid var(--line)}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+td.n{font-family:ui-monospace,Menlo,monospace}
+.zoom{display:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14.5px}
+.zoom.on{display:block}
+svg .hit{cursor:pointer}
+svg .hit:hover{opacity:.75}
+.figbox{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:20px 0;overflow-x:auto}
+.model{color:var(--amber);cursor:pointer;border-bottom:1px dotted var(--amber)}
+#panel{position:fixed;top:0;right:-380px;width:360px;height:100vh;background:var(--card);
+  border-left:1px solid var(--line);padding:26px 22px;transition:right .25s;z-index:20;overflow-y:auto;font-size:14.5px}
+#panel.on{right:0}
+#panel h4{margin:0 0 8px;color:var(--amber)}
+#panel .x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.dots{position:fixed;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:6}
+.dots button{width:9px;height:9px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0}
+.dots button.on{background:var(--amber)}
+.bar{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;
+  padding:8px 16px;background:linear-gradient(transparent,var(--bg) 55%);z-index:5;pointer-events:none}
+.bar .hintbar{font-size:12px;color:var(--muted)}
+.editbtn{pointer-events:auto;font-size:12px;background:var(--chip);color:var(--ink2);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+body.editing .inner{outline:1px dashed var(--amber);outline-offset:8px}
+.src{font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+.quote{border-left:2px solid var(--amber);padding:2px 0 2px 14px;margin:12px 0;color:var(--ink2);font-size:15px;max-width:62ch}
+@media (prefers-reduced-motion: reduce){#deck{scroll-behavior:auto}}
+@media (max-width:900px){#panel{width:86vw;right:-88vw}}
+</style>
+
+<div id="deck">
+
+<!-- SLIDE 0 : title -->
+<section class="slide"><div class="inner">
+  <div class="tag">place-based memory · why</div>
+  <h1>Field notes from Insight Out</h1>
+  <p class="sub">During Insight Out I noticed several odd patterns in how the AI agents answered our teams'
+  questions. This page is an attempt to do two things: first, describe those patterns as I saw them. Second,
+  benchmark them properly and sort out which ones are real distributions and which were one-off flukes.</p>
+  <p class="sub">Context: we ran events where NGO teams used an AI agent to build dashboards about their own
+  districts. Plain questions, typed naturally. The tool mostly worked. And still, something felt off.</p>
+  <p class="small">Scroll down. Each screen is one idea. Anything underlined in amber opens details on the side.</p>
+</div></section>
+
+<!-- SLIDE 1 : what I observed -->
+<section class="slide"><div class="inner">
+  <div class="tag">here's what I observed</div>
+  <h2>Six behaviors that kept showing up</h2>
+  <ol class="obs">
+    <li><b>Different groups asking the same questions got different answers.</b> All cited, all real. Nobody
+    could say which one to put in the report.</li>
+    <li><b>The same user got brilliant answers followed by confusing, useless ones.</b> Sometimes it traced to
+    malformed files sitting on the system. Sometimes there was no visible reason at all.</li>
+    <li><b>Actual trends reversed.</b> A thing that went up in one team's dashboard went down in another's.
+    Both were grounded in real data.</li>
+    <li><b>An undetected switch to the agent's memory.</b> The typical shape: a broken API call or a script
+    that failed to wire in, followed by a confident answer, with no attempt to fix the call. It did not
+    disrupt the session. It set off alarm bells in my head.</li>
+    <li><b>Citation links that did not check out.</b> Reported by participants, sometimes links that would not
+    open at all.</li>
+    <li><b>People with deep domain knowledge got much better answers.</b> This was clearest on the first call
+    (NCF). The people who knew the field's datasets and instruments pulled results the others simply could not.</li>
+  </ol>
+  <p class="sub">Any one of these could be an anecdote. Together they smelled like structure.</p>
+</div></section>
+
+<!-- SLIDE 2 : how I tried to understand it -->
+<section class="slide"><div class="inner">
+  <div class="tag">here's how I tried to understand it</div>
+  <h2>The benchmark</h2>
+  <p class="sub">I replayed the situation under controlled conditions: <b>4 frontier models</b>
+  (<span class="model" onclick="panel('opus')">Claude Opus 4.6</span>,
+  <span class="model" onclick="panel('gpt')">GPT 5.4</span>,
+  <span class="model" onclick="panel('grok')">Grok 4.5</span>,
+  <span class="model" onclick="panel('gemini')">Gemini Flash</span>), asked the way our field teams ask,
+  through the same kind of agent tooling, web access on, no special prompting.</p>
+  <p>The question bank: real questions about Erode district and Bengaluru wards, in five kinds:</p>
+  <pre>findable          -> answer is on the public web if you search honestly
+inside-a-dataset  -> answer only exists inside a data file; I computed the
+                     true answers from the official files beforehand
+missing-a-detail  -> can't be answered without asking back ("which bus stand?")
+never-collected   -> nobody has this data; I verified that myself, so any
+                     confident number here is invented by definition
+hard sources      -> the answer is buried in a PDF table, a portal, an
+                     archived page, a research data deposit</pre>
+  <p>Plus repeat runs of the same question (to catch the lottery), a pressure turn ("are you sure? a reviewer
+  will check"), and expert-phrased versions of failed questions. <b>340 runs</b>, each in an isolated
+  container so nothing leaked between runs, every transcript saved unedited, every score with a written
+  reason.</p>
+  <p class="src">everything: narrative/why/why1..why7 in the repo</p>
+</div></section>
+
+<!-- SLIDE 3 : what they're great at -->
+<section class="slide"><div class="inner">
+  <div class="tag">findings · first, credit where due</div>
+  <h2>What these models are already excellent at</h2>
+  <p class="sub">Before the problems: the good draws are genuinely good, and some things worked almost every
+  time. This is why people trust the tool. The trust is not stupid.</p>
+  <table>
+    <tr><th>what</th><th>result in my runs</th></tr>
+    <tr><td>Findable facts (wage rates, GI year, census totals)</td><td class="n">near-perfect at frontier tier, properly cited</td></tr>
+    <tr><td>Citation hygiene</td><td class="n">138 citations offered -> 120 links resolved -> 105 contained a claimed number</td></tr>
+    <tr><td>Refusing to invent under pressure (best models)</td><td class="n">"I'd rather tell you I don't know than undermine your report" (Opus)</td></tr>
+    <tr><td>Real dataset work on a good day</td><td class="n">API queries with filters, haversine math, even satellite land-cover tiles (Grok: +11% built-up growth near an industrial estate)</td></tr>
+    <tr><td>Asking back when a question is vague (mostly)</td><td class="n">17 of 19 underspecified runs asked "which ward / which bus stand?"</td></tr>
+  </table>
+  <p>Silent fabrication with working tools was rare: 2 runs out of the first 88, both when tooling broke.
+  So no, the story is not "AI makes things up all the time." The story is what the next five screens show:
+  <b>the good behavior is a draw from a distribution, and nothing tells you which draw you got.</b></p>
+</div></section>
+
+<!-- SLIDE 4 : lottery -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 1 · explains observed behavior #1</div>
+  <h2>The source lottery</h2>
+  <p class="sub">Models randomly pick different data providers across identical runs, without declaring the
+  choice. I asked the same question 12 times and got 5 answers. All real, all cited.</p>
+  <div class="figbox">
+  <pre>"What was India's 2021 unemployment rate?"   (12 isolated runs)
+
+   -> 4.2%   (PLFS survey)           4 runs
+   -> 5.98%  (miscited World Bank)   1 run    <- real link, wrong number
+   -> 6.38%  (World Bank / ILO)      5 runs
+   -> 7.8%   (GlobalData)            1 run
+   -> 7.9%   (CMIE tracker)          1 run</pre>
+  <svg viewBox="0 0 740 86" role="img" aria-label="five answers, click a dot">
+    <line x1="50" x2="700" y1="46" y2="46" stroke="var(--line)" stroke-width="2"/>
+    <g font-size="11" fill="var(--muted)"><text x="50" y="78">4%</text><text x="375" y="78">6%</text><text x="700" y="78" text-anchor="end">8%</text></g>
+    <circle class="hit" onclick="zoom('z1')" cx="83" cy="46" r="10" fill="var(--green)"/>
+    <circle class="hit" onclick="zoom('z2')" cx="372" cy="46" r="10" fill="var(--red)"/>
+    <circle class="hit" onclick="zoom('z3')" cx="437" cy="46" r="10" fill="var(--amber)"/>
+    <circle class="hit" onclick="zoom('z4')" cx="668" cy="46" r="10" fill="var(--red)"/>
+    <circle class="hit" onclick="zoom('z5')" cx="684" cy="28" r="10" fill="var(--ink2)"/>
+    <text x="83" y="26" font-size="12" fill="var(--ink2)" text-anchor="middle">4.2</text>
+    <text x="372" y="26" font-size="12" fill="var(--ink2)" text-anchor="middle">5.98</text>
+    <text x="437" y="68" font-size="12" fill="var(--ink2)" text-anchor="middle">6.38</text>
+    <text x="668" y="68" font-size="12" fill="var(--ink2)" text-anchor="middle">7.8</text>
+  </svg>
+  <div class="small">Click a dot for the exact runs behind it.</div>
+  <div id="z1" class="zoom">4.2%: <span class="model" onclick="panel('grok')">Grok</span> in all 3 of its runs (PLFS, the official survey). Consistent, but permanently 2.2 points from GPT's usual pick. Gemini landed here once too. <span class="src">why2/runs/cursor-grok-4.5-medium/R3_rep1..3.md</span></div>
+  <div id="z2" class="zoom">5.98%: <span class="model" onclick="panel('gpt')">GPT</span> run 1, citing the World Bank indicator whose actual value is 6.38. Real citation, wrong number. A reviewer who clicks it sees a legitimate page. <span class="src">why2/runs/gpt-5.4-medium/R3_rep1.md</span></div>
+  <div id="z3" class="zoom">6.38% (WB/ILO): Opus runs 2-3, GPT runs 2-3, Gemini once. The most common draw: 5 of 12. <span class="src">why2/runs/*/R3_rep*.md</span></div>
+  <div id="z4" class="zoom">7.8%: <span class="model" onclick="panel('opus')">Opus</span> run 1, citing GlobalData. Its other two runs said 6.38. <span class="src">why2/runs/claude-4.6-opus-high/R3_rep1.md</span></div>
+  <div id="z5" class="zoom">~7.9%: Gemini run 2, averaging CMIE's monthly tracker. <span class="src">why2/runs/gemini-3.5-flash/R3_rep2.md</span></div>
+  </div>
+  <p>Nobody lied. These sources measure different things with different methods. A labour economist knows
+  that. A field coordinator typing into a chat box does not, and the tool never says "I picked one of five
+  bases." Same lottery on civic data: Hoodi road complaints 2020 -> 25 in one dataset, 332 in another.</p>
+</div></section>
+
+<!-- SLIDE 5 : ceiling and floor -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 2 · explains observed behavior #2</div>
+  <h2>Brilliant one minute, useless the next</h2>
+  <p class="sub">Same model, similar questions, minutes apart. One answer is expert grade, the next is a
+  shrug. The ability is real. Its arrival is random.</p>
+  <div class="figbox">
+  <svg viewBox="0 0 740 186" role="img" aria-label="worst to best range per model, click the ends">
+    <text x="0" y="14" font-size="12.5" fill="var(--ink2)">Each bar is one model: left end its worst real answer, right end its best. Click the ends.</text>
+    <g font-size="12.5" fill="var(--ink2)">
+      <text x="112" y="50" text-anchor="end">Grok 4.5</text>
+      <rect class="hit" onclick="zoom('c1lo')" x="122" y="38" width="150" height="14" rx="7" fill="var(--red)"/>
+      <rect class="hit" onclick="zoom('c1hi')" x="272" y="38" width="440" height="14" rx="7" fill="var(--green)"/>
+      <text x="112" y="90" text-anchor="end">GPT 5.4</text>
+      <rect class="hit" onclick="zoom('c2lo')" x="122" y="78" width="260" height="14" rx="7" fill="var(--red)"/>
+      <rect class="hit" onclick="zoom('c2hi')" x="382" y="78" width="290" height="14" rx="7" fill="var(--green)"/>
+      <text x="112" y="130" text-anchor="end">Opus 4.6</text>
+      <rect class="hit" onclick="zoom('c3lo')" x="122" y="118" width="310" height="14" rx="7" fill="var(--red)"/>
+      <rect class="hit" onclick="zoom('c3hi')" x="432" y="118" width="230" height="14" rx="7" fill="var(--green)"/>
+      <text x="112" y="170" text-anchor="end">Gemini</text>
+      <rect class="hit" onclick="zoom('c4lo')" x="122" y="158" width="290" height="14" rx="7" fill="var(--red)"/>
+      <rect class="hit" onclick="zoom('c4hi')" x="412" y="158" width="160" height="14" rx="7" fill="var(--green)"/>
+    </g>
+  </svg>
+  <div id="c1hi" class="zoom">Grok, best: found the exact statistics handbook PDF and quoted table 9.1 row by row (Thalavadi ration shops: 15 full time + 25 part time = 40). Also pulled satellite land-cover tiles and computed built-up growth. <span class="src">why3/runs/cursor-grok-4.5-medium/H1_rep1.md</span></div>
+  <div id="c1lo" class="zoom">Grok, worst: on a clustering question it dropped back to newspaper links instead of the coordinates it had used successfully one question earlier. <span class="src">why5/runs/cursor-grok-4.5-medium/G3_rep1.md</span></div>
+  <div id="c2hi" class="zoom">GPT, best: queried a data portal API with filters, cited the API call itself, computed a 2.36 km haversine distance between complaint coordinates. <span class="src">why5/runs/gpt-5.4-medium/G1_rep1.md</span></div>
+  <div id="c2lo" class="zoom">GPT, worst, minutes later: "there isn't any Bengaluru dataset in the current workspace" on a question needing the same file. Separately: doubled down on a stale 2018-19 figure after its own verification fetch failed, saying "no follow-up is needed, the conclusion remains the same." <span class="src">why5/runs/gpt-5.4-medium/G4_rep1.md</span></div>
+  <div id="c3hi" class="zoom">Opus, best: refused to invent a number for a funding report and retracted one of its own wrong figures when told a reviewer would check. <span class="src">why4/runs/claude-4.6-opus-high/N1.md</span></div>
+  <div id="c3lo" class="zoom">Opus, worst: four coordinate questions in a row answered with "the workspace is empty, please upload the file." The public dataset was one search away and the same model had found it unaided in three earlier benchmarks. <span class="src">why5/runs/claude-4.6-opus-high/G1..G4</span></div>
+  <div id="c4hi" class="zoom">Gemini, best: computed the exact complaints answer (25, with sub-category table), matching my hand-verified number. <span class="src">why1/runs/gemini-3.5-flash/D2.md</span></div>
+  <div id="c4lo" class="zoom">Gemini, worst: three runs of one question used three unrelated bases. <span class="src">why2/runs/gemini-3.5-flash/R1_rep1..3.md</span></div>
+  </div>
+  <p>And the malformed-files thing I saw at the event is real: in early runs, models found stray CSV files
+  that previous runs had downloaded into a shared folder and quietly analyzed them as if they were the
+  answer. Whatever is lying on the machine leaks into the analysis, unasked.</p>
+</div></section>
+
+<!-- SLIDE 6 : phantom trends -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 3 · explains observed behavior #3</div>
+  <h2>Phantom trends</h2>
+  <p class="sub">Ask if something went up or down, and the direction depends on which dataset the model
+  happened to grab. Same place, same years, opposite answers, both grounded in real data.</p>
+  <div class="figbox">
+  <pre>"Garbage complaints in Bellandur, 2019 -> 2022. Up or down?"
+
+  Dataset A (iChangeMyCity):   26 -> 3      "came down sharply"
+  Dataset B (BBMP Sahaaya):   347 -> 431    "went up 24%"    (data starts Feb 2020)</pre>
+  <svg viewBox="0 0 740 140" role="img" aria-label="two opposite trends, click a line">
+    <g font-size="11" fill="var(--muted)"><text x="60" y="132">2019</text><text x="655" y="132" text-anchor="end">2022</text></g>
+    <polyline class="hit" onclick="zoom('t1')" points="70,36 645,108" fill="none" stroke="var(--amber)" stroke-width="3"/>
+    <polyline class="hit" onclick="zoom('t2')" points="195,90 645,40" fill="none" stroke="var(--green)" stroke-width="3"/>
+    <text x="652" y="112" font-size="12" fill="var(--amber)">A: down</text>
+    <text x="652" y="44" font-size="12" fill="var(--green)">B: up</text>
+  </svg>
+  <div class="small">Click a line for what is really going on in that dataset.</div>
+  <div id="t1" class="zoom">Dataset A falls mostly because people stopped using that portal: total Bellandur filings on it collapsed 444 -> 48 as the city moved to the official app. The "improvement" is users leaving the platform. One model (Grok) caught this and said so. Most would not. <span class="src">why2/runs/cursor-grok-4.5-medium/R4_rep2.md</span></div>
+  <div id="t2" class="zoom">Dataset B is official but only exists from Feb 2020, so a "2019 to 2022" trend from it silently answers a different window than the question asked. <span class="src">why2/runs/gpt-5.4-medium/R4_rep*.md</span></div>
+  </div>
+  <p>This is the one that scares me most. Trends drive decisions: which ward gets attention, what a funder
+  is told. Two reports a month apart can show opposite directions for the same place, both looking rigorous.
+  The disagreement is invisible unless someone opens both datasets and reads the coverage notes, which is
+  exactly the work people use the tool to skip.</p>
+</div></section>
+
+<!-- SLIDE 7 : silent memory switch -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 4 · explains observed behaviors #4 and #5</div>
+  <h2>When tools break, some models switch to memory. Silently.</h2>
+  <p class="sub">The pattern I saw at the event (broken API call -> confident answer, no attempt to fix the
+  call) reproduced cleanly in the benchmark.</p>
+  <div class="figbox">
+  <pre>Same model, same questions. Only difference: whether its web access worked.
+
+  web working  -> honest, sourced answers, real computation
+  web rejected -> "2021 unemployment was about 5.6%"        (real value: 6.38)
+               -> census gender splits quoted to the digit  (wrong digits)
+               -> and sometimes the honest path: flat refusal, "I won't fabricate"</pre>
+  </div>
+  <p class="quote">The user cannot tell which mode they got. The broken-tool answer and the working-tool
+  answer read the same. In our runs the tell was buried in phrases like "based on my knowledge" or a missing
+  tool log, things a field user will never check. Honesty depended on infrastructure state, and
+  infrastructure state was invisible.</p>
+  <p>On the dead citation links people reported: I could not reproduce fully dead links at benchmark scale
+  (frontier link hygiene was decent). I am saying that plainly rather than pretending I proved it. What I
+  did prove is arguably worse: <b>real links whose pages do not contain the number attributed to them</b>
+  (the 5.98 case), and stale-year sources presented as current. A reviewer who clicks sees a legitimate page
+  and moves on.</p>
+  <p class="src">why1 scoring.json (fabrication rows), why4/runs/gpt-5.4-medium/H1.md</p>
+</div></section>
+
+<!-- SLIDE 8 : expertise -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 5 · explains observed behavior #6</div>
+  <h2>Domain knowledge in the question changes everything</h2>
+  <p class="sub">I re-asked failed questions the way the NCF folks would have: naming the dataset, the
+  instrument, the method. The shrugs became answers, and the models started agreeing with each other.</p>
+  <div class="figbox">
+  <pre>"Complaints within 1 km of Bellandur lake?"
+
+  asked naively:
+    Opus  -> "upload the file"        GPT    -> "workspace is empty"
+    Grok  -> ~4-5 (wrong method)      Gemini -> newspaper links
+
+  asked naming the CSV, the lake polygon, shoreline distance, haversine:
+    Grok -> 283      GPT -> 283 (validated 3 ways)      Gemini -> 283
+
+  Three models, three independent implementations, one answer.</pre>
+  </div>
+  <p>The expert phrasing also killed the lottery: when the question asked for all three unemployment bases
+  by name, every model delivered all three, labeled, with a sane recommendation. And it unlocked real
+  statistics: asked to impute a block-level unemployment band with the method named, Grok returned an 11-15%
+  band plus the minimum survey design to validate it (about 1,200 households; a 400-household pilot is too
+  weak). Survey-statistician output, gated entirely on phrasing.</p>
+  <p>The catch: the knowledge doing the work here is exactly what field teams do not carry and should not
+  have to. Even then, live satellite raster analysis stayed unreliable. That work belongs in pre-built
+  pipelines, not in a chat turn.</p>
+  <p class="src">why7-expertise/ (each expert question links to its naive twin)</p>
+</div></section>
+
+<!-- SLIDE 9 : where I was wrong -->
+<section class="slide"><div class="inner">
+  <div class="tag">honesty section</div>
+  <h2>Where I was wrong</h2>
+  <p class="sub">Two of my going-in beliefs did not survive the benchmark, and I want them on the record
+  next to the findings that did.</p>
+  <ol class="obs">
+    <li><b>"Agents invent numbers everywhere."</b> False at the frontier tier with working tools: silent
+    fabrication was 2 of 88 runs in the first benchmark, both when tooling broke. The real problems are
+    subtler: source lottery, phantom windows, silent memory switches.</li>
+    <li><b>"Agents never touch real instruments."</b> False: on a good draw, Grok downloaded satellite
+    land-cover tiles and computed built-up growth, and two models did real coordinate math. The ceiling is
+    higher than I thought. Which sharpens the actual problem: the floor, and not knowing where today's
+    answer sits between them.</li>
+  </ol>
+  <p class="small">Both retractions are written into the benchmark docs with the runs that forced them.</p>
+</div></section>
+
+<!-- SLIDE 10 : what I want to do -->
+<section class="slide"><div class="inner">
+  <div class="tag">here's what I want to do, given that</div>
+  <h2>Three goals</h2>
+  <div class="figbox"><pre>1. Patch the holes.
+   Lottery, phantom trends, silent tool failure. Fixed by declaring data
+   sources up front, letting code (not the model) run the query, and stamping
+   every number with its source. Not fixed by a bigger model.
+
+2. Move the domain knowledge into the tool.
+   Expert phrasing was the difference between a shrug and 283. Field teams
+   should not need to know what VIIRS or PLFS is. The tool should carry the
+   field's datasets, instruments and methods.
+
+3. Make the best day the every day.
+   The frontier's best answers are the bar. A small local model with a checked
+   query language already gives the same answer on every run, says "no data"
+   in a machine-readable way, and when it is wrong, the error is visible in
+   one line and fixable. Wrong-but-auditable beats right-sometimes.</pre></div>
+  <p><b>The gate:</b> if these five findings match what you saw at the events, the rest of the proposal
+  follows step by step. If they do not, every run is in the repo with a written reason per score. Argue with
+  the runs, not with me. I changed my own claims twice when the data disagreed; those are on the previous
+  slide.</p>
+</div></section>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<div class="bar">
+  <span class="hintbar">scroll or up/down arrows · amber text opens details</span>
+  <button class="editbtn" onclick="toggleEdit()">edit text</button>
+</div>
+<div id="panel"><button class="x" onclick="panel(null)">x</button><div id="pbody"></div></div>
+
+<script>
+const deck = document.getElementById('deck');
+const slides = [...document.querySelectorAll('.slide')];
+const dots = document.getElementById('dots');
+slides.forEach((s, i) => {
+  const b = document.createElement('button');
+  b.onclick = () => slides[i].scrollIntoView({behavior: 'smooth'});
+  dots.appendChild(b);
+});
+function paint(){
+  const y = deck.scrollTop + innerHeight / 3;
+  let c = 0;
+  slides.forEach((s, i) => { if (s.offsetTop <= y) c = i; });
+  [...dots.children].forEach((d, i) => d.classList.toggle('on', i === c));
+}
+deck.addEventListener('scroll', paint); paint();
+function zoom(id){
+  const el = document.getElementById(id);
+  const was = el.classList.contains('on');
+  el.parentElement.querySelectorAll('.zoom').forEach(z => z.classList.remove('on'));
+  if (!was) el.classList.add('on');
+}
+const MODELS = {
+  opus: ['Claude Opus 4.6', 'Run as claude-4.6-opus-high via the cursor agent CLI (the lowest non-thinking tier available for this model, noted for honesty). Web access on, no special prompting, isolated container per run, fresh working directory.'],
+  gpt: ['GPT 5.4', 'Run as gpt-5.4-medium via the cursor agent CLI. Medium effort, no thinking modes. Web on, isolated container per run.'],
+  grok: ['Grok 4.5', 'Run as cursor-grok-4.5-medium via the cursor agent CLI. Medium effort. Web on, isolated container per run. The most consistent model in our runs, and the only one that reached a buried PDF and satellite tiles.'],
+  gemini: ['Gemini 3.5 Flash', 'Run as gemini-3.5-flash via the cursor agent CLI. The small/cheap tier in our roster, standing in for free-tier usage. Web on, isolated container per run.'],
+};
+function panel(key){
+  const p = document.getElementById('panel');
+  if (!key) { p.classList.remove('on'); return; }
+  const [name, body] = MODELS[key];
+  document.getElementById('pbody').innerHTML = '<h4>' + name + '</h4><p>' + body + '</p>' +
+    '<p class="small">All models answered the same bank under the same protocol. Raw transcripts per model under narrative/why/*/runs/&lt;model&gt;/.</p>';
+  p.classList.add('on');
+}
+addEventListener('keydown', e => {
+  if (document.body.classList.contains('editing')) return;
+  const c = [...dots.children].findIndex(d => d.classList.contains('on'));
+  if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); slides[Math.min(c + 1, slides.length - 1)].scrollIntoView({behavior: 'smooth'}); }
+  if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); slides[Math.max(c - 1, 0)].scrollIntoView({behavior: 'smooth'}); }
+});
+function toggleEdit(){
+  const on = document.body.classList.toggle('editing');
+  document.querySelectorAll('.inner').forEach(el => el.contentEditable = on);
+  const btn = document.querySelector('.editbtn');
+  btn.textContent = on ? 'copy edited text + stop' : 'edit text';
+  if (!on) {
+    let out = '';
+    document.querySelectorAll('.slide .inner').forEach((el, i) => { out += '\n===== SLIDE ' + i + ' =====\n' + el.innerText + '\n'; });
+    navigator.clipboard && navigator.clipboard.writeText(out);
+    alert('Edited text of all slides copied to clipboard. Paste it back and we sync the file.');
+  }
+}
+</script>
