@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Field notes from Insight Out</title>
 <style>
 :root{
@@ -7,10 +9,10 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-#deck{height:100vh;overflow-y:auto;scroll-snap-type:y proximity;scroll-behavior:smooth;
+#deck{height:100vh;height:100dvh;overflow-y:auto;scroll-snap-type:y proximity;scroll-behavior:smooth;
   scrollbar-width:none;-ms-overflow-style:none}
 #deck::-webkit-scrollbar{width:0;height:0;display:none}
-.slide{min-height:100vh;scroll-snap-align:start;padding:0 0 40px}
+.slide{min-height:100vh;min-height:100dvh;scroll-snap-align:start;padding:0 0 40px}
 .inner{max-width:800px;margin:0 auto;padding:64px 22px 30px}
 h1{font-size:clamp(28px,5vw,46px);line-height:1.15;margin:.4em 0;text-wrap:balance;font-weight:700}
 h2{font-size:clamp(22px,3.4vw,30px);line-height:1.2;margin:.3em 0 .4em;text-wrap:balance}
@@ -25,6 +27,7 @@ ol.obs{max-width:66ch;padding-left:1.3em}
 ol.obs li{margin:.7em 0;color:var(--ink2)}
 ol.obs li b{color:var(--ink)}
 table{border-collapse:collapse;font-size:14px;margin:10px 0;min-width:460px}
+.tblwrap{overflow-x:auto;max-width:100%}
 th,td{text-align:left;padding:6px 14px 6px 0;border-bottom:1px solid var(--line)}
 th{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
 td.n{font-family:ui-monospace,Menlo,monospace}
@@ -58,6 +61,18 @@ a.ev:hover{color:var(--amber);text-decoration-color:var(--amber)}
 .quote{border-left:2px solid var(--amber);padding:2px 0 2px 14px;margin:12px 0;color:var(--ink2);font-size:15px;max-width:62ch}
 @media (prefers-reduced-motion: reduce){#deck{scroll-behavior:auto}}
 @media (max-width:900px){#panel{width:86vw;right:-88vw}}
+@media (max-width:640px){
+  body{font-size:15.5px}
+  .inner{padding:34px 16px 24px}
+  .sub{font-size:16px}
+  pre{font-size:11.5px;padding:10px 12px;line-height:1.6}
+  .figbox{padding:10px;margin:16px 0}
+  table{font-size:13px}
+  .dots{display:none}
+  .bar .hintbar{display:none}
+  .editbtn{display:none}
+  h3{margin:1.1em 0 .3em}
+}
 </style>
 
 <div id="deck">
@@ -135,14 +150,14 @@ hard sources      -> the answer is buried in a PDF table, a portal, an
   <h2>What these models are already excellent at</h2>
   <p class="sub">Before the problems: the good draws are genuinely good, and some things worked almost every
   time. This is why we trust the tool.</p>
-  <table>
+  <div class="tblwrap"><table>
     <tr><th>what</th><th>result in my runs</th></tr>
     <tr><td>Findable facts (wage rates, Geo Indicators, census)</td><td class="n">near-perfect at frontier tier, properly cited</td></tr>
     <tr><td>Citation hygiene</td><td class="n">138 citations offered -> 120 links resolved -> 105 contained a claimed number</td></tr>
     <tr><td>Refusing to invent under pressure</td><td class="n">"I'd rather tell you I don't know than undermine your report" (claude)</td></tr>
     <tr><td>Real dataset work</td><td class="n">API queries with filters, lat/lon math, even satellite land-cover tiles (Grok: +11% built-up growth near an industrial estate)</td></tr>
     <tr><td>Asking back when a question is vague (mostly)</td><td class="n">17 of 19 underspecified runs asked "which ward / which bus stand?"</td></tr>
-  </table>
+  </table></div>
   <p>Silent fabrication with working tools was rare: 2 runs out of the first 88, both when tooling broke.
   So conclusion: "AI makes things up." is not a defensible narrative. The real puzzle is what the next five
   screens show (spoiler: <b>the good behavior is a draw from a distribution, and nothing tells you which draw
