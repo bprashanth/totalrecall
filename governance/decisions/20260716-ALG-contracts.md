@@ -101,3 +101,18 @@ ALG-002 remains `accepted-conditional` and unreleased; connector field declarati
 the parser-visible FILTER surface and corpus/model bundle do not exist. ALG-003 remains
 `rfc-required`; no keyed-result representation was selected or implemented. ALG-008 remains
 deferred.
+
+## Conditional implementation record — 2026-07-21
+
+ALG-002 is now implemented behind the same explicit `v2.4.0-draft` profile as ALG-015 BUFFER.
+The OSM and World Bank reference connector leaves publish typed field declarations, and FILTER
+enforces conjunctive typed predicates, unknown-field/type-error DataRequests, null-exclusion
+accounting, true-negative empty results, evidence-label passthrough, and canonical chain merging.
+The released v2.3 profile continues to reject both parser-visible operations.
+
+The coordinated BUFFER/FILTER conformance bank has 20/20 valid, fixture-executing gold cases,
+including radius-vs-pairwise-threshold discrimination. Its deliberately untrained qwen2b baseline
+matches only 6/15 parser-required cases, which confirms rather than clears the model gate. The
+development corpus is in `kit/conformance/v24_parse_v2.4.jsonl`; release still requires a
+versioned v2.4-trained model, perfect required-case parser conformance, and the v2.3 regression
+wall. This record does not promote ALG-002 or ALG-015 and does not alter ALG-003's RFC blocker.

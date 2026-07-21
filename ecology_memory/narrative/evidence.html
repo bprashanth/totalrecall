@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ecology place-memory benchmark — evidence</title>
+<style>
+:root{--bg:#0e0f10;--ink:#edede8;--ink2:#b9bab2;--muted:#7c7d76;--amber:#e2a33c;--line:#2a2b2c;--card:#17181a}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1080px;margin:auto;padding:48px 22px 80px} h1{font-size:clamp(28px,5vw,44px);line-height:1.15;max-width:19ch}
+h2{margin-top:2.2em;font-size:22px} p{max-width:72ch;color:var(--ink2)} a{color:var(--amber)}
+.tag{font:11.5px ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.notice{padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:8px;max-width:76ch}
+.scroll{overflow-x:auto} table{border-collapse:collapse;width:100%;min-width:900px;font-size:13.5px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px 10px 0;border-bottom:1px solid var(--line)}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)} td:first-child{font-weight:700}
+.score{font:13px ui-monospace,monospace;color:var(--ink2);white-space:nowrap}.files a{display:inline-block;margin:0 8px 4px 0}
+code{color:var(--ink);background:var(--card);padding:.1em .3em;border-radius:4px}.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body><main>
+  <div class="tag">ecology place-memory — audit trail</div>
+  <h1>Every claim should survive the click</h1>
+  <p>This page is the evidence index for the frozen five-question pilot. The narrative is an
+  interpretation; the JSON files below are the retained model answers and system traces.</p>
+  <p class="notice"><b>No reruns were used for the estimation story.</b> The estimation lens is a
+  post-hoc view of Q3–Q5 using the original scores. It asks separately whether an analysis ran and
+  whether the evidence boundary survived.</p>
+
+  <h2>Protocol and scoring</h2>
+  <p class="files">
+    <a href="index.html">narrative deck</a>
+    <a href="DESIGN.md">frozen protocol</a>
+    <a href="bank.json">question bank and gold chains</a>
+    <a href="scoring.json">every score rationale</a>
+    <a href="RESULTS.md">question-level interpretation</a>
+    <a href="ESTIMATION_RESULTS.md">estimation lens</a>
+    <a href="estimation_lens.json">lens definition</a>
+    <a href="score.py">reproduce main totals</a>
+    <a href="score_estimation.py">reproduce estimation totals</a>
+  </p>
+
+  <h2>Five frozen questions, five retained conditions</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Question</th><th>What crosses the boundary</th><th>Gemini Flash</th><th>DeepSeek V4 + web</th><th>Accepted stack</th><th>LoRA-9B E2E</th><th>Plan-bound diagnostic</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Q1<br><span class="score">3 · 3 · 10 · 9 · 9</span></td>
+        <td>September encounters versus older property records; short non-detection versus absence.</td>
+        <td><a href="runs/gemini-flash-agent/Q1.json">raw</a></td>
+        <td><a href="runs/deepseek-v4-web/Q1.json">raw</a></td>
+        <td><a href="runs/ecology-stack-best/Q1.json">raw + trace</a></td>
+        <td><a href="runs/ecology-stack-lora9/Q1.json">raw + trace</a></td>
+        <td><a href="runs/ecology-mech-bind-lora9/Q1.json">raw + trace</a></td>
+      </tr>
+      <tr>
+        <td>Q2<br><span class="score">9 · 0 · 3 · 3 · 7</span></td>
+        <td>Published coordinate plus modelled raster class; land cover versus floristics.</td>
+        <td><a href="runs/gemini-flash-agent/Q2.json">raw</a></td>
+        <td><a href="runs/deepseek-v4-web/Q2.json">raw</a></td>
+        <td><a href="runs/ecology-stack-best/Q2.json">raw + trace</a></td>
+        <td><a href="runs/ecology-stack-lora9/Q2.json">raw + trace</a></td>
+        <td><a href="runs/ecology-mech-bind-lora9/Q2.json">raw + trace</a></td>
+      </tr>
+      <tr>
+        <td>Q3<br><span class="score">0 · 5 · 10 · 10 · 10</span></td>
+        <td>Historical active-fire measurements versus current calibrated fire risk.</td>
+        <td><a href="runs/gemini-flash-agent/Q3.json">raw</a></td>
+        <td><a href="runs/deepseek-v4-web/Q3.json">raw</a></td>
+        <td><a href="runs/ecology-stack-best/Q3.json">raw + trace</a></td>
+        <td><a href="runs/ecology-stack-lora9/Q3.json">raw + trace</a></td>
+        <td><a href="runs/ecology-mech-bind-lora9/Q3.json">raw + trace</a></td>
+      </tr>
+      <tr>
+        <td>Q4<br><span class="score">0 · 5 · 5 · 5 · 8</span></td>
+        <td>Local checklist plus remote fruit-use table; regional mechanism versus local interaction.</td>
+        <td><a href="runs/gemini-flash-agent/Q4.json">raw</a></td>
+        <td><a href="runs/deepseek-v4-web/Q4.json">raw</a></td>
+        <td><a href="runs/ecology-stack-best/Q4.json">raw + trace</a></td>
+        <td><a href="runs/ecology-stack-lora9/Q4.json">raw + trace</a></td>
+        <td><a href="runs/ecology-mech-bind-lora9/Q4.json">raw + trace</a></td>
+      </tr>
+      <tr>
+        <td>Q5<br><span class="score">4 · 3 · 6 · 6 · 10</span></td>
+        <td>Regional occurrence plus environmental gates; candidate versus expected-at-site.</td>
+        <td><a href="runs/gemini-flash-agent/Q5.json">raw</a></td>
+        <td><a href="runs/deepseek-v4-web/Q5.json">raw</a></td>
+        <td><a href="runs/ecology-stack-best/Q5.json">raw + trace</a></td>
+        <td><a href="runs/ecology-stack-lora9/Q5.json">raw + trace</a></td>
+        <td><a href="runs/ecology-mech-bind-lora9/Q5.json">raw + trace</a></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="small">Scores in each row follow the column order and are out of 10. “Plan-bound” supplies
+  the frozen operation and therefore measures the source/execution substrate, not end-to-end question answering.</p>
+
+  <h2>How to challenge the narrative</h2>
+  <p>Start with <a href="scoring.json">the written score rationales</a>, then open the corresponding raw
+  trace above. The main aggregate is reproduced with <code>python3 score.py</code>; the Q3–Q5 recut with
+  <code>python3 score_estimation.py</code>. The five-question result is a pattern probe, not saturation,
+  production readiness, or a universal model ranking.</p>
+</main></body></html>

@@ -8,7 +8,7 @@ the tree, not the prose:
   holes_correct  produced holes iff the question is ambiguous (must_hole)
   estimate_ok    used ESTIMATE iff the question is a transfer (must_estimate)
   exec_class     executor outcome class == expected (answer | data_request)
-  exec_grounded  an 'answer' actually carried rows/value (not empty)
+  exec_grounded  an 'answer' carried rows/value, or a typed operation proved a true negative
 
 overall = weighted mean in [0,1]. The trap we avoid (improvement-loop.md): scoring only content.
 Here structure + behavior dominate, and an optional LLM judge is a tiebreaker, not the score.
@@ -46,12 +46,12 @@ def _shape(ir):
     return Counter(ops)
 
 
-def score(qrow, ir, exec_result):
+def score(qrow, ir, exec_result, algebra_version=None):
     g = qrow
     s = {}
     s["parse_valid"] = ir is not None
-    rep = validate(ir) if ir is not None else {"valid": False, "ops": [], "holes": [],
-                                               "has_estimate": False, "unbound": False}
+    rep = validate(ir, algebra_version) if ir is not None else {
+        "valid": False, "ops": [], "holes": [], "has_estimate": False, "unbound": False}
     s["schema_valid"] = bool(rep["valid"])
 
     # allow-set: a question may declare several acceptable shapes (valid paraphrases).
@@ -92,15 +92,17 @@ def score(qrow, ir, exec_result):
         v = exec_result.get("value", {})
         grounded = bool(v.get("rows")) or (v.get("value") is not None)
         if not grounded:
-            # true negative: empty RELATE/COMPARE over NON-EMPTY inputs is a legitimate
-            # data-backed answer ("none within 1km"), unlike an empty SELECT (a data gap).
+            # True negative: empty RELATE/COMPARE/FILTER over NON-EMPTY inputs is a
+            # legitimate data-backed answer ("none within 1km" / "none matched"),
+            # unlike an empty SELECT (which may only expose a data gap).
             # Provenance shows whether the inputs had rows (tick-003 finding).
             prov = exec_result.get("provenance", [])
             inputs_nonempty = any(
                 p.get("op") == "SELECT" and not str(p.get("note", "")).startswith("0 ")
                 for p in prov)
-            relate_ran = any(p.get("op") in ("RELATE", "COMPARE") for p in prov)
-            grounded = inputs_nonempty and relate_ran
+            negative_proof_ran = any(
+                p.get("op") in ("RELATE", "COMPARE", "FILTER") for p in prov)
+            grounded = inputs_nonempty and negative_proof_ran
         s["exec_grounded"] = grounded
     elif expect in ("data_request",):
         s["exec_grounded"] = (got == "data_request")

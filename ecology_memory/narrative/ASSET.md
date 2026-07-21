@@ -33,15 +33,28 @@ LoRA-9B does not repair upstream selection: the end-to-end ablation is one point
 
 ## L3 — audit trail
 
+- The [field-notes deck](index.html) retells the frozen result around ecological data patches;
+  [ESTIMATION_RESULTS.md](ESTIMATION_RESULTS.md) is its post-hoc Q3–Q5 estimation lens. Neither adds
+  model contact or changes a score.
 - The question wording and gold chains were frozen before model contact in
   [bank.json](bank.json).
 - Model access, filesystem isolation, one-attempt policy, rubric, and stop gate are in
   [DESIGN.md](DESIGN.md).
 - Every 0–2 score has a written reason in [scoring.json](scoring.json); aggregates are reproduced by
   `python3 score.py`.
-- Raw answers and structured traces are under [runs](runs/). Failed transport experiments are kept
+- Raw answers and structured traces are linked from [evidence.html](evidence.html) and stored under
+  [runs](runs/). Failed transport experiments are kept
   under each arm's `transport-failures/` directory and are not scored.
 - [RESULTS.md](RESULTS.md) explains every question and the limits of the claim.
+
+## Independent estimation follow-up
+
+The post-hoc lens motivated a larger, separately frozen study rather than being stretched into a
+general claim. [estimation/index.html](estimation/index.html) presents 20 ordinary estimation
+questions × three Cursor shell agents. The subject agents received no ecology connectors, source
+pack, estimator hints or fit gates. See [estimation/RESULTS.md](estimation/RESULTS.md) for the
+bounded result and [estimation/evidence.html](estimation/evidence.html) for all 60 raw runs and
+audited rationales.
 
 ## Why this is a memory case, not merely a model benchmark
 

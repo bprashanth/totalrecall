@@ -1,7 +1,10 @@
 # Ecology narrative benchmark
 
-Status: scored and frozen on 2026-07-19. Start with [the narrative page](ecology-place-memory.html)
-or [INDEX.md](INDEX.md); use [RESULTS.md](RESULTS.md) for the question-level account.
+Status: scored and frozen on 2026-07-19. Start with the new
+[ecology field-notes deck](index.html), which follows the root narrative's flow and recuts the
+pilot around patchy data and estimation. The earlier [benchmark summary](ecology-place-memory.html)
+is retained unchanged. Use [the evidence index](evidence.html) to move from either story to every
+scored answer.
 
 This directory asks a narrow version of the Heartwood “why” question:
 
@@ -33,3 +36,22 @@ quality/latency. The completed `ecology-stack-lora9` end-to-end ablation also sc
 
 Read `DESIGN.md` for the preregistered scoring and stop rule. Raw, unedited outputs go under
 `runs/<arm>/`. Aggregate claims must always link back to those files.
+
+## Estimation recut
+
+[ESTIMATION_RESULTS.md](ESTIMATION_RESULTS.md) is a post-hoc secondary analysis of Q3–Q5. It does
+not rescore answers or add model runs. It separates three properties that polished prose can blur:
+overall workflow quality, whether the requested analysis actually executed, and whether the
+evidence boundary survived. The definition is frozen in [estimation_lens.json](estimation_lens.json)
+and the arithmetic is reproduced by `python3 score_estimation.py`.
+
+## Estimation benchmark
+
+The recut was the hint; [the larger estimation benchmark](estimation/index.html) is the independent
+follow-up. It asks 20 ordinary conservation questions without exposing datasets, connectors,
+estimator names or fit gates to the agents. The frozen scored wall contains 60 Cursor-agent runs
+across Claude 4.6 Opus high, GPT-5.4 medium and Cursor Grok 4.5 medium.
+
+Start with [estimation/RESULTS.md](estimation/RESULTS.md), then inspect the complete
+[estimation evidence wall](estimation/evidence.html). This study is versioned separately and does
+not alter the five-question pilot's scores.

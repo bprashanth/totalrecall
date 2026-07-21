@@ -1,0 +1,32 @@
+{
+  "reviewer": "deepseek-v4 rubric draft; requires Codex evidence audit",
+  "draft": {
+    "scores": {
+      "estimand": 1,
+      "execution": 2,
+      "fit": 0,
+      "evidence_state": 0,
+      "decision_record": 1
+    },
+    "rationales": {
+      "estimand": "The answer names frog occupancy and survey prioritization but omits detection correction, so the target is incomplete.",
+      "execution": "The model successfully ran API calls to iNaturalist and GBIF, computed polygon area, and buffered points, so intended retrieval and estimation executed.",
+      "fit": "The answer ignores detectability bias and uses raw occurrence points to estimate occupancy without any correction or validation, so fit is 0.",
+      "evidence_state": "The answer materially conflates public occurrence records with occupancy, which is explicitly forbidden, so evidence_state is 0.",
+      "decision_record": "The answer provides specific survey locations and effort allocation with some uncertainty, but the basis is flawed, so decision_record is 1."
+    },
+    "critical_errors": [
+      "Treats public occurrence records as occupancy without accounting for detectability or repeated non-detections, violating the forbidden rule."
+    ],
+    "tags": [
+      "executed_estimate",
+      "proxy_laundering",
+      "detectability_error"
+    ],
+    "evidence": [
+      "Answer gives numeric occupancy estimate (11-35%) based on buffering iNaturalist points inside EBTL polygon.",
+      "Trace shows successful API calls to iNaturalist and GBIF, and area calculations.",
+      "Hidden gold forbids using record density as occupancy; requires detection-corrected approach."
+    ]
+  }
+}

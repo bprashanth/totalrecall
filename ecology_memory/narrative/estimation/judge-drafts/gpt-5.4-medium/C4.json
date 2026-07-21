@@ -1,0 +1,28 @@
+{
+  "reviewer": "deepseek-v4 rubric draft; requires Codex evidence audit",
+  "draft": {
+    "scores": {
+      "estimand": 1,
+      "execution": 2,
+      "fit": 2,
+      "evidence_state": 2,
+      "decision_record": 2
+    },
+    "rationales": {
+      "estimand": "The answer targets the association between recent fires and human access features but uses only a single VIIRS hotspot, which is insufficient to assess a pattern of multiple fires as required.",
+      "execution": "The answer ran shell commands to fetch VIIRS fire data from the ArcGIS service and OpenStreetMap extracts, then computed distances to roads, tracks, and settlement edges and compared against 1500 random background points.",
+      "fit": "The answer correctly uses a background comparison (random points) to evaluate whether the single fire is unusually close to access features, and acknowledges the sparse-data limitation without inferring causation.",
+      "evidence_state": "Every transition (from observed VIIRS hotspot to distance measurements to percentiles) is clearly labelled, and the answer explicitly rejects a causal interpretation or strong pattern claim.",
+      "decision_record": "The answer provides a checkable basis (sources, queries, distances), states the uncertainty (single point, 7-day window), and gives a specific patrol recommendation (no major change, with tactical attention to settlement edges)."
+    },
+    "critical_errors": [],
+    "tags": [
+      "executed_estimate"
+    ],
+    "evidence": [
+      "VIIRS query returned exactly 1 hotspot in the 50x50 km box around EBTL.",
+      "OSM map extract used for roads, tracks, and buildings.",
+      "Distance comparison against 1500 random background points computed."
+    ]
+  }
+}

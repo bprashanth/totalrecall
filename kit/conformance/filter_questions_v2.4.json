@@ -1,0 +1,123 @@
+{
+  "schema_version": "filter-conformance-v1",
+  "algebra_version": "v2.4.0-draft",
+  "questions": [
+    {
+      "id": "fil-001",
+      "q": "Which clinics in Erode town have clinic in their name?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {"op": "SELECT", "entity": "clinic", "region": {"op": "REGION", "place": "Erode town"}, "time": null},
+        "where": [{"field": "name", "cmp": "contains", "value": "clinic"}]
+      }
+    },
+    {
+      "id": "fil-002",
+      "q": "From the clinics in Erode town, keep records at latitude 11.34 or farther north.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {"op": "SELECT", "entity": "clinic", "region": {"op": "REGION", "place": "Erode town"}, "time": null},
+        "where": [{"field": "lat", "cmp": "ge", "value": 11.34}]
+      }
+    },
+    {
+      "id": "fil-003",
+      "q": "List Erode town clinics whose name contains clinic and whose latitude is above 11.34.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {"op": "SELECT", "entity": "clinic", "region": {"op": "REGION", "place": "Erode town"}, "time": null},
+        "where": [
+          {"field": "name", "cmp": "contains", "value": "clinic"},
+          {"field": "lat", "cmp": "gt", "value": 11.34}
+        ]
+      }
+    },
+    {
+      "id": "fil-004",
+      "q": "From Erode town clinics, first keep names containing clinic, then keep those north of latitude 11.34.",
+      "parser_required": false,
+      "expect": "answer",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {
+          "op": "FILTER",
+          "source": {"op": "SELECT", "entity": "clinic", "region": {"op": "REGION", "place": "Erode town"}, "time": null},
+          "where": [{"field": "name", "cmp": "contains", "value": "clinic"}]
+        },
+        "where": [{"field": "lat", "cmp": "gt", "value": 11.34}]
+      }
+    },
+    {
+      "id": "fil-005",
+      "q": "Keep Erode town clinics whose ward equals north.",
+      "parser_required": false,
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {"op": "SELECT", "entity": "clinic", "region": {"op": "REGION", "place": "Erode town"}, "time": null},
+        "where": [{"field": "ward", "cmp": "eq", "value": "north"}]
+      }
+    },
+    {
+      "id": "fil-006",
+      "q": "Keep Erode town clinics whose latitude is greater than the word north.",
+      "parser_required": false,
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {"op": "SELECT", "entity": "clinic", "region": {"op": "REGION", "place": "Erode town"}, "time": null},
+        "where": [{"field": "lat", "cmp": "gt", "value": "north"}]
+      }
+    },
+    {
+      "id": "fil-007",
+      "q": "Keep Erode town clinics whose name contains a term I will provide.",
+      "expect": "data_request",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {"op": "SELECT", "entity": "clinic", "region": {"op": "REGION", "place": "Erode town"}, "time": null},
+        "where": [{"field": "name", "cmp": "contains", "value": "?name_term"}]
+      }
+    },
+    {
+      "id": "fil-008",
+      "q": "Which clinics in Erode town have zzz-no-match in their name?",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {"op": "SELECT", "entity": "clinic", "region": {"op": "REGION", "place": "Erode town"}, "time": null},
+        "where": [{"field": "name", "cmp": "contains", "value": "zzz-no-match"}]
+      }
+    },
+    {
+      "id": "fil-009",
+      "q": "Within a 10 km search around Erode town, keep clinics with clinic in their name.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {
+          "op": "SELECT", "entity": "clinic", "time": null,
+          "region": {"op": "BUFFER", "radius_km": 10.0, "source": {"op": "REGION", "place": "Erode town"}}
+        },
+        "where": [{"field": "name", "cmp": "contains", "value": "clinic"}]
+      }
+    },
+    {
+      "id": "fil-010",
+      "q": "Search 10 km around Erode town for clinics within 2 km of schools, then keep pairs no farther than 1 km apart.",
+      "expect": "answer",
+      "gold_ir": {
+        "op": "FILTER",
+        "source": {
+          "op": "RELATE", "relation": "within", "threshold_km": 2.0,
+          "left": {"op": "SELECT", "entity": "clinic", "region": {"op": "BUFFER", "radius_km": 10.0, "source": {"op": "REGION", "place": "Erode town"}}, "time": null},
+          "right": {"op": "SELECT", "entity": "school", "region": {"op": "BUFFER", "radius_km": 10.0, "source": {"op": "REGION", "place": "Erode town"}}, "time": null}
+        },
+        "where": [{"field": "dist_km", "cmp": "le", "value": 1.0}]
+      }
+    }
+  ]
+}

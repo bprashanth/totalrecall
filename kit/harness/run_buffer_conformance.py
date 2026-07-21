@@ -40,12 +40,15 @@ def fixture_select(entity, region, time_value, provenance):
     lat, lon = region["lat"], region["lon"]
     offsets = (-0.02, -0.01, 0.0, 0.004, 0.01, 0.02)
     rows = [{"id": f"{entity}:{i}", "lat": lat + offset, "lon": lon + offset,
-             "name": entity} for i, offset in enumerate(offsets)]
+             "name": (None if i == 1 else f"{entity} fixture {i}"), "time": None}
+            for i, offset in enumerate(offsets)]
     provenance.append({"op": "SELECT", "route": "fixture", "resolved": entity,
                        "note": f"{len(rows)} neutral conformance rows"})
     return {"kind": "records", "rows": rows, "entity": entity, "label": "observed",
             "source": "neutral-conformance-fixture", "measure": f"records:{entity}",
-            "unit": "record", "grain": "point", "lineage": [{"source": "fixture"}]}
+            "unit": "record", "grain": "point", "lineage": [{"source": "fixture"}],
+            "fields": {"id": "identifier", "lat": "number", "lon": "number",
+                       "name": "string|null", "time": "period|null"}}
 
 
 def execute_fixture(ir):

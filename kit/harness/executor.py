@@ -161,7 +161,16 @@ def _ev(node, prov, region_ctx):
         # v0: annotation layer is itself a source lookup per row — approximated as a tag.
         for r in src.get("rows", []):
             r[node["layer"]] = None
+        src["fields"] = {**_meta(src)["fields"], node["layer"]: "unknown|null"}
         return src
+
+    if op == "FILTER":
+        src = _ev(node["source"], prov, region_ctx)
+        out, audit = _filter(src, node["where"])
+        prov.append({"op": "FILTER", "where": node["where"], **audit,
+                     "note": (f"{audit['rows_in']} rows -> {audit['rows_out']}; "
+                              f"{audit['null_excluded']} excluded by null/missing fields")})
+        return out
 
     if op == "RELATE":
         left = _ev(node["left"], prov, region_ctx)
@@ -172,7 +181,8 @@ def _ev(node, prov, region_ctx):
         prov.append({"op": "RELATE", "relation": rel, "threshold_km": thresh,
                      "note": f"{len(left.get('rows',[]))} x {len(right.get('rows',[]))} -> {len(rows)}"})
         return {"kind": "records", "rows": rows,
-                "label": _merge_label(left["label"], right["label"]), "source": "relate"}
+                "label": _merge_label(left["label"], right["label"]), "source": "relate",
+                "fields": {**_meta(left)["fields"], "dist_km": "number|null"}}
 
     if op == "AGGREGATE":
         src = _ev(node["source"], prov, region_ctx)
@@ -258,6 +268,103 @@ def _scalarize(v):
     if v["kind"] in ("records", "field"):
         return len(v.get("rows", []))
     return None
+
+
+def _filter(src, predicates):
+    """Apply the accepted ALG-002 AND-only predicate contract to declared Records columns."""
+    if src.get("kind") != "records":
+        raise DataRequest("filter_input_type", {
+            "kind": src.get("kind"), "ask": "FILTER requires a Records-producing source"})
+    fields = _meta(src)["fields"]
+    if not fields:
+        raise DataRequest("filter_schema_missing", {
+            "source": src.get("source"),
+            "ask": "connector must declare typed filterable fields"})
+    for predicate in predicates:
+        field = predicate["field"]
+        if field not in fields:
+            raise DataRequest("unknown_filter_field", {
+                "field": field, "declared_fields": sorted(fields),
+                "ask": "choose a connector-declared field"})
+        _check_filter_literal(field, fields[field], predicate["cmp"], predicate["value"])
+
+    rows_in = list(src.get("rows") or [])
+    rows_out, null_rows = [], set()
+    for index, row in enumerate(rows_in):
+        keep = True
+        for predicate in predicates:
+            actual = row.get(predicate["field"])
+            if actual is None:
+                null_rows.add(index)
+                keep = False
+                break
+            try:
+                if not _predicate_matches(actual, predicate["cmp"], predicate["value"]):
+                    keep = False
+                    break
+            except (TypeError, ValueError):
+                raise DataRequest("filter_source_type_error", {
+                    "field": predicate["field"], "declared_type": fields[predicate["field"]],
+                    "actual_type": type(actual).__name__,
+                    "ask": "repair the connector row or its field declaration"})
+        if keep:
+            rows_out.append(row)
+    return ({**src, "rows": rows_out},
+            {"rows_in": len(rows_in), "rows_out": len(rows_out),
+             "null_excluded": len(null_rows)})
+
+
+def _check_filter_literal(field, declared_type, comparator, value):
+    base = str(declared_type).split("|", 1)[0]
+    ordered_string = base in {"period", "annual_period", "monthly_period", "daily_period"}
+    string_like = base in {"string", "category"} or ordered_string
+    if value is None:
+        raise DataRequest("filter_predicate_type", {
+            "field": field, "declared_type": declared_type, "cmp": comparator,
+            "ask": "FILTER nulls by collecting a non-null comparison value; null rows are accounted automatically"})
+    if comparator == "contains" and not string_like:
+        raise DataRequest("filter_predicate_type", {
+            "field": field, "declared_type": declared_type, "cmp": comparator,
+            "ask": "contains requires a string/category field"})
+    if comparator in {"lt", "le", "gt", "ge"} and base != "number" and not ordered_string:
+        raise DataRequest("filter_predicate_type", {
+            "field": field, "declared_type": declared_type, "cmp": comparator,
+            "ask": "ordered comparison requires a number or declared period field"})
+    valid = True
+    if base == "number":
+        valid = isinstance(value, (int, float)) and not isinstance(value, bool)
+    elif string_like:
+        valid = isinstance(value, str)
+    elif base == "boolean":
+        valid = isinstance(value, bool)
+    elif base == "identifier":
+        valid = isinstance(value, (str, int)) and not isinstance(value, bool)
+        valid = valid and comparator in {"eq", "ne"}
+    elif base == "unknown":
+        valid = False
+    if not valid:
+        raise DataRequest("filter_predicate_type", {
+            "field": field, "declared_type": declared_type, "cmp": comparator,
+            "value_type": type(value).__name__,
+            "ask": "use a literal compatible with the connector field declaration"})
+
+
+def _predicate_matches(actual, comparator, expected):
+    if comparator == "eq":
+        return actual == expected
+    if comparator == "ne":
+        return actual != expected
+    if comparator == "contains":
+        return str(expected).casefold() in str(actual).casefold()
+    if comparator == "lt":
+        return actual < expected
+    if comparator == "le":
+        return actual <= expected
+    if comparator == "gt":
+        return actual > expected
+    if comparator == "ge":
+        return actual >= expected
+    raise ValueError(f"unknown FILTER comparator {comparator!r}")
 
 
 def _item_label(node):

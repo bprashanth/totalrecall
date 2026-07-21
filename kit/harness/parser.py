@@ -78,18 +78,29 @@ CRITICAL RULES:
 4. Output ONLY the JSON tree. No prose, no markdown fences, no explanation.
 """
 
-BUFFER_SYSTEM_SUFFIX = """
+V24_SYSTEM_SUFFIX = """
 
-ALGEBRA PROFILE v2.4.0-draft adds one support transformation:
+ALGEBRA PROFILE v2.4.0-draft adds one support transformation and one Records refinement:
   BUFFER    {op:"BUFFER", source:<REGION>, radius_km:<positive number>}
             construct an approximate search bbox around REGION support.
+  FILTER    {op:"FILTER", source:<Records-producing node>,
+             where:[{field:<declared column>, cmp:eq|ne|lt|le|gt|ge|contains,
+                     value:<JSON literal or typed hole>}, ...]}
+            keep rows satisfying EVERY predicate in the where list.
 
 Use BUFFER only when the question explicitly gives a search/analysis radius around a place.
 BUFFER.radius_km controls retrieval extent. RELATE.threshold_km independently controls the
 distance between returned records; when a question gives both distances, preserve both. If two
 operands share a search support, write the same BUFFER node explicitly under EACH operand. Never
 copy a buffer onto an operand whose support the question states differently. Unknown radius is the
-typed hole "?radius_km". Output syntax and every other rule remain unchanged.
+typed hole "?radius_km".
+
+Use FILTER for conditions on columns of records already returned by SELECT, ANNOTATE, RELATE, or
+another FILTER: name/category/status thresholds, numeric cutoffs, and similar row attributes. Do
+not use FILTER for entity, region, or time constraints that SELECT already owns. The where list is
+AND-only. A predicate value is a literal copied from the question or a typed hole; it is NEVER a
+subtree. Do not invent a connector field that the question does not warrant. Output syntax and
+every other rule remain unchanged.
 """
 
 DEFAULT_FEWSHOT = [
@@ -196,6 +207,16 @@ BUFFER_TARGET_FEWSHOT = {
                       "source": {"op": "REGION", "place": "Tiruppur, India"}}},
 }
 
+FILTER_FEWSHOT = {
+    "q": "Which clinics in Erode town have health in their name?",
+    "ir": {"op": "FILTER",
+           "source": {"op": "SELECT", "entity": "clinic",
+                      "region": {"op": "REGION", "place": "Erode town"}, "time": None},
+           "where": [{"field": "name", "cmp": "contains", "value": "health"}]},
+}
+
+V24_REPLACEABLE_FEWSHOT_Q = "Which hotels in Vilnius have no restaurant within 300 meters?"
+
 
 def load_fewshot():
     if os.path.exists(FEWSHOT_PATH):
@@ -205,14 +226,23 @@ def load_fewshot():
 
 
 def build_messages(question, fewshot=None, algebra_version=RELEASED_ALGEBRA_VERSION):
+    using_default = fewshot is None
     fewshot = list(fewshot if fewshot is not None else load_fewshot())
     system = SYSTEM
     if buffer_enabled(algebra_version):
-        system += BUFFER_SYSTEM_SUFFIX
-        if not any('"BUFFER"' in json.dumps(item.get("ir")) for item in fewshot):
-            if len(fewshot) + 2 > 15:
-                raise ValueError("v2.4 BUFFER curriculum would exceed the 15-few-shot limit")
-            fewshot.extend([BUFFER_FEWSHOT, BUFFER_TARGET_FEWSHOT])
+        system += V24_SYSTEM_SUFFIX
+        additions = []
+        rendered = [json.dumps(item.get("ir")) for item in fewshot]
+        if not any('"BUFFER"' in value for value in rendered):
+            additions.extend([BUFFER_FEWSHOT, BUFFER_TARGET_FEWSHOT])
+        if not any('"FILTER"' in value for value in rendered):
+            additions.append(FILTER_FEWSHOT)
+        if len(fewshot) + len(additions) > 15 and using_default:
+            fewshot = [item for item in fewshot
+                       if item.get("q") != V24_REPLACEABLE_FEWSHOT_Q]
+        if len(fewshot) + len(additions) > 15:
+            raise ValueError("v2.4 BUFFER/FILTER curriculum would exceed the 15-few-shot limit")
+        fewshot.extend(additions)
     msgs = [{"role": "system", "content": system}]
     for ex in fewshot:
         msgs.append({"role": "user", "content": ex["q"]})

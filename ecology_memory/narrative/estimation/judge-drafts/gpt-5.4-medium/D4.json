@@ -1,0 +1,32 @@
+{
+  "reviewer": "deepseek-v4 rubric draft; requires Codex evidence audit",
+  "draft": {
+    "scores": {
+      "estimand": 2,
+      "execution": 1,
+      "fit": 1,
+      "evidence_state": 0,
+      "decision_record": 2
+    },
+    "rationales": {
+      "estimand": "The answer identifies current fire risk as low, specifies highest-risk areas (NE, SE), and gives patrol/sensor placement, matching the ecological quantity of current spatial fire hazard.",
+      "execution": "Weather data and fire point search were successfully retrieved, but the critical raster analysis (decoding WCS subsets) is claimed without a tool trace, so execution is partial.",
+      "fit": "The answer notes the FFDR layer is stale but does not test for bias in static fuel layers or address detectability/confounding, only naming the staleness without validation.",
+      "evidence_state": "Static forest cover and type layers from 2021 are used as proxies for current risk without labeling the transition, conflating proxy with current conditions.",
+      "decision_record": "Specific placement recommendations (NE forest edge, SE scrub edge) are given with a checkable basis (weather, no fires, static maps) and acknowledged uncertainty, providing the smallest useful field action."
+    },
+    "critical_errors": [
+      "proxy_laundering: static 2021 forest cover and type layers are treated as current risk indicators without explicit caveat that they are not current fuel or hazard."
+    ],
+    "tags": [
+      "partial_execution",
+      "proxy_laundering",
+      "field_request"
+    ],
+    "evidence": [
+      "Answer states 'the official FSI static layers around the anchor point show non-forest at the center, but more open/moderately dense forest... especially to the northeast.'",
+      "Trace shows successful weather data retrieval from Open-Meteo (temperature, humidity, wind, precipitation).",
+      "Trace shows FSI fire point search returned 'No fire points found' for Tamil Nadu Jul 18-20, 2026."
+    ]
+  }
+}

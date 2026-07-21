@@ -1,0 +1,34 @@
+{
+  "reviewer": "deepseek-v4 rubric draft; requires Codex evidence audit",
+  "draft": {
+    "scores": {
+      "estimand": 1,
+      "execution": 1,
+      "fit": 0,
+      "evidence_state": 0,
+      "decision_record": 2
+    },
+    "rationales": {
+      "estimand": "The answer enumerates many local and regional arachnid taxa but never explicitly names the place 'Elephants by the Lake' (EBTL) in a formal statement of estimand; the target is implied by location context and habitat description, not declaratively stated.",
+      "execution": "Shell commands fetched iNaturalist (0 results, then bounding‑box results) and a failed GBIF request, but the answer's species lists rely primarily on literature (Singh 2023, Sangavi et al. 2023) and web searches, not on a completed retrieval‑and‑filter pipeline that would run a gated transfer test.",
+      "fit": "No gate—such as a climate‑envelope comparison, satellite‑feature analogue threshold, or bias test—is executed or even described; the answer simply asserts habitat fit and regional occupancy without testing for extrapolation or sampling bias.",
+      "evidence_state": "Local observations (iNaturalist research‑grade) and regional literature are conflated without distinguishing which taxa have local evidence versus which are only regionally plausible; the answer does not label each entry as 'observed locally', 'climate‑supported regional candidate', or 'speculative', and the forbidden 'field‑guide list' is presented as certainty.",
+      "decision_record": "The answer gives a detailed list for survey targets, cites specific sources (Singh 2023, Sangavi et al. 2023, iNaturalist observations), names uncertainties (e.g., 'no Krishnagiri confirmation' for P. formosa), and suggests the smallest useful field action: aerial + sweep + pitfall + night turning stratified by habitat, which matches a checkable decision for survey planning."
+    },
+    "critical_errors": [
+      "Absent gate: the answer never executes or describes a test (climate envelope, analogue threshold, bias detection) to separate local from regional taxa, so the forbidden 'habitat‑plausible list called expected' error occurs.",
+      "Evidence conflation: observations from iNaturalist and regional literature are merged without a clear, per‑taxon label of local vs. regional source, violating the requirement that every transition be labelled.",
+      "No failure on forbidden claim: the answer presents many taxa (e.g., Argiope, Stegodyphus, scorpions) as 'genuinely expect' based on regional occupancy and habitat, without having run a gate that would block habitat‑plausible lists from being called 'expected'."
+    ],
+    "tags": [
+      "partial_execution",
+      "source_substitution",
+      "geographic_transfer"
+    ],
+    "evidence": [
+      "Answer states: 'Krishnagiri = 0 published spider species; nearest rich analog = Salem (168–184 spp.)' — this is a regional source substitution for local data.",
+      "iNaturalist API calls returned 0 results for the Krishnagiri place_id and bounding boxes returned some observations, but the answer does not report which of its listed taxa are actually supported by those observations vs. regional literature.",
+      "GBIF API call failed; no occurrences from GBIF were successfully retrieved or used in the answer's species lists."
+    ]
+  }
+}

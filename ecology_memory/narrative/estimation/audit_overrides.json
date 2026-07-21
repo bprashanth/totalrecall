@@ -1,0 +1,92 @@
+{
+  "reviewer": "Codex evidence audit",
+  "policy": "DeepSeek drafts were reviewed against retained answer and tool events. Overrides below correct rubric drift, chiefly the tendency to count retrieval or an asserted calculation as executed estimation. Tags are normalized by finalize_scoring.py after overrides.",
+  "overrides": {
+    "claude-4.6-opus-high/X4": {
+      "scores": {"execution": 0},
+      "rationales": {"execution": "The answer retrieved literature and described a transfer; no local recovery estimate or fitted transfer operation ran."},
+      "audit_note": "Retrieval is not estimation execution."
+    },
+    "gpt-5.4-medium/C3": {
+      "scores": {"execution": 1},
+      "rationales": {"execution": "Local bird-list frequencies and remote fruit-use literature were assembled, but local invasive-seed dispersal was not estimated."},
+      "audit_note": "A candidate ranking is partial execution, not the requested interaction estimate."
+    },
+    "gpt-5.4-medium/D2": {
+      "scores": {"execution": 1},
+      "rationales": {"execution": "Occurrence records and buffers were processed, but the requested occupancy quantity was not estimated with repeat-detection data."},
+      "audit_note": "The computation ran, but it was the wrong estimator."
+    },
+    "gpt-5.4-medium/X1": {
+      "scores": {"execution": 1},
+      "rationales": {"execution": "Occurrence searches ran, but the final 5–15% probability was heuristic rather than an executed occurrence or habitat model."},
+      "audit_note": "Retrieval plus an unsupported probability is partial execution."
+    },
+    "gpt-5.4-medium/X4": {
+      "scores": {"execution": 1, "fit": 1},
+      "rationales": {
+        "execution": "Climate and restoration literature were retrieved and transferred into a planning range, but no local recovery model was fitted.",
+        "fit": "Rainfall similarity was discussed, but a multi-feature donor analogue or out-of-domain test was not executed."
+      },
+      "audit_note": "Literature transfer is useful partial work, not a fitted local estimate."
+    },
+    "cursor-grok-4.5-medium/C3": {
+      "scores": {"execution": 1, "fit": 1},
+      "rationales": {
+        "execution": "The answer combined local bird frequencies with remote diet evidence to rank candidates, but did not estimate seed dispersal at EBTL.",
+        "fit": "It labels the local/remote split and asks for field watches, but does not test whether remote diet relationships transfer locally."
+      },
+      "audit_note": "Strong evidence bookkeeping, partial interaction estimation."
+    },
+    "cursor-grok-4.5-medium/C4": {
+      "scores": {"fit": 1},
+      "rationales": {"fit": "The answer describes scale and sensitivity choices, but the retained trace does not show an executed robustness or alternative-background test."},
+      "audit_note": "A stated sensitivity check is not an executed fit gate."
+    },
+    "cursor-grok-4.5-medium/D2": {
+      "scores": {"execution": 1},
+      "rationales": {"execution": "Public points were processed, but they cannot execute the requested occupancy estimate without repeat visits and non-detections."},
+      "audit_note": "Wrong estimator despite real retrieval."
+    },
+    "cursor-grok-4.5-medium/D3": {
+      "scores": {"execution": 1},
+      "rationales": {"execution": "The source checks support the correct refusal, but no elephant population estimate was or could be executed."},
+      "audit_note": "Correct evidence audit, not an executed estimate."
+    },
+    "cursor-grok-4.5-medium/X1": {
+      "scores": {"execution": 1},
+      "rationales": {"execution": "Occurrence records and distances were retrieved, but the local probability was not produced by an executed SDM or calibrated analogue model."},
+      "audit_note": "Occurrence retrieval is partial execution."
+    },
+    "cursor-grok-4.5-medium/X3": {
+      "scores": {"execution": 1},
+      "rationales": {"execution": "A climate ratio and literature survival range were computed, but no species-specific transfer model or local pilot estimate ran."},
+      "audit_note": "A coarse donor adjustment is partial, not validated transfer."
+    },
+    "cursor-grok-4.5-medium/X4": {
+      "scores": {"fit": 1},
+      "rationales": {"fit": "Climate matching is considered, but the answer does not execute a multi-feature analogue or out-of-domain gate."},
+      "audit_note": "The transfer gate is argued, not run."
+    }
+  },
+  "manual_reviews": {
+    "cursor-grok-4.5-medium/T3": {
+      "scores": {"estimand": 2, "execution": 2, "fit": 2, "evidence_state": 2, "decision_record": 2},
+      "rationales": {
+        "estimand": "The answer declares landscape fire pressure since 2020 at 5, 10, and 25 km supports and distinguishes it from parcel burning.",
+        "execution": "It downloaded annual FIRMS VIIRS and MODIS archives, filtered detections spatially, and computed counts, fire-days, FRP, and trend statistics.",
+        "fit": "It checks multiple radii, a second sensor, trend volatility, seasonality, and the sparse site-scale support before limiting the claim.",
+        "evidence_state": "Active-fire detections are labelled as a pressure proxy, regional evidence is kept regional, and parcel-level worsening is explicitly rejected.",
+        "decision_record": "The answer gives checkable sources and parameters, calibrated confidence by support, limitations, and the next data needed for a site conclusion."
+      },
+      "critical_errors": [],
+      "tags": ["executed_estimate"],
+      "evidence": [
+        "Annual VIIRS and MODIS country archives for 2020–2024 were downloaded and filtered around the recovered EBTL coordinate.",
+        "The answer reports VIIRS detections, fire-days, FRP, and Kendall tau at several radii.",
+        "It says the two-kilometre support is too sparse for a parcel trend and calls the 25-kilometre result landscape fire pressure."
+      ],
+      "audit_note": "Manual review replaces the one malformed judge response."
+    }
+  }
+}
