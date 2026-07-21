@@ -1,0 +1,2182 @@
+{
+  "rubric": {
+    "dimensions": [
+      "estimand",
+      "execution",
+      "fit",
+      "evidence_state",
+      "decision_record"
+    ],
+    "range": [
+      0,
+      2
+    ]
+  },
+  "review_process": {
+    "first_pass": "DeepSeek V4 rubric coding over hidden gold, answer, and compact retained tool trace",
+    "final": "DeepSeek drafts were reviewed against retained answer and tool events. Overrides below correct rubric drift, chiefly the tendency to count retrieval or an asserted calculation as executed estimation. Tags are normalized by finalize_scoring.py after overrides.",
+    "override_count": 12,
+    "manual_review_count": 1
+  },
+  "rows": [
+    {
+      "key": "claude-4.6-opus-high/F1",
+      "model": "claude-4.6-opus-high",
+      "question_id": "F1",
+      "family": "site-state-fit",
+      "question": "Is Elephants by the Lake near Krishnagiri actually improving ecologically since restoration work began? Give me the most defensible estimate you can for a donor update, and tell me how sure you are.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer implies the target (ecological improvement) but does not specify a measurable quantity or declare a specific ecological response over the site geometry and intervention period.",
+          "execution": "No estimation operation was executed; the answer only retrieves and summarizes publicly available information without performing any quantitative analysis.",
+          "fit": "The answer names confounding factors (regional trends, passive recovery) and missing baseline data but does not test or apply any fit/validation.",
+          "evidence_state": "The answer carefully labels evidence types (citizen science, anecdotal, qualitative) and avoids conflating observation with causation, explicitly stating that attribution cannot be quantified.",
+          "decision_record": "The answer provides sources, confidence ratings, and a recommendation for donor communication, but the suggested action is generic advice rather than a specific field action."
+        },
+        "critical_errors": [],
+        "tags": [
+          "recipe_only"
+        ],
+        "evidence": [
+          "The answer retrieved species count (169 species) from BioSmart portal but did not perform any estimation.",
+          "The answer identifies missing pre-restoration baseline and counterfactual data.",
+          "The answer provides confidence ratings for different claims and a suggested donor update wording."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/F2",
+      "model": "claude-4.6-opus-high",
+      "question_id": "F2",
+      "family": "site-state-fit",
+      "question": "Which parts of Elephants by the Lake are doing best and which parts are struggling? Give our field team a short priority map or ranked list of places to inspect next.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer names the place (EBTL, Krishnagiri), time (current), support (public info), and decision (inspection priority), and implies multiple ecological response variables (invasive cover, seedling survival, water structure integrity) within the property.",
+          "execution": "No estimation or check was executed; only web searches and URL fetches were performed, with no shell operations or data processing.",
+          "fit": "The answer names relevant biases (lack of internal data, reliance on landscape inference) but does not test or apply any validation gate.",
+          "evidence_state": "Every transition from source to inference is labelled (e.g., 'inferred from', 'EBTL reports', 'regional literature'), and forbidden inference (e.g., claiming data-confirmed audit) is explicitly rejected.",
+          "decision_record": "The answer provides a checkable basis (public sources, landscape risk), states uncertainty (moderate confidence), and gives the smallest useful field actions (e.g., walk transects, inspect swales, soil sampling)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "geographic_transfer",
+          "honest_refusal",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer explicitly states no internal monitoring data available and uses public web sources.",
+          "Trace shows only web searches and URL fetches, no shell operations.",
+          "Answer provides a ranked list of inspection priorities with specific field actions."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/F3",
+      "model": "claude-4.6-opus-high",
+      "question_id": "F3",
+      "family": "site-state-fit",
+      "question": "After we clear Lantana at Elephants by the Lake, where is it most likely to come back, and roughly how quickly? I need something useful for scheduling follow-up work.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "The answer addresses where and how quickly Lantana may return, but relies on generic literature rather than local post-treatment data, so the target quantity is only implied.",
+          "execution": "No local data retrieval, estimation, or model fitting was performed; the answer is a literature review with no executed analysis.",
+          "fit": "The answer ignores geographic transfer bias and does not test whether literature from other sites applies to EBTL, nor does it validate any model.",
+          "evidence_state": "The answer conflates remote literature with local evidence, treating general regrowth rates as directly applicable to EBTL without acknowledging the extrapolation.",
+          "decision_record": "The recommended schedule is based on generic studies, not local data, and lacks quantified uncertainty or a checkable local basis for the specific site."
+        },
+        "critical_errors": [
+          "geographic_transfer: applies literature from other South Indian sites to EBTL without validation or local data",
+          "proxy_laundering: uses general regrowth rates as if they were local estimates"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only"
+        ],
+        "evidence": [
+          "Workspace empty; no local dataset found or used.",
+          "EBTL website fetched but no local Lantana cover or removal history extracted.",
+          "Answer cites 12 external sources but none are local to EBTL."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/F4",
+      "model": "claude-4.6-opus-high",
+      "question_id": "F4",
+      "family": "site-state-fit",
+      "question": "Which native tree species are the best fit for the Elephants by the Lake nursery and outplanting areas, and what survival should we expect after one year?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "The answer addresses the general question of species and survival but does not target species-by-stratum one-year establishment survival under local provenance and management as required.",
+          "execution": "No relevant estimation or retrieval from EBTL's own data was executed; only web searches and an empty workspace listing were performed.",
+          "fit": "The answer does not test or apply any fit, validation, or identification gate for bias, extrapolation, or confounding.",
+          "evidence_state": "The answer materially conflates regional ecology literature and a pan-Asian meta-analysis with EBTL-specific evidence, presenting them as applicable without proper labeling.",
+          "decision_record": "The answer provides generic advice and unsupported confidence, lacking a checkable basis from EBTL data and omitting the required stratified pilot request."
+        },
+        "critical_errors": [
+          "Regional native list and climate suitability presented as EBTL survival probability, which is forbidden",
+          "Missing stratified pilot request as required by acceptable answer"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Workspace empty, no EBTL-specific data found",
+          "Web searches retrieved regional ecology literature and meta-analysis",
+          "No EBTL nursery roster or survival data were accessed"
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/C1",
+      "model": "claude-4.6-opus-high",
+      "question_id": "C1",
+      "family": "colocation-interaction",
+      "question": "Do elephants at Elephants by the Lake avoid the patches with Lantana, move through them, or use them normally? Give me the strongest estimate the available data support.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer uses regional literature to claim local avoidance, which is forbidden by the gold standard; it does not reject the question and request proper local data.",
+          "execution": "No estimation was executed; the answer only performed web searches and cited existing studies.",
+          "fit": "The answer names the extrapolation bias (no local data, reliance on distant studies) but does not test or reject it; it still uses the data to support the estimate.",
+          "evidence_state": "The answer conflates local and remote evidence by applying regional findings to EBTL without proper justification, which is a critical error.",
+          "decision_record": "The answer provides checkable sources and acknowledges uncertainty, but does not propose a specific field action for EBTL."
+        },
+        "critical_errors": [
+          "Used regional literature to infer local avoidance, which is forbidden",
+          "Did not reject the question and request proper local data despite acknowledging no local data"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "No local data in workspace; answer used regional studies from Mudumalai and Bandipur.",
+          "Answer cites Wilson et al. 2013 and 2014 as evidence for avoidance.",
+          "Answer acknowledges no local data but still provides estimate."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/C2",
+      "model": "claude-4.6-opus-high",
+      "question_id": "C2",
+      "family": "colocation-interaction",
+      "question": "Where around Elephants by the Lake are we most likely to encounter snakes—near water, tree cover, rocky ground, or something else? Please estimate practical survey hotspots rather than giving me a general snake guide.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer identifies relative encounter probability by microhabitat (rocky ground highest, then water edges, etc.) but does not declare a survey protocol, so the estimand is implied and incomplete.",
+          "execution": "No shell operations, tool traces, or data retrievals were executed; the answer is entirely based on knowledge and web searches without running any estimation.",
+          "fit": "The answer ignores spatial extrapolation bias, detectability differences, and other confounds by directly applying regional analog data to EBTL without any validation or adjustment.",
+          "evidence_state": "The answer materially conflates observational records from distant sites (Gingee Hills, Central Eastern Ghats) with local conditions at EBTL, performing the forbidden conversion of regional natural history into local hotspots.",
+          "decision_record": "The answer provides checkable citations and specific field actions (e.g., rock turning, night walks) but lacks explicit uncertainty quantification and does not label rankings as testable hypotheses."
+        },
+        "critical_errors": [
+          "Evidence_state=0: Regional natural history preferences are converted directly into EBTL hotspots without proper caveat or hypothesis labelling, exactly the forbidden pattern."
+        ],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer uses analog datasets from Gingee Hills (Karthik 2016), Central Eastern Ghats (Ganesh et al. 2021), and Moyar Valley (Surendran 2023) as direct evidence for EBTL hotspots.",
+          "No local snake detection or microhabitat-use data from EBTL was retrieved or executed; the workspace was empty and trace shows no fetched URLs.",
+          "Answer does not label its rankings as hypotheses or propose a repeat standardized survey design with effort control, despite the known gap in local data."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/C3",
+      "model": "claude-4.6-opus-high",
+      "question_id": "C3",
+      "family": "colocation-interaction",
+      "question": "Which birds recorded around Elephants by the Lake are most likely to be spreading Lantana there? Rank the candidates and say what evidence makes that a local estimate rather than just a possibility.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer identifies the target quantity (ranking of likely Lantana dispersers at EBTL) but does not provide a rate or precise interaction estimate.",
+          "execution": "No actual data retrieval or estimation commands were executed; only web searches performed.",
+          "fit": "The answer does not test for or address the bias from using fruit consumption data from a different study site.",
+          "evidence_state": "The answer conflates remote fruit-use observations from non-local sites with local dispersal evidence, violating the requirement for labeled transitions.",
+          "decision_record": "The answer provides citations and qualitative uncertainty but lacks a specific field action."
+        },
+        "critical_errors": [
+          "proxy_laundering"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only"
+        ],
+        "evidence": [
+          "Trace shows only web searches and one empty ls command; no data from eBird or Biosmart was retrieved.",
+          "Feeding data is sourced from papers at Anaikatty (~200 km) and Rishi Valley (~250 km), not from EBTL itself.",
+          "Answer claims a 'local estimate' based on habitat match and species presence, but the core fruit-removal evidence is geographically transferred."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/C4",
+      "model": "claude-4.6-opus-high",
+      "question_id": "C4",
+      "family": "colocation-interaction",
+      "question": "Are fires around Elephants by the Lake concentrated near roads, settlement edges, or other human access routes? Tell me whether the pattern is strong enough to change patrol priorities.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer addresses fire concentration near human access but uses regional studies rather than site-specific association, so the target is implied but not directly answered.",
+          "execution": "No data retrieval or computation was performed; only literature review and web searches, which are not executed estimation.",
+          "fit": "No bias, confounding, or extrapolation tests were executed; limitations are mentioned but not tested or applied.",
+          "evidence_state": "Conflates regional model predictions with local observations and uses studies from different ecosystems without validation, materially mixing proxy and local evidence.",
+          "decision_record": "Provides specific patrol recommendations with citations and acknowledged uncertainty, offering a checkable basis and actionable field actions."
+        },
+        "critical_errors": [
+          "geographic_transfer",
+          "proxy_laundering",
+          "causal_overreach"
+        ],
+        "tags": [
+          "causal_overreach",
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Workspace empty, no local datasets or shapefiles found.",
+          "Answer cites regional studies from Tamil Nadu, Satpura, and Western Himalaya without local validation.",
+          "No spatial analysis or data retrieval executed; only web searches performed."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/T1",
+      "model": "claude-4.6-opus-high",
+      "question_id": "T1",
+      "family": "time-change",
+      "question": "Has Elephants by the Lake become greener from 2020 through 2025? Give me a number or trend I can check, not just a description of how satellite analysis works.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 2,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "Names NDVI as spectral greenness statistic over EBTL site in Krishnagiri, Tamil Nadu, for 2020-2025, with a trend and annual means.",
+          "execution": "Actual shell commands fetched MODIS NDVI data via ORNL DAAC API and ran Python analysis producing annual statistics and trend.",
+          "fit": "Names resolution, weather dependence, and coordinate approximation as biases but does not test or apply cloud masking or seasonal adjustment.",
+          "evidence_state": "Clearly labels NDVI as a spectral proxy, distinguishes local/remote, and rejects causal attribution to restoration without control.",
+          "decision_record": "Provides checkable API instructions, coordinates, scale factor, uncertainty (R², std dev), and suggests using higher-resolution imagery."
+        },
+        "critical_errors": [],
+        "tags": [
+          "executed_estimate",
+          "field_request"
+        ],
+        "evidence": [
+          "MODIS NDVI data fetched via ORNL DAAC TESViS API for coordinates 12.702°N, 78.194°E.",
+          "Annual mean NDVI rose from 0.385 (2020) to 0.436 (2025), trend +0.017 NDVI/yr.",
+          "Caveat: attribution to restoration not possible without control site."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/T2",
+      "model": "claude-4.6-opus-high",
+      "question_id": "T2",
+      "family": "time-change",
+      "question": "Are bird numbers around Elephants by the Lake increasing or falling over the last five years? Use public data if that is all we have, but tell me whether the trend is real enough to guide restoration choices.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer names the ecological quantity (bird abundance/occupancy at Elephants by the Lake), specifies place/time (68-acre restoration in Krishnagiri, Tamil Nadu, over the last five years), and addresses the decision (whether trend guides restoration choices).",
+          "execution": "No relevant estimation or retrieval operation was executed; the answer honestly refuses to compute a trend and provides only qualitative discussion without running any command or producing a numerical result.",
+          "fit": "The answer identifies effort confounding and lack of standardized protocol as key biases, but does not test or apply any correction, so it names the issue without executing a fit or validation gate.",
+          "evidence_state": "Every transition is labelled: the answer explicitly rejects conflating record growth with bird number growth, warns against spatial scale mismatch, and distinguishes observation from abundance.",
+          "decision_record": "The answer provides a checkable basis (cited sources), clearly states uncertainty (no defensible trend), and recommends specific field actions (fixed-point counts, indicator guilds, control plot) with rationale."
+        },
+        "critical_errors": [],
+        "tags": [
+          "honest_refusal",
+          "recipe_only"
+        ],
+        "evidence": [
+          "The answer references Biosmart portal showing 96.89% of observations in the last two years.",
+          "The answer cites eBird hotspot L36453021 for species list.",
+          "The answer explicitly states that effort confounding precludes trend detection and recommends against using the data for restoration decisions."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/T3",
+      "model": "claude-4.6-opus-high",
+      "question_id": "T3",
+      "family": "time-change",
+      "question": "Is fire pressure at Elephants by the Lake getting worse or better since 2020? Compare the years and tell me how much confidence to put in the direction.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "Answer addresses regional fire trend rather than the specified stable-box detected-fire exposure at Elephants by the Lake.",
+          "execution": "No estimation or data retrieval tool was actually run; all statements rely on web searches and literature citations without executing a local annual series.",
+          "fit": "Caveats about scale mismatch and inter-annual variance are named but the critical sparse-count issue (zero local detections) is not identified or tested.",
+          "evidence_state": "Regional state-level and literature-based evidence is used as a direct proxy for the local site without labelling the scale transition or rejecting the forbidden inference of a confident trend.",
+          "decision_record": "Confident direction and 70-80% confidence are given, contrary to the gold finding that data are too sparse for a trend estimate; uncertainty is listed but not properly applied."
+        },
+        "critical_errors": [
+          "Confident trend conclusion contradicts gold finding of insufficient local data",
+          "Uses regional proxy data as direct evidence for local site without acknowledging that local detections are near zero"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "phantom_trend",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer cites Tamil Nadu state-level VIIRS detections as evidence for local fire pressure at EBTL, but no local FIRMS extraction was performed.",
+          "Answer concludes fire pressure worsening with 70-80% confidence despite the gold control finding only 1.6 pixel-fire-days within 5 km over 2020–2025.",
+          "Trace shows web searches and literature links only; no shell operations or estimation commands were executed."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/T4",
+      "model": "claude-4.6-opus-high",
+      "question_id": "T4",
+      "family": "time-change",
+      "question": "How much of the vegetation improvement at Elephants by the Lake was caused by restoration rather than rainfall, grazing changes, or what happened in the surrounding landscape? Give me the best effect estimate the evidence allows.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer names the causal restoration effect on vegetation at Elephants by the Lake (EBTL) in the Eastern Ghats, Tamil Nadu, with a time frame and a requested effect estimate.",
+          "execution": "No relevant data retrieval, computation, or estimation was executed; the answer relies on web searches and literature review without running any analysis.",
+          "fit": "The answer identifies confounding factors (rainfall, grazing, landscape trends) but does not test or apply any statistical fit or validation gate.",
+          "evidence_state": "Every transition between observation, proxy, model, and cause is labelled, and the answer explicitly rejects conflating correlation with causation.",
+          "decision_record": "The answer provides a checkable basis (citations, project website), expresses uncertainty (low-to-moderate confidence, range), and suggests a feasible field action (Sentinel-2 NDVI analysis with matched controls)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer identifies EBTL as a ~70-acre forest restoration project in the Eastern Ghats, Tamil Nadu, initiated around 2019–2020.",
+          "Answer states no published causal estimate exists for EBTL and provides a bounding estimate of 25–40% attributable to restoration based on analogous studies from Rajasthan and China.",
+          "Trace shows web searches and a fetched blog post, but no shell operations or data retrieval."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/X1",
+      "model": "claude-4.6-opus-high",
+      "question_id": "X1",
+      "family": "spatial-transfer",
+      "question": "Is king cobra likely to occur inside Elephants by the Lake? Please estimate it from whatever regional evidence is available, but be clear about what would make you trust or reject the estimate.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer estimates occurrence probability (~5-10%) rather than a modelled suitability or occurrence intensity as expected.",
+          "execution": "No retrieval of occurrence data, model run, or validation was executed; only web searches and literature synthesis.",
+          "fit": "The answer identifies habitat and climate mismatches and survey effort but does not test or apply a required validation or bias correction.",
+          "evidence_state": "Uses regional range maps and a nearby confirmed population (BR Hills) as positive evidence, which is a forbidden inference in the gold standard.",
+          "decision_record": "Provides a probability estimate with uncertainty, a confidence calibration table, citations, and a concrete field action (targeted survey)."
+        },
+        "critical_errors": [
+          "Using regional range maps and nearby records as evidence for local occurrence despite gold forbidding such inferences"
+        ],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "recipe_only"
+        ],
+        "evidence": [
+          "Ganesh et al. (2018) 1000-hour survey of Southern Eastern Ghats recorded 37 snake species but not Ophiophagus hannah.",
+          "Annual rainfall at EBTL is ~830-850 mm, far below the >2000 mm associated with high king cobra suitability.",
+          "Answer gives a ~5-10% probability estimate for king cobra occurrence at EBTL under current conditions."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/X2",
+      "model": "claude-4.6-opus-high",
+      "question_id": "X2",
+      "family": "spatial-transfer",
+      "question": "We have almost no arachnid survey data for Elephants by the Lake. Which spider or other arachnid species should we genuinely expect there, and which ones are only guesses worth checking?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "The answer provides a habitat-plausible list from nearby districts rather than separating observed local taxa from environmentally gated regional candidates, which is the required estimand.",
+          "execution": "No retrieval of local occurrence data or environmental matching was executed; only web searches and a directory listing were performed.",
+          "fit": "The answer ignores extrapolation bias and does not test or apply any environmental gate or validation for the regional-to-local transfer.",
+          "evidence_state": "The answer conflates regional records with local expectation without labelling the transition or rejecting the forbidden inference that those species are genuinely expected at EBTL.",
+          "decision_record": "The answer offers unsupported confidence categories and generic survey advice without a checkable basis for each prediction or quantified uncertainty."
+        },
+        "critical_errors": [
+          "no local record identified (e.g., Thelacantha brevispina)",
+          "habitat-plausible list presented as expected, which is forbidden",
+          "no environmental gating or analogue threshold applied"
+        ],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Workspace empty; no local arachnid occurrence data retrieved.",
+          "Answer lists species from Salem, Pachamalai, Sirumalai surveys without environmental gate or local validation.",
+          "No local record of Thelacantha brevispina or any observed species at EBTL mentioned."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/X3",
+      "model": "claude-4.6-opus-high",
+      "question_id": "X3",
+      "family": "spatial-transfer",
+      "question": "A native tree does well in nurseries in the wetter Western Ghats. What survival should we expect if we grow and plant it at Elephants by the Lake? Give a usable estimate or tell me why transfer would be unsafe.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer provides a 24-month survival estimate for unspecified species, missing the target one-year scope and not conditioning on provenance or management.",
+          "execution": "No tool trace shows any executed retrieval or estimation command; only web searches were performed.",
+          "fit": "The answer does not identify or test for biases such as extrapolation, and directly transfers donor survival without validation.",
+          "evidence_state": "The answer conflates donor site observations with target site expectations without labeling transitions or rejecting forbidden inference.",
+          "decision_record": "The answer includes a specific quantitative estimate and recommendations, but the basis is not checkable due to forbidden transfer, and uncertainty is not properly quantified."
+        },
+        "critical_errors": [
+          "Direct transfer of donor survival percentage to target site without gating",
+          "No request for species or provenance definition",
+          "Quantitative estimate provided despite forbidden copying of donor range suitability"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "The answer cites Raman et al. (2008) from a 1500-2000mm rainfall site and applies it to EBTL (850mm) with a scaling factor to produce a 10-25% survival estimate.",
+          "The trace shows only web searches; no fetched URLs, shell operations, or data retrieval commands are present.",
+          "The answer does not specify a native tree species, assuming a generic wet Western Ghats evergreen species without defining the donor."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/X4",
+      "model": "claude-4.6-opus-high",
+      "question_id": "X4",
+      "family": "spatial-transfer",
+      "question": "Can we use published Lantana removal results from the Western Ghats to predict how long control will last at Elephants by the Lake? I need a planning range, not a literature summary.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 1,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer identifies the Lantana-camara-rebound-time target but uses a 5‑year generic “planning range” without linking it to a defined treatment intensity, site‑specific measure, or decision criterion for EBTB.",
+          "execution": "The answer retrieved literature and described a transfer; no local recovery estimate or fitted transfer operation ran.",
+          "fit": "Relevant bias from propagule pressure and elephant disturbance is named but not tested or applied via any quantitative adjustment or validation step from the cited studies.",
+          "evidence_state": "The answer mixes observations (published removal outcomes) with projections from seed‑bank models and generic ANOVA‐based inference, but fails to label these transitions explicitly or reject site‑specific confounding.",
+          "decision_record": "An uncertainty range (1‑8 years) and budget actions are provided, but the basis for the plan is a qualitative synthesis without checkable per‑site calibration, and the smallest field action (e.g., one CRS pass + weeding schedule) is not specified."
+        },
+        "critical_errors": [],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "No shell operation or API call was recorded in the trace; all “results” are presented as hypothetical or from memory.",
+          "The answer built a planning table (Scenarios A–C) entirely from a literature review without querying any dataset, model, or local removal history.",
+          "The site adjustment for Kabini (propagule pressure, elephant disturbance) was reasoned but not supported by any retrieved or calculated local data."
+        ],
+        "audit_note": "Retrieval is not estimation execution."
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/D1",
+      "model": "claude-4.6-opus-high",
+      "question_id": "D1",
+      "family": "sparse-detection-decision",
+      "question": "How many venomous snakes are there at Elephants by the Lake? We need to brief field staff without either frightening them or giving false reassurance.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "Answer gives species richness (7 species) from regional data but does not distinguish historical from current occupancy or abundance, missing the local survey result.",
+          "execution": "No estimation or retrieval of site-specific data was executed; only web searches and literature review were performed.",
+          "fit": "Ignores the key bias of extrapolating regional species lists to the local site and does not test or incorporate the local survey that found zero encounters.",
+          "evidence_state": "Conflates regional survey observations with local presence, failing to label the transition or reject the inference that all 7 species occur on site.",
+          "decision_record": "Provides sources and uncertainty but does not include the specific field action of a repeat safety-oriented survey as required."
+        },
+        "critical_errors": [
+          "Ignored local survey result that found zero venomous snake encounters during a three-day September survey",
+          "Conflated regional species list with local occurrence without distinguishing historical documentation from current occupancy"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer lists 7 venomous snake species from regional literature (Ganesh et al. 2018) as expected at EBTL.",
+          "Trace shows web searches for regional snake lists and EBTL pages, but no local survey data or shell operations.",
+          "Hidden gold indicates local survey documents four medically venomous species historically, none encountered during its three-day September survey."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/D2",
+      "model": "claude-4.6-opus-high",
+      "question_id": "D2",
+      "family": "sparse-detection-decision",
+      "question": "Public databases show very few frog records inside Elephants by the Lake. Estimate how much of the site frogs actually occupy and where our next night surveys should go.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 1,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer gives occupancy percentages based on habitat extrapolation rather than detection-corrected occupancy, and does not refuse the occupancy estimate as the hidden gold acceptable approach requires.",
+          "execution": "No estimation operation was executed; the answer relies on web searches and literature review without running any data analysis or model.",
+          "fit": "The answer names several biases (survey effort, daytime bias, seasonality) but does not test or correct for them in the occupancy estimate.",
+          "evidence_state": "The answer uses regional species lists and habitat types to infer local occupancy but does not explicitly label transitions or reject the forbidden inference that public scarcity indicates absence.",
+          "decision_record": "The answer provides a checkable basis (citations, habitat reasoning), acknowledges uncertainty (e.g., 'estimated', 'likely'), and gives specific actionable survey recommendations (timing, locations, methods)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "recipe_only"
+        ],
+        "evidence": [
+          "Answer uses habitat-based extrapolation from regional surveys (Ganesh et al., Karthik et al.) to estimate occupancy percentages for EBTL.",
+          "Answer provides a detailed night survey protocol with priority locations (lake margin, seasonal pools, drainage lines) and timing (monsoon peaks).",
+          "Trace shows web searches for regional amphibian data and iNaturalist observations, but no shell operations or executed estimation commands."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/D3",
+      "model": "claude-4.6-opus-high",
+      "question_id": "D3",
+      "family": "sparse-detection-decision",
+      "question": "Roughly how many elephants use Elephants by the Lake over a year? Use local signs, sightings and regional records if useful, but give us a number only if the evidence can really support one.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer correctly identifies the target as the number of unique elephants using Elephants by the Lake over one year and declines to give a number due to insufficient evidence, matching the acceptable estimand.",
+          "execution": "No estimation or analysis was executed; the answer only conducts web searches and retrieves descriptive information without any computational or statistical operation.",
+          "fit": "The answer names the extrapolation bias (regional numbers do not apply to the small site) and lack of local monitoring, but does not test or correct for it with a formal method.",
+          "evidence_state": "Every transition between regional census data, news reports, and site-specific anecdotal evidence is clearly labelled, and the forbidden inference of copying regional counts into a local annual estimate is explicitly rejected.",
+          "decision_record": "The answer provides checkable citations, acknowledges uncertainty, and suggests the actionable next step of requesting camera-trap or capture-mark-recapture data from the site."
+        },
+        "critical_errors": [],
+        "tags": [
+          "honest_refusal",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "EBTL website states only that 'a few elephants came' after restoration, not a count of individuals over a year.",
+          "Regional census of Krishnagiri district gives ~150 resident elephants, but the answer clarifies this cannot be used as a local estimate for the 28-ha site.",
+          "No published camera-trap, dung-count, or individual-identification data from the EBTL site exist in the public record."
+        ]
+      }
+    },
+    {
+      "key": "claude-4.6-opus-high/D4",
+      "model": "claude-4.6-opus-high",
+      "question_id": "D4",
+      "family": "sparse-detection-decision",
+      "question": "What is the fire risk at Elephants by the Lake right now, where is it highest, and where should we put a small number of patrols or sensors before the dry season?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer provides current fire risk based on generic seasonal climate and historical patterns rather than current fuel, moisture, and weather data, which is forbidden by the gold.",
+          "execution": "No successful retrieval or estimation of current risk data was executed; only web searches and literature review were performed.",
+          "fit": "No bias, leakage, extrapolation, or confounding tests were applied to the historical proxy used as current risk.",
+          "evidence_state": "The answer materially conflates historical seasonal fire patterns with current site risk, a critical error that invalidates evidence transitions.",
+          "decision_record": "The answer includes specific patrol and sensor placement recommendations with some source references and limitations, but the basis is not checkable current data."
+        },
+        "critical_errors": [
+          "Using generic seasonal climate as current site risk, violating the forbidden rule against calling historical detection density or seasonal climate current risk."
+        ],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "recipe_only"
+        ],
+        "evidence": [
+          "Answer identifies Nkhotakota Wildlife Reserve as 'Elephants by the Lake' without user confirmation; relies on assumed location.",
+          "Failed to retrieve live FIRMS pixel-level data for the reserve bounding box; relied on seasonal climatology and literature.",
+          "Patrol and sensor recommendations are based on qualitative risk factors from literature, not current calibrated risk."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/F1",
+      "model": "gpt-5.4-medium",
+      "question_id": "F1",
+      "family": "site-state-fit",
+      "question": "Is Elephants by the Lake near Krishnagiri actually improving ecologically since restoration work began? Give me the most defensible estimate you can for a donor update, and tell me how sure you are.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "Answer names ecological response, place, and donor decision but lacks precise site boundary and clearly defined intervention period.",
+          "execution": "No relevant estimation operation was executed; the answer only retrieved documents and gave a qualitative judgment.",
+          "fit": "Answer acknowledges missing before/after data and lack of counterfactual but does not test or adjust for any bias/confounding.",
+          "evidence_state": "Answer correctly labels project reports as primary evidence and does not conflate observations with causation.",
+          "decision_record": "Answer provides a specific probability and magnitude estimate, discusses uncertainty, and lists checkable sources for a donor update."
+        },
+        "critical_errors": [],
+        "tags": [
+          "recipe_only"
+        ],
+        "evidence": [
+          "Answer gives ~70% probability and 20-30% improvement but no quantitative analysis was run.",
+          "Trace shows only web searches and PDF downloads; no estimation command succeeded.",
+          "Answer relies on project newsletters and faunal survey without independent trend data."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/F2",
+      "model": "gpt-5.4-medium",
+      "question_id": "F2",
+      "family": "site-state-fit",
+      "question": "Which parts of Elephants by the Lake are doing best and which parts are struggling? Give our field team a short priority map or ranked list of places to inspect next.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 1,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer provides a qualitative ranked list of zones rather than a modelled inspection-priority surface with geometry, resolution, date, uncertainty, and field-validation design as required.",
+          "execution": "No estimation or computation was performed; the answer only summarizes text from newsletters and a map image without running any retrieval, model, or statistical operation.",
+          "fit": "The answer does not address any bias, leakage, extrapolation, detectability, or confounding issues; it takes newsletter statements at face value.",
+          "evidence_state": "The answer mixes observations (camera trap sightings) and inferences (functional signs) without labelling transitions or rejecting forbidden inferences, but does not materially conflate them.",
+          "decision_record": "The answer provides a checkable basis (sources), expresses some uncertainty (e.g., 'lower urgency', 'most likely place'), and gives a specific field action (inspection priority list with time split)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer relies solely on newsletter text and a static map image; no spatial analysis or model was executed.",
+          "Trace shows web searches and PDF downloads but no estimation commands; all shell operations were for data retrieval or failed.",
+          "Answer explicitly states 'triage ranking, not a formal quantified audit', confirming lack of execution."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/F3",
+      "model": "gpt-5.4-medium",
+      "question_id": "F3",
+      "family": "site-state-fit",
+      "question": "After we clear Lantana at Elephants by the Lake, where is it most likely to come back, and roughly how quickly? I need something useful for scheduling follow-up work.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer identifies the ecological quantity (Lantana reoccurrence by microsite and timing) but does not produce a local quantitative estimate, instead giving generic literature-based inference.",
+          "execution": "No local data retrieval or estimation operation was executed; the answer is a synthesis of web-search literature with no shell operations or data analysis.",
+          "fit": "The answer does not test for or address biases from geographic transfer, detectability, or extrapolation from nonlocal studies.",
+          "evidence_state": "The answer conflates evidence from other South Indian sites (Mudumalai, BRT) with the target EBTL site and uses generic regrowth rates as local rebound, violating the forbidden inference.",
+          "decision_record": "The answer provides a checkable follow-up schedule with cited sources, acknowledges uncertainty as inference, and offers actionable field steps."
+        },
+        "critical_errors": [
+          "Uses generic regrowth rate from literature as local rebound, which is forbidden per hidden gold.",
+          "No local data or fitted model; relies entirely on geographic transfer from nonlocal studies."
+        ],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only"
+        ],
+        "evidence": [
+          "Trace shows only web searches for Lantana ecology and EBTL site info; no shell operations or data analysis.",
+          "Answer cites literature from Mudumalai, BRT, and Indian reviews, not local EBTL data.",
+          "Answer offers to turn into a patrol plan if block map or drone image is provided."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/F4",
+      "model": "gpt-5.4-medium",
+      "question_id": "F4",
+      "family": "site-state-fit",
+      "question": "Which native tree species are the best fit for the Elephants by the Lake nursery and outplanting areas, and what survival should we expect after one year?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer provides a species shortlist and survival ranges but does not specify by planting stratum or local provenance as required.",
+          "execution": "No computational or retrieval operation was executed; the answer relies entirely on web searches and literature synthesis.",
+          "fit": "The answer acknowledges the lack of EBTL-specific data but does not test or correct for geographic transfer or site-specific bias.",
+          "evidence_state": "Survival estimates from regional and general dry-forest studies are presented as EBTL-specific forecasts, conflating proxy and local evidence.",
+          "decision_record": "The answer offers checkable citations, uncertainty ranges, and a concrete next step (species-by-microsite matrix)."
+        },
+        "critical_errors": [
+          "Forbidden inference: regional native list and climate suitability presented as EBTL survival probability",
+          "Geographic transfer: species and survival data from Hosur/Dharmapuri applied without validation to EBTL"
+        ],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Web searches retrieved regional flora studies (Hosur, Dharmapuri) but no EBTL-specific nursery roster or survival data.",
+          "Survival forecast anchors on Banin et al. 2022 Asian restoration synthesis (75% survival in open degraded sites).",
+          "Fetched URLs include EBTL homepage, Krishnagiri district profile, and Anna University climate profile."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/C1",
+      "model": "gpt-5.4-medium",
+      "question_id": "C1",
+      "family": "colocation-interaction",
+      "question": "Do elephants at Elephants by the Lake avoid the patches with Lantana, move through them, or use them normally? Give me the strongest estimate the available data support.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "The answer correctly seeks elephant habitat selection relative to mapped Lantana at the specific site, naming the quantity, place, and the requested comparison among avoid, move-through, and normal use.",
+          "execution": "No estimation tool was executed; all claims are based on web searches and literature summaries without any data retrieval, spatial operation, or statistical computation, so the intended estimation did not run.",
+          "fit": "The answer ignores critical bias: it conflates site-level (EBTL) inference with whole-reserve-level Mudumalai results without testing for temporal misalignment, spatial extrapolation, or detectability differences between the two sites, and fails to reject the forbidden co-location inference implied in the Mudumalai proxy.",
+          "evidence_state": "The answer materially conflates a regional proxy (Mudumalai dry deciduous) with the specific EBTL site without labelled transitions, and the Mudumalai landscape-level null result (no avoidance) is used to support a 'move through' estimate while simultaneously being dismissed as irrelevant to the dry-deciduous within-site effect, creating a logical inconsistency that amounts to proxy laundering.",
+          "decision_record": "The answer offers a forced-choice probability split (e.g., 65-75% move through) without any checkable basis from EBTL-specific data, provides unsupported confidence, and the recommended field action is vague ('move through them') rather than a concrete minimum actionable step like deploying GPS collars or conducting a use-versus-availability analysis at the site."
+        },
+        "critical_errors": [
+          "Conflates non-local proxy (Mudumalai) with site-specific EBTL inference without labelled transition or test for spatial/temporal generalizability.",
+          "Performs proxy laundering: uses a whole-reserve null effect to claim 'not avoid completely' but then selectively cites the dry-deciduous negative effect to claim 'not use normally', without acknowledging the contradiction or validating the proxy transport.",
+          "Fails to reject the forbidden co-location inference: claims elephants 'move through' based on stepping rates not being significant, which is a co-location interpretation not allowed under the gold standard."
+        ],
+        "tags": [
+          "causal_overreach",
+          "detectability_error",
+          "proxy_laundering",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Trace: web searches returned no EBTL-specific elephant-lantana dataset; only general site descriptions and external project profiles.",
+          "Answer cites Mudumalai papers but does not run any spatial extraction, statistical test, or data processing command.",
+          "Subject answer acknowledges 'I could not find a public EBTL study that directly measures elephant movement relative to lantana patches', confirming lack of local data."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/C2",
+      "model": "gpt-5.4-medium",
+      "question_id": "C2",
+      "family": "colocation-interaction",
+      "question": "Where around Elephants by the Lake are we most likely to encounter snakes—near water, tree cover, rocky ground, or something else? Please estimate practical survey hotspots rather than giving me a general snake guide.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer names local encounter probability by microhabitat and place, but uses regional natural history preferences directly, which is forbidden.",
+          "execution": "No relevant estimation or computation was executed; only web searches and page fetches were performed.",
+          "fit": "No testing or correction for bias, extrapolation, detectability, or confounding is applied.",
+          "evidence_state": "Regional snake records are conflated with local predictions without clear labeling of the inference transition.",
+          "decision_record": "Some sources and uncertainty are provided, but the basis is not locally checkable and the field action is derived from regional data."
+        },
+        "critical_errors": [
+          "Regional natural history preferences converted directly into EBTL hotspots"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer uses regional Eastern Ghats herpetology studies to infer snake hotspots at EBTL.",
+          "Trace shows web searches for EBTL location and regional snake studies, no local encounter data.",
+          "Answer provides percentage allocation for survey effort based on habitat types."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/C3",
+      "model": "gpt-5.4-medium",
+      "question_id": "C3",
+      "family": "colocation-interaction",
+      "question": "Which birds recorded around Elephants by the Lake are most likely to be spreading Lantana there? Rank the candidates and say what evidence makes that a local estimate rather than just a possibility.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 1,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer names the ecological quantity (ranking birds most likely to spread Lantana), identifies the place (Elephants by the Lake), and provides a decision (ranked list).",
+          "execution": "Local bird-list frequencies and remote fruit-use literature were assembled, but local invasive-seed dispersal was not estimated.",
+          "fit": "The answer ignores the bias that the feeding evidence comes from different semi-arid sites, not from EBTL itself, and does not test for extrapolation or confounding.",
+          "evidence_state": "The answer materially conflates remote fruit-use evidence from other sites with local dispersal at EBTL, calling it a local estimate despite the geographic mismatch.",
+          "decision_record": "The answer provides checkable sources (URLs), acknowledges uncertainty (caveat), and suggests a field protocol for verification."
+        },
+        "critical_errors": [
+          "The answer calls remote fruit-use evidence a local estimate without testing geographic transfer, violating the forbidden criterion."
+        ],
+        "tags": [
+          "geographic_transfer",
+          "partial_execution",
+          "proxy_laundering"
+        ],
+        "evidence": [
+          "Answer retrieved eBird hotspot bird list for EBTL (L36453021) showing 137 species.",
+          "Answer cites literature from semi-arid south India for Lantana dispersal by bulbuls, mynas, barbets.",
+          "Answer does not test whether the feeding studies are from the same location as EBTL."
+        ],
+        "audit_note": "A candidate ranking is partial execution, not the requested interaction estimate."
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/C4",
+      "model": "gpt-5.4-medium",
+      "question_id": "C4",
+      "family": "colocation-interaction",
+      "question": "Are fires around Elephants by the Lake concentrated near roads, settlement edges, or other human access routes? Tell me whether the pattern is strong enough to change patrol priorities.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 2,
+          "fit": 2,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer targets the association between recent fires and human access features but uses only a single VIIRS hotspot, which is insufficient to assess a pattern of multiple fires as required.",
+          "execution": "The answer ran shell commands to fetch VIIRS fire data from the ArcGIS service and OpenStreetMap extracts, then computed distances to roads, tracks, and settlement edges and compared against 1500 random background points.",
+          "fit": "The answer correctly uses a background comparison (random points) to evaluate whether the single fire is unusually close to access features, and acknowledges the sparse-data limitation without inferring causation.",
+          "evidence_state": "Every transition (from observed VIIRS hotspot to distance measurements to percentiles) is clearly labelled, and the answer explicitly rejects a causal interpretation or strong pattern claim.",
+          "decision_record": "The answer provides a checkable basis (sources, queries, distances), states the uncertainty (single point, 7-day window), and gives a specific patrol recommendation (no major change, with tactical attention to settlement edges)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "executed_estimate"
+        ],
+        "evidence": [
+          "VIIRS query returned exactly 1 hotspot in the 50x50 km box around EBTL.",
+          "OSM map extract used for roads, tracks, and buildings.",
+          "Distance comparison against 1500 random background points computed."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/T1",
+      "model": "gpt-5.4-medium",
+      "question_id": "T1",
+      "family": "time-change",
+      "question": "Has Elephants by the Lake become greener from 2020 through 2025? Give me a number or trend I can check, not just a description of how satellite analysis works.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "No final answer was returned within the fixed run.",
+          "execution": "No final answer was returned within the fixed run.",
+          "fit": "No final answer was returned within the fixed run.",
+          "evidence_state": "No final answer was returned within the fixed run.",
+          "decision_record": "No final answer was returned within the fixed run."
+        },
+        "critical_errors": [],
+        "tags": [
+          "no_final_answer"
+        ],
+        "evidence": [
+          "timeout=900; elapsed_s=900.01"
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/T2",
+      "model": "gpt-5.4-medium",
+      "question_id": "T2",
+      "family": "time-change",
+      "question": "Are bird numbers around Elephants by the Lake increasing or falling over the last five years? Use public data if that is all we have, but tell me whether the trend is real enough to guide restoration choices.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 2,
+          "fit": 2,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer correctly identifies the estimand as a trend in bird numbers at the Elephants by the Lake hotspot, but concludes it cannot be reliably estimated due to data limitations, which is an acceptable response.",
+          "execution": "The answer executed Python scripts to scrape eBird checklist pages, parse dates, species counts, and effort metrics, and computed yearly summary statistics, demonstrating actual retrieval and estimation.",
+          "fit": "The answer addresses effort confounding by restricting analysis to comparable complete checklists with minimum duration and distance, and notes uneven seasonal coverage, applying a basic validation gate.",
+          "evidence_state": "The answer clearly distinguishes raw data from effort-corrected data, labels transitions, and explicitly rejects the inference that the raw decline represents a real biological trend.",
+          "decision_record": "The answer provides checkable source URLs, expresses uncertainty with three specific reasons, and offers concrete restoration recommendations (maintain habitat mosaic, protect water edges, preserve structural complexity)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "executed_estimate",
+          "field_request"
+        ],
+        "evidence": [
+          "The answer computed mean species/checklist per year from 161 validated eBird checklists (2024: 23.3, 2025: 16.1, 2026: 13.8) and then restricted to comparable checklists (2024: 26.0, 2025: 19.2, 2026: 23.8).",
+          "The answer explicitly states that the public record only runs from Oct 2024 to Jun 2026, not five full years, and that effort changes and uneven season coverage prevent a robust trend estimate.",
+          "The answer provides direct URLs to the eBird hotspot, recent checklists, and individual checklist pages as checkable basis."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/T3",
+      "model": "gpt-5.4-medium",
+      "question_id": "T3",
+      "family": "time-change",
+      "question": "Is fire pressure at Elephants by the Lake getting worse or better since 2020? Compare the years and tell me how much confidence to put in the direction.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "The answer uses a fire-weather proxy instead of the required historical detected-fire exposure over a stable geometry.",
+          "execution": "No fire detection data were retrieved; the GFW API query failed and no MODIS/VIIRS extraction was performed.",
+          "fit": "The answer does not address bias, detectability, or the sparse-count limitation of actual fire detections.",
+          "evidence_state": "The answer conflates weather-based fire risk with fire pressure without rejecting the forbidden inference that weather equals fire occurrence.",
+          "decision_record": "The answer provides confidence levels based on a proxy, not a checkable basis for the intended fire detection trend, and no smallest useful field action."
+        },
+        "critical_errors": [
+          "proxy_laundering"
+        ],
+        "tags": [
+          "proxy_laundering",
+          "recipe_only"
+        ],
+        "evidence": [
+          "The answer used Open-Meteo weather data as a proxy for fire pressure, not actual fire detections.",
+          "The GFW API query for VIIRS fire alerts failed due to missing API key.",
+          "The answer did not retrieve any MODIS/VIIRS fire detection data."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/T4",
+      "model": "gpt-5.4-medium",
+      "question_id": "T4",
+      "family": "time-change",
+      "question": "How much of the vegetation improvement at Elephants by the Lake was caused by restoration rather than rainfall, grazing changes, or what happened in the surrounding landscape? Give me the best effect estimate the evidence allows.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "No final answer was returned within the fixed run.",
+          "execution": "No final answer was returned within the fixed run.",
+          "fit": "No final answer was returned within the fixed run.",
+          "evidence_state": "No final answer was returned within the fixed run.",
+          "decision_record": "No final answer was returned within the fixed run."
+        },
+        "critical_errors": [],
+        "tags": [
+          "no_final_answer"
+        ],
+        "evidence": [
+          "timeout=900; elapsed_s=900.032"
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/X1",
+      "model": "gpt-5.4-medium",
+      "question_id": "X1",
+      "family": "spatial-transfer",
+      "question": "Is king cobra likely to occur inside Elephants by the Lake? Please estimate it from whatever regional evidence is available, but be clear about what would make you trust or reject the estimate.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer targets occurrence likelihood at EBTL but is a heuristic probability rather than a modelled suitability or intensity estimate.",
+          "execution": "Occurrence searches ran, but the final 5–15% probability was heuristic rather than an executed occurrence or habitat model.",
+          "fit": "The answer names detection bias and coordinate uncertainty but does not apply a formal validation or correction for these biases.",
+          "evidence_state": "All transitions between regional range and local occurrence are clearly labelled, and forbidden inferences (e.g., treating absence as confirmation) are explicitly rejected.",
+          "decision_record": "A specific probability range (5–15%) is given with checkable API queries, acknowledged uncertainty, and actionable survey suggestions."
+        },
+        "critical_errors": [],
+        "tags": [
+          "partial_execution"
+        ],
+        "evidence": [
+          "iNaturalist Krishnagiri place returns 0 king cobra observations but 43 Indian cobra observations.",
+          "GBIF radius queries (10–100 km) around approximate EBTL coordinates return 0 king cobra records.",
+          "Answer estimates 5–15% probability for occasional occurrence at EBTL, conditioned on existing survey gaps."
+        ],
+        "audit_note": "Retrieval plus an unsupported probability is partial execution."
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/X2",
+      "model": "gpt-5.4-medium",
+      "question_id": "X2",
+      "family": "spatial-transfer",
+      "question": "We have almost no arachnid survey data for Elephants by the Lake. Which spider or other arachnid species should we genuinely expect there, and which ones are only guesses worth checking?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 1,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer attempts to separate expected taxa from guesses but uses nearby iNaturalist records as proxies for local observations rather than true local records from EBTL.",
+          "execution": "The answer executed iNaturalist API queries and literature searches but did not run the required environmental matching or spatial transfer analysis.",
+          "fit": "The answer notes undersurveying and observer bias but does not formally test or correct for extrapolation, detectability, or confounding biases.",
+          "evidence_state": "The answer does not clearly label transitions from nearby observations to expectations at EBTL, conflating proxy-site records with local presence.",
+          "decision_record": "The answer provides checkable links to observations and literature, expresses uncertainty via two tiers of expectation, and suggests microhabitat actions for a field survey."
+        },
+        "critical_errors": [],
+        "tags": [
+          "partial_execution"
+        ],
+        "evidence": [
+          "Subject used iNaturalist proxy point 4.8 km from EBTL to gather observations.",
+          "Subject separated taxa into 'genuinely expected' and 'worth checking' based on observation proximity and habitat match.",
+          "Subject did not run the environmental matching gate required for spatial transfer; instead relied on proximity and literature."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/X3",
+      "model": "gpt-5.4-medium",
+      "question_id": "X3",
+      "family": "spatial-transfer",
+      "question": "A native tree does well in nurseries in the wetter Western Ghats. What survival should we expect if we grow and plant it at Elephants by the Lake? Give a usable estimate or tell me why transfer would be unsafe.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer specifies one-year survival under target conditions (EBTL, dry deciduous) with management scenarios, though species is unnamed.",
+          "execution": "The answer retrieves climate data and literature via web searches but does not run a computational estimation or tool trace.",
+          "fit": "The answer names climate mismatch and provenance risk as biases but does not execute a formal validation or local pilot gate.",
+          "evidence_state": "Every transition (nursery success, climate proxy, literature survival, transfer discount) is labelled and the forbidden direct copy of donor survival is rejected.",
+          "decision_record": "The answer provides checkable sources, uncertainty ranges, and a conditional decision (unsafe under specified conditions) with a request for species info as next step."
+        },
+        "critical_errors": [],
+        "tags": [
+          "geographic_transfer",
+          "partial_execution"
+        ],
+        "evidence": [
+          "Answer uses Krishnagiri rainfall 850 mm from TWAD and Anna University.",
+          "Answer cites Western Ghats seedling survival 34-90% from Restoration Ecology.",
+          "Answer requests species name and seed source to narrow estimate."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/X4",
+      "model": "gpt-5.4-medium",
+      "question_id": "X4",
+      "family": "spatial-transfer",
+      "question": "Can we use published Lantana removal results from the Western Ghats to predict how long control will last at Elephants by the Lake? I need a planning range, not a literature summary.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer explicitly defines the target quantity as a planning range for how long Lantana control will last at EBTL, given specific treatment types, which matches the required ecological quantity, place, and decision.",
+          "execution": "Climate and restoration literature were retrieved and transferred into a planning range, but no local recovery model was fitted.",
+          "fit": "Rainfall similarity was discussed, but a multi-feature donor analogue or out-of-domain test was not executed.",
+          "evidence_state": "Every transition (study site to target site, experimental duration to operational timeline) is labelled, and the answer explicitly distinguishes the experimental control result from the necessary longer maintenance window, rejecting a one-time removal solution as unrealistic.",
+          "decision_record": "The answer provides a checkable basis (climate match, reference studies, adjustment rules), a numerical planning range (3-5 years for moderate, 5-7 for dense patches), and a specific field action (uproot/CRS + multi-year follow-up weeding, not cutting), meeting the criterion for a useful field decision."
+        },
+        "critical_errors": [],
+        "tags": [
+          "geographic_transfer",
+          "partial_execution"
+        ],
+        "evidence": [
+          "Prasad et al. 2018: cut plots had ~18% regrowth at low-rainfall site (867 mm/yr), uproot plots had zero lantana at 16 months but ~109 seedlings per plot at that site.",
+          "Krishnagiri district average rainfall ~830 mm/yr, matching Mudumalai low-rainfall site.",
+          "Bandipur report: moderate invasion patches needed ~3-4 years, dense thickets and small areas more, with CEPF final report citing ~15% reappearance in year 2 and ~5% in year 3."
+        ],
+        "audit_note": "Literature transfer is useful partial work, not a fitted local estimate."
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/D1",
+      "model": "gpt-5.4-medium",
+      "question_id": "D1",
+      "family": "sparse-detection-decision",
+      "question": "How many venomous snakes are there at Elephants by the Lake? We need to brief field staff without either frightening them or giving false reassurance.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer acknowledges abundance unknown but does not clearly separate documented historical richness, current occupancy, and individual abundance as required.",
+          "execution": "No relevant estimation operation was executed; the answer only retrieves and synthesizes regional literature without running any quantitative analysis or local data extraction.",
+          "fit": "The answer ignores relevant biases including spatial extrapolation from habitat analogues and does not account for detectability or the difference between historical records and current occupancy.",
+          "evidence_state": "The answer conflates regional species lists with on-site evidence and does not label transitions from inferred to observed, nor does it reject unsupported inference.",
+          "decision_record": "The answer provides a basis and uncertainty but lacks the repeat safety-oriented survey request expected for actionable decision support."
+        },
+        "critical_errors": [
+          "No mention of the local survey or its zero detections",
+          "No request for a repeat survey",
+          "Does not distinguish documented species richness from current occupancy"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "The EBTL site confirms snake encounters but does not publish a species checklist.",
+          "Regional papers list the Big Four but are not site-specific surveys.",
+          "No local detection data, survey dates, or effort were retrieved or presented."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/D2",
+      "model": "gpt-5.4-medium",
+      "question_id": "D2",
+      "family": "sparse-detection-decision",
+      "question": "Public databases show very few frog records inside Elephants by the Lake. Estimate how much of the site frogs actually occupy and where our next night surveys should go.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 1,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer names frog occupancy and survey prioritization but omits detection correction, so the target is incomplete.",
+          "execution": "Occurrence records and buffers were processed, but the requested occupancy quantity was not estimated with repeat-detection data.",
+          "fit": "The answer ignores detectability bias and uses raw occurrence points to estimate occupancy without any correction or validation, so fit is 0.",
+          "evidence_state": "The answer materially conflates public occurrence records with occupancy, which is explicitly forbidden, so evidence_state is 0.",
+          "decision_record": "The answer provides specific survey locations and effort allocation with some uncertainty, but the basis is flawed, so decision_record is 1."
+        },
+        "critical_errors": [
+          "Treats public occurrence records as occupancy without accounting for detectability or repeated non-detections, violating the forbidden rule."
+        ],
+        "tags": [
+          "detectability_error",
+          "partial_execution",
+          "proxy_laundering"
+        ],
+        "evidence": [
+          "Answer gives numeric occupancy estimate (11-35%) based on buffering iNaturalist points inside EBTL polygon.",
+          "Trace shows successful API calls to iNaturalist and GBIF, and area calculations.",
+          "Hidden gold forbids using record density as occupancy; requires detection-corrected approach."
+        ],
+        "audit_note": "The computation ran, but it was the wrong estimator."
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/D3",
+      "model": "gpt-5.4-medium",
+      "question_id": "D3",
+      "family": "sparse-detection-decision",
+      "question": "Roughly how many elephants use Elephants by the Lake over a year? Use local signs, sightings and regional records if useful, but give us a number only if the evidence can really support one.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "Correctly identifies the target as annual elephant count for EBTL and decides not to provide a number due to insufficient evidence.",
+          "execution": "No estimation operation was run; only web searches and review of existing sources were performed.",
+          "fit": "Names the key bias of extrapolating regional counts to the local site without accounting for individual identification or detection, but does not test or apply correction.",
+          "evidence_state": "Clearly distinguishes local on-site evidence from regional landscape data and rejects the forbidden inference of using regional counts for a local annual estimate.",
+          "decision_record": "Provides checkable sources, acknowledges uncertainty, and suggests a follow-up action for bounds if additional local data were available."
+        },
+        "critical_errors": [],
+        "tags": [
+          "honest_refusal",
+          "recipe_only"
+        ],
+        "evidence": [
+          "Answer states that public evidence does not support a defensible annual count for EBTL.",
+          "Trace includes fetching EBTL's own description and regional census articles from The Hindu.",
+          "Regional census numbers (240 in Hosur division, 125-150 migrating) are cited but not used to fabricate a local estimate."
+        ]
+      }
+    },
+    {
+      "key": "gpt-5.4-medium/D4",
+      "model": "gpt-5.4-medium",
+      "question_id": "D4",
+      "family": "sparse-detection-decision",
+      "question": "What is the fire risk at Elephants by the Lake right now, where is it highest, and where should we put a small number of patrols or sensors before the dry season?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer identifies current fire risk as low, specifies highest-risk areas (NE, SE), and gives patrol/sensor placement, matching the ecological quantity of current spatial fire hazard.",
+          "execution": "Weather data and fire point search were successfully retrieved, but the critical raster analysis (decoding WCS subsets) is claimed without a tool trace, so execution is partial.",
+          "fit": "The answer notes the FFDR layer is stale but does not test for bias in static fuel layers or address detectability/confounding, only naming the staleness without validation.",
+          "evidence_state": "Static forest cover and type layers from 2021 are used as proxies for current risk without labeling the transition, conflating proxy with current conditions.",
+          "decision_record": "Specific placement recommendations (NE forest edge, SE scrub edge) are given with a checkable basis (weather, no fires, static maps) and acknowledged uncertainty, providing the smallest useful field action."
+        },
+        "critical_errors": [
+          "proxy_laundering: static 2021 forest cover and type layers are treated as current risk indicators without explicit caveat that they are not current fuel or hazard."
+        ],
+        "tags": [
+          "field_request",
+          "partial_execution",
+          "proxy_laundering"
+        ],
+        "evidence": [
+          "Answer states 'the official FSI static layers around the anchor point show non-forest at the center, but more open/moderately dense forest... especially to the northeast.'",
+          "Trace shows successful weather data retrieval from Open-Meteo (temperature, humidity, wind, precipitation).",
+          "Trace shows FSI fire point search returned 'No fire points found' for Tamil Nadu Jul 18-20, 2026."
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/F1",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "F1",
+      "family": "site-state-fit",
+      "question": "Is Elephants by the Lake near Krishnagiri actually improving ecologically since restoration work began? Give me the most defensible estimate you can for a donor update, and tell me how sure you are.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 2,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer does not declare a precise ecological quantity, but it implies the target is restoration-driven ecological change and provides a negative estimate (no improvement), which is acceptable as a refusal/data request.",
+          "execution": "The answer executed a Sentinel-2 NDVI trend analysis via Planetary Computer, including control comparison and diff-in-diff calculation, as shown in the shell trace.",
+          "fit": "The answer names confounding by regional rainfall and attempts a control comparison, but does not execute a formal statistical test or identification gate beyond simple diff-in-diff.",
+          "evidence_state": "Every transition (project activity, biodiversity inventories, satellite proxy) is clearly labelled, and forbidden inferences (e.g., claiming improvement) are explicitly rejected.",
+          "decision_record": "The answer gives a concrete donor message with uncertainty (70% confidence), checkable NDVI table and rainfall data, and the smallest useful field action (avoid claiming improvement)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "executed_estimate"
+        ],
+        "evidence": [
+          "NDVI diff-in-diff ≈ −0.02 from Sentinel-2 dry-season scenes (2018–2026), with EBTL and control median values per year.",
+          "Biosmart polygon shows 610 observations, 169 species, mostly post-2022, labelled as inventory not trend.",
+          "Rainfall data from TWAD Krishnagiri shows drought in 2023–2024 (729 mm; 516 mm through Sep 2024), matching regional NDVI decline."
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/F2",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "F2",
+      "family": "site-state-fit",
+      "question": "Which parts of Elephants by the Lake are doing best and which parts are struggling? Give our field team a short priority map or ranked list of places to inspect next.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 2,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer provides a within-property spatial ranking of zones (north, south, etc.) based on ecological response variables (NDVI, management attention, survival), matching the required estimand.",
+          "execution": "The trace shows successful execution of Sentinel-2 NDVI computation via Planetary Computer, along with PDF downloads and text extraction, producing the reported NDVI table.",
+          "fit": "The answer names limitations (approximate centroids, NDVI not separating planted vs. weed/forest) but does not execute a formal validation or bias test, so fit is partial.",
+          "evidence_state": "Every transition (satellite NDVI, newsletter ground reports, management actions) is labelled, and the forbidden inference of equating high NDVI with success is explicitly rejected.",
+          "decision_record": "The answer provides a checkable basis (URLs, coordinates, NDVI table), acknowledges uncertainty (caveats), and gives the smallest useful field action (inspect in ranked order)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "executed_estimate",
+          "field_request"
+        ],
+        "evidence": [
+          "NDVI computed from Sentinel-2 L2A via Planetary Computer for zone centroids across three dates.",
+          "Newsletters from June 2023 to July 2024 downloaded and text extracted for ground reports.",
+          "Priority ranking based on management attention, NDVI, and ground reports with explicit caveats."
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/F3",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "F3",
+      "family": "site-state-fit",
+      "question": "After we clear Lantana at Elephants by the Lake, where is it most likely to come back, and roughly how quickly? I need something useful for scheduling follow-up work.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 1,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer clearly names the quantity (where and how fast Lantana will return), place/time (Elephants by the Lake after clearing), and decision (scheduling follow-up work).",
+          "execution": "No local data retrieval, computation, or estimation was performed; the answer is based on literature and site description, not an executed analysis.",
+          "fit": "The answer acknowledges the need for site-specific validation (e.g., 'EBTL-specific confirmation would be a quick transect') but does not test or apply any bias/leakage/extrapolation correction.",
+          "evidence_state": "Transitions from literature to the local context are labelled by source, but the answer does not reject the forbidden inference of geographic transfer without local test data.",
+          "decision_record": "Provides checkable sources, a practical calendar, and specific management actions, but lacks explicit uncertainty quantification."
+        },
+        "critical_errors": [],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "No local Lantana monitoring dataset found for Elephants by the Lake (shell search and web fetch results empty).",
+          "Answer relies on literature (Ramaswami & Sukumar 2014, Prasad et al. 2018, CEPF report) to infer regrowth locations and timing.",
+          "Trace confirms only static web pages and literature PDFs were accessed; no local estimation model or repeat-observation data were processed."
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/F4",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "F4",
+      "family": "site-state-fit",
+      "question": "Which native tree species are the best fit for the Elephants by the Lake nursery and outplanting areas, and what survival should we expect after one year?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer correctly identifies the quantity (species recommendations and survival expectation) and the place/time/decision, but does not explicitly stratify by provenance.",
+          "execution": "No estimation was executed; the answer relies on literature synthesis without running any retrieval or computation on EBTL-specific data.",
+          "fit": "The answer names the extrapolation from other sites but does not test or validate the fit of those data to EBTL conditions.",
+          "evidence_state": "The answer presents regional survival data as if applicable to EBTL, conflating local and remote evidence without labeling the transition.",
+          "decision_record": "The answer provides checkable sources, uncertainty ranges, and a specific nursery stocking and planting plan."
+        },
+        "critical_errors": [
+          "proxy_laundering: regional survival data presented as EBTL estimate without local validation"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "EBTL has no public species list or survival data.",
+          "Answer uses Hosur Forest Division floristics as reference.",
+          "Answer cites Nanmangalam and Chinnar survival studies."
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/C1",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "C1",
+      "family": "colocation-interaction",
+      "question": "Do elephants at Elephants by the Lake avoid the patches with Lantana, move through them, or use them normally? Give me the strongest estimate the available data support.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "Names elephant habitat selection relative to Lantana at EBTL, but the target is implied rather than precisely named as used-versus-available or step-selection with aligned time and effort.",
+          "execution": "Performs web searches and retrieval of published studies (Wilson et al. 2013, 2014) and checks workspace, but does not execute an actual estimation on local EBTL data; only partial execution via literature proxy.",
+          "fit": "Names geographic transfer as a caveat (regional proxy from Mudumalai DDF to EBTL DDF), but does not test or apply any required fit/validation for confounding, detectability, or bias from spatial extrapolation.",
+          "evidence_state": "Materially conflates regional proxy literature (Mudumalai) with local EBTL site inference without labelled transitions or testing for local-remote equivalence; forbidden inference of local avoidance is implied, earning evidence_state=0.",
+          "decision_record": "Provides checkable basis (two Wilson papers with specific statistics), acknowledges uncertainty (no EBTL-site dataset, caveat of proxy), and suggests smallest useful field action through the answer structure."
+        },
+        "critical_errors": [
+          "Conflates regional proxy evidence with local EBTL site inference, violating the forbidding of 'regional literature called local avoidance'",
+          "Leeches co-location inference from regional dung density studies without labelled transitions or testing for local-remote equivalence"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "partial_execution",
+          "phantom_trend",
+          "proxy_laundering",
+          "source_substitution"
+        ],
+        "evidence": [
+          "No EBTL-site dataset of elephant movement vs Lantana exists in workspace or fetched URLs (ebtl.earth, ananas.design, blog were empty of such data)",
+          "All quantitative results cited are from Wilson et al. 2013 (dung density vs Lantana in Mudumalai DDF) and Wilson et al. 2014 (focal behavior in Mudumalai DDF)",
+          "Shell commands confirmed workspace had no elephant or Lantana data files; only a worker log and repo.json were present"
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/C2",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "C2",
+      "family": "colocation-interaction",
+      "question": "Where around Elephants by the Lake are we most likely to encounter snakes—near water, tree cover, rocky ground, or something else? Please estimate practical survey hotspots rather than giving me a general snake guide.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer clearly identifies the ecological quantity as relative snake encounter probability by microhabitat around Elephants by the Lake, with a specific decision to prioritize rocky ground.",
+          "execution": "No estimation or data processing was executed; the answer relies entirely on web searches and literature citations without running any analytical commands.",
+          "fit": "The answer names the extrapolation from regional data to the local site but does not test or apply any validation gate for bias or confounding.",
+          "evidence_state": "The answer materially conflates regional natural history records with local encounter probability, directly converting regional preferences into EBTL hotspots without labeling the transition.",
+          "decision_record": "The answer provides checkable sources, acknowledges uncertainty (no local dataset, seasonal effects), and gives a specific actionable recommendation to survey rocky ground first."
+        },
+        "critical_errors": [
+          "Regional natural history preferences converted directly into EBTL hotspots without local validation, violating the forbidden inference."
+        ],
+        "tags": [
+          "geographic_transfer",
+          "proxy_laundering",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer ranks rocky ground as top hotspot based on regional Eastern Ghats surveys from Gingee and Melagiri.",
+          "Trace shows web searches for EBTL location and regional herpetofauna, with no local data retrieval or executed estimation.",
+          "Answer acknowledges no EBTL-specific snake microhabitat dataset exists, yet presents a definitive ranking."
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/C3",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "C3",
+      "family": "colocation-interaction",
+      "question": "Which birds recorded around Elephants by the Lake are most likely to be spreading Lantana there? Rank the candidates and say what evidence makes that a local estimate rather than just a possibility.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer names the ecological quantity (bird-mediated Lantana dispersal), the place (Elephants by the Lake, Krishnagiri), and the decision (which birds are most likely spreading Lantana there).",
+          "execution": "The answer combined local bird frequencies with remote diet evidence to rank candidates, but did not estimate seed dispersal at EBTL.",
+          "fit": "It labels the local/remote split and asks for field watches, but does not test whether remote diet relationships transfer locally.",
+          "evidence_state": "Every transition is labelled: local occurrence from eBird, fruit removal from remote literature, and the estimate is conditional on Lantana fruiting; no conflation of observation and cause.",
+          "decision_record": "The answer provides checkable basis (eBird hotspot, checklist IDs, literature citations), uncertainty (direct watches needed), and a specific field action (fruiting-season watches on Lantana shrubs)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "partial_execution"
+        ],
+        "evidence": [
+          "Answer cites eBird hotspot L36453021 and specific checklist IDs (S287333459, S298328790, etc.) with frequency percentages.",
+          "Trace shows successful extraction of checklist IDs and parsing of species from eBird pages.",
+          "Answer references Ramaswami et al. 2017, 2019, 2016 and Aruna et al. 2009 for Lantana frugivore evidence from semi-arid South India."
+        ],
+        "audit_note": "Strong evidence bookkeeping, partial interaction estimation."
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/C4",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "C4",
+      "family": "colocation-interaction",
+      "question": "Are fires around Elephants by the Lake concentrated near roads, settlement edges, or other human access routes? Tell me whether the pattern is strong enough to change patrol priorities.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer correctly identifies the association between fire detections and human access routes (roads, settlements) at EBTL, specifies the time period (2022-2024) and location (Krishnagiri, Tamil Nadu), and addresses the patrol priority decision.",
+          "execution": "The trace shows data retrieval (FIRMS, OSM) and script writing, but no explicit command executing the spatial analysis; the claimed numerical results are not directly confirmed in the trace, so execution is partial.",
+          "fit": "The answer describes scale and sensitivity choices, but the retained trace does not show an executed robustness or alternative-background test.",
+          "evidence_state": "The answer clearly distinguishes satellite observations from ignition causes, avoids conflating correlation with causation, and labels transitions appropriately with caveats.",
+          "decision_record": "The answer provides checkable numerical results (median distances, enrichment, p-values), cites sources (FIRMS, OSM), acknowledges uncertainty, and gives a specific field action (keep mixed patrol coverage, do not reweight)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "partial_execution"
+        ],
+        "evidence": [
+          "FIRMS VIIRS SNPP India CSVs for 2022-2024 were successfully downloaded (trace shows curl commands with success).",
+          "OSM road and settlement data were retrieved via OSM API map tiles (trace shows tile downloads).",
+          "Analysis scripts (analyze_fires.py, sensitivity.py) were written and the answer reports specific numerical results (median distances, enrichment, p-values)."
+        ],
+        "audit_note": "A stated sensitivity check is not an executed fit gate."
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/T1",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "T1",
+      "family": "time-change",
+      "question": "Has Elephants by the Lake become greener from 2020 through 2025? Give me a number or trend I can check, not just a description of how satellite analysis works.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "No final answer was returned within the fixed run.",
+          "execution": "No final answer was returned within the fixed run.",
+          "fit": "No final answer was returned within the fixed run.",
+          "evidence_state": "No final answer was returned within the fixed run.",
+          "decision_record": "No final answer was returned within the fixed run."
+        },
+        "critical_errors": [],
+        "tags": [
+          "no_final_answer"
+        ],
+        "evidence": [
+          "timeout=900; elapsed_s=900.009"
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/T2",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "T2",
+      "family": "time-change",
+      "question": "Are bird numbers around Elephants by the Lake increasing or falling over the last five years? Use public data if that is all we have, but tell me whether the trend is real enough to guide restoration choices.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 2,
+          "fit": 2,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer correctly targets abundance trend at Elephants by the Lake over five years, explicitly refusing to conflate record volume with bird numbers.",
+          "execution": "The answer reports actual retrieval and analysis: parsing eBird checklists, running permutation tests, querying iNaturalist/GBIF, and downloading SoIB tables, with results from those operations.",
+          "fit": "The answer identifies effort change as a confound, performs a season-matched permutation test, and notes observer uptake and ingest lag, correctly applying effort correction.",
+          "evidence_state": "Every transition from observation to inference is labelled (e.g., checklist species count ≠ abundance), and forbidden inference (GBIF growth as population trend) is rejected.",
+          "decision_record": "The answer gives a clear verdict with uncertainty (p=0.85), explains why data are insufficient, and recommends habitat goals and systematic monitoring over claimed trends."
+        },
+        "critical_errors": [],
+        "tags": [
+          "executed_estimate"
+        ],
+        "evidence": [
+          "eBird hotspot L36453021 recent checklists span only 21 months, not 5 years.",
+          "Permutation test on season-matched lists: Δ ≈ -0.45 spp, p ≈ 0.85.",
+          "SoIB 2025 Tamil Nadu table shows 66 stable, 16 increase, 13 decline among EBTL species."
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/T3",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "T3",
+      "family": "time-change",
+      "question": "Is fire pressure at Elephants by the Lake getting worse or better since 2020? Compare the years and tell me how much confidence to put in the direction.",
+      "provenance": "manual Codex evidence review",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 2,
+          "fit": 2,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer declares landscape fire pressure since 2020 at 5, 10, and 25 km supports and distinguishes it from parcel burning.",
+          "execution": "It downloaded annual FIRMS VIIRS and MODIS archives, filtered detections spatially, and computed counts, fire-days, FRP, and trend statistics.",
+          "fit": "It checks multiple radii, a second sensor, trend volatility, seasonality, and the sparse site-scale support before limiting the claim.",
+          "evidence_state": "Active-fire detections are labelled as a pressure proxy, regional evidence is kept regional, and parcel-level worsening is explicitly rejected.",
+          "decision_record": "The answer gives checkable sources and parameters, calibrated confidence by support, limitations, and the next data needed for a site conclusion."
+        },
+        "critical_errors": [],
+        "tags": [
+          "executed_estimate"
+        ],
+        "evidence": [
+          "Annual VIIRS and MODIS country archives for 2020–2024 were downloaded and filtered around the recovered EBTL coordinate.",
+          "The answer reports VIIRS detections, fire-days, FRP, and Kendall tau at several radii.",
+          "It says the two-kilometre support is too sparse for a parcel trend and calls the 25-kilometre result landscape fire pressure."
+        ],
+        "audit_note": "Manual review replaces the one malformed judge response."
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/T4",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "T4",
+      "family": "time-change",
+      "question": "How much of the vegetation improvement at Elephants by the Lake was caused by restoration rather than rainfall, grazing changes, or what happened in the surrounding landscape? Give me the best effect estimate the evidence allows.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 0,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 0
+        },
+        "rationales": {
+          "estimand": "No final answer was returned within the fixed run.",
+          "execution": "No final answer was returned within the fixed run.",
+          "fit": "No final answer was returned within the fixed run.",
+          "evidence_state": "No final answer was returned within the fixed run.",
+          "decision_record": "No final answer was returned within the fixed run."
+        },
+        "critical_errors": [],
+        "tags": [
+          "no_final_answer"
+        ],
+        "evidence": [
+          "timeout=900; elapsed_s=900.04"
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/X1",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "X1",
+      "family": "spatial-transfer",
+      "question": "Is king cobra likely to occur inside Elephants by the Lake? Please estimate it from whatever regional evidence is available, but be clear about what would make you trust or reject the estimate.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer estimates occurrence likelihood at EBTL with probabilistic bounds, but does not produce a formal suitability model as required by the gold; the estimand is implied rather than explicitly quantified as modelled intensity.",
+          "execution": "Occurrence records and distances were retrieved, but the local probability was not produced by an executed SDM or calibrated analogue model.",
+          "fit": "The answer names detectability bias (surveys miss rare snakes) but does not test for sampling bias, environmental extrapolation, or perform spatial validation.",
+          "evidence_state": "Each evidence source is labelled (e.g., captive vs wild, coarse range vs vouchers), and forbidden inferences from coarse range maps are explicitly rejected.",
+          "decision_record": "The answer provides checkable sources, probabilistic uncertainty (<10%, <5%), and clear conditions under which the estimate would be revised upward, including field evidence."
+        },
+        "critical_errors": [],
+        "tags": [
+          "geographic_transfer",
+          "partial_execution"
+        ],
+        "evidence": [
+          "GBIF query returned 0 Ophiophagus records in 11–14°N, 77–79.5°E",
+          "Distance calculation showed nearest confirmed EG population at Papikonda ~600 km from EBTL",
+          "Answer cited Ganesh et al. 2018 survey of Melagiri area which listed no king cobra"
+        ],
+        "audit_note": "Occurrence retrieval is partial execution."
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/X2",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "X2",
+      "family": "spatial-transfer",
+      "question": "We have almost no arachnid survey data for Elephants by the Lake. Which spider or other arachnid species should we genuinely expect there, and which ones are only guesses worth checking?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 1,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer enumerates many local and regional arachnid taxa but never explicitly names the place 'Elephants by the Lake' (EBTL) in a formal statement of estimand; the target is implied by location context and habitat description, not declaratively stated.",
+          "execution": "Shell commands fetched iNaturalist (0 results, then bounding‑box results) and a failed GBIF request, but the answer's species lists rely primarily on literature (Singh 2023, Sangavi et al. 2023) and web searches, not on a completed retrieval‑and‑filter pipeline that would run a gated transfer test.",
+          "fit": "No gate—such as a climate‑envelope comparison, satellite‑feature analogue threshold, or bias test—is executed or even described; the answer simply asserts habitat fit and regional occupancy without testing for extrapolation or sampling bias.",
+          "evidence_state": "Local observations (iNaturalist research‑grade) and regional literature are conflated without distinguishing which taxa have local evidence versus which are only regionally plausible; the answer does not label each entry as 'observed locally', 'climate‑supported regional candidate', or 'speculative', and the forbidden 'field‑guide list' is presented as certainty.",
+          "decision_record": "The answer gives a detailed list for survey targets, cites specific sources (Singh 2023, Sangavi et al. 2023, iNaturalist observations), names uncertainties (e.g., 'no Krishnagiri confirmation' for P. formosa), and suggests the smallest useful field action: aerial + sweep + pitfall + night turning stratified by habitat, which matches a checkable decision for survey planning."
+        },
+        "critical_errors": [
+          "Absent gate: the answer never executes or describes a test (climate envelope, analogue threshold, bias detection) to separate local from regional taxa, so the forbidden 'habitat‑plausible list called expected' error occurs.",
+          "Evidence conflation: observations from iNaturalist and regional literature are merged without a clear, per‑taxon label of local vs. regional source, violating the requirement that every transition be labelled.",
+          "No failure on forbidden claim: the answer presents many taxa (e.g., Argiope, Stegodyphus, scorpions) as 'genuinely expect' based on regional occupancy and habitat, without having run a gate that would block habitat‑plausible lists from being called 'expected'."
+        ],
+        "tags": [
+          "geographic_transfer",
+          "partial_execution",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer states: 'Krishnagiri = 0 published spider species; nearest rich analog = Salem (168–184 spp.)' — this is a regional source substitution for local data.",
+          "iNaturalist API calls returned 0 results for the Krishnagiri place_id and bounding boxes returned some observations, but the answer does not report which of its listed taxa are actually supported by those observations vs. regional literature.",
+          "GBIF API call failed; no occurrences from GBIF were successfully retrieved or used in the answer's species lists."
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/X3",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "X3",
+      "family": "spatial-transfer",
+      "question": "A native tree does well in nurseries in the wetter Western Ghats. What survival should we expect if we grow and plant it at Elephants by the Lake? Give a usable estimate or tell me why transfer would be unsafe.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 1,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer gives a survival range (0-20%) but does not specify species, provenance, or management, and does not request donor definition or propose a local pilot, so the target estimand is only implied.",
+          "execution": "A climate ratio and literature survival range were computed, but no species-specific transfer model or local pilot estimate ran.",
+          "fit": "The answer identifies climate mismatch as a confounding bias and provides literature support, but does not execute a formal validation gate or test.",
+          "evidence_state": "The answer clearly distinguishes nursery performance from field survival and labels the transfer as unsafe without conflating observation and inference.",
+          "decision_record": "The answer provides a checkable basis (sources, climate comparison), uncertainty (range), and a specific action (prefer local dry-deciduous stock)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "partial_execution"
+        ],
+        "evidence": [
+          "Python script computed climate ratio: WG MAP 2000 mm -> EBTL 830 mm gives 58% less rain.",
+          "Fetched EBTL website and Krishnagiri rainfall data.",
+          "Cited Anuradha et al. 2013 on Embelia ribes failure outside wet zone."
+        ],
+        "audit_note": "A coarse donor adjustment is partial, not validated transfer."
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/X4",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "X4",
+      "family": "spatial-transfer",
+      "question": "Can we use published Lantana removal results from the Western Ghats to predict how long control will last at Elephants by the Lake? I need a planning range, not a literature summary.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 0,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer names the ecological quantity (time to Lantana rebound at EBTL under defined treatments) and provides a heterogeneity-aware donor range treated as prior plus local monitoring schedule, matching the acceptable estimand.",
+          "execution": "No estimation or retrieval command was executed; the answer is a literature synthesis without any run of an intended retrieval or estimation/check.",
+          "fit": "Climate matching is considered, but the answer does not execute a multi-feature analogue or out-of-domain gate.",
+          "evidence_state": "Every transition between Western Ghats evidence and EBTL inference is labelled, and the forbidden inference (using wet-site results as default) is explicitly rejected.",
+          "decision_record": "The answer provides checkable sources (URLs), uncertainty (ranges), and the smallest useful field action (plan 3–5 years active control, 5–10 year light monitoring, with specific follow-up weeding)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "field_request",
+          "geographic_transfer",
+          "recipe_only"
+        ],
+        "evidence": [
+          "Answer provides planning range table with three management packages and durations (0.5-2, 1-3, 3-5 years).",
+          "Answer matches EBTL rainfall (~830 mm) to Mudumalai low-rain site (867 mm) from Prasad et al. 2018.",
+          "Answer warns not to use high-rain WG numbers as EBTL default."
+        ],
+        "audit_note": "The transfer gate is argued, not run."
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/D1",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "D1",
+      "family": "sparse-detection-decision",
+      "question": "How many venomous snakes are there at Elephants by the Lake? We need to brief field staff without either frightening them or giving false reassurance.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 0,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer gives regional species richness (3-4 species) but does not distinguish between historical documentation, current occupancy, or individual abundance, and omits the local survey result expected.",
+          "execution": "No relevant estimation or retrieval of local survey data was executed; only regional species lists were fetched from web searches and a paper.",
+          "fit": "No consideration of bias, extrapolation, detectability, or confounding; regional lists are applied to the site without testing.",
+          "evidence_state": "The answer conflates regional species presence with site-specific presence, using 'assume present/likely' without proper caveat or rejection of geographic transfer.",
+          "decision_record": "Provides some source references and practical advice but lacks a repeat survey request and does not give a fully checkable basis with uncertainty and smallest useful field action."
+        },
+        "critical_errors": [
+          "geographic_transfer",
+          "missing local survey"
+        ],
+        "tags": [
+          "geographic_transfer",
+          "recipe_only",
+          "source_substitution"
+        ],
+        "evidence": [
+          "Answer cites regional herpetofauna papers but no local survey at EBTL",
+          "Trace shows retrieval of Ganesh et al. 2018 paper on Southern Eastern Ghats",
+          "Answer states EBTL does not publish a site snake inventory"
+        ]
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/D2",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "D2",
+      "family": "sparse-detection-decision",
+      "question": "Public databases show very few frog records inside Elephants by the Lake. Estimate how much of the site frogs actually occupy and where our next night surveys should go.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 1,
+          "execution": 1,
+          "fit": 0,
+          "evidence_state": 0,
+          "decision_record": 1
+        },
+        "rationales": {
+          "estimand": "The answer provides a numeric occupancy estimate and survey locations, but does not address detection-corrected occupancy as required, so the target is incomplete.",
+          "execution": "Public points were processed, but they cannot execute the requested occupancy estimate without repeat visits and non-detections.",
+          "fit": "The answer ignores the need for detection-corrected surveys and does not test for detectability bias, instead using raw public records and habitat proxy.",
+          "evidence_state": "The answer conflates public record scarcity and habitat proxy with actual frog occupancy, which is forbidden by the gold standard.",
+          "decision_record": "The answer gives specific survey locations and a protocol, but the basis is flawed and uncertainty is not properly derived from detection-corrected methods."
+        },
+        "critical_errors": [
+          "proxy_laundering",
+          "forbidden_occupancy_estimate"
+        ],
+        "tags": [
+          "detectability_error",
+          "field_request",
+          "partial_execution",
+          "proxy_laundering"
+        ],
+        "evidence": [
+          "GBIF query returned 0 amphibian records within 2km of site",
+          "iNaturalist returned 5 observations within 0.5km, including Minervarya agricola",
+          "Map color analysis estimated aquatic cover at ~15% of site area"
+        ],
+        "audit_note": "Wrong estimator despite real retrieval."
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/D3",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "D3",
+      "family": "sparse-detection-decision",
+      "question": "Roughly how many elephants use Elephants by the Lake over a year? Use local signs, sightings and regional records if useful, but give us a number only if the evidence can really support one.",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 1,
+          "fit": 2,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer correctly identifies the target quantity as the number of unique elephants using EBTL in one year, names the location and time, and decides that no supportable number exists.",
+          "execution": "The source checks support the correct refusal, but no elephant population estimate was or could be executed.",
+          "fit": "The answer names the need for systematic monitoring (IDs, camera-trap effort) and correctly rejects extrapolation from regional numbers, applying the required identification gate.",
+          "evidence_state": "The answer clearly distinguishes between site-level opportunistic sightings and regional population figures, labels each transition, and rejects the forbidden inference of copying regional counts into a local annual estimate.",
+          "decision_record": "The answer provides checkable sources (URLs, newsletter excerpts), states uncertainty about any annual number, and implies the smallest useful field action: systematic photo-ID or capture-recapture monitoring."
+        },
+        "critical_errors": [],
+        "tags": [
+          "honest_refusal",
+          "partial_execution"
+        ],
+        "evidence": [
+          "EBTL newsletters: one elephant in June 2023 and one in May 2024, both single visits.",
+          "Hosur forest division: ~60 resident + 200–250 seasonal migrants (Mongabay India, Jan 2023).",
+          "iNaturalist API query within 20 km of EBTL returned no confirmed elephant observations."
+        ],
+        "audit_note": "Correct evidence audit, not an executed estimate."
+      }
+    },
+    {
+      "key": "cursor-grok-4.5-medium/D4",
+      "model": "cursor-grok-4.5-medium",
+      "question_id": "D4",
+      "family": "sparse-detection-decision",
+      "question": "What is the fire risk at Elephants by the Lake right now, where is it highest, and where should we put a small number of patrols or sensors before the dry season?",
+      "provenance": "DeepSeek V4 draft, Codex-audited",
+      "review": {
+        "scores": {
+          "estimand": 2,
+          "execution": 2,
+          "fit": 1,
+          "evidence_state": 2,
+          "decision_record": 2
+        },
+        "rationales": {
+          "estimand": "The answer identifies current fire risk at Elephants by the Lake (EBTL) in Tamil Nadu, using fuel, moisture, weather, ignition, and exposure factors, and specifies where risk is highest and where to place patrols/sensors.",
+          "execution": "The answer executed shell commands to retrieve FIRMS active fire data, Open-Meteo weather and soil moisture, and SRTM elevation data, and used the results to estimate risk.",
+          "fit": "The answer acknowledges limitations such as detection uncertainty and lack of full FWI, but does not test or adjust for biases like VIIRS detectability or model extrapolation.",
+          "evidence_state": "The answer distinguishes between observations (VIIRS detections), model outputs (Open-Meteo weather, soil moisture), and proxies (weather stress), and labels uncertainties.",
+          "decision_record": "The answer provides checkable basis (data sources, method), acknowledges uncertainty (boundary unknown, detection unconfirmed), and gives specific field actions (patrol locations, fuel breaks, community agreement)."
+        },
+        "critical_errors": [],
+        "tags": [
+          "executed_estimate",
+          "field_request"
+        ],
+        "evidence": [
+          "FIRMS VIIRS 7d CSV retrieved and parsed, showing a fire on 15 Jul 2026 at 12.716°N, 78.194°E (approx 3 km SE of CT Palli).",
+          "Open-Meteo forecast API called with latitude=12.727, longitude=78.174, requesting current temperature, humidity, wind, and daily precipitation sums.",
+          "SRTM30m elevation data retrieved for a grid around the village, showing elevations from ~560 m to ~840 m."
+        ]
+      }
+    }
+  ]
+}

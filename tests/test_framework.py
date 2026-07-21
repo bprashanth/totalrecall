@@ -13,6 +13,7 @@ import executor  # noqa: E402
 import connectors  # noqa: E402
 import ir_schema  # noqa: E402
 import parser  # noqa: E402
+import scorer  # noqa: E402
 import synthesize  # noqa: E402
 
 
@@ -209,6 +210,127 @@ class ConnectorMetadataTests(unittest.TestCase):
         self.assertEqual(out["vintage"], "2026-07-01")
         self.assertEqual(out["fields"]["value"], "number")
 
+    def test_reference_connectors_publish_filter_field_schemas(self):
+        self.assertEqual(connectors.CONNECTOR_FIELD_SCHEMAS["osm-overpass"],
+                         connectors.OSM_FIELDS)
+        self.assertEqual(connectors.OSM_FIELDS["lat"], "number")
+        self.assertEqual(connectors.OSM_FIELDS["name"], "string|null")
+        self.assertEqual(connectors.CONNECTOR_FIELD_SCHEMAS["worldbank"],
+                         connectors.WB_FIELDS)
+
+
+class FilterDraftContractTests(unittest.TestCase):
+    PROFILE = "v2.4.0-draft"
+
+    @staticmethod
+    def select():
+        return {"op": "SELECT", "entity": "clinic",
+                "region": {"op": "REGION", "place": "Erode town"}, "time": None}
+
+    def filt(self, where, source=None):
+        return {"op": "FILTER", "source": source or self.select(), "where": where}
+
+    @staticmethod
+    def records():
+        return {"kind": "records", "label": "observed", "source": "fixture",
+                "fields": {"id": "identifier", "name": "string|null",
+                           "score": "number", "status": "category"},
+                "rows": [
+                    {"id": 1, "name": "Alpha Health", "score": 8, "status": "open"},
+                    {"id": 2, "name": None, "score": 9, "status": "open"},
+                    {"id": 3, "name": "Beta Clinic", "score": 4, "status": "closed"},
+                ]}
+
+    def test_released_profile_rejects_filter_and_draft_accepts_it(self):
+        node = self.filt([{"field": "status", "cmp": "eq", "value": "open"}])
+        self.assertFalse(ir_schema.validate(node)["valid"])
+        self.assertTrue(ir_schema.validate(node, self.PROFILE)["valid"])
+
+    def test_filter_executes_and_accounts_for_nulls_without_changing_label(self):
+        out, audit = executor._filter(self.records(), [
+            {"field": "name", "cmp": "contains", "value": "health"},
+            {"field": "score", "cmp": "ge", "value": 5},
+        ])
+        self.assertEqual([row["id"] for row in out["rows"]], [1])
+        self.assertEqual(audit, {"rows_in": 3, "rows_out": 1, "null_excluded": 1})
+        self.assertEqual(out["label"], "observed")
+
+    def test_empty_filter_result_is_a_true_answer(self):
+        selected = self.records()
+        ir = self.filt([{"field": "name", "cmp": "contains", "value": "no-match"}])
+        region = {"name": "Erode", "bbox": [11.2, 11.4, 77.6, 77.8],
+                  "lat": 11.3, "lon": 77.7, "orig": "Erode town"}
+        with mock.patch.object(executor.C, "resolve_region", return_value=region), \
+                mock.patch.object(executor, "_route_select", return_value=selected):
+            result = executor.execute(ir, algebra_version=self.PROFILE)
+        self.assertEqual(result["status"], "answer")
+        self.assertEqual(result["value"]["rows"], [])
+        event = next(item for item in result["provenance"] if item["op"] == "FILTER")
+        self.assertEqual((event["rows_in"], event["rows_out"]), (3, 0))
+
+    def test_scorer_is_profile_aware_and_accepts_filter_true_negative(self):
+        ir = self.filt([{"field": "status", "cmp": "eq", "value": "missing"}])
+        result = {"status": "answer", "value": {
+            "kind": "records", "rows": [], "fields": self.records()["fields"]},
+            "provenance": [
+                {"op": "SELECT", "note": "3 rows"},
+                {"op": "FILTER", "rows_in": 3, "rows_out": 0},
+            ]}
+        question = {"gold_shape": ["FILTER", "SELECT"], "expect": "answer"}
+        released = scorer.score(question, ir, result)
+        draft = scorer.score(question, ir, result, algebra_version=self.PROFILE)
+        self.assertFalse(released["schema_valid"])
+        self.assertTrue(draft["schema_valid"])
+        self.assertTrue(draft["exec_grounded"])
+
+    def test_unknown_field_and_bad_literal_type_fail_closed(self):
+        with self.assertRaises(executor.DataRequest) as unknown:
+            executor._filter(self.records(), [
+                {"field": "ward", "cmp": "eq", "value": "north"}])
+        self.assertEqual(unknown.exception.reason, "unknown_filter_field")
+        self.assertEqual(unknown.exception.detail["declared_fields"],
+                         ["id", "name", "score", "status"])
+        with self.assertRaises(executor.DataRequest) as mismatch:
+            executor._filter(self.records(), [
+                {"field": "score", "cmp": "gt", "value": "five"}])
+        self.assertEqual(mismatch.exception.reason, "filter_predicate_type")
+
+    def test_filter_over_non_records_is_rejected_statically(self):
+        bad = self.filt([{"field": "value", "cmp": "gt", "value": 3}], source={
+            "op": "AGGREGATE", "by": "space", "metric": "count",
+            "source": self.select()})
+        report = ir_schema.validate(bad, self.PROFILE)
+        self.assertFalse(report["valid"])
+        self.assertTrue(any("must produce Records" in error for error in report["errors"]))
+
+    def test_predicate_shape_and_holes_are_typed(self):
+        for field, value in (("?field", "open"), ("status", "?status")):
+            report = ir_schema.validate(self.filt([
+                {"field": field, "cmp": "eq", "value": value}]), self.PROFILE)
+            self.assertTrue(report["valid"])
+            self.assertTrue(report["unbound"])
+        subtree = self.filt([{"field": "score", "cmp": "gt",
+                              "value": {"op": "REGION", "place": "x"}}])
+        self.assertFalse(ir_schema.validate(subtree, self.PROFILE)["valid"])
+
+    def test_nested_filters_canonicalize_to_sorted_conjunction(self):
+        p = {"field": "status", "cmp": "eq", "value": "open"}
+        q = {"field": "score", "cmp": "ge", "value": 5}
+        nested = self.filt([q], self.filt([p]))
+        flat = self.filt([p, q])
+        self.assertEqual(ir_schema.canonicalize(nested, self.PROFILE),
+                         ir_schema.canonicalize(flat, self.PROFILE))
+
+    def test_parser_surface_is_bundled_with_buffer_under_fewshot_cap(self):
+        messages = parser.build_messages(
+            "Which clinics in Erode town have health in their name?",
+            algebra_version=self.PROFILE)
+        self.assertIn("FILTER", messages[0]["content"])
+        self.assertIn("BUFFER", messages[0]["content"])
+        examples = [message for message in messages if message["role"] == "assistant"]
+        self.assertLessEqual(len(examples), 15)
+        self.assertTrue(any('"FILTER"' in message["content"] for message in examples))
+
 
 class BufferDraftContractTests(unittest.TestCase):
     PROFILE = "v2.4.0-draft"
@@ -321,6 +443,7 @@ class BufferDraftContractTests(unittest.TestCase):
         draft = parser.build_messages("Search 10 km around Erode for clinics.",
                                       algebra_version=self.PROFILE)
         self.assertNotIn("BUFFER", released[0]["content"])
+        self.assertNotIn("FILTER", released[0]["content"])
         self.assertIn("BUFFER", draft[0]["content"])
         assistant_examples = [m for m in draft if m["role"] == "assistant"]
         self.assertLessEqual(len(assistant_examples), 15)

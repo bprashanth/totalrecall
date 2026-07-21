@@ -1,0 +1,28 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ecology estimation evidence</title>
+<style>
+:root{--bg:#0e0f10;--ink:#edede8;--ink2:#b9bab2;--muted:#7c7d76;--amber:#e2a33c;--line:#2a2b2c;--card:#17181a}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,sans-serif}.wrap{max-width:1160px;margin:auto;padding:38px 20px 70px}h1{font-size:32px;margin:.2em 0}h2{margin-top:34px}.sub{color:var(--ink2);max-width:76ch}a{color:var(--amber)}table{width:100%;border-collapse:collapse;margin:16px 0 28px}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em}.score{font:13px ui-monospace,monospace;white-space:nowrap}.question{max-width:430px}.tags{font-size:12px;color:var(--muted)}details{max-width:720px}summary{cursor:pointer;color:var(--ink2)}.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:8px}.small{font-size:12px;color:var(--muted)}@media(max-width:750px){table,tbody,tr,td{display:block}thead{display:none}tr{border-bottom:2px solid var(--line);padding:10px 0}td{border:0;padding:4px}.score{display:inline-block}}
+</style>
+<div class="wrap">
+  <div class="small"><a href="index.html">← narrative</a></div>
+  <h1>Evidence, not screenshots</h1>
+  <p class="sub">Every frozen question, audited score, written rationale and raw Cursor event stream. Dimension order is estimand · execution · fit · evidence state · decision record. Each dimension is 0–2.</p>
+  <p class="sub"><a href="DESIGN.md">protocol</a> · <a href="bank.json">bank + hidden gold</a> · <a href="scoring.json">final scoring JSON</a> · <a href="audit_overrides.json">audit overrides</a> · <a href="summary.json">aggregates</a></p>
+  <div id="content">Loading the scoring file…</div>
+</div>
+<script>
+const labels={'claude-4.6-opus-high':'Claude 4.6 Opus high','gpt-5.4-medium':'GPT-5.4 medium','cursor-grok-4.5-medium':'Cursor Grok 4.5 medium'};
+const dims=['estimand','execution','fit','evidence_state','decision_record'];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+fetch('scoring.json').then(r=>r.json()).then(data=>{
+  const grouped=data.rows.reduce((a,r)=>((a[r.model]??=[]).push(r),a),{});let html='';
+  for(const [model,rows] of Object.entries(grouped)){
+    html+=`<h2>${esc(labels[model]||model)}</h2><table><thead><tr><th>ID</th><th>Question</th><th>Score</th><th>Audit</th><th>Raw</th></tr></thead><tbody>`;
+    for(const row of rows){const rv=row.review,s=dims.map(d=>rv.scores[d]).join(' · '),rats=dims.map(d=>`<b>${esc(d)}</b>: ${esc(rv.rationales[d])}`).join('<br>');
+      html+=`<tr><td>${esc(row.question_id)}</td><td class="question">${esc(row.question)}<div class="tags">${esc((rv.tags||[]).join(' · '))}</div></td><td class="score">${s}</td><td><details><summary>reasons</summary><div class="card">${rats}${rv.audit_note?`<p><b>audit:</b> ${esc(rv.audit_note)}</p>`:''}${(rv.critical_errors||[]).length?`<p><b>critical:</b> ${esc(rv.critical_errors.join(' | '))}</p>`:''}</div></details></td><td><a href="runs/${encodeURIComponent(model)}/${encodeURIComponent(row.question_id)}.json">JSON</a></td></tr>`;
+    }html+='</tbody></table>';
+  }document.getElementById('content').innerHTML=html;
+}).catch(err=>{document.getElementById('content').textContent='Could not load scoring.json: '+err});
+</script>

@@ -1,0 +1,65 @@
+{
+  "schema_version": "v24-model-refresh-handoff-v1",
+  "status": "ready_for_clean_diet_rebuild",
+  "algebra_profile": "v2.4.0-draft",
+  "candidate_family": "adapter-004",
+  "scope": [
+    "ALG-002 FILTER",
+    "ALG-015 BUFFER"
+  ],
+  "excluded": [
+    "GROUP",
+    "frozen evaluation banks",
+    "raw agent transcripts",
+    "previously generated candidate diets"
+  ],
+  "inputs": [
+    {
+      "id": "current-promoted-retention",
+      "rows": 3895,
+      "sha256": "e4b735173847f1307a6a7125423a488bea88f27cc4a499862ae7e4b748880c6d",
+      "delivery": "trainer-owned current promoted diet"
+    },
+    {
+      "id": "origin-retention-v23",
+      "rows": 270,
+      "sha256": "b9baaddf49ffd65deb74dab31c09c3ed75da393f47c76304246fffa2e793b67d",
+      "delivery": "content-addressed private shard materialized by provenance owner"
+    },
+    {
+      "id": "origin-clarify-v23",
+      "rows": 5,
+      "training_rows_after_dialogue_expansion": 10,
+      "sha256": "a44999230e49f55e6e8c63cc0fc052724f32f87e92f41c90cff6b5115238b0fc",
+      "delivery": "content-addressed private shard materialized by provenance owner"
+    },
+    {
+      "id": "buffer-filter-surface-v24",
+      "rows": 20,
+      "sha256": "34f61638dea2e516d9f5bffea2097ca2eb954b1f61abd2db0345b1a3bb124eb2",
+      "delivery": "kit/conformance/v24_parse_v2.4.jsonl"
+    },
+    {
+      "id": "buffer-filter-pretrain-evidence",
+      "rows": 20,
+      "sha256": "107a35c73f67a8a88dd70daf8885c6519197cc60a390ea9cc96d671b9092a473",
+      "delivery": "governance/evidence/v24-qwen2b-pretrain.json",
+      "training_input": false
+    }
+  ],
+  "pretrain_baseline": {
+    "gold_execution": "20/20",
+    "parser_required_exact": "6/15",
+    "promotion_pass": false
+  },
+  "required_outputs": [
+    "validated diet manifest and hashes",
+    "versioned 9B adapter candidate",
+    "training log and loss trace",
+    "v2.4 conformance report",
+    "released-v2.3 regression report",
+    "unseen generalization report",
+    "Hermes A/B report or ready-to-serve handoff"
+  ]
+}
+

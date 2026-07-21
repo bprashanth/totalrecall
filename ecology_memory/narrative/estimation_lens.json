@@ -1,0 +1,49 @@
+{
+  "version": "ecology-estimation-lens-1",
+  "derived_from": "ecology-narrative-pilot-1",
+  "status": "post-hoc secondary analysis; no new model contact",
+  "definition": "An estimation workflow crosses at least one evidence boundary between what a source directly measures and the local claim the user wants.",
+  "ladder": [
+    {
+      "question_id": "Q1",
+      "stage": "local observation",
+      "patches": ["page-addressed local survey"],
+      "transition": "survey encounters and older records remain separate",
+      "estimate_subset": false
+    },
+    {
+      "question_id": "Q2",
+      "stage": "spatial annotation",
+      "patches": ["published Zenodo coordinates", "modelled land-cover raster"],
+      "transition": "sample a raster at published points without turning land cover into floristics",
+      "estimate_subset": false
+    },
+    {
+      "question_id": "Q3",
+      "stage": "historical proxy",
+      "patches": ["declared site geometry", "MODIS active-fire archive"],
+      "transition": "historical exposure remains a pressure proxy, not current fire risk",
+      "estimate_subset": true
+    },
+    {
+      "question_id": "Q4",
+      "stage": "mechanism transfer",
+      "patches": ["local bird checklist", "raw Lantana fruit-use observations from another site"],
+      "transition": "species overlap nominates a local field hypothesis, not a local interaction",
+      "estimate_subset": true
+    },
+    {
+      "question_id": "Q5",
+      "stage": "gated donor-to-target transfer",
+      "patches": ["local public occurrence", "regional occurrences", "semantic research-deposit lead", "AlphaEarth feature similarity", "WorldClim climate envelope"],
+      "transition": "a regional species becomes expected locally only if both independent gates pass",
+      "estimate_subset": true
+    }
+  ],
+  "reported_metrics": {
+    "workflow_score": "sum of all five original 0-2 dimensions on Q3-Q5",
+    "executed_analysis": "original executed_analysis dimension on Q3-Q5",
+    "evidence_boundary": "original evidence_boundary dimension on Q3-Q5",
+    "complete_workflows": "count where task_completion, executed_analysis, and evidence_boundary all equal 2"
+  }
+}

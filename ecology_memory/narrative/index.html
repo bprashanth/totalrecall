@@ -1,0 +1,361 @@
+<title>Field notes from a place where the data comes in patches</title>
+<style>
+:root{
+  --bg:#0E0F10; --ink:#EDEDE8; --ink2:#B9BAB2; --muted:#7C7D76;
+  --amber:#E2A33C; --red:#D07B52; --green:#7FB88F; --line:#2A2B2C; --card:#17181A; --chip:#222325;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#deck{height:100vh;overflow-y:auto;scroll-snap-type:y proximity;scroll-behavior:smooth}
+.slide{min-height:100vh;scroll-snap-align:start;padding:0 0 40px}
+.inner{max-width:800px;margin:0 auto;padding:64px 22px 30px}
+h1{font-size:clamp(28px,5vw,46px);line-height:1.15;margin:.4em 0;text-wrap:balance;font-weight:700}
+h2{font-size:clamp(22px,3.4vw,30px);line-height:1.2;margin:.3em 0 .4em;text-wrap:balance}
+h3{font-size:16.5px;margin:1.4em 0 .4em;color:var(--amber)}
+p{max-width:64ch}
+a{color:var(--amber)}
+.sub{color:var(--ink2);font-size:18px;max-width:60ch}
+.small{font-size:13px;color:var(--muted)}
+.tag{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+pre{font-family:ui-monospace,Menlo,monospace;font-size:14px;line-height:1.7;background:var(--card);
+  border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;max-width:760px;white-space:pre-wrap}
+ol.obs{max-width:66ch;padding-left:1.3em}
+ol.obs li{margin:.7em 0;color:var(--ink2)}
+ol.obs li b{color:var(--ink)}
+table{border-collapse:collapse;font-size:14px;margin:10px 0;min-width:520px}
+th,td{text-align:left;padding:7px 14px 7px 0;border-bottom:1px solid var(--line)}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+td.n{font-family:ui-monospace,Menlo,monospace;text-align:right}
+.zoom{display:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:10px 0;font-size:14.5px}
+.zoom.on{display:block}
+svg .hit{cursor:pointer}
+svg .hit:hover{opacity:.75}
+.figbox{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:20px 0;overflow-x:auto}
+.model{color:var(--amber);cursor:pointer;border-bottom:1px dotted var(--amber)}
+#panel{position:fixed;top:0;right:-380px;width:360px;height:100vh;background:var(--card);
+  border-left:1px solid var(--line);padding:26px 22px;transition:right .25s;z-index:20;overflow-y:auto;font-size:14.5px}
+#panel.on{right:0}
+#panel h4{margin:0 0 8px;color:var(--amber)}
+#panel .x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.dots{position:fixed;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px;z-index:6}
+.dots button{width:9px;height:9px;border-radius:50%;border:none;background:var(--line);cursor:pointer;padding:0}
+.dots button.on{background:var(--amber)}
+.bar{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;
+  padding:8px 16px;background:linear-gradient(transparent,var(--bg) 55%);z-index:5;pointer-events:none}
+.bar .hintbar{font-size:12px;color:var(--muted)}
+.editbtn{pointer-events:auto;font-size:12px;background:var(--chip);color:var(--ink2);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+body.editing .inner{outline:1px dashed var(--amber);outline-offset:8px}
+.src{font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+.quote{border-left:2px solid var(--amber);padding:2px 0 2px 14px;margin:12px 0;color:var(--ink2);font-size:15px;max-width:62ch}
+.meter{display:grid;grid-template-columns:155px 1fr 44px;gap:10px;align-items:center;margin:8px 0;font-size:13px;color:var(--ink2)}
+.track{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.fill{height:100%;width:var(--w);background:var(--green);border-radius:6px}
+.fill.warn{background:var(--amber)} .fill.bad{background:var(--red)}
+@media (prefers-reduced-motion: reduce){#deck{scroll-behavior:auto}}
+@media (max-width:900px){#panel{width:86vw;right:-88vw}.dots{display:none}}
+</style>
+
+<div id="deck">
+
+<!-- SLIDE 0 : title -->
+<section class="slide"><div class="inner">
+  <div class="tag">place-based memory - ecology</div>
+  <h1>Field notes from a place where the data comes in patches</h1>
+  <p class="sub">I took the same question behind the Insight Out benchmark and moved it into one
+  restoration landscape: if a conservation team already has a frontier agent, what does place memory add?</p>
+  <p class="sub">The answer got more specific. In ecology, the missing data is not an edge case. It is the
+  normal shape of the work. A survey sees one piece, a satellite sees another, a paper comes from somewhere
+  else, and the useful answer lives in the joins between them.</p>
+  <p class="small">Scroll down. Each screen is one idea. Amber text opens details. Every scored answer is linked.</p>
+</div></section>
+
+<!-- SLIDE 1 : what I observed -->
+<section class="slide"><div class="inner">
+  <div class="tag">here's what I observed</div>
+  <h2>Six ecology-specific behaviors</h2>
+  <ol class="obs">
+    <li><b>Site evidence quietly became regional evidence, and regional evidence quietly came back as local.</b></li>
+    <li><b>A short non-detection wanted to become absence.</b> Three days without a cobra is not “there are no cobras.”</li>
+    <li><b>A satellite measurement wanted to become the decision.</b> Fire detections became “fire risk”; tree cover became “restoration.”</li>
+    <li><b>A mechanism observed elsewhere wanted to become an interaction here.</b> Same bird, same invasive, wrong place.</li>
+    <li><b>A correct method often arrived without the result.</b> The answer explained the GIS operation as if it had run it.</li>
+    <li><b>The peak was still spectacular and the floor was still unpredictable.</b> One agent did a real raster join, then two adjacent deep workflows never returned.</li>
+  </ol>
+  <p class="sub">These are not six versions of “the model hallucinated.” They are six ways an evidence class
+  can change while the prose still sounds reasonable.</p>
+</div></section>
+
+<!-- SLIDE 2 : method -->
+<section class="slide"><div class="inner">
+  <div class="tag">here's how I tried to understand it</div>
+  <h2>A tiny benchmark, on purpose</h2>
+  <p class="sub">Five questions, frozen before contact. Each one adds another kind of ecological boundary.</p>
+  <pre>1. local survey table        -> what was actually seen vs older records
+2. coordinates + raster     -> what WorldCover returns at published sites
+3. satellite + decision     -> historical fire exposure vs today's risk
+4. local list + remote data -> plausible mechanism vs local interaction
+5. donor belt + two gates   -> regional candidate vs expected-at-site</pre>
+  <p><span class="model" onclick="panel('gemini')">Gemini Flash</span> ran through the Cursor Agent CLI in
+  an empty filesystem-isolated workspace with web and shell tools. <span class="model" onclick="panel('deepseek')">DeepSeek V4</span>
+  had web retrieval through its API. The <span class="model" onclick="panel('stack')">ecology stack</span>
+  got its normal source catalog, algebra, connectors and answer audit. One
+  <span class="model" onclick="panel('bound')">plan-bound diagnostic</span> asks a narrower question: if the
+  correct operation is supplied, can our data substrate execute it?</p>
+  <p>This deck reuses that completed pilot. I did not rerun any model to obtain a prettier story.</p>
+  <p class="src"><a href="DESIGN.md">DESIGN.md</a> · <a href="bank.json">bank.json</a> · <a href="evidence.html">all answers</a></p>
+</div></section>
+
+<!-- SLIDE 3 : credit -->
+<section class="slide"><div class="inner">
+  <div class="tag">findings - first, credit where due</div>
+  <h2>A frontier agent really did the GIS</h2>
+  <p class="sub">Gemini started in an empty directory. It found the Zenodo deposit, opened the coordinate
+  file, resolved the Valparai town box, filtered 26 sites to 10, found the ESA WorldCover tile and sampled
+  every point.</p>
+  <div class="figbox"><pre>Zenodo 10077040 / 01_sites.csv
+          + Nominatim Valparai town bbox
+          + ESA WorldCover 2021 raster
+
+        10 sites retained
+        10 / 10 -> class 10, tree cover</pre></div>
+  <p>That answer scored 9/10, better than our end-to-end stack. The lost point matters: it did not say that
+  modelled tree cover is not floristic composition or evidence of restoration. But the computation was
+  real. The ceiling is not theoretical.</p>
+  <p>DeepSeek also did something valuable: on fire and bird dispersal it stated important limits even when
+  it could not reach the site result. “Frontier agents are careless” did not survive contact with the runs.</p>
+  <p class="src"><a href="runs/gemini-flash-agent/Q2.json">Gemini Q2 raw trace</a> · <a href="runs/deepseek-v4-web/Q3.json">DeepSeek Q3</a></p>
+</div></section>
+
+<!-- SLIDE 4 : map not place -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 1 - the geography boundary</div>
+  <h2>The map is not the place</h2>
+  <p class="sub">Ecology has many perfectly real numbers that describe the wrong geometry, grain or thing.</p>
+  <div class="figbox"><pre>WorldCover pixel says: TREE COVER
+  not: these tree species live here
+  not: this is native forest
+  not: restoration caused it
+
+MODIS says: 0 active-fire locations in the analysis box
+  not: no fire occurred on the property
+  not: today's fire risk is low</pre></div>
+  <p>At EBTL, the fire connector also returned 1.6 pixel-fire-days within 5 km, or 0.021
+  pixel-fire-days/km². Those are useful historical pressure measurements. They are not burned area,
+  ignition probability or a calibrated risk class. Fuel and local weather are still missing.</p>
+  <p class="quote">The error is not necessarily the number. It is allowing the noun after the number to
+  change: pixel becomes forest, bbox becomes property, exposure becomes risk.</p>
+  <p class="src"><a href="runs/ecology-stack-best/Q3.json">audited Q3 result</a> · <a href="RESULTS.md">question-level results</a></p>
+</div></section>
+
+<!-- SLIDE 5 : recipe -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 2 - a new version of the IQ drop</div>
+  <h2>A recipe can sound like a result</h2>
+  <p class="sub">DeepSeek's estimation answers were often intelligent. It named the right instrument,
+  described the spatial join, gave the units, and preserved caveats. It just did not execute the requested
+  site analysis.</p>
+  <div class="figbox">
+    <div class="meter"><span>workflow score</span><div class="track"><div class="fill warn" style="--w:43%"></div></div><b>13/30</b></div>
+    <div class="meter"><span>evidence boundary</span><div class="track"><div class="fill" style="--w:67%"></div></div><b>4/6</b></div>
+    <div class="meter"><span>executed analysis</span><div class="track"><div class="fill bad" style="--w:0%"></div></div><b>0/6</b></div>
+  </div>
+  <p>For fire it explained how to filter an analysis box and 5 km buffer, but returned no EBTL values. For
+  Lantana it found an associated paper and proposed a good field check, but never opened both raw inputs or
+  joined them. For arachnids it described environmental and climate filtering without computing either.</p>
+  <p class="quote">A method section written in the past tense can be mistaken for an analysis. In ecology,
+  that is dangerous because the method itself often sounds like the expertise the user was looking for.</p>
+  <p class="src"><a href="ESTIMATION_RESULTS.md">estimation lens</a> · <a href="score_estimation.py">reproduce the totals</a></p>
+</div></section>
+
+<!-- SLIDE 6 : memory switch -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 3 - the ecology memory switch</div>
+  <h2>Ecological common sense is the most believable fallback</h2>
+  <p class="sub">When the measured transfer gates did not run, the answer did not become nonsense. It became
+  field-guide reasoning - exactly the kind of reasoning that is hardest to notice as a substitution.</p>
+  <div class="figbox"><pre>asked: search evidence, then run feature + climate gates
+
+Gemini nominated regional taxa and called three PASS / expected
+  Poecilotheria regalis
+  Thelyphonus sepiaris
+  Spartaeus karigiri
+
+measured result from the frozen connector chain
+  1 local observed species: Thelacantha brevispina
+  3 audited regional candidates: climate PASS, feature FAIL
+  0 transfers admitted</pre></div>
+  <p>The Gemini answer was long, cited and ecologically plausible. The DeepSeek answer was more restrained,
+  but still called dry-forest families likely present without species-level gates. Both crossed the exact
+  boundary in the question: regional suitability became local expectation.</p>
+  <p>This is the ecology version of switching to model memory after a tool failure. It is more persuasive
+  because habitat reasoning is not absurd. It is simply not the requested measurement.</p>
+  <p class="src"><a href="runs/gemini-flash-agent/Q5.json">Gemini Q5</a> · <a href="runs/deepseek-v4-web/Q5.json">DeepSeek Q5</a> · <a href="runs/ecology-mech-bind-lora9/Q5.json">gated result</a></p>
+</div></section>
+
+<!-- SLIDE 7 : patches -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 4 - why estimates matter more here</div>
+  <h2>The data comes in patches</h2>
+  <p class="sub">No single source describes the restoration site. That is normal, not a temporary defect.</p>
+  <div class="figbox"><pre>local survey       -> what a team encountered, with effort and dates
+public occurrences -> scattered observations, not abundance or absence
+satellite pixels   -> repeatable environmental proxies, not field ecology
+research deposits -> mechanisms measured at other sites
+climate/features  -> transfer gates, not proof of presence
+
+useful answer = join the patches + keep every boundary</pre></div>
+  <p>A patch needs source, geography, time, grain, evidence class, operation, and the claim it is not allowed
+  to support. Without those fields, adding more data can make an answer more persuasive and less true.</p>
+  <p>The algebra is useful here because it gives each transition a name. `ANNOTATE` can add a modelled layer
+  without relabelling the source observation. `RELATE` can produce proximity without pretending it is an
+  interaction. `ESTIMATE` can require gates and return a data request when they fail.</p>
+  <p class="src"><a href="estimation_lens.json">the five-stage ladder</a></p>
+</div></section>
+
+<!-- SLIDE 8 : estimate states -->
+<section class="slide"><div class="inner">
+  <div class="tag">finding 5 - what an estimate actually is</div>
+  <h2>An estimate is an evidence-state transition</h2>
+  <p class="sub">The three estimation questions move through different states. Treating all three as “make
+  your best guess” erases the most important part of the answer.</p>
+  <table>
+    <tr><th>question</th><th>input state</th><th>allowed output</th></tr>
+    <tr><td>fire today?</td><td>historical satellite detections</td><td>pressure proxy + missing fuel/weather request</td></tr>
+    <tr><td>birds spread Lantana here?</td><td>local list + remote feeding rows</td><td>mechanism hypothesis + local observation design</td></tr>
+    <tr><td>which spiders expected?</td><td>regional occurrences</td><td>modelled candidate only after both gates</td></tr>
+  </table>
+  <div class="figbox"><pre>observation  -> proxy       : label the instrument and blind spots
+observation  -> hypothesis  : preserve the geography change
+donor record -> expectation : require independent gates
+failed gate  -> request     : do not turn it into a weaker estimate</pre></div>
+  <p>The last line matters. “We cannot admit this transfer” is not a failed answer. It tells a field team
+  what to survey next and prevents a regional species list from quietly becoming a site inventory.</p>
+</div></section>
+
+<!-- SLIDE 9 : our stack -->
+<section class="slide"><div class="inner">
+  <div class="tag">the honest row - our stack failed too</div>
+  <h2>The substrate is ahead of the router</h2>
+  <p class="sub">Our end-to-end stack scored 68%. Give the same substrate the frozen operation and it scored
+  88%. On the estimation subset the gap is 70% to 93%.</p>
+  <div class="figbox"><pre>Q2: the exact Zenodo + WorldCover capability existed
+    selector -> asked the user to choose an irrelevant measurement
+
+Q4: the exact bird x Lantana composite existed
+    selector -> asked which of its ingredients to use
+
+Q5: discovery + both gates existed
+    compiler -> wrapped the whole capability in another ESTIMATE
+    executor -> failed closed on the wrong record shape</pre></div>
+  <p>This wrongness is at least inspectable. The Q5 trace says 58 occurrence rows were retrieved before the
+  redundant outer operator rejected them. That gives us three named regression repairs, not “prompt it
+  harder.” But a visible failure is still a failure for the person asking.</p>
+  <p>Replacing the local 2B compiler/responder with the 9B LoRA did not fix it: 66% versus 68% overall. On Q5
+  the larger compiler removed one wrapper and then confused the donor belt with the target site.</p>
+  <p class="src"><a href="runs/ecology-stack-best/Q5.json">end-to-end Q5 trace</a> · <a href="runs/ecology-stack-lora9/Q5.json">9B ablation</a></p>
+</div></section>
+
+<!-- SLIDE 10 : wrong -->
+<section class="slide"><div class="inner">
+  <div class="tag">clarifications</div>
+  <h2>Where I was wrong</h2>
+  <p class="sub">Three stronger versions of the ecology story did not survive this tiny benchmark.</p>
+  <ol class="obs">
+    <li><b>“A frontier agent will not do real geospatial work.”</b> False. Gemini performed the hardest clean raster join in the bank.</li>
+    <li><b>“More sources automatically improve an ecological answer.”</b> False. More patches without scope contracts created more opportunities to launder regional evidence into local claims.</li>
+    <li><b>“The small local model is the bottleneck.”</b> Not in this pilot. The 9B end-to-end ablation did not beat the accepted hybrid. The correct plan plus deterministic substrate did.</li>
+  </ol>
+  <p>The bounded claim that survived: frontier capability has a high ceiling; maintained place memory can
+  raise the floor, but only if routing actually reaches the maintained operation.</p>
+</div></section>
+
+<!-- SLIDE 11 : goals -->
+<section class="slide"><div class="inner">
+  <div class="tag">here's what I want to do, given that</div>
+  <h2>Three goals for ecology</h2>
+  <div class="figbox"><pre>1. Patch sources, not prose.
+   Keep the local report, occurrence record, satellite pixel and remote
+   experiment separate until an explicit operation joins them.
+
+2. Make estimation gates part of the answer contract.
+   Every estimate says what moved across geography/evidence class, what
+   passed, what failed, and what the number is not.
+
+3. End uncertainty with a field action.
+   A failed transfer should produce the smallest survey or measurement that
+   would decide it - not a more confident paragraph.</pre></div>
+  <p><b>The gate:</b> this is still five questions, not saturation and not a universal model ranking. The
+  finding I would carry forward is narrower: when ecology requires joining partial evidence, a plausible
+  answer and an executed, gated estimate are different products.</p>
+  <p>If that does not match your reading, <a href="evidence.html">every scored answer is here</a>, with the
+  original question, gold chain and one written reason per score. Argue with the runs, not with me :)</p>
+</div></section>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<div class="bar">
+  <span class="hintbar">scroll or up/down arrows - amber text opens details</span>
+  <button class="editbtn" onclick="toggleEdit()">edit text</button>
+</div>
+<div id="panel"><button class="x" onclick="panel(null)">x</button><div id="pbody"></div></div>
+
+<script>
+const deck = document.getElementById('deck');
+const slides = [...document.querySelectorAll('.slide')];
+const dots = document.getElementById('dots');
+slides.forEach((s, i) => {
+  const b = document.createElement('button');
+  const h = s.querySelector('h1, h2');
+  b.title = (i + 1) + '. ' + (h ? h.textContent.trim() : 'slide ' + (i + 1));
+  b.setAttribute('aria-label', b.title);
+  b.onclick = () => slides[i].scrollIntoView({behavior: 'smooth'});
+  dots.appendChild(b);
+});
+function paint(){
+  const y = deck.scrollTop + innerHeight / 3;
+  let c = 0;
+  slides.forEach((s, i) => { if (s.offsetTop <= y) c = i; });
+  [...dots.children].forEach((d, i) => d.classList.toggle('on', i === c));
+}
+deck.addEventListener('scroll', paint); paint();
+function zoom(id){
+  const el = document.getElementById(id);
+  const was = el.classList.contains('on');
+  el.parentElement.querySelectorAll('.zoom').forEach(z => z.classList.remove('on'));
+  if (!was) el.classList.add('on');
+}
+const MODELS = {
+  gemini: ['Gemini 3.5 Flash', 'Run through the Cursor Agent CLI with normal web and shell tools. Each question started in a fresh Bubblewrap filesystem that could not see this repository or its benchmark golds. It could install packages and compute against public sources.'],
+  deepseek: ['DeepSeek V4 Flash + web', 'Run through the configured OpenRouter API with one-shot web retrieval, temperature zero and a fresh conversation per question. This was not a full shell agent, so the transport difference is stated rather than hidden.'],
+  stack: ['Accepted ecology stack', 'Qwen-9B semantic selector, DeepSeek verifier, local Qwen-2B algebra compiler, deterministic connectors/executor and audited Qwen-9B responder. This is the end-to-end system result, including its routing failures.'],
+  bound: ['Plan-bound LoRA-9B diagnostic', 'Benchmark code supplies the frozen operation, deterministic connectors execute it, and merged LoRA-9B may explain only the audited result. This isolates the source/execution ceiling. It is not presented as end-to-end question answering.'],
+};
+function panel(key){
+  const p = document.getElementById('panel');
+  if (!key) { p.classList.remove('on'); return; }
+  const [name, body] = MODELS[key];
+  document.getElementById('pbody').innerHTML = '<h4>' + name + '</h4><p>' + body + '</p>' +
+    '<p class="small">Five frozen questions, one attempt per cell. Raw JSON and structured traces are linked from evidence.html.</p>';
+  p.classList.add('on');
+}
+addEventListener('keydown', e => {
+  if (document.body.classList.contains('editing')) return;
+  const c = [...dots.children].findIndex(d => d.classList.contains('on'));
+  if (e.key === 'ArrowDown' || e.key === 'PageDown') { e.preventDefault(); slides[Math.min(c + 1, slides.length - 1)].scrollIntoView({behavior: 'smooth'}); }
+  if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); slides[Math.max(c - 1, 0)].scrollIntoView({behavior: 'smooth'}); }
+});
+function toggleEdit(){
+  const on = document.body.classList.toggle('editing');
+  document.querySelectorAll('.inner').forEach(el => el.contentEditable = on);
+  const btn = document.querySelector('.editbtn');
+  btn.textContent = on ? 'copy edited text + stop' : 'edit text';
+  if (!on) {
+    let out = '';
+    document.querySelectorAll('.slide .inner').forEach((el, i) => { out += '\n===== SLIDE ' + i + ' =====\n' + el.innerText + '\n'; });
+    navigator.clipboard && navigator.clipboard.writeText(out);
+    alert('Edited text of all slides copied to clipboard. Paste it back and we sync the file.');
+  }
+}
+</script>

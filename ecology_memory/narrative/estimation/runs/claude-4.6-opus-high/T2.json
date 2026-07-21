@@ -1,0 +1,885 @@
+{
+  "benchmark": "ecology-estimation-benchmark-1",
+  "model": "claude-4.6-opus-high",
+  "cursor_agent_version": "2026.07.16-899851b",
+  "protocol": "Cursor Agent CLI in Bubblewrap filesystem isolation",
+  "question_id": "T2",
+  "family": "time-change",
+  "mode": "empirical",
+  "question": "Are bird numbers around Elephants by the Lake increasing or falling over the last five years? Use public data if that is all we have, but tell me whether the trend is real enough to guide restoration choices.",
+  "elapsed_s": 121.61,
+  "returncode": 0,
+  "answer": "Based on my research, here is the most honest and detailed answer I can provide:\n\n---\n\n## Bird Numbers at Elephants By The Lake (EBTL) — Trend Assessment\n\n### What EBTL is\n\nElephants By The Lake is a **~68-acre forest restoration project** in Krishnagiri district, Tamil Nadu, in the Eastern Ghats foothills. It is operated by Rainmatter Foundation and focuses on regenerating dry deciduous forest on formerly denuded land near Veppanapalli town. The site is registered as an eBird hotspot (L36453021) and a project on the Biosmart biodiversity portal.\n\n---\n\n### Available Data\n\n| Source | Key numbers | Coverage |\n|--------|-------------|----------|\n| Biosmart portal (portal.biosmart.life/ebtl2) | 610 observations, 169 species, 1,484 identifications, 18 observers (6 active) | Aug 2017 – Jul 2026 |\n| eBird hotspot L36453021 | ~156 species (per search synthesis) | Same period |\n| Krishnagiri district wetland census (Mar 2025) | 200+ species across 40 sites district-wide | Single snapshot |\n\n**Critical temporal detail from Biosmart:**\n\n- **\"Last Two Years vs Total\" = 96.89% of observations, 91.12% of species** — meaning almost all recording effort has occurred in the last ~2 years (roughly 2024–2026).\n- **\"This Year vs Total\" = 2.79% of observations, 9.47% of species** — 2026 so far is a small slice.\n\nThis tells us that **the dataset is overwhelmingly recent**. There is essentially no consistent baseline from 2017–2022 against which to measure a trend.\n\n---\n\n### Can We Detect a Real Trend?\n\n**Short answer: No, not with this data.**\n\nHere is why:\n\n1. **Effort confounding.** Nearly 97% of observations come from just the last two years. Any apparent \"increase\" in bird numbers or species richness over time is almost certainly an artefact of increasing observer effort (more people visiting, more checklists submitted), not a biological signal. This is the classic eBird/citizen-science trap.\n\n2. **No standardized protocol.** EBTL's research programme (Centre for Eastern Ghats Studies) describes long-term ecological monitoring as a goal, but their published research focus so far is herpetofauna and arachnids, not birds. There is no evidence of a repeated-measures bird survey with fixed routes, fixed times, and detectability corrections.\n\n3. **No regional comparator with a five-year series.** The Krishnagiri district wetland census (2025) is a one-off snapshot. The Eastern Ghats bird literature (e.g., the 2012–2015 Vernay reassessment covering 262 species across nine districts) provides a regional species list but not population counts over time. A nocturnal-bird study in EGTN explicitly noted: *\"We do not have prior data on bird densities to compare trends.\"*\n\n4. **Spatial scale mismatch.** The site is 68 acres — too small for landscape-level population inference without design-based sampling and surrounding-area controls.\n\n---\n\n### What the Indirect Evidence Suggests (not a trend, but context)\n\n- **The restoration is young** — the project started in ~2017, and significant planting/habitat work is presumably ongoing. The appearance of elephants themselves (\"something that had never happened in the last many decades\") is anecdotally cited as a positive signal.\n- **169 species on 68 acres of degraded scrub-turned-restoration** is respectable for this biome. For context, the broader Krishnagiri district holds 200+ wetland species alone.\n- **Peafowl density in Krishnagiri is the highest in Tamil Nadu** (105 per 2 km², 2023–2025 study), suggesting the scrub/dry deciduous mosaic still supports at least some bird guilds at high abundance.\n- **The dominant species at EBTL** (Red-vented Bulbul, Purple-rumped Sunbird, Rose-ringed Parakeet, Asian Paradise Flycatcher, Grey Junglefowl) are a mix of generalists and forest-edge species — consistent with early-successional habitat that is beginning to mature.\n\n---\n\n### Is This Enough to Guide Restoration Choices?\n\n**Not yet, as a formal trend.** But it is enough to **design monitoring** that would answer the question within 2–3 years:\n\n| Recommendation | Rationale |\n|----------------|-----------|\n| Implement fixed-point counts (e.g., 10–15 points, monthly, dawn) | Controls for effort; enables occupancy/N-mixture modelling |\n| Record habitat covariates per point (canopy %, shrub %, ground cover) | Links bird response to restoration actions |\n| Use indicator guilds, not just total species | Insectivores, frugivores, raptors respond differently to succession stage |\n| Compare with an un-restored control plot in the same landscape | Separates restoration effect from regional climate/seasonal variation |\n| After 3 annual cycles, apply TRIM or rtrim (R package) for trend testing | Standard method for short time-series count data |\n\nThe **existing species list already guides planting choices** — e.g., the presence of frugivores (barbets, bulbuls) and flycatchers suggests that fruit-bearing native trees and insect-rich understory are valuable; the Grey Junglefowl presence suggests intact enough scrub connectivity to adjacent reserve forest.\n\n---\n\n### Bottom Line\n\nThere is **no statistically defensible five-year trend** for bird numbers at EBTL. The apparent growth in records is an effort artefact. However, the accumulating species richness (169 spp.) on a small, young restoration site is encouraging contextual evidence — it is consistent with habitat recovery, even if it cannot prove it yet. **You should not base restoration decisions on a trend that has not been measured**, but you *can* use the current species composition to choose what to plant and where, and you *should* set up standardized monitoring now so the trend question becomes answerable by ~2028.\n\n---\n\n### Citations\n\n1. Biosmart portal — EBTL2 project page: https://portal.biosmart.life/ebtl2\n2. eBird hotspot L36453021: https://ebird.org/region/L36453021\n3. EBTL official site & CEGS research page: https://ebtl.earth/ ; https://ebtl.earth/cegs/\n4. Times of India (2025-03-10). \"200 bird species recorded in Krishnagiri district wetland census.\" https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms\n5. New Indian Express (2026-01-31). \"37 lakh peafowl across Tamil Nadu, Krishnagiri tops density chart.\" https://www.newindianexpress.com/states/tamil-nadu/2026/Jan/31/37-lakh-peafowl-across-tamil-nadu-krishnagiri-tops-density-chart\n6. Thangaraj et al. (2024). \"Predicting covariate influence on white-browed bulbul abundance using N-mixture model in Eastern Ghats, Tamil Nadu.\" *Ornithological Research* 33:7.\n7. David & Vinoth. \"Nocturnal birds in the Eastern Ghats of Tamil Nadu.\" *Indian Birds* 11(2). https://indianbirds.in/pdfs/IB_11_2_DavidVinoth_EasternGhats.pdf\n8. Robin et al. (2015). \"A reassessment of the avian species diversity in the Eastern Ghats of Tamil Nadu, after the Vernay Survey.\" *Journal of Threatened Taxa* (doi:10.11609/JoTT.o2763.6349-76).",
+  "events": [
+    {
+      "type": "system",
+      "subtype": "init",
+      "apiKeySource": "login",
+      "cwd": "/work",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "model": "Opus 4.6 200K High No Thinking",
+      "permissionMode": "default"
+    },
+    {
+      "type": "user",
+      "message": {
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "Are bird numbers around Elephants by the Lake increasing or falling over the last five years? Use public data if that is all we have, but tell me whether the trend is real enough to guide restoration choices.\n\nPlease give your best answer now. Use tools and data where needed, and include citations and enough method detail for me to check it."
+          }
+        ]
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2"
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webSearchRequestQuery",
+      "query": {
+        "id": 0,
+        "webSearchRequestQuery": {
+          "args": {
+            "searchTerm": "Elephants by the Lake bird population trend monitoring data",
+            "toolCallId": "toolu_bdrk_011LKQXLfJy3kpYjY9KqPPhG"
+          }
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567543518
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webSearchRequestQuery",
+      "response": {
+        "id": 0,
+        "webSearchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567543519
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_011LKQXLfJy3kpYjY9KqPPhG",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "Elephants by the Lake bird population trend monitoring data",
+            "toolCallId": "toolu_bdrk_011LKQXLfJy3kpYjY9KqPPhG"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_011LKQXLfJy3kpYjY9KqPPhG",
+        "startedAtMs": "1784567543569"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-0-wgsx",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567543593
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webSearchRequestQuery",
+      "query": {
+        "id": 1,
+        "webSearchRequestQuery": {
+          "args": {
+            "searchTerm": "\"Elephants by the Lake\" bird survey eBird conservation",
+            "toolCallId": "toolu_bdrk_011Z9fXKsEid1CGindY5EGN3"
+          }
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567544382
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webSearchRequestQuery",
+      "response": {
+        "id": 1,
+        "webSearchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567544382
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_011Z9fXKsEid1CGindY5EGN3",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "\"Elephants by the Lake\" bird survey eBird conservation",
+            "toolCallId": "toolu_bdrk_011Z9fXKsEid1CGindY5EGN3"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_011Z9fXKsEid1CGindY5EGN3",
+        "startedAtMs": "1784567544430"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-0-wgsx",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567544448
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_011LKQXLfJy3kpYjY9KqPPhG",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "Elephants by the Lake bird population trend monitoring data",
+            "toolCallId": "toolu_bdrk_011LKQXLfJy3kpYjY9KqPPhG"
+          },
+          "result": {
+            "success": {
+              "references": [
+                {
+                  "title": "Web search results",
+                  "url": "",
+                  "chunk": "Links:\n1. [Making sure you're not a bot!](https://ebird.org/region/L36453021)\n2. [Patterns of variation in waterbird numbers on four Rift Valley lakes in Kenya, 1991–1999](https://doi.org/10.1023/a%3a1013115724138)\n3. [Trends in Waterbird Numbers in the Southern Rift Valley of Kenya, 1991-2000](https://doi.org/10.1675/1524-4695(2002)025[0191:tiwnit]2.0.co;2)\n4. [Trends in waterbird numbers in the southern Rift Valley of Kenya](https://doi.org/10.1080/00306525.2000.9639917)\n5. [View PDF](https://rris.biopama.org/sites/default/files/2020-12/Kenya%20Lake%20System%20in%20the%20Great%20Rift%20Valley%20-%202020%20COA%20-%20en.pdf)\n\nSynthesis:\nThere is no specific monitoring program or dataset for a site named Elephants by the Lake. The eBird hotspot by that name in Tamil Nadu, India, provides local bird observations but is not a formal population trend monitoring project [1]. \n\nIf you are researching waterbird trends in the Kenyan Rift Valley—often cited in academic literature concerning lake ecosystems and waterbird population dynamics—monitoring data exists for Lakes Naivasha, Elmenteita, Nakuru, and Bogoria from 1991 onward [2][3][4]. These studies track how waterbird populations fluctuate in response to lake levels, alkalinity, and regional environmental changes [2][3][5].\n\nHighlights:\n<result id=\"1\">\n<title>Making sure you're not a bot!</title>\n<url>https://ebird.org/region/L36453021</url>\n<content>Making sure you're not a bot!\n\nLoading...\n\nWhy am I seeing this?\n\nYou are seeing this because the administrator of this website has set up Anubis to protect the server against the scourge of AI companies aggressively scraping websites. This can and does cause downtime for the websites, which makes their resources inaccessible for everyone.\n\nAnubis is a compromise. Anubis uses a Proof-of-Work scheme in the vein of Hashcash, a proposed proof-of-work scheme for reducing email spam. The idea is that at individual scales the additional load is ignorable, but at mass scraper levels it adds up and makes scraping much more expensive.\n\nUltimately, this is a hack whose real purpose is to give a \"good enough\" placeholder solution so that more time can be spent on fingerprinting and identifying headless browsers (EG: via how they do font rendering) so that the challenge proof of work page doesn't need to be presented to users that are much more likely to be legitimate.\n\nPlease note that Anubis requires the use of modern JavaScript features that plugins like JShelter will disable. Please disable JShelter or other such plugins for this domain.\n\nThis website is running Anubis version`devel`.</content>\n</result>\n\n<result id=\"2\">\n<title>Patterns of variation in waterbird numbers on four Rift Valley lakes in Kenya, 1991–1999</title>\n<url>https://doi.org/10.1023/a%3a1013115724138</url>\n<content>piscivores (whether combined or separated into groups), grebes, rallids and flamingos. There was low variance in Palaearctic waders (combined or separated into groups), ibises and spoonbills and birds of prey. However, the lakes generally showed idiosyncratic patterns of variation across the different groups. Variance in the indices for birds of prey and kingfishers were consistently low (max. 0.036 and 0.042, respectively), but no group had consistently high variance across all sites. The variance for all birds (other than flamingos) combined was low (0.018 – 0.085) and similar across all lakes and for combined lakes (0.018). For the combined lakes, the variance for flamingos was five times higher than for all other birds (p<0.05), though the two variances were almost equal for Bogoria. Flamingos were the most variable at Naivasha (variance 0.281) followed by Elmenteita (0.177), Nakuru (0.101) and Bogoria (0.024, and significantly lower than all the rest, p<0.05). This was opposite in order to the mean numbers of flamingos recorded at each site. Large piscivores were relatively stable at Naivasha (variance 0.005) but much more variable at Elmenteita (0.199) and Nakuru (0.269). Patterns of variation within lakes were correlated for some groups, such as waders at Naivasha and large piscivores at Nakuru. These correlations could be related to local ecological conditions. However, there were few large correlations across sites, and these were mainly direct. There was, therefore, no evidence that a fixed population of waterbirds was distributing itself across sites according to conditions. Each lake thus seems to represent and independent entity, while the waterbirds they host evidently move much more widely afield than this portion of the Rift Valley.\n\n## Authors\n\n- Owino, A. O\n- Oyugi, J. O\n- Nasirwa, O. O\n- Bennun, L. A\n\n## Topics\n\nAquatic Ecosystems and Biodiversity, Avian ecology and behavior, Aquatic Ecosystems and Phytoplankton Dynamics, Geography, Ecology</content>\n</result>\n\n<result id=\"3\">\n<title>Trends in Waterbird Numbers in the Southern Rift Valley of Kenya, 1991-2000</title>\n<url>https://doi.org/10.1675/1524-4695(2002)025[0191:tiwnit]2.0.co;2</url>\n<content>menteita, Nakuru (counted since 1991) and Bogoria are close to each other in the southern Rift Valley and hold the bulk of both resident and migrant waterbirds counted each year. Levels of the four lakes fluctuate substantially and all but Naivasha are saline. By contrast, Dandora Ponds near Nairobi is a site with stable water levels. We compared trends in numbers of birds, categorized by family and by migratory status, with an earlier analysis in 1996 and between the fluctuating Rift Valley lakes and Dandora Ponds. Flamingo numbers remained highly variable at all sites, showing no long-term trends. In 1996, significant declines were found in many piscivorous waterbird groups, including grebes, pelicans, cormorants, storks, terns and gulls, mainly associated with falling lake levels at Lake Nakuru; by 2000, numbers had recovered. Consistent declines in rallids, birds of prey and kingfishers were evident in 1996, mainly due to falling numbers at Lake Naivasha. By 2000, kingfisher numbers had fully, and raptor numbers had partially, recovered. Rallids, mainly Red-knobbed Coot (Fulica cristata), continued to decline sharply through 1998, but recovered slightly to 1996 levels by 2000. After notably high numbers in 1996-1999, Palaearctic ducks declined dramatically in 2000 to a ten-year low. With the exception of rallids, none of the groups that had declined from 1991-1996 showed any trend in numbers over the extended time period. At Dandora, numbers of most waterbird groups fluctuated substantially despite constant conditions. The fluctuations showed little synchrony with between species or with those at the southern Rift Valley lakes, suggesting waterbirds were responding to the availability of suitable wetlands over a large area. The declines from 1991-1996 in the southern Rift Valley were temporary; recoveries in waterbird numbers were not attributable to improved environmental management (human pressures on these wetlands intensified from 1997-2000), but to higher</content>\n</result>\n\n<result id=\"4\">\n<title>Trends in waterbird numbers in the southern Rift Valley of Kenya</title>\n<url>https://doi.org/10.1080/00306525.2000.9639917</url>\n<content>Bennun, L. & Nasirwa, O. 2000. Trends in waterbird numbers in the southern Rift Valley of Kenya. Ostrich 71 (1 & 2): 220–226. Each January since 1991, volunteer teams have counted waterbirds at major wetlands in the southern Kenyan Rift Valley. There has been consistent coverage at Lakes Naivasha, Elmenteita, Nakuru and (since 1992) Bogoria. These lakes are shallow and, except for Bogoria, fluctuate greatly in extent; all but Naivasha are saline. Lake levels were moderately high in 1991–1993 but have been generally low since. Flamingo totals for the three saline lakes combined were more than one million from 1992–1994, but roughly halved each year since then. Greater Flamingos Phoenicopterus ruber made up between 0.7 and 4.1% of total flamingo numbers; other waterbirds made up between 2.7 and 10.2% of the overall total. Lakes Naivasha, Elmenteita and Nakuru together hold most of the non-flamingo waterbirds in the southern Rift; to compare trends for other species, we pooled totals for these sites. Significant, or near-significant, declines were evident for grebes, pelicans, cormorants, storks, gulls, rallids, kingfishers, terns and raptors. No group showed an overall increasing trend. At Dandora, a smaller site with stable water levels, these groups showed large annual fluctuations but no obvious declines. In most waterbird groups where numbers decreased, the probable cause was sustained low lake levels at Lake Nakuru; numbers at Lake Naivasha remained stable. Exceptions were rallids, kingfishers and raptors, where numbers steadily declined at Naivasha. There is a need to investigate local environmental causes of these changes for kingfishers and raptors, and to assess possible loss of breeding sites for rallids.\n...\n- Oliver Nasirwa, Leon Bennun. Co-ordinated waterbird counts: the Kenyan experience. Ostrich. 2000;71(1-2):99-101. doi:10.1080/00306525.2000.9639881.</content>\n</result>\n\n<result id=\"5\">\n<title>View PDF</title>\n<url>https://rris.biopama.org/sites/default/files/2020-12/Kenya%20Lake%20System%20in%20the%20Great%20Rift%20Valley%20-%202020%20COA%20-%20en.pdf</url>\n<content>The three lakes which make up the Kenya Lake System World Heritage site are subject to pronounced and\n...\nunpredictable fluctuations in rainfall, water levels and alkalinity – factors which determine the movements of \nflamingoes and other birds between these lakes, and others beyond. Waterbird counts over the past 20\n...\nyears suggest that bird populations are stable, but their distribution has changed, with uncertainties over \nthe future of the lakes as the catchment areas come under progressively more intensive land use, with the \nloss of wetlands through livestock grazing, with increasingly large volumes of water abstracted upstream for\n...\nagriculture, whilst\n...\nare becoming more severe, with the\n...\nand \naccum\n...\nare recognized as Important Bird\n...\n) and listed as Rams\n...\n. Many\n...\ndiverse bird species have been recorded in these lakes, with about 480 species recorded at Lake \nNakuru, 450 species at Lake Elementeita and 370 species at Lake Bog\n...\n(IUCN, 2011). Survival of\n...\n▶ Monitoring Some Concern\n...\nWaterbird counts have been conducted at all three sites (and other Kenyan wetlands) twice each year\n...\nsince 1991 (UNEP-WCMC, 2012). There is reported to be a wide-ranging monitoring programme at Lake \nNakuru National Park which includes automatic flow detectors on all the inflowing rivers, as well as\n...\nregular monitoring of water quality and weather. These data and findings would be useful to share in the \nState Party's annual report. Mammal counts and vegetation transects are also reported to be conducted \non a regular basis to determine whether carrying capacity limits are being reached (KWS, 2002). The \nfindings could similarly be reported annually by the State Party. Recent independent studies note that \nLake Nakuru is over-stocked, especially zebra and buffalo, with no obvious action being taken (RVWSB, \n2018). It has recently been reported that buffalo numbers are 6-times the sustainable number \n(KWS/NMK, 2020).</content>\n</result>"
+                },
+                {
+                  "title": "View PDF",
+                  "url": "https://rris.biopama.org/sites/default/files/2020-12/Kenya%20Lake%20System%20in%20the%20Great%20Rift%20Valley%20-%202020%20COA%20-%20en.pdf",
+                  "chunk": "Full page text written to file: /root/.cursor/projects/work/agent-tools/18e33669-3e0d-4b9b-9912-b14b6a340df8.txt\nSize: 92.9 KB, 1194 lines\nUse shell / grep / read_file on this path to inspect the page; no follow-up fetch is needed."
+                }
+              ]
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_011LKQXLfJy3kpYjY9KqPPhG",
+        "startedAtMs": "1784567543569",
+        "completedAtMs": "1784567548877"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-0-wgsx",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567548892
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_011Z9fXKsEid1CGindY5EGN3",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "\"Elephants by the Lake\" bird survey eBird conservation",
+            "toolCallId": "toolu_bdrk_011Z9fXKsEid1CGindY5EGN3"
+          },
+          "result": {
+            "success": {
+              "references": [
+                {
+                  "title": "Web search results",
+                  "url": "",
+                  "chunk": "Links:\n1. [Making sure you're not a bot!](https://ebird.org/region/L36453021)\n2. [Malawi](https://rsis.ramsar.org/RISapp/files/RISrep/MW2308RIS_1707_en.pdf)\n3. [Waterfowl Census at the “Home of African Elephants” – Baruk Yadiym Ecosphere](https://www.baruk-yadiym.com/2021/08/03/waterfowl-census-at-the-home-of-african-eleplants/)\n4. [Birds In Amboseli (List) - Amboseli National Park](https://amboseli.ke/birds-in-amboseli-list/)\n\nSynthesis:\nElephants by the Lake is a recognized birding hotspot located in the Krishnagiri district of Tamil Nadu, India [1][2]. It is listed on eBird, a global platform for bird observations and conservation data, where it has recorded 156 bird species [2]. As an eBird hotspot, it allows birdwatchers to submit checklists that contribute to local and global biodiversity monitoring efforts [1]. There is no evidence connecting this specific site to large-scale elephant conservation surveys, which are more commonly associated with major protected wetlands like the Elephant Marsh in Malawi or Amboseli National Park in Kenya [3][4][5].\n\nHighlights:\n<result id=\"1\">\n<title>Making sure you're not a bot!</title>\n<url>https://ebird.org/region/L36453021</url>\n<content>Making sure you're not a bot!\n\nLoading...\n\nWhy am I seeing this?\n\nYou are seeing this because the administrator of this website has set up Anubis to protect the server against the scourge of AI companies aggressively scraping websites. This can and does cause downtime for the websites, which makes their resources inaccessible for everyone.\n\nAnubis is a compromise. Anubis uses a Proof-of-Work scheme in the vein of Hashcash, a proposed proof-of-work scheme for reducing email spam. The idea is that at individual scales the additional load is ignorable, but at mass scraper levels it adds up and makes scraping much more expensive.\n\nUltimately, this is a hack whose real purpose is to give a \"good enough\" placeholder solution so that more time can be spent on fingerprinting and identifying headless browsers (EG: via how they do font rendering) so that the challenge proof of work page doesn't need to be presented to users that are much more likely to be legitimate.\n\nPlease note that Anubis requires the use of modern JavaScript features that plugins like JShelter will disable. Please disable JShelter or other such plugins for this domain.\n\nThis website is running Anubis version`devel`.</content>\n</result>\n\n<result id=\"2\">\n<title>Malawi</title>\n<url>https://rsis.ramsar.org/RISapp/files/RISrep/MW2308RIS_1707_en.pdf</url>\n<content>in the less accessible centre of the marsh to support significant biodiversity and ecosystem services.\n\n3.2 - Plant species whose presence relates to the international importance of the site\n\nField studies conducted in March 2016 recorded 70 species of reed, tree and shrub were recorded in the Elephant Marsh along with 82 species of graminoids, groundcovers and aquatic plant species. None of these species are considered threatened or of any particular conservation interest and therefore do not contribute to the Ramsar criteria.\n\n3.3 - Animal species whose presence relates to the international importance of the site\n\n| | | | | | | | | | | Species | | Species | | | | | | | | |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| | | | | | | | | | | qualifies | | contributes | | | | | % | IUCN | CITES CMS | |\n| | Phylum | Scientific | | name | | Commonname | | | | under | | under | | Pop. Size | Periodof | pop. Est. | occurrence | Red | Appendix Appendix | Other Status Justification |\n| | Phylum | Scientific | | name | | Commonname | | | | | | | | | | | | Red | Appendix Appendix | Other Status Justification |\n| | | | | | | | | | | criterion | | criterion | | | | | 1) | List | I I | |\n\n2 4 6 9 3 5 7 8\n\nBirds CHORDATA/ AVES\n\nAnastomus lamelligerus AfricanOpenbill 3991 March 2016 1\n\nLC Population counts conducted in March 2016 exceed 1 % thresholds specified byRamsar\n\nChlidonias hybrida Whiskered Tern 246 March 2016 2.9\n\nLC Population counts conducted in March 2016 exceed 1 % thresholds specified byRamsar.\n\nCHORDATA/ AVES\n\nGlareola \npratincola Collared \nPratincole 2000 January2016 2 LC \n\nAfrican Waterbird Census in Jaunray2016 exceeded 1 % thresholds specified byRamsar Population counts conducted in March 2016 exceed 20,000 thresholds specified byRamsar\n\nCHORDATA/ AVES\n\nRynchops flavirostris African Skimmer 113 March 2016 1.1\n\nNT Population counts conducted in March 2016 exceed 1 % thresholds</content>\n</result>\n\n<result id=\"3\">\n<title>Waterfowl Census at the “Home of African Elephants” – Baruk Yadiym Ecosphere</title>\n<url>https://www.baruk-yadiym.com/2021/08/03/waterfowl-census-at-the-home-of-african-eleplants/</url>\n<content>The Kenya Wildlife Service in collaboration with National Museums of Kenya, Nature Kenya and other birding stakeholders recently conducted a water bird census at Amboseli National Park. This was the first water-fowl census exercise of its kind following over 10 years absence. The fact-finding exercise sought to establish and document the various water-fowl found within Lake Amboseli ecosystem. It also inventoried migrant birds that use the ecosystem as feeding / roosting / breeding zones.\n...\nAmboseli National Parks is one of Kenya’s premium parks. It is located close to Mt. Kilimanjaro at the southern border. The “Amboseli” comes from\n...\nDuring the exercise, the research teams peacefully interacted with various mega-fauna including lions and elephants. This is a testament of Amboseli park being a refuge to some of the big five, thus befitting the tagline “ Home of the African Elephants“. Through active wildlife conservation interventions, stakeholder engagement, community education initiatives, benefit sharing and provision of security by both KWS personnel and partner agencies, the elephants have not only increased in numbers but also co-existed with humans in migratory corridors.\n...\nThe census findings will contribute to the status and distribution of biodiversity in the Amboseli region and the country, in line with the National Tourism Blueprint 2030 and National Wildlife Strategy 2030. The census output document will also guide decision making and policy formulation towards the a sustainable clean and healthy ecosystem, various conservation agenda and a myriad of UN Sustainable Development Goals. Currently, wildlife in Kenya is considered as a source of national pride. It is the foundation for the tourism industry that contributes 10% of National Gross development project (GDP) and 11% of total formal workforce.</content>\n</result>\n\n<result id=\"4\">\n<title>Birds In Amboseli (List) - Amboseli National Park</title>\n<url>https://amboseli.ke/birds-in-amboseli-list/</url>\n<content>The Lake Amboseli basin is seasonal. When dry, it can look dusty, open and harsh. When flooded, it can become a magnet for waterbirds and flamingos. KWS describes Lake Amboseli as a temporary lake that floods during heavy rains and attracts flamingos.\n...\nThis is the central conservation argument for Amboseli birdlife: bird conservation is landscape conservation. A wetland bird cannot be conserved if the swamp is degraded. A vulture cannot be conserved if livestock conflict leads to poison. A secretary bird cannot be conserved if open grasslands are fenced, subdivided or converted. A migratory bird cannot be conserved if stopover sites disappear along its route.\n...\nAmboseli is\n...\nThe best birding areas are the swamps, marshes, Lake Amboseli basin when water is present, Observation Hill, Ol Tukai woodland, open\n...\nwoodland edges. Wetlands are especially important for waterbirds, while\n...\nare strong for raptors, ostriches, secretary birds and bustards\n...\nNo. Amboseli is famous for elephants, but its birdlife is one of its major conservation values. The park’s wetlands, grasslands and open plains make it a major birding destination as well as a classic big-game safari landscape.\n...\nAmboseli’s birds are not decorative additions to an elephant safari. They are indicators of\n...\necosystem’s deeper condition. When the swamps hold water, the waterbirds tell that\n...\nremain open, secretary birds, bustards and raptors tell that story. When\n...\nengers, vultures tell that story. When corridors remain functional, migratory and wide-ranging species tell that story.\n...\nThe future of\n...\n. A visitor may\n...\naro, but anyone who watches the\n...\ncarefully will leave with a more complete understanding of the park. The birds are the fine print of the ecosystem, and in Amboseli, that fine print is where much of\n...\nconservation truth is written.</content>\n</result>"
+                },
+                {
+                  "title": "Malawi",
+                  "url": "https://rsis.ramsar.org/RISapp/files/RISrep/MW2308RIS_1707_en.pdf",
+                  "chunk": "Full page text written to file: /root/.cursor/projects/work/agent-tools/2b7f03d3-b575-41ce-ab78-01686089168a.txt\nSize: 44.2 KB, 730 lines\nUse shell / grep / read_file on this path to inspect the page; no follow-up fetch is needed."
+                },
+                {
+                  "title": "Birds In Amboseli (List) - Amboseli National Park",
+                  "url": "https://amboseli.ke/birds-in-amboseli-list/",
+                  "chunk": "Full page text written to file: /root/.cursor/projects/work/agent-tools/1115b876-a7de-4b76-8796-da3dfb40e66a.txt\nSize: 23.4 KB, 368 lines\nUse shell / grep / read_file on this path to inspect the page; no follow-up fetch is needed."
+                }
+              ]
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_011Z9fXKsEid1CGindY5EGN3",
+        "startedAtMs": "1784567544430",
+        "completedAtMs": "1784567549485"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-0-wgsx",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567549502
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webSearchRequestQuery",
+      "query": {
+        "id": 2,
+        "webSearchRequestQuery": {
+          "args": {
+            "searchTerm": "eBird hotspot \"Elephants by the Lake\" L36453021 Krishnagiri Tamil Nadu species checklist trend",
+            "toolCallId": "toolu_bdrk_019JBqzZWA5JKLC9QuwxGkqh"
+          }
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567554300
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webSearchRequestQuery",
+      "response": {
+        "id": 2,
+        "webSearchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567554300
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_019JBqzZWA5JKLC9QuwxGkqh",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "eBird hotspot \"Elephants by the Lake\" L36453021 Krishnagiri Tamil Nadu species checklist trend",
+            "toolCallId": "toolu_bdrk_019JBqzZWA5JKLC9QuwxGkqh"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_019JBqzZWA5JKLC9QuwxGkqh",
+        "startedAtMs": "1784567554348"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-1-ajjv",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567554368
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webSearchRequestQuery",
+      "query": {
+        "id": 3,
+        "webSearchRequestQuery": {
+          "args": {
+            "searchTerm": "Elephants by the Lake Krishnagiri bird count 2021 2022 2023 2024 2025",
+            "toolCallId": "toolu_bdrk_01JYfM8Qn931nBdpnek2SKEq"
+          }
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567555293
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webSearchRequestQuery",
+      "response": {
+        "id": 3,
+        "webSearchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567555293
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_01JYfM8Qn931nBdpnek2SKEq",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "Elephants by the Lake Krishnagiri bird count 2021 2022 2023 2024 2025",
+            "toolCallId": "toolu_bdrk_01JYfM8Qn931nBdpnek2SKEq"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01JYfM8Qn931nBdpnek2SKEq",
+        "startedAtMs": "1784567555340"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-1-ajjv",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567555360
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_019JBqzZWA5JKLC9QuwxGkqh",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "eBird hotspot \"Elephants by the Lake\" L36453021 Krishnagiri Tamil Nadu species checklist trend",
+            "toolCallId": "toolu_bdrk_019JBqzZWA5JKLC9QuwxGkqh"
+          },
+          "result": {
+            "success": {
+              "references": [
+                {
+                  "title": "Web search results",
+                  "url": "",
+                  "chunk": "Links:\n1. [Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu](https://ebtl.earth/cegs/)\n2. [Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu](https://ebtl.earth/get-involved/)\n\nSynthesis:\nThe eBird hotspot Elephants by the Lake (L36453021) in Krishnagiri, Tamil Nadu, is a site associated with a forest restoration and ecological research project [1][2]. While eBird hosts birding checklists for this location [3][4], it does not provide public-facing species trend analysis or automated population growth reports for this specific hotspot [5]. You can view individual checklists and summary totals directly on the eBird hotspot page, though accessing specific data may be restricted by the site's current security protocols [6][3].\n\nHighlights:\n<result id=\"1\">\n<title>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu</title>\n<url>https://ebtl.earth/cegs/</url>\n<content>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu\n...\nElephants By The Lake (EBTL) has established a dedicated in-house field research initiative at our campus in Krishnagiri, Tamil Nadu, to address critical gaps in knowledge about Eastern Ghats biodiversity, ecology, and conservation priorities.\n...\nOur work begins with intensive field-based studies on herpetofauna and arachnids, groups that act as sensitive indicators of ecosystem health. Over time, the program will expand to include comprehensive biodiversity documentation across multiple taxa, creating a long-term ecological baseline for the region.\n...\n- Conservation planning and habitat restoration\n- IUCN Red List assessments\n- Key Biodiversity Area (KBA) identification and designation</content>\n</result>\n\n<result id=\"2\">\n<title>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu</title>\n<url>https://ebtl.earth/get-involved/</url>\n<content>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu\n...\nEncouraging people and communities to\n...\nwith nature is one of the primary motivations of the\n...\nproject. Nestled\n...\nforest hills, our site offers rich learning opportunities for those eager to explore ecological restoration.\n...\nOur endeavor is to restore the local ecology of the Eastern Ghats. This work involves managing a native forest nursery, documenting and studying various flora and fauna, monitoring planted landscapes, birding and herping walks and other citizen science activities.</content>\n</result>"
+                }
+              ]
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_019JBqzZWA5JKLC9QuwxGkqh",
+        "startedAtMs": "1784567554348",
+        "completedAtMs": "1784567559104"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-1-ajjv",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567559161
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_01JYfM8Qn931nBdpnek2SKEq",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "Elephants by the Lake Krishnagiri bird count 2021 2022 2023 2024 2025",
+            "toolCallId": "toolu_bdrk_01JYfM8Qn931nBdpnek2SKEq"
+          },
+          "result": {
+            "success": {
+              "references": [
+                {
+                  "title": "Web search results",
+                  "url": "",
+                  "chunk": "Links:\n1. [Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu](https://ebtl.earth/)\n2. [200 bird species recorded in Krishnagiri district wetland census](https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms)\n3. [eBird Checklist - 11 Oct 2025 - Unnamed Road, Krishnagiri, Tamil Nadu, IN (12.677, 78.043)Shoolagiri Dam - 26 species](https://ebird.org/checklist/S278487119)\n4. [Making sure you're not a bot!](https://ebird.org/region/L36453021)\n\nSynthesis:\nThere is no single cumulative bird count report for Elephants by the Lake in Krishnagiri spanning 2021 through 2025. Elephants by the Lake is a forest restoration project that maintains an in-house field research initiative [1]. While a district-wide wetland census in Krishnagiri recorded over 200 bird species in March 2025 [2], bird data for the specific project site is typically documented through individual eBird checklists [3][4]. You can view the most recent records and historical trip reports for the location by visiting the Elephants by the Lake region page on eBird [5][6].\n\nHighlights:\n<result id=\"1\">\n<title>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu</title>\n<url>https://ebtl.earth/</url>\n<content>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu\n...\nThe year we began work, a few elephants came to the land, something that had never happened in the last many decades. We decided to call this project.\n...\nOnce you step into the hills around EBTL there are remnants of a once thriving forest; bird calls, fresh bear tracks, the jumping away of a troupe of langurs, trees in bloom or seed, spiders waiting for a catch, the scuffling across of a monitor lizard, a bird of prey gliding above.\n...\nWe have established a dedicated in-house field research initiative at our campus in Krishnagiri, Tamil Nadu, to address critical gaps in knowledge about Eastern Ghats biodiversity, ecology, and conservation priorities.</content>\n</result>\n\n<result id=\"2\">\n<title>200 bird species recorded in Krishnagiri district wetland census</title>\n<url>https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms</url>\n<content># 200 bird species recorded in Krishnagiri district wetland census\n...\n[V Senthil Kumaran](https://timesofindia.indiatimes.com/toireporter/author-V-Senthil-Kumaran-479227878.cms)/ TNN /Updated: Mar 10, 2025, 20:30 IST\n**Share\n[](https://timesofindia.indiatimes.com/articleshowprint/118851466.cms)\n...\n+**Text Size**\n* Small\n* Medium\n* Large\n...\nHosur forest division personnel along with ornithologists and volunteers carried out the census in 40 locations in the district.\n...\nspecies recorded in Krishnagiri district wetland census\n...\nKRISHNAGIRI: More than 200 bird species were documented during a wetland bird census in Krishnagiri district on March 8 and 9.\n...\nHosur forest divisionpersonnel along with ornithologists and volunteers carried out the census in 40 locations in the district. The locations covered included KRP Dam, Ramanaicken Lake, Parur Big Lake and Thally Lake, wildlife warden Bakan Jagdish Sudhakar told reporters on Monday.\n...\nThe team recorded species such as the pied kingfisher, common iora, green imperial pigeon, coppersmith barbet andAsian woollyneck.\n...\nA similar census will be carried out on March 15 and 16 in the synchronized terrestrial areas in the reserve forest.\n...\nnagiri district\n...\n://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms\n...\nPooja Hegde dubs in her own voice for\n...\nindiatimes.com/entertainment/\n...\n/movies/news/\n...\n/articleshow/1188\n...\n443\n...\nFertility is a shared journey: Oasis Fertility offers free fertility assessments for women this March\n...\nhttps://timesofindia.indiatimes.com/business/india-business/\n...\n-a-shared-journey-\n...\n-fertility-offers-free-fertility-assessments-for-women-this-\n...\n/articleshow/118851293.cms\n...\nhttps://timesofindia\n...\nindiatimes.com/\n...\njabi/movies/news/\n...\n/articleshow/118851365.\n...\nindia.indiatimes.com/\n...\n-one/\n...\n/articleshow/118\n...\n507\n...\n-per-\n...\n/articleshow/118\n...\n1308.</content>\n</result>\n\n<result id=\"3\">\n<title>eBird Checklist - 11 Oct 2025 - Unnamed Road, Krishnagiri, Tamil Nadu, IN (12.677, 78.043)Shoolagiri Dam - 26 species</title>\n<url>https://ebird.org/checklist/S278487119</url>\n<content>eBird Checklist - 11 Oct 2025 - Unnamed Road, Krishnagiri, Tamil Nadu, IN (12.677, 78.043)Shoolagiri Dam - 26 species\n...\nLocation Unnamed Road, Krishnagiri, Tamil Nadu, IN (12.677, 78.043)Shoolagiri Dam\n...\n## Totals\n...\n117 individuals\n...\nAcross the lake</content>\n</result>\n\n<result id=\"4\">\n<title>Making sure you're not a bot!</title>\n<url>https://ebird.org/region/L36453021</url>\n<content>Making sure you're not a bot!\n\nLoading...\n\nWhy am I seeing this?\n\nYou are seeing this because the administrator of this website has set up Anubis to protect the server against the scourge of AI companies aggressively scraping websites. This can and does cause downtime for the websites, which makes their resources inaccessible for everyone.\n\nAnubis is a compromise. Anubis uses a Proof-of-Work scheme in the vein of Hashcash, a proposed proof-of-work scheme for reducing email spam. The idea is that at individual scales the additional load is ignorable, but at mass scraper levels it adds up and makes scraping much more expensive.\n\nUltimately, this is a hack whose real purpose is to give a \"good enough\" placeholder solution so that more time can be spent on fingerprinting and identifying headless browsers (EG: via how they do font rendering) so that the challenge proof of work page doesn't need to be presented to users that are much more likely to be legitimate.\n\nPlease note that Anubis requires the use of modern JavaScript features that plugins like JShelter will disable. Please disable JShelter or other such plugins for this domain.\n\nThis website is running Anubis version`devel`.</content>\n</result>"
+                },
+                {
+                  "title": "200 bird species recorded in Krishnagiri district wetland census",
+                  "url": "https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms",
+                  "chunk": "Full page text written to file: /root/.cursor/projects/work/agent-tools/3ba2c2b8-d9e4-4768-b4ae-0244f7471865.txt\nSize: 46.5 KB, 225 lines\nUse shell / grep / read_file on this path to inspect the page; no follow-up fetch is needed."
+                }
+              ]
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01JYfM8Qn931nBdpnek2SKEq",
+        "startedAtMs": "1784567555340",
+        "completedAtMs": "1784567561323"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-1-ajjv",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567561354
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_01Aq8TN1ke9VbnWLXkkuMrRq",
+      "tool_call": {
+        "webFetchToolCall": {
+          "args": {
+            "url": "https://ebtl.earth/cegs/",
+            "toolCallId": "toolu_bdrk_01Aq8TN1ke9VbnWLXkkuMrRq"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01Aq8TN1ke9VbnWLXkkuMrRq",
+        "startedAtMs": "1784567564790"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-2-012q",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567564810
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webFetchRequestQuery",
+      "query": {
+        "id": 4,
+        "webFetchRequestQuery": {
+          "args": {
+            "url": "https://ebtl.earth/cegs/",
+            "toolCallId": "toolu_bdrk_01Aq8TN1ke9VbnWLXkkuMrRq"
+          },
+          "skipApproval": false
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567564810
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webFetchRequestQuery",
+      "response": {
+        "id": 4,
+        "webFetchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567564811
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webSearchRequestQuery",
+      "query": {
+        "id": 5,
+        "webSearchRequestQuery": {
+          "args": {
+            "searchTerm": "ebtl.earth birds species list monitoring data restoration Eastern Ghats",
+            "toolCallId": "toolu_bdrk_01H3VFwP5Ud5Zh2R9weCsWPf"
+          }
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567565918
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webSearchRequestQuery",
+      "response": {
+        "id": 5,
+        "webSearchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567565918
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_01H3VFwP5Ud5Zh2R9weCsWPf",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "ebtl.earth birds species list monitoring data restoration Eastern Ghats",
+            "toolCallId": "toolu_bdrk_01H3VFwP5Ud5Zh2R9weCsWPf"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01H3VFwP5Ud5Zh2R9weCsWPf",
+        "startedAtMs": "1784567565966"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-2-012q",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567565988
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_01Aq8TN1ke9VbnWLXkkuMrRq",
+      "tool_call": {
+        "webFetchToolCall": {
+          "args": {
+            "url": "https://ebtl.earth/cegs/",
+            "toolCallId": "toolu_bdrk_01Aq8TN1ke9VbnWLXkkuMrRq"
+          },
+          "result": {
+            "success": {
+              "url": "https://ebtl.earth/cegs/",
+              "markdown": "Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu\n\n# In-House Research at EBTL\n\nThe Eastern Ghats are among the oldest mountain systems on Earth, with geological origins tracing back to the Precambrian era. Yet, despite their age and ecological significance, the Eastern Ghats remain one of India’s least studied landscapes, especially when compared to the Western Ghats.\n\nElephants By The Lake (EBTL) has established a dedicated in-house field research initiative at our campus in Krishnagiri, Tamil Nadu, to address critical gaps in knowledge about Eastern Ghats biodiversity, ecology, and conservation priorities.\n\n# Our Research Focus\n\nOur work begins with intensive field-based studies on herpetofauna and arachnids, groups that act as sensitive indicators of ecosystem health. Over time, the program will expand to include comprehensive biodiversity documentation across multiple taxa, creating a long-term ecological baseline for the region.\n\n# Integrated, Science-Driven Approaches\n\nEBTL’s research integrates multiple scientific disciplines, including:\n\n- Field surveys and long-term ecological monitoring\n- Molecular genetics and taxonomy\n- Stable isotope ecology\n- Spatial and landscape-level analysis\n\nTogether, these approaches generate robust, policy-relevant data that support:\n\n- Conservation planning and habitat restoration\n- IUCN Red List assessments\n- Key Biodiversity Area (KBA) identification and designation\n\n# Building Knowledge, Capacity, and Community\n\nOur in-house research program is designed as a five-year initiative, focusing not only on science, but also on people and place. Key components include:\n\n- Development of on-site research infrastructure\n- Capacity building through an Open Taxonomic Initiative for students and early-career researchers\n- Meaningful community engagement rooted in local ecological knowledge\n\n# Why the Eastern Ghats Matter\n\nThrough sustained research, collaboration, and open data sharing, EBTL aims to help reposition the Eastern Ghats as a globally significant biodiversity landscape, deserving focused conservation action and international attention.\n\nThis initiative reflects our belief that effective conservation begins with deep, place-based understanding, grounded in rigorous science and strong local partnerships."
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01Aq8TN1ke9VbnWLXkkuMrRq",
+        "startedAtMs": "1784567564790",
+        "completedAtMs": "1784567566755"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-2-012q",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567566777
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_01H3VFwP5Ud5Zh2R9weCsWPf",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "ebtl.earth birds species list monitoring data restoration Eastern Ghats",
+            "toolCallId": "toolu_bdrk_01H3VFwP5Ud5Zh2R9weCsWPf"
+          },
+          "result": {
+            "success": {
+              "references": [
+                {
+                  "title": "Web search results",
+                  "url": "",
+                  "chunk": "Links:\n1. [Biosmart](https://portal.biosmart.life/ebtl2)\n2. [Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu](https://ebtl.earth/)\n3. [Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu](https://ebtl.earth/get-involved/)\n4. [Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu](https://ebtl.earth/cegs/)\n5. [A reassessment of the avian species diversity in  the Eastern Ghats of Tamil Nadu, after the Vernay Survey\n\t\t\t\t\t\t\t| Journal of Threatened Taxa](https://www.threatenedtaxa.org/index.php/JoTT/article/view/2763)\n\nSynthesis:\nElephants By The Lake (EBTL) is a forest restoration project in Krishnagiri, Tamil Nadu, focused on regenerating native flora and fauna in the Eastern Ghats [1][2]. The project maintains an in-house research initiative to monitor biodiversity, including birding and citizen science activities [2][3][4]. Their current dataset on the Biosmart portal includes 169 bird species identified across 610 observations [1]. For comprehensive regional data, a separate study documented 262 bird species across the Eastern Ghats of Tamil Nadu between 2012 and 2015 [5][6].\n\nHighlights:\n<result id=\"1\">\n<title>Biosmart</title>\n<url>https://portal.biosmart.life/ebtl2</url>\n<content>EBTL is a collective restoration effort in Tamil Nadu by Rainmatter Foundation. It spans 68 acres of undulating land between a forest and the CT Palli village near Veppanapalli town in Krishnagiri district. The now denuded land, home to an old elephant walkway and their waterhole, is surrounded by hills. Permaculture principles currently guide an alternative method to regenerate the land and its flora and fauna.\n...\n1,484 Identifications\n...\n610 Observations\n...\n169 Species\n...\nPycnonotus cafer (Linnaeus, 1766)\n...\nLeptocoma zeylonica (Linnaeus, 1766)\n...\nPsittacula krameri (Scopoli, 1769)\n...\nTerpsiphone paradisi (Linnaeus, 1758)\n...\nDicaeum erythrorhynchos (Latham, 1790)\n...\nGallus sonneratii Temminck, 1813\n...\nSpilopelia chinensis (Scopoli, 1786)\n...\nPericrocotus cinnamomeus (Linnaeus, 1766)\n...\nPsilopogon haemacephalus (P.L.S.Müller, 1776)\n...\n10.\n...\nPrinia hodgsonii Blyth, 1844\n...\nContests In Progress\n...\n1,484 Identifications\n...\n610 Observations\n...\n169 Species\n...\nRehabilitate, rewild, rejuvenate, reconnect with the natural world!\n...\n484 Ident\n...\n610 Observations\n...\n169 Species\n...\n484 Ident\n...\n610 Observations\n...\n169 Species\n...\nAll Categories Birds Arachnids Other Arthropods Other Insects Other Invertebrates Crustaceans Mammals Amphibians Reptiles Insects - Butterflies and Moths Fungi and Friends Plants that do not flower Plants that flower Fish Insects - Beetles Insects - Ants, Bees and Wasps Insects - Flies Other Life</content>\n</result>\n\n<result id=\"2\">\n<title>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu</title>\n<url>https://ebtl.earth/</url>\n<content>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu\n...\nOver decades, the dry deciduous forests of our country have been stripped and exploited for commercial use. As native forests receded to only higher elevations of\n...\n, creatures of the forests have also lost their footing in the valley. EBTL lies in one of those valleys. In the foothills of a degraded forest.\n...\nThese 70 acres now 'belong' to us. How wonderful would it be if the other creatures also echoed the same thought? Our goal is to help the forest regain its rich biodiversity.\n...\nThe year we began work, a few elephants came to the land, something that had never happened in the last many decades. We decided to call this project.\n...\nOnce you step into the hills around EBTL there are remnants of a once thriving forest; bird calls, fresh bear tracks, the jumping away of a troupe of langurs, trees in bloom or seed, spiders waiting for a catch, the scuffling across of a monitor lizard, a bird of prey gliding above.\n...\nUnfortunately this biodiverse ecosystem of the Eastern Ghats has been almost eradicated in terms of its area, but for a few hilly pockets where the tough terrain has made it too difficult for people to interfere.\n...\nHopefully in time, the land will begin a cycle of regeneration where at a point, this space can become a safe corner for some of the rarer and threatened flora of the Eastern Ghats to flourish and wildlife can reinhabit the land.\n...\n#### Forest restoration\n...\nEBTL, primarily is focused on the native flora of the dry decidious forests of the South Deccan plateau.\n...\n#### Centre for Eastern Ghat\n...\nWe have established a dedicated in-house field research initiative at our campus in Krishnagiri, Tamil Nadu, to address critical gaps in knowledge about Eastern Ghats biodiversity, ecology, and conservation priorities.</content>\n</result>\n\n<result id=\"3\">\n<title>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu</title>\n<url>https://ebtl.earth/get-involved/</url>\n<content>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu\n...\nOur endeavor is to restore the local ecology of the Eastern Ghats. This work involves managing a native forest nursery, documenting and studying various flora and fauna, monitoring planted landscapes, birding and herping walks and other citizen science activities.\n...\n- Recommended: Notebook, binoculars (for birding), and any personal medications.\n...\n- Essentials: Reusable water bottle, biodegradable toiletries, sunscreen, insect repellent, flashlight, and sturdy footwear.</content>\n</result>\n\n<result id=\"4\">\n<title>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu</title>\n<url>https://ebtl.earth/cegs/</url>\n<content>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu\n...\nElephants By The Lake (EBTL) has established a dedicated in-house field research initiative at our campus in Krishnagiri, Tamil Nadu, to address critical gaps in knowledge about Eastern Ghats biodiversity, ecology, and conservation priorities.\n...\nOur work begins with intensive field-based studies on herpetofauna and arachnids, groups that act as sensitive indicators of ecosystem health. Over time, the program will expand to include comprehensive biodiversity documentation across multiple taxa, creating a long-term ecological baseline for the region.\n...\nEBTL’s research integrates multiple scientific disciplines, including:\n...\n- Field surveys and long-term ecological monitoring\n- Molecular genetics and taxonomy\n- Stable isotope ecology\n- Spatial and landscape-level analysis\n...\nTogether, these approaches generate robust, policy-relevant data that support:\n...\n- Conservation planning and habitat restoration\n- IUCN Red List assessments\n- Key Biodiversity Area (KBA) identification and designation\n...\nThrough sustained research, collaboration, and open data sharing, EBTL aims to help reposition the Eastern Ghats as a globally significant biodiversity landscape, deserving focused conservation action and international attention.</content>\n</result>\n\n<result id=\"5\">\n<title>A reassessment of the avian species diversity in  the Eastern Ghats of Tamil Nadu, after the Vernay Survey\n\t\t\t\t\t\t\t| Journal of Threatened Taxa</title>\n<url>https://www.threatenedtaxa.org/index.php/JoTT/article/view/2763</url>\n<content>Abundance, birds, distribution, diversity, Eastern Ghats, Vaniyar, Vernay Survey.\n...\nThe Eastern Ghats of Tamil Nadu have been poorly surveyed for birds.Â The best known bird survey in the Eastern Ghats of Tamil Nadu (EGTN) was by V.S. LaPersonne who carried out the the Surveys in Tamilnadu Eastern Ghats between 08th April, 1929 and 25th July 1929. This was reported by WHistler & Kinnear.Â Thereafter information about birds in EGTN has come only from checklists published from time to time, by researchers, whose primary focus was not birds.Â Hence, to fill this lacuna, a comprehensive survey of birds was undertaken in the EGTN from March 2012-â€“--February 2015.Â The objectives of the study were to document the avian richness and abundance in EGTN, put them in perspective to the Vernay Survey conducted more than 80 years back, and identify priority sites for bird conservation.Â The study covered the hills and forests of Tamil Nadu spanning nine districts.Â In total, 262 species of birds were recorded during the survey.Â Eight species of birds fall under the threatened category.Â Species such as Square-tailed Bulbul Hypsipetes (lecocephalus) ganeesa, Rufous Woodpecker Micropternus brachyurus, Asian Fairy Bluebird Irena puella, and Malabar Whistling Thrush Myophonus horsfieldii still persist in the same old sites reported in the Vernay Survey.Â The top five abundant species were the Red-vented Bulbul Pycnonotus cafer, White-browed Bulbul Pycnonotus luteolus, Red-whiskered Bulbul Pycnonotus jocosus, Common Iora Aegithina tiphia, and Purple-rumped Sunbird Leptocoma zeylonica.Â The Vaniyar riparian tract in the Shevroys, from its origins in the hills to the Vaniyar dam downstream, is a potential bird conservation site in the Eastern Ghats of Tamil Nadu.\n...\n737\n...\n, 3\n...\n; Part 5,\n...\n, 830\n...\n6â€“\n...\n10, 751\n...\n11,\n...\n2,\n...\n13,\n...\n14, 672\n...\n€“698; Part\n...\n5,</content>\n</result>"
+                }
+              ]
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01H3VFwP5Ud5Zh2R9weCsWPf",
+        "startedAtMs": "1784567565966",
+        "completedAtMs": "1784567569831"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-2-012q",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567569877
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_0147MbbnSiFfSNhxBWHFrMWG",
+      "tool_call": {
+        "webFetchToolCall": {
+          "args": {
+            "url": "https://portal.biosmart.life/ebtl2",
+            "toolCallId": "toolu_bdrk_0147MbbnSiFfSNhxBWHFrMWG"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_0147MbbnSiFfSNhxBWHFrMWG",
+        "startedAtMs": "1784567578990"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-3-jrfj",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567579026
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webFetchRequestQuery",
+      "query": {
+        "id": 6,
+        "webFetchRequestQuery": {
+          "args": {
+            "url": "https://portal.biosmart.life/ebtl2",
+            "toolCallId": "toolu_bdrk_0147MbbnSiFfSNhxBWHFrMWG"
+          },
+          "skipApproval": false
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567579026
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webFetchRequestQuery",
+      "response": {
+        "id": 6,
+        "webFetchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567579026
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webSearchRequestQuery",
+      "query": {
+        "id": 7,
+        "webSearchRequestQuery": {
+          "args": {
+            "searchTerm": "eBird \"Elephants by the Lake\" hotspot bar chart species count year 2021 2022 2023 2024 checklists submitted",
+            "toolCallId": "toolu_bdrk_01MtamhWpR9XwXB1ybMF88YX"
+          }
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567580535
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webSearchRequestQuery",
+      "response": {
+        "id": 7,
+        "webSearchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567580535
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_01MtamhWpR9XwXB1ybMF88YX",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "eBird \"Elephants by the Lake\" hotspot bar chart species count year 2021 2022 2023 2024 checklists submitted",
+            "toolCallId": "toolu_bdrk_01MtamhWpR9XwXB1ybMF88YX"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01MtamhWpR9XwXB1ybMF88YX",
+        "startedAtMs": "1784567580583"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-3-jrfj",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567580606
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_0147MbbnSiFfSNhxBWHFrMWG",
+      "tool_call": {
+        "webFetchToolCall": {
+          "args": {
+            "url": "https://portal.biosmart.life/ebtl2",
+            "toolCallId": "toolu_bdrk_0147MbbnSiFfSNhxBWHFrMWG"
+          },
+          "result": {
+            "success": {
+              "url": "https://portal.biosmart.life/ebtl2",
+              "markdown": "Biosmart\n\nWebsite status: All systems goanna.\n\nEBTL2\n\n1439.81 BioScore\n\nLocality (5.0x)\n\n- - - - - -\n\nGreater Region (12.5x)\n\nEBTL is a collective restoration effort in Tamil Nadu by Rainmatter Foundation. It spans 68 acres of undulating land between a forest and the CT Palli village near Veppanapalli town in Krishnagiri district. The now denuded land, home to an old elephant walkway and their waterhole, is surrounded by hills. Permaculture principles currently guide an alternative method to regenerate the land and its flora and fauna.\n\n1,484 Identifications\n\n610 Observations\n\n169 Species\n\n18 People (6 active)\n\nFrom - 2017-08-09\n\nTo - 2026-07-20\n\nObservation Score\n\nSpecies Score\n\nActivity Score\n\nTotal vs Locality\n\n36.66 %\n\n30.45 %\n\n30.0 %\n\nTotal vs Greater Region\n\n7.58 %\n\n6.83 %\n\n7.86 %\n\nThis Year vs Total\n\n2.79 %\n\n9.47 %\n\n33.33 %\n\nLast Two Years vs Total\n\n96.89 %\n\n91.12 %\n\n83.33 %\n\nTop Species\n\n1.\n\nPycnonotus cafer (Linnaeus, 1766)\n\n18\n\n2.\n\nLeptocoma zeylonica (Linnaeus, 1766)\n\n17\n\n3.\n\nPsittacula krameri (Scopoli, 1769)\n\n17\n\n4.\n\nTerpsiphone paradisi (Linnaeus, 1758)\n\n15\n\n5.\n\nDicaeum erythrorhynchos (Latham, 1790)\n\n14\n\n6.\n\nGallus sonneratii Temminck, 1813\n\n14\n\n7.\n\nSpilopelia chinensis (Scopoli, 1786)\n\n13\n\n8.\n\nPericrocotus cinnamomeus (Linnaeus, 1766)\n\n12\n\n9.\n\nPsilopogon haemacephalus (P.L.S.Müller, 1776)\n\n12\n\n10.\n\nPrinia hodgsonii Blyth, 1844\n\n12\n\nView All\n\nTop Observers\n\n1.\n\nobsr3517153\n\n303\n\n2.\n\nobsr2541511\n\n100\n\n3.\n\narunagamuz\n\n54\n\n4.\n\nobsr2898624\n\n47\n\n5.\n\nobsr358178\n\n47\n\n6.\n\nobsr689777\n\n30\n\n7.\n\nreji1\n\n6\n\n8.\n\nradharangarajan\n\n6\n\n9.\n\nRadha\n\n3\n\n10.\n\nThileepan\n\n2\n\nView All\n\nContests In Progress\n\nSpirits of the Realms\n\nFor observations made between 2020/03/12 and 2040/03/12\n\nSubmissions accepted up to 2040/03/12\n\nregion stats\n\n1,484 Identifications\n\n610 Observations\n\n169 Species\n\n18 People\n\nConservation Projects\n\nFor observations made between 2018/01/01 and 2028/01/01\n\nSubmissions accepted up to 2028/01/01\n\nregion stats\n\nRehabilitate, rewild, rejuvenate, reconnect with the natural world!\n\n1,484 Identifications\n\n610 Observations\n\n169 Species\n\n18 People\n\nGuardians of Earth Realms\n\nFor observations made between 2015/01/01 and 2035/06/01\n\nSubmissions accepted up to 2035/06/01\n\nregion stats\n\nGuardians of Earth is a Play-Earn-Protect game designed to help save life on Earth. GuardiansofEarth.io\n\n1,484 Identifications\n\n610 Observations\n\n169 Species\n\n18 People\n\nRecent Observations\n\nAll Categories Birds Arachnids Other Arthropods Other Insects Other Invertebrates Crustaceans Mammals Amphibians Reptiles Insects - Butterflies and Moths Fungi and Friends Plants that do not flower Plants that flower Fish Insects - Beetles Insects - Ants, Bees and Wasps Insects - Flies Other Life\n\nShow more"
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_0147MbbnSiFfSNhxBWHFrMWG",
+        "startedAtMs": "1784567578990",
+        "completedAtMs": "1784567581800"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-3-jrfj",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567581819
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_01MtamhWpR9XwXB1ybMF88YX",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "eBird \"Elephants by the Lake\" hotspot bar chart species count year 2021 2022 2023 2024 checklists submitted",
+            "toolCallId": "toolu_bdrk_01MtamhWpR9XwXB1ybMF88YX"
+          },
+          "result": {
+            "success": {
+              "references": [
+                {
+                  "title": "Web search results",
+                  "url": "",
+                  "chunk": "Links:\n1. [eBird Bar Charts, Line Graphs, and Histograms : Help Center](https://support.ebird.org/en/support/solutions/articles/48001255130-ebird-bar-charts-and-graphs)\n2. [Birding Hotspots](https://birdinghotspots.org/hotspot/L280975)\n3. [Waterfowl Census at the “Home of African Elephants” – Baruk Yadiym Ecosphere](https://www.baruk-yadiym.com/2021/08/03/waterfowl-census-at-the-home-of-african-eleplants/)\n4. [Bird Checklist for Lake Nakuru National Park](https://www.exoticbirding.com/kenya/lake-nakuru/checklist.html)\n5. [Results of the January 2018 Waterbird Counts in Kenya Covering the Rift Valley, Nairobi, Central, Coast, Amboseli and Yala Swamp - DocsLib](https://docslib.org/doc/120657/results-of-the-january-2018-waterbird-counts-in-kenya-covering-the-rift-valley-nairobi-central-coast-amboseli-and-yala-swamp)\n\nSynthesis:\neBird does not maintain a specific hotspot named Elephants by the Lake. To view bird species data, including bar charts and checklist counts for any eBird hotspot, visit the eBird Explore page [1]. On a hotspot's individual page, select the Bar Charts link [1]. To compare data across specific years like 2021 through 2024, use the Change Date function within the bar chart view and select the option to display separate years for a single species [1]. This feature displays the frequency of species reports based on the proportion of complete checklists submitted [1].\n\nHighlights:\n<result id=\"1\">\n<title>eBird Bar Charts, Line Graphs, and Histograms : Help Center</title>\n<url>https://support.ebird.org/en/support/solutions/articles/48001255130-ebird-bar-charts-and-graphs</url>\n<content>To learn when species most often reported, tap Bar Charts on the main Explore page, or tap the \"Bar Charts\" link on any Region or Hotspot page.\n...\nYou can change the date range or location of the Bar Chart data by clicking the corresponding buttons at the top of the page.\n...\nFrom the Bar Charts tab, click the:\n...\n- Species name to visit the species page\n- Map icon to see the map of eBird reports for that species\n- Chart icon to get detailed histograms and line graphs of frequency and counts throughout the year\n...\neBird bar charts are based on frequency: the proportion of complete checklists reporting that species within a specified date range and region.\n...\nTaller bars indicate a species is reported on a greater percentage of checklists. Thus, the taller the bar, the more likely you will encounter a species during that time of year. No bar (an empty gray box) indicates a species is not reported in that region during that time period. The current date is always marked with a vertical line.\n...\nRaw frequency values can be obtained by clicking the \"Download Histogram Data\" link at the bottom of the bar chart. Below are the frequency \"bins\" that correspond to each bar height.\n...\nA frequency value of 0.4 means a species is reported on 40% of complete eBird checklists from that area for that week of the year.\n...\n## Line Graphs and Histograms\n...\neBird's line graphs and histograms (accessed by tapping the chart icon on Bar Charts) are particularly useful for comparing reporting rates across multiple species and dates.\n...\n- To add more species to the same chart: click the \"Change Species\" button\n- To compare data for a single species across a range of years, click \"Change Date\" and select \"Separate years (max. 5 years, 1 species)\".\n...\nYou can also download histogram data directly from these pages.</content>\n</result>\n\n<result id=\"2\">\n<title>Birding Hotspots</title>\n<url>https://birdinghotspots.org/hotspot/L280975</url>\n<content>[275species](https://ebird.org/hotspot/L280975/bird-list)[Get DirectionsDirections](https://www.google.com/maps/search/?api=1&query=33.151188,-107.203)\n...\nSee all hotspots at[Elephant Butte Lake State Park](https://birdinghotspots.org/group/G613009694)\n...\nLast updatedApril 4, 2024</content>\n</result>\n\n<result id=\"3\">\n<title>Waterfowl Census at the “Home of African Elephants” – Baruk Yadiym Ecosphere</title>\n<url>https://www.baruk-yadiym.com/2021/08/03/waterfowl-census-at-the-home-of-african-eleplants/</url>\n<content>The Kenya Wildlife Service in collaboration with National Museums of Kenya, Nature Kenya and other birding stakeholders recently conducted a water bird census at Amboseli National Park. This was the first water-fowl census exercise of its kind following over 10 years absence. The fact-finding exercise sought to establish and document the various water-fowl found within Lake Amboseli ecosystem. It also inventoried migrant birds that use the ecosystem as feeding / roosting / breeding zones.\n...\nAmboseli National Parks is one of Kenya’s premium parks. It is located close to Mt. Kilimanjaro at the southern border. The “Amboseli” comes from a Maasai dialect meaning\n...\nsalty dust”. It a prime location in the African continent where one can\n...\n. The park diverse habitats ranging from the dried-up bed of Lake Amboseli, wetlands with sulphur springs, the savannah and woodlands.\n...\nLake Amboseli’s water levels has been on the rise since 2015. This unique phenomenon is attributed to climate change and subterranean plate tectonic movement in the Rift valley. This increase has resulted into increase acreage of the lake which offers conducive niches for various waterbirds and associated biodiversity.\n...\nDuring the exercise, the research teams peacefully interacted with various mega-fauna including lions and elephants. This is a testament of Amboseli park being a refuge to some of the big five, thus befitting the tagline “ Home of the African Elephants“. Through active wildlife conservation interventions, stakeholder engagement, community education initiatives, benefit sharing and provision of security by both KWS personnel and partner agencies, the elephants have not only increased in numbers but also co-existed with humans in migratory corridors.\n...\nThe census output document will\n...\nand policy formulation towards the\n...\nsustainable clean and\n...\nconservation agenda and</content>\n</result>\n\n<result id=\"4\">\n<title>Bird Checklist for Lake Nakuru National Park</title>\n<url>https://www.exoticbirding.com/kenya/lake-nakuru/checklist.html</url>\n<content>Bird Checklist for Lake Nakuru National Park\n...\n# LAKE NAKURU NATIONAL PARK\n...\n| Area (ha): | 18,800 |\n| --- | --- |\n| Altitude (m): | 1750-2070 |\n| # Species: | 540 |\n| # Excl Vagrants: | 539 |\n| # Endemics: | 1 |\n| # Near Endemics: | 11 |\n| Species/100 ha: | 2.9 |\n| Habitat: Alkaline lake, woodland, grassland |\n\n## BIRD CHECKLIST\n...\nThe table below lists species recorded at this locale but does not indicate frequency of occurrence there. It does indicate whether each species is globally threatened or endangered according to the IUCN and also whether it is migratory, very rare, or accidental in the country. The list is based on available data and may be incomplete.*\n...\n*Nomenclature and taxonomic affinities are based on Clements 6th Edition published 2007 with updates through 2021 maintained by the Cornell Laboratory of Ornithology, which relies largely on the AOU and SACC nomenclature committees. IUCN status may reflect splits not currently recognized by Clements.**Species not accepted by Clements, AOU, or SACC that we recognize based on the IOC, field observations along with geographical separation, consensus opinions of field guide authors, and other sources. These species are potential splits in future Clements updates.\n...\nSpecies counts in code tables depend on completeness of the data. For some countries or locales, data may not include all species or information on species presence may be incomplete.\n...\n# LAKE NAKURU NATIONAL PARKBIRD CHECKLIST</content>\n</result>\n\n<result id=\"5\">\n<title>Results of the January 2018 Waterbird Counts in Kenya Covering the Rift Valley, Nairobi, Central, Coast, Amboseli and Yala Swamp - DocsLib</title>\n<url>https://docslib.org/doc/120657/results-of-the-january-2018-waterbird-counts-in-kenya-covering-the-rift-valley-nairobi-central-coast-amboseli-and-yala-swamp</url>\n<content>Gichohi\n...\nDominic Chesire\n...\n: ORN\n...\nNO. 83, MARCH\n...\nSupported by: 1 Results of the\n...\nbird counts in Kenya covering the\n...\n, Central, Coast,\n...\nala Swamp.\n...\n201\n...\nWaterbird Count Results in the\n...\nValley, Nairobi, Central, Coast, Amboseli and Yala Swamp Oliver Nasirwa1, Paul Mungai2, Fleur Ng’weno3, Lennox Kirao4, Edwin Gichohi1, Dominic Chesire1, Timothy Ikime and Fred Barasa3 1National Museums of Kenya, PO Box 40658-00100, Nairobi, Kenya, [email protected]; 2Kenya Wildlife Service, PO Box 20241–00100, Nairobi, Kenya, [email protected]; 3Nature Kenya (EANHS), PO Box 44486- 00100, Nairobi, Kenya, [email protected]; 4A Rocha Kenya, PO Box 383–80202, Watamu, Kenya, [email protected].\n...\ncounts were carried out in 48 sites</content>\n</result>"
+                },
+                {
+                  "title": "Bird Checklist for Lake Nakuru National Park",
+                  "url": "https://www.exoticbirding.com/kenya/lake-nakuru/checklist.html",
+                  "chunk": "Full page text written to file: /root/.cursor/projects/work/agent-tools/68a48ea3-9e28-4066-b081-c99cbbbce4f5.txt\nSize: 61.5 KB, 1500 lines\nUse shell / grep / read_file on this path to inspect the page; no follow-up fetch is needed."
+                },
+                {
+                  "title": "Results of the January 2018 Waterbird Counts in Kenya Covering the Rift Valley, Nairobi, Central, Coast, Amboseli and Yala Swamp - DocsLib",
+                  "url": "https://docslib.org/doc/120657/results-of-the-january-2018-waterbird-counts-in-kenya-covering-the-rift-valley-nairobi-central-coast-amboseli-and-yala-swamp",
+                  "chunk": "Full page text written to file: /root/.cursor/projects/work/agent-tools/9738ac22-9b50-40b2-9cca-78e73f24504b.txt\nSize: 29.0 KB, 63 lines\nUse shell / grep / read_file on this path to inspect the page; no follow-up fetch is needed."
+                }
+              ]
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01MtamhWpR9XwXB1ybMF88YX",
+        "startedAtMs": "1784567580583",
+        "completedAtMs": "1784567585458"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-3-jrfj",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567585476
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webSearchRequestQuery",
+      "query": {
+        "id": 8,
+        "webSearchRequestQuery": {
+          "args": {
+            "searchTerm": "site:ebtl.earth bird species list 169 species checklist",
+            "toolCallId": "toolu_bdrk_018QqPbkBqFKkcoWhfjuNSBd"
+          }
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567589620
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webSearchRequestQuery",
+      "response": {
+        "id": 8,
+        "webSearchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567589620
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_018QqPbkBqFKkcoWhfjuNSBd",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "site:ebtl.earth bird species list 169 species checklist",
+            "toolCallId": "toolu_bdrk_018QqPbkBqFKkcoWhfjuNSBd"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_018QqPbkBqFKkcoWhfjuNSBd",
+        "startedAtMs": "1784567589667"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-4-mzen",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567589693
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "request",
+      "query_type": "webSearchRequestQuery",
+      "query": {
+        "id": 9,
+        "webSearchRequestQuery": {
+          "args": {
+            "searchTerm": "Krishnagiri district bird population trend increase decrease 2020 2021 2022 2023 2024 Tamil Nadu Eastern Ghats",
+            "toolCallId": "toolu_bdrk_01HoirgNCtJ3UnzLwWb6yQhC"
+          }
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567590971
+    },
+    {
+      "type": "interaction_query",
+      "subtype": "response",
+      "query_type": "webSearchRequestQuery",
+      "response": {
+        "id": 9,
+        "webSearchRequestResponse": {
+          "approved": {}
+        }
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567590971
+    },
+    {
+      "type": "tool_call",
+      "subtype": "started",
+      "call_id": "toolu_bdrk_01HoirgNCtJ3UnzLwWb6yQhC",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "Krishnagiri district bird population trend increase decrease 2020 2021 2022 2023 2024 Tamil Nadu Eastern Ghats",
+            "toolCallId": "toolu_bdrk_01HoirgNCtJ3UnzLwWb6yQhC"
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01HoirgNCtJ3UnzLwWb6yQhC",
+        "startedAtMs": "1784567591018"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-4-mzen",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567591040
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_018QqPbkBqFKkcoWhfjuNSBd",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "site:ebtl.earth bird species list 169 species checklist",
+            "toolCallId": "toolu_bdrk_018QqPbkBqFKkcoWhfjuNSBd"
+          },
+          "result": {
+            "success": {
+              "references": [
+                {
+                  "title": "Web search results",
+                  "url": "",
+                  "chunk": "Links:\n1. [Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu](https://ebtl.earth/get-involved/)\n2. [Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu](https://ebtl.earth/)\n\nSynthesis:\nThe Elephants By The Lake project in the Eastern Ghats maintains a checklist of 169 bird species documented within their forest restoration site [1][2]. This list is compiled as part of their ongoing citizen science and ecological monitoring efforts, which aim to track local biodiversity within the dry deciduous forests of the South Deccan plateau [1][2]. You can view their birding activities and get involved with their documentation projects through the official Elephants By The Lake website [1].\n\nHighlights:\n<result id=\"1\">\n<title>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu</title>\n<url>https://ebtl.earth/get-involved/</url>\n<content>Our endeavor is to restore the local ecology of the Eastern Ghats. This work involves managing a native forest nursery, documenting and studying various flora and fauna, monitoring planted landscapes, birding and herping walks and other citizen science activities.</content>\n</result>\n\n<result id=\"2\">\n<title>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu</title>\n<url>https://ebtl.earth/</url>\n<content>Elephants By The Lake (EBTL) - A forest restoration project in the Eastern Ghats of Tamil Nadu\n...\nOnce you step into the hills around EBTL there are remnants of a once thriving forest; bird calls, fresh bear tracks, the jumping away of a troupe of langurs, trees in bloom or seed, spiders waiting for a catch, the scuffling across of a monitor lizard, a bird of prey gliding above.\n...\nHopefully in time, the land will begin a cycle of regeneration where at a point, this space can become a safe corner for some of the rarer and threatened flora of the Eastern Ghats to flourish and wildlife can reinhabit the land.\n...\nEBTL, primarily is focused on the native flora of the dry decidious forests of the South Deccan plateau.</content>\n</result>"
+                }
+              ]
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_018QqPbkBqFKkcoWhfjuNSBd",
+        "startedAtMs": "1784567589667",
+        "completedAtMs": "1784567594958"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-4-mzen",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567594973
+    },
+    {
+      "type": "tool_call",
+      "subtype": "completed",
+      "call_id": "toolu_bdrk_01HoirgNCtJ3UnzLwWb6yQhC",
+      "tool_call": {
+        "webSearchToolCall": {
+          "args": {
+            "searchTerm": "Krishnagiri district bird population trend increase decrease 2020 2021 2022 2023 2024 Tamil Nadu Eastern Ghats",
+            "toolCallId": "toolu_bdrk_01HoirgNCtJ3UnzLwWb6yQhC"
+          },
+          "result": {
+            "success": {
+              "references": [
+                {
+                  "title": "Web search results",
+                  "url": "",
+                  "chunk": "Links:\n1. [200 bird species recorded in Krishnagiri district wetland census](https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms)\n2. [37 lakh peafowl across Tamil Nadu, Krishnagiri tops density chart](https://www.newindianexpress.com/states/tamil-nadu/2026/Jan/31/37-lakh-peafowl-across-tamil-nadu-krishnagiri-tops-density-chart)\n3. [Predicting covariate influence on white-browed bulbul Pycnonotus luteolus abundance using N-mixture model in Eastern Ghats, Tamil Nadu, India - ADS](https://ui.adsabs.harvard.edu/abs/2024OrniR..33....7T/abstract)\n4. [Nocturnal birds in the Eastern Ghats of Tamil Nadu](https://indianbirds.in/pdfs/IB_11_2_DavidVinoth_EasternGhats.pdf)\n\nSynthesis:\nThere is no consolidated dataset providing a year-by-year increase or decrease for total bird populations in the Krishnagiri district from 2020 to 2024. Current research focuses on specific species assessments or localized census snapshots rather than long-term district-wide trends [1][2][3].\n\nA 2025 census documented over 200 bird species across 40 wetland locations in the district [1]. For specific species, studies show high densities of peafowl [3] and have modeled the abundance of the white-browed bulbul, which thrives in shrub and dry deciduous forests but is absent from urbanized areas [4]. While some studies note that expanding human habitation and land-cover changes pose threats to avian habitats, data remains insufficient to quantify a catastrophic district-wide decline [5][2].\n\nHighlights:\n<result id=\"1\">\n<title>200 bird species recorded in Krishnagiri district wetland census</title>\n<url>https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms</url>\n<content># 200 bird species recorded in Krishnagiri district wetland census\n...\n40 locations in the district.\n...\nKRISHNAGIRI: More than 200 bird species were documented during a wetland bird census in Krishnagiri district on March 8 and 9.\n...\nHosur forest divisionpersonnel along with ornithologists and volunteers carried out the census in 40 locations in the district. The locations covered included KRP Dam, Ramanaicken Lake, Parur Big Lake and Thally Lake, wildlife warden Bakan Jagdish Sudhakar told reporters on Monday.\n...\nThe team recorded species such as the pied kingfisher, common iora, green imperial pigeon, coppersmith barbet andAsian woollyneck.\n...\nA similar census will be carried out on March 15 and 16 in the synchronized terrestrial areas in the reserve forest.\n...\nspecies recorded in Krishnagiri district\n...\ncensus](https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms\n...\ns in her own voice\n...\ntimesofindia.indiatimes.com/entertainment/tamil/movies/news/pooja-hegde-d\n...\n-in-her-\n...\n/articleshow/118851443.cms\n...\nFertility is a shared journey\n...\nOasis Fertility offers free fertility assessments for women this March\n...\nhttps://timesofindia.indiatimes.com/business/india-business/fertility-\n...\n-a-shared-journey-\n...\n-fertility-offers-free-fertility-assessments-for-women-this-march/articleshow/118851293.cms\n...\nmade by Sunanda Sharma\n...\nhttps://timesofindia\n...\nindiatimes.com/entertainment/punjabi/movies/news/punjabi-\n...\n-producer-dhaliwal-\n...\n-on-charges-of-forgery-intimidation-made-by-sunanda-sharma/articleshow/118851365.cms\n...\nFernando Alonso’s\n...\ntimesofindia.ind\n...\n/formula-one/news/fernando-\n...\n-collection-a-\n...\n-at-his-private-\n...\n/articleshow/118850781.cms)[Akshay Kumar sells Borivali\n...\n4.35\n...\n, earns a\n...\nhttps://timesofindia.indiatimes.com/\n...\n/hindi/\n...\n/news/\n...\n-per-\n...\n/articleshow/118851308.cms)[Apple supplier Foxconn unveils its first</content>\n</result>\n\n<result id=\"2\">\n<title>37 lakh peafowl across Tamil Nadu, Krishnagiri tops density chart</title>\n<url>https://www.newindianexpress.com/states/tamil-nadu/2026/Jan/31/37-lakh-peafowl-across-tamil-nadu-krishnagiri-tops-density-chart</url>\n<content>37 lakh peafowl across Tamil Nadu, Krishnagiri tops density chart\n...\n# 37 lakh peafowl across Tamil Nadu, Krishnagiri tops density chart\n...\nIn terms of estimated peafowl density Krishnagiri district — 105 peafowl in a two-kilometre area — was closely followed by Tirunelveli (82 peafowls)Photo | Express\n...\nCOIMBATORE: As many as 37 lakh peafowl were found across the state during a study carried out between January 2023 and December 2025 with Krishnagiri district having the highest density of this large bird.\n...\nIn terms of estimated peafowl density Krishnagiri district — 105 peafowl in a two-kilometre area — was closely followed by Tirunelveli (82 peafowls), Thoothukudi (71), Tiruvannamalai (64), and Tiruppur (53) districts.</content>\n</result>\n\n<result id=\"3\">\n<title>Predicting covariate influence on white-browed bulbul Pycnonotus luteolus abundance using N-mixture model in Eastern Ghats, Tamil Nadu, India - ADS</title>\n<url>https://ui.adsabs.harvard.edu/abs/2024OrniR..33....7T/abstract</url>\n<content>cnonotus lute\n...\nabundance using N-\n...\ns, Tamil Nadu, India\n...\nAbundance estimation is adopted to understand the habitat preference of a particular species, along with the threats that are poising population decline. The changes in land use and land cover in the region, resulting from human activities and climate change, have an influence on endemic species. The present study is focusing on the white-browed bulbul Pycnonotus luteolus, an Indian subcontinent endemic, noticed in the Eastern Ghats, Tamil Nadu, India. N-mixture model was followed to estimate white-browed bulbul Pycnonotus luteolus abundance. Tree Diameter at Breast Height (DBH), Normalized Difference Vegetation Index (NDVI), and Shrub Height are the factors responsible for increase white-browed bulbul Pycnonotus luteolus abundance. Further, Elevation, Shrub Cover, Tree Distance, and Canopy Cover are found to decrease the species abundance. All the site covariates had a significance estimate of P < 0.05, except for Shrub Cover and Tree Distance. Interestingly, the Humidity and Cloud Cover increase species detectability, whereas Temperature and Wind Speed decrease it. Only Temperature has a significant P-value of less than 0.05 from detection covariates. The abundance probability was projected for all site covariates. Poisson models had the highest mean site abundance (λ = 20.71 ± 1.60), followed by Zero-Inflated Poisson with λ = 18.08 ± 1.57 and Negative Binomial with 14.68 ± 1.54. In the Eastern Ghats, white-browed bulbul Pycnonotus luteolus was reported to be a common and abundant bird species in drier regions of the hill system, covered by shrub forest and mixed dry deciduous forest areas. It was recorded until these forest types became prevalent and species were found to be absent from man-made habitats like built-up areas, agricultural land, and plantations.\n...\nPub Date: November 2024 DOI:\n...\n- N-mixture model\n- White-browed bulbul;\n- Environmental variables;\n- Eastern Ghats;\n- Abundance;</content>\n</result>\n\n<result id=\"4\">\n<title>Nocturnal birds in the Eastern Ghats of Tamil Nadu</title>\n<url>https://indianbirds.in/pdfs/IB_11_2_DavidVinoth_EasternGhats.pdf</url>\n<content>Study area The Eastern Ghats in Tamil Nadu are disjointed hills in the north, north-eastern, north-western, and central parts of the state (Fig.1). The disjointed hills include the Yelagiri, Javvadu, Gingee, Chitheri, Kalrayan, Shevroy, Kolli, and Pachamalai hills, and the hills of Vellore, and Villupuram districts. These hills lie to the east of Stanley Reservoir (Mettur Dam), and are known here as the ‘Eastern Cluster’. The Melagiris, in Krishnagiri District, and the forests of Dharmapuri, Erode, and Sathyamangalam forest division, lie to the north, and west of the reservoir, and are known as the ‘Western Cluster’. The Sathyamangalam forest adjoins the main Western Ghats range, separated only by the Moyar River Valley. The hills south of River Cauvery were not covered during\n...\nthe records of\n...\nthe records of Brown\n...\nforest specialist is the Spot-bellied Eagle\n...\nB. nipalensis. Though\n...\nwas from a\n...\n. Most of the records of\n...\nJerdon’s\n...\n. However, all the records of\n...\ncongener,\n...\n. Except for four species, Jerdon’s Nightjar, Brown Fish Owl, Brown Hawk-Owl, and Jungle Owlet, most of the records of other species were close to human habitation. Since much of the natural habitat of EGTN has been denuded, with drastic conversion of natural forests into cultivation, and habitation, our sampling has an inherent bias of being from close to human habitations.\n...\nit is gladdening that several species are resilient, adapt to changing landscape, and are still persisting in the available natural habitat. We do not have prior data on bird densities to compare trends. However, if there has been a decline, it was not catastrophic, and did not wipe out species. Future analysis of landscape level changes, of vegetation, and habitat use by nocturnal birds, will throw more light on the ability of species to adapt to changes in\n...\ncover. This exercise should be carried out for the entire Eastern Ghats.</content>\n</result>"
+                },
+                {
+                  "title": "200 bird species recorded in Krishnagiri district wetland census",
+                  "url": "https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms",
+                  "chunk": "Full page text written to file: /root/.cursor/projects/work/agent-tools/e0b32009-8c8b-490f-9b5c-b2eddb85003b.txt\nSize: 46.5 KB, 225 lines\nUse shell / grep / read_file on this path to inspect the page; no follow-up fetch is needed."
+                }
+              ]
+            }
+          }
+        },
+        "hookAdditionalContexts": [],
+        "toolCallId": "toolu_bdrk_01HoirgNCtJ3UnzLwWb6yQhC",
+        "startedAtMs": "1784567591018",
+        "completedAtMs": "1784567597068"
+      },
+      "model_call_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4-4-mzen",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "timestamp_ms": 1784567597099
+    },
+    {
+      "type": "assistant",
+      "message": {
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "Based on my research, here is the most honest and detailed answer I can provide:\n\n---\n\n## Bird Numbers at Elephants By The Lake (EBTL) — Trend Assessment\n\n### What EBTL is\n\nElephants By The Lake is a **~68-acre forest restoration project** in Krishnagiri district, Tamil Nadu, in the Eastern Ghats foothills. It is operated by Rainmatter Foundation and focuses on regenerating dry deciduous forest on formerly denuded land near Veppanapalli town. The site is registered as an eBird hotspot (L36453021) and a project on the Biosmart biodiversity portal.\n\n---\n\n### Available Data\n\n| Source | Key numbers | Coverage |\n|--------|-------------|----------|\n| Biosmart portal (portal.biosmart.life/ebtl2) | 610 observations, 169 species, 1,484 identifications, 18 observers (6 active) | Aug 2017 – Jul 2026 |\n| eBird hotspot L36453021 | ~156 species (per search synthesis) | Same period |\n| Krishnagiri district wetland census (Mar 2025) | 200+ species across 40 sites district-wide | Single snapshot |\n\n**Critical temporal detail from Biosmart:**\n\n- **\"Last Two Years vs Total\" = 96.89% of observations, 91.12% of species** — meaning almost all recording effort has occurred in the last ~2 years (roughly 2024–2026).\n- **\"This Year vs Total\" = 2.79% of observations, 9.47% of species** — 2026 so far is a small slice.\n\nThis tells us that **the dataset is overwhelmingly recent**. There is essentially no consistent baseline from 2017–2022 against which to measure a trend.\n\n---\n\n### Can We Detect a Real Trend?\n\n**Short answer: No, not with this data.**\n\nHere is why:\n\n1. **Effort confounding.** Nearly 97% of observations come from just the last two years. Any apparent \"increase\" in bird numbers or species richness over time is almost certainly an artefact of increasing observer effort (more people visiting, more checklists submitted), not a biological signal. This is the classic eBird/citizen-science trap.\n\n2. **No standardized protocol.** EBTL's research programme (Centre for Eastern Ghats Studies) describes long-term ecological monitoring as a goal, but their published research focus so far is herpetofauna and arachnids, not birds. There is no evidence of a repeated-measures bird survey with fixed routes, fixed times, and detectability corrections.\n\n3. **No regional comparator with a five-year series.** The Krishnagiri district wetland census (2025) is a one-off snapshot. The Eastern Ghats bird literature (e.g., the 2012–2015 Vernay reassessment covering 262 species across nine districts) provides a regional species list but not population counts over time. A nocturnal-bird study in EGTN explicitly noted: *\"We do not have prior data on bird densities to compare trends.\"*\n\n4. **Spatial scale mismatch.** The site is 68 acres — too small for landscape-level population inference without design-based sampling and surrounding-area controls.\n\n---\n\n### What the Indirect Evidence Suggests (not a trend, but context)\n\n- **The restoration is young** — the project started in ~2017, and significant planting/habitat work is presumably ongoing. The appearance of elephants themselves (\"something that had never happened in the last many decades\") is anecdotally cited as a positive signal.\n- **169 species on 68 acres of degraded scrub-turned-restoration** is respectable for this biome. For context, the broader Krishnagiri district holds 200+ wetland species alone.\n- **Peafowl density in Krishnagiri is the highest in Tamil Nadu** (105 per 2 km², 2023–2025 study), suggesting the scrub/dry deciduous mosaic still supports at least some bird guilds at high abundance.\n- **The dominant species at EBTL** (Red-vented Bulbul, Purple-rumped Sunbird, Rose-ringed Parakeet, Asian Paradise Flycatcher, Grey Junglefowl) are a mix of generalists and forest-edge species — consistent with early-successional habitat that is beginning to mature.\n\n---\n\n### Is This Enough to Guide Restoration Choices?\n\n**Not yet, as a formal trend.** But it is enough to **design monitoring** that would answer the question within 2–3 years:\n\n| Recommendation | Rationale |\n|----------------|-----------|\n| Implement fixed-point counts (e.g., 10–15 points, monthly, dawn) | Controls for effort; enables occupancy/N-mixture modelling |\n| Record habitat covariates per point (canopy %, shrub %, ground cover) | Links bird response to restoration actions |\n| Use indicator guilds, not just total species | Insectivores, frugivores, raptors respond differently to succession stage |\n| Compare with an un-restored control plot in the same landscape | Separates restoration effect from regional climate/seasonal variation |\n| After 3 annual cycles, apply TRIM or rtrim (R package) for trend testing | Standard method for short time-series count data |\n\nThe **existing species list already guides planting choices** — e.g., the presence of frugivores (barbets, bulbuls) and flycatchers suggests that fruit-bearing native trees and insect-rich understory are valuable; the Grey Junglefowl presence suggests intact enough scrub connectivity to adjacent reserve forest.\n\n---\n\n### Bottom Line\n\nThere is **no statistically defensible five-year trend** for bird numbers at EBTL. The apparent growth in records is an effort artefact. However, the accumulating species richness (169 spp.) on a small, young restoration site is encouraging contextual evidence — it is consistent with habitat recovery, even if it cannot prove it yet. **You should not base restoration decisions on a trend that has not been measured**, but you *can* use the current species composition to choose what to plant and where, and you *should* set up standardized monitoring now so the trend question becomes answerable by ~2028.\n\n---\n\n### Citations\n\n1. Biosmart portal — EBTL2 project page: https://portal.biosmart.life/ebtl2\n2. eBird hotspot L36453021: https://ebird.org/region/L36453021\n3. EBTL official site & CEGS research page: https://ebtl.earth/ ; https://ebtl.earth/cegs/\n4. Times of India (2025-03-10). \"200 bird species recorded in Krishnagiri district wetland census.\" https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms\n5. New Indian Express (2026-01-31). \"37 lakh peafowl across Tamil Nadu, Krishnagiri tops density chart.\" https://www.newindianexpress.com/states/tamil-nadu/2026/Jan/31/37-lakh-peafowl-across-tamil-nadu-krishnagiri-tops-density-chart\n6. Thangaraj et al. (2024). \"Predicting covariate influence on white-browed bulbul abundance using N-mixture model in Eastern Ghats, Tamil Nadu.\" *Ornithological Research* 33:7.\n7. David & Vinoth. \"Nocturnal birds in the Eastern Ghats of Tamil Nadu.\" *Indian Birds* 11(2). https://indianbirds.in/pdfs/IB_11_2_DavidVinoth_EasternGhats.pdf\n8. Robin et al. (2015). \"A reassessment of the avian species diversity in the Eastern Ghats of Tamil Nadu, after the Vernay Survey.\" *Journal of Threatened Taxa* (doi:10.11609/JoTT.o2763.6349-76)."
+          }
+        ]
+      },
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2"
+    },
+    {
+      "type": "result",
+      "subtype": "success",
+      "duration_ms": 113448,
+      "duration_api_ms": 113448,
+      "is_error": false,
+      "result": "Based on my research, here is the most honest and detailed answer I can provide:\n\n---\n\n## Bird Numbers at Elephants By The Lake (EBTL) — Trend Assessment\n\n### What EBTL is\n\nElephants By The Lake is a **~68-acre forest restoration project** in Krishnagiri district, Tamil Nadu, in the Eastern Ghats foothills. It is operated by Rainmatter Foundation and focuses on regenerating dry deciduous forest on formerly denuded land near Veppanapalli town. The site is registered as an eBird hotspot (L36453021) and a project on the Biosmart biodiversity portal.\n\n---\n\n### Available Data\n\n| Source | Key numbers | Coverage |\n|--------|-------------|----------|\n| Biosmart portal (portal.biosmart.life/ebtl2) | 610 observations, 169 species, 1,484 identifications, 18 observers (6 active) | Aug 2017 – Jul 2026 |\n| eBird hotspot L36453021 | ~156 species (per search synthesis) | Same period |\n| Krishnagiri district wetland census (Mar 2025) | 200+ species across 40 sites district-wide | Single snapshot |\n\n**Critical temporal detail from Biosmart:**\n\n- **\"Last Two Years vs Total\" = 96.89% of observations, 91.12% of species** — meaning almost all recording effort has occurred in the last ~2 years (roughly 2024–2026).\n- **\"This Year vs Total\" = 2.79% of observations, 9.47% of species** — 2026 so far is a small slice.\n\nThis tells us that **the dataset is overwhelmingly recent**. There is essentially no consistent baseline from 2017–2022 against which to measure a trend.\n\n---\n\n### Can We Detect a Real Trend?\n\n**Short answer: No, not with this data.**\n\nHere is why:\n\n1. **Effort confounding.** Nearly 97% of observations come from just the last two years. Any apparent \"increase\" in bird numbers or species richness over time is almost certainly an artefact of increasing observer effort (more people visiting, more checklists submitted), not a biological signal. This is the classic eBird/citizen-science trap.\n\n2. **No standardized protocol.** EBTL's research programme (Centre for Eastern Ghats Studies) describes long-term ecological monitoring as a goal, but their published research focus so far is herpetofauna and arachnids, not birds. There is no evidence of a repeated-measures bird survey with fixed routes, fixed times, and detectability corrections.\n\n3. **No regional comparator with a five-year series.** The Krishnagiri district wetland census (2025) is a one-off snapshot. The Eastern Ghats bird literature (e.g., the 2012–2015 Vernay reassessment covering 262 species across nine districts) provides a regional species list but not population counts over time. A nocturnal-bird study in EGTN explicitly noted: *\"We do not have prior data on bird densities to compare trends.\"*\n\n4. **Spatial scale mismatch.** The site is 68 acres — too small for landscape-level population inference without design-based sampling and surrounding-area controls.\n\n---\n\n### What the Indirect Evidence Suggests (not a trend, but context)\n\n- **The restoration is young** — the project started in ~2017, and significant planting/habitat work is presumably ongoing. The appearance of elephants themselves (\"something that had never happened in the last many decades\") is anecdotally cited as a positive signal.\n- **169 species on 68 acres of degraded scrub-turned-restoration** is respectable for this biome. For context, the broader Krishnagiri district holds 200+ wetland species alone.\n- **Peafowl density in Krishnagiri is the highest in Tamil Nadu** (105 per 2 km², 2023–2025 study), suggesting the scrub/dry deciduous mosaic still supports at least some bird guilds at high abundance.\n- **The dominant species at EBTL** (Red-vented Bulbul, Purple-rumped Sunbird, Rose-ringed Parakeet, Asian Paradise Flycatcher, Grey Junglefowl) are a mix of generalists and forest-edge species — consistent with early-successional habitat that is beginning to mature.\n\n---\n\n### Is This Enough to Guide Restoration Choices?\n\n**Not yet, as a formal trend.** But it is enough to **design monitoring** that would answer the question within 2–3 years:\n\n| Recommendation | Rationale |\n|----------------|-----------|\n| Implement fixed-point counts (e.g., 10–15 points, monthly, dawn) | Controls for effort; enables occupancy/N-mixture modelling |\n| Record habitat covariates per point (canopy %, shrub %, ground cover) | Links bird response to restoration actions |\n| Use indicator guilds, not just total species | Insectivores, frugivores, raptors respond differently to succession stage |\n| Compare with an un-restored control plot in the same landscape | Separates restoration effect from regional climate/seasonal variation |\n| After 3 annual cycles, apply TRIM or rtrim (R package) for trend testing | Standard method for short time-series count data |\n\nThe **existing species list already guides planting choices** — e.g., the presence of frugivores (barbets, bulbuls) and flycatchers suggests that fruit-bearing native trees and insect-rich understory are valuable; the Grey Junglefowl presence suggests intact enough scrub connectivity to adjacent reserve forest.\n\n---\n\n### Bottom Line\n\nThere is **no statistically defensible five-year trend** for bird numbers at EBTL. The apparent growth in records is an effort artefact. However, the accumulating species richness (169 spp.) on a small, young restoration site is encouraging contextual evidence — it is consistent with habitat recovery, even if it cannot prove it yet. **You should not base restoration decisions on a trend that has not been measured**, but you *can* use the current species composition to choose what to plant and where, and you *should* set up standardized monitoring now so the trend question becomes answerable by ~2028.\n\n---\n\n### Citations\n\n1. Biosmart portal — EBTL2 project page: https://portal.biosmart.life/ebtl2\n2. eBird hotspot L36453021: https://ebird.org/region/L36453021\n3. EBTL official site & CEGS research page: https://ebtl.earth/ ; https://ebtl.earth/cegs/\n4. Times of India (2025-03-10). \"200 bird species recorded in Krishnagiri district wetland census.\" https://timesofindia.indiatimes.com/city/chennai/200-bird-species-recorded-in-krishnagiri-district-wetland-census/articleshow/118851466.cms\n5. New Indian Express (2026-01-31). \"37 lakh peafowl across Tamil Nadu, Krishnagiri tops density chart.\" https://www.newindianexpress.com/states/tamil-nadu/2026/Jan/31/37-lakh-peafowl-across-tamil-nadu-krishnagiri-tops-density-chart\n6. Thangaraj et al. (2024). \"Predicting covariate influence on white-browed bulbul abundance using N-mixture model in Eastern Ghats, Tamil Nadu.\" *Ornithological Research* 33:7.\n7. David & Vinoth. \"Nocturnal birds in the Eastern Ghats of Tamil Nadu.\" *Indian Birds* 11(2). https://indianbirds.in/pdfs/IB_11_2_DavidVinoth_EasternGhats.pdf\n8. Robin et al. (2015). \"A reassessment of the avian species diversity in the Eastern Ghats of Tamil Nadu, after the Vernay Survey.\" *Journal of Threatened Taxa* (doi:10.11609/JoTT.o2763.6349-76).",
+      "session_id": "efcc85ef-650a-4eef-a89f-d6f24e8150c2",
+      "request_id": "f8fa8589-4b5d-4f43-8793-4a7c7d5234e4",
+      "usage": {
+        "inputTokens": 8,
+        "outputTokens": 2871,
+        "cacheReadTokens": 159345,
+        "cacheWriteTokens": 25444
+      }
+    }
+  ],
+  "stderr_tail": "",
+  "workspace_inside_isolation": "/work"
+}

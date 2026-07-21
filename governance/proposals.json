@@ -56,8 +56,17 @@
     "provenance counts"
    ],
    "decision": "decisions/20260716-ALG-contracts.md",
-   "decision_note": "FILTER core accepted; promotion gated on typed connector field declarations; ships in v2.4.0 bundle",
-   "decided": "2026-07-16"
+   "decision_note": "FILTER core conditionally implemented behind v2.4.0-draft; OSM and World Bank reference connectors now declare typed fields; promotion remains coupled to a trained v2.4.0 bundle",
+   "decided": "2026-07-16",
+   "implementation": "kit/algebra/ir-spec-v2.4.0-draft.md",
+   "evidence": [
+    "governance/evidence/v24-qwen2b-pretrain.json"
+   ],
+   "release_blockers": [
+    "trained v2.4.0 parser/model bundle",
+    "perfect required-case FILTER/BUFFER parser conformance",
+    "released-v2.3 regression wall"
+   ]
   },
   {
    "id": "ALG-003",
@@ -859,7 +868,7 @@
    "dependencies": [
     "REGION"
    ],
-   "note": "The accepted core is implemented behind the explicit v2.4.0-draft profile. Released v2.3 APIs still reject BUFFER and the framework manifest is unchanged. Deterministic gold execution is 10/10, but the untrained base 2B and existing 9B adapter reach only 5/8 and 4/8 required exact parser matches; a trained v2.4 bundle remains a release blocker.",
+   "note": "The accepted core is implemented behind the explicit v2.4.0-draft profile and is now conformed jointly with FILTER. Released v2.3 APIs still reject BUFFER/FILTER and the framework manifest is unchanged. The combined deterministic wall executes 20/20 gold cases; the untrained qwen2b baseline matches 6/15 parser-required cases, so a trained v2.4 bundle remains a release blocker.",
    "required_tests": [
     "positive finite radius",
     "REGION input typing",
@@ -876,7 +885,8 @@
    "implementation": "kit/algebra/ir-spec-v2.4.0-draft.md",
    "evidence": [
     "governance/evidence/ALG-015-buffer-qwen2b-v4.json",
-    "governance/evidence/ALG-015-buffer-lora9b-v2.json"
+    "governance/evidence/ALG-015-buffer-lora9b-v2.json",
+    "governance/evidence/v24-qwen2b-pretrain.json"
    ],
    "release_blockers": [
     "trained v2.4.0 parser/model bundle",
