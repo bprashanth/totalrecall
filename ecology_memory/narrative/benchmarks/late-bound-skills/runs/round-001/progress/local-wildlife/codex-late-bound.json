@@ -1,0 +1,401 @@
+{
+  "turns": [
+    {
+      "question": "What animals and birds have people seen at EBTL?",
+      "mode": "execute",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 8.69,
+        "session_id": "019f85f2-6299-71c1-890b-4eec0e211013",
+        "prompt_sha256": "022f7d8d3f006c78c8f2d638f193559836d31b08862063a81c10038dfb395b6e",
+        "final": "{\"mode\":\"execute\",\"ir\":{\"op\":\"SELECT\",\"entity\":\"animals and birds\",\"region\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"time\":null}}",
+        "parsed": {
+          "mode": "execute",
+          "ir": {
+            "op": "SELECT",
+            "entity": "animals and birds",
+            "region": {
+              "op": "REGION",
+              "place": "EBTL"
+            },
+            "time": null
+          }
+        },
+        "usage": {
+          "input_tokens": 13864,
+          "cached_input_tokens": 8576,
+          "output_tokens": 249,
+          "reasoning_output_tokens": 209
+        }
+      },
+      "raw_ir": {
+        "op": "SELECT",
+        "entity": "animals and birds",
+        "region": {
+          "op": "REGION",
+          "place": "Elephants by the Lake"
+        },
+        "time": null
+      },
+      "raw_ir_sha256": "274f61635650981e9dfe00b542432b39e5888e3a162bc4fc4c7d44fc91fb5d91",
+      "retrieval": [
+        {
+          "path": "root",
+          "op": "SELECT",
+          "query": "Algebra operation: SELECT\nRequested subject or layer: animals and birds\nParent operation: None\nRequired output: Records or declared operator result\nComplete algebra leaf: {\"op\": \"SELECT\", \"entity\": \"animals and birds\", \"region\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"time\": null}",
+          "candidates": [
+            {
+              "id": "local-site-fauna-summary",
+              "score": 0.6548,
+              "card": "Skill: local-site-fauna-summary\nDescription: Published EBTL 2024 survey group summaries for butterflies, odonates, birds and herpetofauna, with older-property herpetofauna records kept separate.\nUse for: what wildlife or animal groups were recorded locally; local survey coverage\nDo not use for: complete non-bird species lists; public occurrence points; abundance; proof of absence\nSupports: SELECT\nReturns: Records; georeferenced=False"
+            },
+            {
+              "id": "merged-taxon-occurrence-search",
+              "score": 0.6509,
+              "card": "Skill: merged-taxon-occurrence-search\nDescription: Resolve a named animal or plant and retrieve bounded georeferenced GBIF and iNaturalist occurrence records in the requested geometry.\nUse for: species records; sightings around a place; where a named species was observed\nDo not use for: abundance; complete site inventory; predicted presence; literature-only leads\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            },
+            {
+              "id": "local-bird-inventory",
+              "score": 0.6494,
+              "card": "Skill: local-bird-inventory\nDescription: Complete local 2024 EBTL bird checklist with survey method.\nUse for: birds recorded locally; local bird list\nDo not use for: recent eBird feed; abundance; plant interaction\nSupports: SELECT\nReturns: Records; georeferenced=False"
+            }
+          ]
+        }
+      ],
+      "linker": {
+        "stage": "link",
+        "exit_code": 0,
+        "latency_s": 8.53,
+        "session_id": "019f85f2-6299-71c1-890b-4eec0e211013",
+        "prompt_sha256": "4ea7374ef2db2e92b0dcaf3fc3f711a8451e94fed7bea8a83e71bc056d6409ca",
+        "final": "{\"bindings\":[{\"path\":\"root\",\"skill\":\"local-site-fauna-summary\"}]}",
+        "parsed": {
+          "bindings": [
+            {
+              "path": "root",
+              "skill": "local-site-fauna-summary"
+            }
+          ]
+        },
+        "usage": {
+          "input_tokens": 28338,
+          "cached_input_tokens": 22272,
+          "output_tokens": 513,
+          "reasoning_output_tokens": 450
+        }
+      },
+      "bindings": [
+        {
+          "path": "root",
+          "skill": "local-site-fauna-summary",
+          "accepted": true
+        }
+      ],
+      "ir": {
+        "op": "SELECT",
+        "entity": "EBTL wildlife inventory",
+        "region": {
+          "op": "REGION",
+          "place": "Elephants by the Lake"
+        },
+        "time": null
+      },
+      "schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "SELECT",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "execution": {
+        "status": "answer",
+        "value": {
+          "rows": [
+            {
+              "id": "faunal-survey-2024:group:butterflies",
+              "group": "butterflies",
+              "recorded_taxa": 54,
+              "observed_during_survey": 54,
+              "pages": [
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "method": "Four 30-minute road/walkway transects per day for three days, 09:30-12:30, plus observations outside transect timings",
+              "examples": [
+                "Common Emigrant",
+                "Tawny Coster",
+                "Common Grass Yellow",
+                "Double-branded Crow",
+                "Crimson Rose"
+              ],
+              "record_status": "survey_summary",
+              "source": "Faunal Survey 2024",
+              "source_record": "Faunal survey 2024.pdf#page=4"
+            },
+            {
+              "id": "faunal-survey-2024:group:odonates",
+              "group": "odonates",
+              "recorded_taxa": 42,
+              "observed_during_survey": 42,
+              "pages": [
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "method": "One-hour time-constrained VES on three transects over four days",
+              "breakdown": {
+                "dragonflies": 31,
+                "damselflies": 11
+              },
+              "examples": [
+                "Vagrant Emperor",
+                "Common Clubtail",
+                "Scarlet Skimmer",
+                "Coromandel Marsh Dart",
+                "Yellow Bush Dart"
+              ],
+              "record_status": "survey_summary",
+              "source": "Faunal Survey 2024",
+              "source_record": "Faunal survey 2024.pdf#page=10"
+            },
+            {
+              "id": "faunal-survey-2024:group:birds",
+              "group": "birds",
+              "recorded_taxa": 67,
+              "observed_during_survey": 67,
+              "pages": [
+                16,
+                17,
+                18,
+                19,
+                20,
+                21
+              ],
+              "method": "Birds seen or heard on approximately 1 km transits, with morning/evening effort and 30-minute eBird checklists",
+              "examples": [
+                "Gray Junglefowl",
+                "Short-toed Snake-Eagle",
+                "Indian Spotted Eagle",
+                "White-cheeked Barbet",
+                "Spot-breasted Fantail"
+              ],
+              "record_status": "survey_summary",
+              "source": "Faunal Survey 2024",
+              "source_record": "Faunal survey 2024.pdf#page=16"
+            },
+            {
+              "id": "faunal-survey-2024:group:herpetofauna",
+              "group": "herpetofauna",
+              "recorded_taxa": 33,
+              "observed_during_survey": 20,
+              "earlier_property_records_not_observed": 13,
+              "pages": [
+                22,
+                23,
+                24
+              ],
+              "method": "Three days of two-hour time-constrained VES sessions across morning, evening and night periods",
+              "observed_breakdown": {
+                "frogs": 7,
+                "lizards": 9,
+                "snakes": 3,
+                "turtles": 1
+              },
+              "earlier_breakdown": {
+                "lizards": 2,
+                "snakes": 11
+              },
+              "examples": [
+                "Common Indian Toad",
+                "Indian Burrowing Frog",
+                "Rock Agama",
+                "Common Sand Boa",
+                "Star Tortoise"
+              ],
+              "record_status": "survey_summary",
+              "source": "Faunal Survey 2024",
+              "source_record": "Faunal survey 2024.pdf#page=22"
+            }
+          ],
+          "kind": "records",
+          "source": "Imported EBTL primary evidence",
+          "label": "observed",
+          "grain": "published-evidence-record",
+          "count_admissible": true,
+          "query_time": null,
+          "region": {
+            "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+            "bbox": [
+              12.721,
+              12.747,
+              78.17,
+              78.197
+            ],
+            "lat": 12.73394,
+            "lon": 78.18344,
+            "orig": "EBTL",
+            "source": "SITE_EBTL.json"
+          },
+          "query_semantics": "wildlife_inventory",
+          "source_metadata": {
+            "survey_dates": {
+              "butterflies": "2024-09-05 to 2024-09-07",
+              "birds": "2024-09-05 to 2024-09-07",
+              "herpetofauna": "2024-09-05 to 2024-09-07",
+              "odonates": "2024-10-10 to 2024-10-13"
+            },
+            "limitation": "Survey-period inventories are not proof of year-round presence, abundance, or complete detectability; 13 herpetofauna entries are earlier property records rather than detections during the 2024 VES",
+            "indirect_elephant_passage_events": 2
+          },
+          "note": "published local survey summaries for butterflies, odonates, birds and herpetofauna; the herpetofauna total separates 2024 VES detections from earlier property records; elephant evidence comes from two separate indirect passage reports",
+          "connector_events": [],
+          "entity": "wildlife_inventory",
+          "input_entity": "EBTL wildlife inventory"
+        },
+        "label": "observed",
+        "provenance": [
+          {
+            "op": "SELECT",
+            "route": "published-site-evidence",
+            "resolved": "wildlife_inventory",
+            "note": "published local survey summaries for butterflies, odonates, birds and herpetofauna; the herpetofauna total separates 2024 VES detections from earlier property records; elephant evidence comes from two separate indirect passage reports"
+          }
+        ]
+      },
+      "answer": "At EBTL, local surveys recorded birds, butterflies, dragonflies and damselflies, and herpetofauna.\n\nObserved at EBTL:\n- Birds: 67 taxa\n- Butterflies: 54 taxa\n- Odonates: 42 taxa\n  Examples include dragonflies and damselflies\n- Herpetofauna: 20 taxa seen during the 2024 survey\n  Breakdown: 7 frogs, 9 lizards, 3 snakes, 1 turtle\n\nExamples reported in the survey:\n- Birds: Gray Junglefowl, Short-toed Snake-Eagle, White-cheeked Barbet\n- Other animals: Common Emigrant butterfly, Vagrant Emperor dragonfly, Rock Agama, Common Sand Boa, Star Tortoise\n\nEarlier local records, not seen during the 2024 herpetofauna survey:\n- 13 extra herpetofauna records from the property\n\nReported but indirect:\n- Two elephant passage events were reported, but these were indirect signs, not direct survey sightings.\n\nWhat is missing:\n- A full species-by-species list across all groups is not shown here.\n- If the field team needs that, they should collect or share the full checklist for birds, butterflies, odonates, and herpetofauna, with dates and whether each record was directly seen, heard, or inferred from signs.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 14.585,
+        "session_id": "019f85f2-6299-71c1-890b-4eec0e211013",
+        "prompt_sha256": "d83556ae58aa5c3df970279c44380c85cdcfc707f18ecd1b7272dbcd1835ac97",
+        "final": "At EBTL, local surveys recorded birds, butterflies, dragonflies and damselflies, and herpetofauna.\n\nObserved at EBTL:\n- Birds: 67 taxa\n- Butterflies: 54 taxa\n- Odonates: 42 taxa\n  Examples include dragonflies and damselflies\n- Herpetofauna: 20 taxa seen during the 2024 survey\n  Breakdown: 7 frogs, 9 lizards, 3 snakes, 1 turtle\n\nExamples reported in the survey:\n- Birds: Gray Junglefowl, Short-toed Snake-Eagle, White-cheeked Barbet\n- Other animals: Common Emigrant butterfly, Vagrant Emperor dragonfly, Rock Agama, Common Sand Boa, Star Tortoise\n\nEarlier local records, not seen during the 2024 herpetofauna survey:\n- 13 extra herpetofauna records from the property\n\nReported but indirect:\n- Two elephant passage events were reported, but these were indirect signs, not direct survey sightings.\n\nWhat is missing:\n- A full species-by-species list across all groups is not shown here.\n- If the field team needs that, they should collect or share the full checklist for birds, butterflies, odonates, and herpetofauna, with dates and whether each record was directly seen, heard, or inferred from signs.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 44164,
+          "cached_input_tokens": 36480,
+          "output_tokens": 905,
+          "reasoning_output_tokens": 557
+        }
+      }
+    },
+    {
+      "question": "What about snakes? Which snakes did the 2024 survey find, and which ones are only in the older records?",
+      "mode": "history",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 7.903,
+        "session_id": "019f85f2-6299-71c1-890b-4eec0e211013",
+        "prompt_sha256": "c69d6dca7a070bdda13ed6bf9b9f3adc405926083bb741375faef07dd3f4d389",
+        "final": "{\"mode\":\"history\",\"ir\":null}",
+        "parsed": {
+          "mode": "history",
+          "ir": null
+        },
+        "usage": {
+          "input_tokens": 63311,
+          "cached_input_tokens": 52224,
+          "output_tokens": 1183,
+          "reasoning_output_tokens": 820
+        }
+      },
+      "raw_ir": null,
+      "raw_ir_sha256": null,
+      "retrieval": [],
+      "linker": null,
+      "bindings": [],
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "interpret_prior_audit",
+        "detail": {}
+      },
+      "answer": "The 2024 survey found 3 snake taxa at EBTL.\n\nOnly in the older property records:\n- 11 snake taxa were listed from earlier records and were not observed in the 2024 herpetofauna survey.\n\nWhat this result does not show:\n- It does not give the snake species names for the 3 found in 2024.\n- It does not give the species names for the 11 older-only snake records.\n- The only snake example named in the summary is Common Sand Boa, but this result does not say whether that one was seen in 2024 or comes only from the older records.\n\nWhat the field team can collect:\n- The full snake species list from the 2024 survey\n- The full older property snake list\n- A clear flag for each species: `seen in 2024 survey` or `older record only`",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 7.833,
+        "session_id": "019f85f2-6299-71c1-890b-4eec0e211013",
+        "prompt_sha256": "fd37eb9ab87522be5cdbbad1b78e5ad9e0b3802b2b4452e02365606d062eea6b",
+        "final": "The 2024 survey found 3 snake taxa at EBTL.\n\nOnly in the older property records:\n- 11 snake taxa were listed from earlier records and were not observed in the 2024 herpetofauna survey.\n\nWhat this result does not show:\n- It does not give the snake species names for the 3 found in 2024.\n- It does not give the species names for the 11 older-only snake records.\n- The only snake example named in the summary is Common Sand Boa, but this result does not say whether that one was seen in 2024 or comes only from the older records.\n\nWhat the field team can collect:\n- The full snake species list from the 2024 survey\n- The full older property snake list\n- A clear flag for each species: `seen in 2024 survey` or `older record only`",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 82639,
+          "cached_input_tokens": 71040,
+          "output_tokens": 1438,
+          "reasoning_output_tokens": 892
+        }
+      }
+    },
+    {
+      "question": "How many of these snakes can be dangerous to people?",
+      "mode": "history",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 5.39,
+        "session_id": "019f85f2-6299-71c1-890b-4eec0e211013",
+        "prompt_sha256": "c2763946a65ced0b05c73387d329c113b165c950d317b1852d17603a3f689f1c",
+        "final": "{\"mode\":\"history\",\"ir\":null}",
+        "parsed": {
+          "mode": "history",
+          "ir": null
+        },
+        "usage": {
+          "input_tokens": 105173,
+          "cached_input_tokens": 89856,
+          "output_tokens": 1565,
+          "reasoning_output_tokens": 1004
+        }
+      },
+      "raw_ir": null,
+      "raw_ir_sha256": null,
+      "retrieval": [],
+      "linker": null,
+      "bindings": [],
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "interpret_prior_audit",
+        "detail": {}
+      },
+      "answer": "We cannot tell from the audited results how many of the snakes can be dangerous to people.\n\nWhat we know locally:\n- 3 snake taxa were found in the 2024 survey.\n- 11 more snake taxa are in older property records only.\n\nWhat is missing:\n- The species names for those 3 survey snakes\n- The species names for those 11 older-record snakes\n- Any audited note on venom risk or danger to people\n\nWhat the field team can collect:\n- The full snake species list for the 2024 survey\n- The full older snake record list\n- A simple risk flag for each species: `venomous / not venomous / unknown`\n- If possible, notes on bite risk to people near homes, paths, and work areas",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 7.342,
+        "session_id": "019f85f2-6299-71c1-890b-4eec0e211013",
+        "prompt_sha256": "5e4988283c66efd3d8e11417eed875daedf93a5d29cbc461bab90c055c6eb4d5",
+        "final": "We cannot tell from the audited results how many of the snakes can be dangerous to people.\n\nWhat we know locally:\n- 3 snake taxa were found in the 2024 survey.\n- 11 more snake taxa are in older property records only.\n\nWhat is missing:\n- The species names for those 3 survey snakes\n- The species names for those 11 older-record snakes\n- Any audited note on venom risk or danger to people\n\nWhat the field team can collect:\n- The full snake species list for the 2024 survey\n- The full older snake record list\n- A simple risk flag for each species: `venomous / not venomous / unknown`\n- If possible, notes on bite risk to people near homes, paths, and work areas",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 127875,
+          "cached_input_tokens": 112256,
+          "output_tokens": 1781,
+          "reasoning_output_tokens": 1059
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,428 @@
+{
+  "turns": [
+    {
+      "question": "There are no king cobra records inside EBTL. Can they still be there? Please use records from nearby areas to make a careful estimate.",
+      "mode": "execute",
+      "selected_capabilities": [
+        {
+          "entity": "EBTL cobra inventory",
+          "kind": "SELECT",
+          "description": "cobra-only subset of the documented site snake inventory, including which cobra taxa are not listed",
+          "grain": "published site species record",
+          "evidence": "previous property record",
+          "scope": "declared EBTL site",
+          "selected": true
+        },
+        {
+          "entity": "buffered search region",
+          "kind": "REGION operator",
+          "description": "expand a named search region by an explicit radius; this controls retrieval extent and is distinct from a RELATE distance threshold",
+          "grain": "derived search bbox",
+          "evidence": "declared geometry",
+          "binding": "operator",
+          "ops": [
+            "BUFFER"
+          ],
+          "scope_policy": "compiler_must_write_each_operand_support",
+          "selected": true
+        },
+        {
+          "entity": "taxon occurrence records",
+          "kind": "SELECT",
+          "description": "bounded GBIF + iNaturalist point merger for a named taxon and requested region; semantic paper discovery is a separate operation",
+          "grain": "public occurrence point",
+          "evidence": "observed record, not abundance",
+          "binding": "compiler_entity",
+          "scope": "requested region",
+          "selected": true
+        },
+        {
+          "entity": "regional-to-target occurrence transfer",
+          "kind": "ESTIMATE operator",
+          "description": "apply an explicit environmental or interpolation gate to occurrence records from a donor region before estimating at a target; rejection remains a data request",
+          "grain": "taxon-specific gated transfer",
+          "evidence": "modelled",
+          "binding": "operator",
+          "ops": [
+            "ESTIMATE"
+          ],
+          "requires": [
+            "taxon occurrence records"
+          ],
+          "selected": true
+        }
+      ],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 8.836,
+        "session_id": "019f8626-94cd-7de3-97a9-3c34c0669c1b",
+        "prompt_sha256": "ac35fbbef82fbf2bf53d827c5f7cec2668970cc20f3e46b2fa9cae2110de308d",
+        "final": "{\"mode\":\"execute\",\"entities\":[\"EBTL cobra inventory\",\"buffered search region\",\"taxon occurrence records\",\"regional-to-target occurrence transfer\"]}",
+        "parsed": {
+          "mode": "execute",
+          "entities": [
+            "EBTL cobra inventory",
+            "buffered search region",
+            "taxon occurrence records",
+            "regional-to-target occurrence transfer"
+          ]
+        },
+        "usage": {
+          "input_tokens": 12657,
+          "cached_input_tokens": 10624,
+          "output_tokens": 228,
+          "reasoning_output_tokens": 193
+        }
+      },
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 23.771,
+        "session_id": "019f8626-94cd-7de3-97a9-3c34c0669c1b",
+        "prompt_sha256": "6aeb6c247f535f874aa836b1087c2d8c084f4506b9fa46761bf2a90f0b9c9c3d",
+        "final": "{\"op\":\"ESTIMATE\",\"method\":\"feature\",\"source\":{\"op\":\"SELECT\",\"entity\":\"king cobra\",\"region\":{\"op\":\"BUFFER\",\"source\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"radius_km\":25.0},\"time\":null},\"target\":{\"op\":\"REGION\",\"place\":\"EBTL\"}}",
+        "parsed": {
+          "op": "ESTIMATE",
+          "method": "feature",
+          "source": {
+            "op": "SELECT",
+            "entity": "king cobra",
+            "region": {
+              "op": "BUFFER",
+              "source": {
+                "op": "REGION",
+                "place": "EBTL"
+              },
+              "radius_km": 25.0
+            },
+            "time": null
+          },
+          "target": {
+            "op": "REGION",
+            "place": "EBTL"
+          }
+        },
+        "usage": {
+          "input_tokens": 28486,
+          "cached_input_tokens": 22784,
+          "output_tokens": 1332,
+          "reasoning_output_tokens": 1227
+        }
+      },
+      "ir": {
+        "op": "ESTIMATE",
+        "method": "feature",
+        "source": {
+          "op": "SELECT",
+          "entity": "king cobra",
+          "region": {
+            "op": "BUFFER",
+            "source": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "radius_km": 25.0
+          },
+          "time": null
+        },
+        "target": {
+          "op": "REGION",
+          "place": "Elephants by the Lake"
+        }
+      },
+      "schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "ESTIMATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "REGION"
+        ],
+        "has_estimate": true,
+        "unbound": false
+      },
+      "execution": {
+        "status": "data_request",
+        "reason": "no_connector",
+        "detail": {
+          "entity": "king cobra",
+          "hint": "no data source maps this entity; add a connector or refine the term"
+        },
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 25.0,
+            "source_region": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+            "source_support": {
+              "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+              "bbox": [
+                12.721,
+                12.747,
+                78.17,
+                78.197
+              ],
+              "lat": 12.73394,
+              "lon": 78.18344,
+              "orig": "EBTL",
+              "source": "SITE_EBTL.json"
+            },
+            "result_bbox": [
+              12.496422206252246,
+              12.971577793747754,
+              77.93975918304803,
+              78.42724081695198
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "SELECT",
+            "route": "none",
+            "note": "no connector for 'king cobra'"
+          }
+        ]
+      },
+      "answer": "We cannot make a careful estimate for king cobra at EBTL from the audited data we have.\n\nLocal evidence:\nThere is no audited local record for king cobra inside EBTL in the result shown.\n\nRegional observed evidence:\nMissing. The audited result says there is no data source connected for `king cobra`, so there are no nearby-area records to use.\n\nReported evidence:\nMissing.\n\nProxy evidence:\nMissing.\n\nModelled estimate:\nNot possible with the current audited data. No connector maps `king cobra`, so no estimate could be produced.\n\nWhat is missing:\nNearby king cobra occurrence records tied to a usable data source.\n\nWhat the field team can collect:\n1. Camera-trap, roadkill, rescue, or verified sighting records from areas around EBTL.\n2. GPS points, dates, photos, and observer names for any king cobra evidence.\n3. Habitat notes at each sighting location, such as forest cover, water, prey signs, and disturbance.\n4. Local expert or forest staff reports that can be checked with location and date.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 11.134,
+        "session_id": "019f8626-94cd-7de3-97a9-3c34c0669c1b",
+        "prompt_sha256": "fe1b6f3240bdc2a5b61b32deaf6e2fbb6e9f5d186727a79aac1b62e5f4970ec9",
+        "final": "We cannot make a careful estimate for king cobra at EBTL from the audited data we have.\n\nLocal evidence:\nThere is no audited local record for king cobra inside EBTL in the result shown.\n\nRegional observed evidence:\nMissing. The audited result says there is no data source connected for `king cobra`, so there are no nearby-area records to use.\n\nReported evidence:\nMissing.\n\nProxy evidence:\nMissing.\n\nModelled estimate:\nNot possible with the current audited data. No connector maps `king cobra`, so no estimate could be produced.\n\nWhat is missing:\nNearby king cobra occurrence records tied to a usable data source.\n\nWhat the field team can collect:\n1. Camera-trap, roadkill, rescue, or verified sighting records from areas around EBTL.\n2. GPS points, dates, photos, and observer names for any king cobra evidence.\n3. Habitat notes at each sighting location, such as forest cover, water, prey signs, and disturbance.\n4. Local expert or forest staff reports that can be checked with location and date.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 44580,
+          "cached_input_tokens": 38528,
+          "output_tokens": 1597,
+          "reasoning_output_tokens": 1274
+        }
+      }
+    },
+    {
+      "question": "Why did you accept or reject this estimate?",
+      "mode": "history",
+      "selected_capabilities": [
+        {
+          "entity": "EBTL cobra inventory",
+          "kind": "SELECT",
+          "description": "cobra-only subset of the documented site snake inventory, including which cobra taxa are not listed",
+          "grain": "published site species record",
+          "evidence": "previous property record",
+          "scope": "declared EBTL site",
+          "selected": true
+        },
+        {
+          "entity": "buffered search region",
+          "kind": "REGION operator",
+          "description": "expand a named search region by an explicit radius; this controls retrieval extent and is distinct from a RELATE distance threshold",
+          "grain": "derived search bbox",
+          "evidence": "declared geometry",
+          "binding": "operator",
+          "ops": [
+            "BUFFER"
+          ],
+          "scope_policy": "compiler_must_write_each_operand_support",
+          "selected": true
+        },
+        {
+          "entity": "taxon occurrence records",
+          "kind": "SELECT",
+          "description": "bounded GBIF + iNaturalist point merger for a named taxon and requested region; semantic paper discovery is a separate operation",
+          "grain": "public occurrence point",
+          "evidence": "observed record, not abundance",
+          "binding": "compiler_entity",
+          "scope": "requested region",
+          "selected": true
+        },
+        {
+          "entity": "regional-to-target occurrence transfer",
+          "kind": "ESTIMATE operator",
+          "description": "apply an explicit environmental or interpolation gate to occurrence records from a donor region before estimating at a target; rejection remains a data request",
+          "grain": "taxon-specific gated transfer",
+          "evidence": "modelled",
+          "binding": "operator",
+          "ops": [
+            "ESTIMATE"
+          ],
+          "requires": [
+            "taxon occurrence records"
+          ],
+          "selected": true
+        }
+      ],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 7.201,
+        "session_id": "019f8626-94cd-7de3-97a9-3c34c0669c1b",
+        "prompt_sha256": "a5528442d9ad73f581ae4cc921bf857c886577b7be7d2dfc51701d15c2705d84",
+        "final": "{\"mode\":\"history\",\"entities\":[\"EBTL cobra inventory\",\"buffered search region\",\"taxon occurrence records\",\"regional-to-target occurrence transfer\"]}",
+        "parsed": {
+          "mode": "history",
+          "entities": [
+            "EBTL cobra inventory",
+            "buffered search region",
+            "taxon occurrence records",
+            "regional-to-target occurrence transfer"
+          ]
+        },
+        "usage": {
+          "input_tokens": 62689,
+          "cached_input_tokens": 54272,
+          "output_tokens": 1738,
+          "reasoning_output_tokens": 1380
+        }
+      },
+      "compiler": null,
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "history",
+        "detail": {
+          "candidate_capabilities": [
+            "EBTL cobra inventory",
+            "buffered search region",
+            "taxon occurrence records",
+            "regional-to-target occurrence transfer"
+          ]
+        }
+      },
+      "answer": "The estimate was rejected because there was no usable data source for `king cobra`.\n\nLocal evidence:\nThe earlier audited result did not produce any local EBTL king cobra record.\n\nRegional observed evidence:\nThe estimate needed nearby-area occurrence records, but the earlier audited result says `no_connector` for `king cobra`. That means no audited nearby records were available to use.\n\nReported evidence:\nNone was returned.\n\nProxy evidence:\nNone was returned.\n\nModelled estimate:\nNot accepted. The selected estimate path included nearby occurrence records plus a regional-to-target transfer step, but that could not run because `king cobra` was not mapped to a working data source.\n\nWhat is missing:\nA connector or refined taxon term that returns king cobra occurrence records from nearby areas.\n\nWhat the field team can collect:\n1. Verified king cobra records from around EBTL with GPS location and date.\n2. Clear photos or expert confirmation for species ID.\n3. Notes on habitat at each record site, such as forest cover, water, prey signs, and disturbance.\n4. Local rescue, ranger, or community sighting reports that can be checked.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 9.727,
+        "session_id": "019f8626-94cd-7de3-97a9-3c34c0669c1b",
+        "prompt_sha256": "e82041b6b64a87ae6f7345ee5bf57074c9fad4ba852a5bf7da952345c54e5d15",
+        "final": "The estimate was rejected because there was no usable data source for `king cobra`.\n\nLocal evidence:\nThe earlier audited result did not produce any local EBTL king cobra record.\n\nRegional observed evidence:\nThe estimate needed nearby-area occurrence records, but the earlier audited result says `no_connector` for `king cobra`. That means no audited nearby records were available to use.\n\nReported evidence:\nNone was returned.\n\nProxy evidence:\nNone was returned.\n\nModelled estimate:\nNot accepted. The selected estimate path included nearby occurrence records plus a regional-to-target transfer step, but that could not run because `king cobra` was not mapped to a working data source.\n\nWhat is missing:\nA connector or refined taxon term that returns king cobra occurrence records from nearby areas.\n\nWhat the field team can collect:\n1. Verified king cobra records from around EBTL with GPS location and date.\n2. Clear photos or expert confirmation for species ID.\n3. Notes on habitat at each record site, such as forest cover, water, prey signs, and disturbance.\n4. Local rescue, ranger, or community sighting reports that can be checked.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 81011,
+          "cached_input_tokens": 72064,
+          "output_tokens": 2043,
+          "reasoning_output_tokens": 1454
+        }
+      }
+    },
+    {
+      "question": "What is the biggest doubt in this estimate? What should our field team check at EBTL?",
+      "mode": "history",
+      "selected_capabilities": [
+        {
+          "entity": "EBTL cobra inventory",
+          "kind": "SELECT",
+          "description": "cobra-only subset of the documented site snake inventory, including which cobra taxa are not listed",
+          "grain": "published site species record",
+          "evidence": "previous property record",
+          "scope": "declared EBTL site",
+          "selected": true
+        },
+        {
+          "entity": "buffered search region",
+          "kind": "REGION operator",
+          "description": "expand a named search region by an explicit radius; this controls retrieval extent and is distinct from a RELATE distance threshold",
+          "grain": "derived search bbox",
+          "evidence": "declared geometry",
+          "binding": "operator",
+          "ops": [
+            "BUFFER"
+          ],
+          "scope_policy": "compiler_must_write_each_operand_support",
+          "selected": true
+        },
+        {
+          "entity": "taxon occurrence records",
+          "kind": "SELECT",
+          "description": "bounded GBIF + iNaturalist point merger for a named taxon and requested region; semantic paper discovery is a separate operation",
+          "grain": "public occurrence point",
+          "evidence": "observed record, not abundance",
+          "binding": "compiler_entity",
+          "scope": "requested region",
+          "selected": true
+        },
+        {
+          "entity": "regional-to-target occurrence transfer",
+          "kind": "ESTIMATE operator",
+          "description": "apply an explicit environmental or interpolation gate to occurrence records from a donor region before estimating at a target; rejection remains a data request",
+          "grain": "taxon-specific gated transfer",
+          "evidence": "modelled",
+          "binding": "operator",
+          "ops": [
+            "ESTIMATE"
+          ],
+          "requires": [
+            "taxon occurrence records"
+          ],
+          "selected": true
+        }
+      ],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 5.178,
+        "session_id": "019f8626-94cd-7de3-97a9-3c34c0669c1b",
+        "prompt_sha256": "f0da332cf13e7629cec97f6445b7c4a12de8148fd8001ccc0ff94e977d499b9c",
+        "final": "{\"mode\":\"history\",\"entities\":[\"EBTL cobra inventory\",\"buffered search region\",\"taxon occurrence records\",\"regional-to-target occurrence transfer\"]}",
+        "parsed": {
+          "mode": "history",
+          "entities": [
+            "EBTL cobra inventory",
+            "buffered search region",
+            "taxon occurrence records",
+            "regional-to-target occurrence transfer"
+          ]
+        },
+        "usage": {
+          "input_tokens": 101372,
+          "cached_input_tokens": 89856,
+          "output_tokens": 2100,
+          "reasoning_output_tokens": 1476
+        }
+      },
+      "compiler": null,
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "history",
+        "detail": {
+          "candidate_capabilities": [
+            "EBTL cobra inventory",
+            "buffered search region",
+            "taxon occurrence records",
+            "regional-to-target occurrence transfer"
+          ]
+        }
+      },
+      "answer": "The biggest doubt is that there were no usable nearby king cobra records at all, so the estimate could not really be tested or supported.\n\nLocal evidence:\nInside EBTL, the earlier audited result did not return a king cobra record.\n\nRegional observed evidence:\nMissing. The earlier audited result said there was no connector for `king cobra`, so there were no nearby occurrence records to use.\n\nReported evidence:\nMissing.\n\nProxy evidence:\nMissing.\n\nModelled estimate:\nThe transfer step was selected in principle, but it could not run because the nearby record input was missing.\n\nWhat the field team should check at EBTL:\n1. Look for direct king cobra evidence: clear photos, shed skin, roadkill, rescue records, or expert-confirmed sightings.\n2. Record exact GPS location, date, habitat, and observer for every sign.\n3. Check likely habitat features on site, especially forested cover, water, prey signs, and low-disturbance areas.\n4. Ask local staff, forest workers, and nearby communities about recent large snake sightings, then verify any report with place and date.\n5. Separate confirmed king cobra evidence from other cobra or large snake records.\n\nWhat is still missing:\nVerified local king cobra records at EBTL, and verified nearby-area king cobra records that could support a careful estimate.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 12.517,
+        "session_id": "019f8626-94cd-7de3-97a9-3c34c0669c1b",
+        "prompt_sha256": "b77e3477e359a266f8d1bf6b55333a09308264e84fb32a1642f689b503d694ba",
+        "final": "The biggest doubt is that there were no usable nearby king cobra records at all, so the estimate could not really be tested or supported.\n\nLocal evidence:\nInside EBTL, the earlier audited result did not return a king cobra record.\n\nRegional observed evidence:\nMissing. The earlier audited result said there was no connector for `king cobra`, so there were no nearby occurrence records to use.\n\nReported evidence:\nMissing.\n\nProxy evidence:\nMissing.\n\nModelled estimate:\nThe transfer step was selected in principle, but it could not run because the nearby record input was missing.\n\nWhat the field team should check at EBTL:\n1. Look for direct king cobra evidence: clear photos, shed skin, roadkill, rescue records, or expert-confirmed sightings.\n2. Record exact GPS location, date, habitat, and observer for every sign.\n3. Check likely habitat features on site, especially forested cover, water, prey signs, and low-disturbance areas.\n4. Ask local staff, forest workers, and nearby communities about recent large snake sightings, then verify any report with place and date.\n5. Separate confirmed king cobra evidence from other cobra or large snake records.\n\nWhat is still missing:\nVerified local king cobra records at EBTL, and verified nearby-area king cobra records that could support a careful estimate.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 121957,
+          "cached_input_tokens": 109696,
+          "output_tokens": 2383,
+          "reasoning_output_tokens": 1489
+        }
+      }
+    }
+  ]
+}

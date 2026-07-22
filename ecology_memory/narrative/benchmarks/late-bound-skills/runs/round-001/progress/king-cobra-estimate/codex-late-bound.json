@@ -1,0 +1,317 @@
+{
+  "turns": [
+    {
+      "question": "There are no king cobra records inside EBTL. Can they still be there? Please use records from nearby areas to make a careful estimate.",
+      "mode": "execute",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 16.127,
+        "session_id": "019f8627-c8a5-7892-b756-ab07d889f26c",
+        "prompt_sha256": "6e28679ab288db89b974381a998e574675bb6a219c2ab1e3f11cf98a1b642629",
+        "final": "{\"mode\":\"execute\",\"ir\":{\"op\":\"ESTIMATE\",\"method\":\"envelope\",\"target\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"source\":{\"op\":\"SELECT\",\"entity\":\"king cobra records\",\"region\":{\"op\":\"BUFFER\",\"source\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"radius_km\":\"?radius_km\"},\"time\":null}}}",
+        "parsed": {
+          "mode": "execute",
+          "ir": {
+            "op": "ESTIMATE",
+            "method": "envelope",
+            "target": {
+              "op": "REGION",
+              "place": "EBTL"
+            },
+            "source": {
+              "op": "SELECT",
+              "entity": "king cobra records",
+              "region": {
+                "op": "BUFFER",
+                "source": {
+                  "op": "REGION",
+                  "place": "EBTL"
+                },
+                "radius_km": "?radius_km"
+              },
+              "time": null
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 13881,
+          "cached_input_tokens": 8576,
+          "output_tokens": 575,
+          "reasoning_output_tokens": 493
+        }
+      },
+      "raw_ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "target": {
+          "op": "REGION",
+          "place": "Elephants by the Lake"
+        },
+        "source": {
+          "op": "SELECT",
+          "entity": "king cobra records",
+          "region": {
+            "op": "BUFFER",
+            "source": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "radius_km": "?radius_km"
+          },
+          "time": null
+        }
+      },
+      "raw_ir_sha256": "21cd023352170412f89d4237a94da1d02d1ff04a831fc45d1da975dfd8237abb",
+      "retrieval": [
+        {
+          "path": "root",
+          "op": "ESTIMATE",
+          "query": "Algebra operation: ESTIMATE\nRequested subject or layer: envelope\nParent operation: None\nRequired output: Records or declared operator result\nComplete algebra leaf: {\"op\": \"ESTIMATE\", \"method\": \"envelope\", \"target\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"source\": {\"op\": \"SELECT\", \"entity\": \"king cobra records\", \"region\": {\"op\": \"BUFFER\", \"source\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"radius_km\": \"?radius_km\"}, \"time\": null}}",
+          "candidates": [
+            {
+              "id": "gated-species-presence-transfer",
+              "score": 0.6538,
+              "card": "Skill: gated-species-presence-transfer\nDescription: Estimate target species suitability from donor occurrence records only after environmental feature or climate-envelope gates.\nUse for: could a species occur at a data-poor site; careful regional-to-site estimate\nDo not use for: direct observation; abundance; ungated extrapolation; transfer of a relationship\nSupports: ESTIMATE\nReturns: Field; georeferenced=False"
+            }
+          ]
+        },
+        {
+          "path": "root.source",
+          "op": "SELECT",
+          "query": "Algebra operation: SELECT\nRequested subject or layer: king cobra records\nParent operation: ESTIMATE\nRequired output: Records or declared operator result\nComplete algebra leaf: {\"op\": \"SELECT\", \"entity\": \"king cobra records\", \"region\": {\"op\": \"BUFFER\", \"source\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"radius_km\": \"?radius_km\"}, \"time\": null}",
+          "candidates": [
+            {
+              "id": "local-snake-inventory",
+              "score": 0.6709,
+              "card": "Skill: local-snake-inventory\nDescription: Complete documented EBTL snake inventory, separating snakes encountered in the September 2024 visual survey from older property records and retaining the declared dangerous subset.\nUse for: snakes recorded at EBTL; 2024 snakes versus older records; snakes dangerous to people\nDo not use for: regional occurrence search; population; proof of absence\nSupports: SELECT\nReturns: Records; georeferenced=False"
+            },
+            {
+              "id": "merged-taxon-occurrence-search",
+              "score": 0.6451,
+              "card": "Skill: merged-taxon-occurrence-search\nDescription: Resolve a named animal or plant and retrieve bounded georeferenced GBIF and iNaturalist occurrence records in the requested geometry.\nUse for: species records; sightings around a place; where a named species was observed\nDo not use for: abundance; complete site inventory; predicted presence; literature-only leads\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            },
+            {
+              "id": "local-site-fauna-summary",
+              "score": 0.6295,
+              "card": "Skill: local-site-fauna-summary\nDescription: Published EBTL 2024 survey group summaries for butterflies, odonates, birds and herpetofauna, with older-property herpetofauna records kept separate.\nUse for: what wildlife or animal groups were recorded locally; local survey coverage\nDo not use for: complete non-bird species lists; public occurrence points; abundance; proof of absence\nSupports: SELECT\nReturns: Records; georeferenced=False"
+            }
+          ]
+        }
+      ],
+      "linker": {
+        "stage": "link",
+        "exit_code": 0,
+        "latency_s": 7.362,
+        "session_id": "019f8627-c8a5-7892-b756-ab07d889f26c",
+        "prompt_sha256": "55c0ed44c79b5160526d072713694d64b1bb9b50862bd91b19f66e0f253be942",
+        "final": "{\"bindings\":[{\"path\":\"root\",\"skill\":\"gated-species-presence-transfer\"},{\"path\":\"root.source\",\"skill\":\"merged-taxon-occurrence-search\"}]}",
+        "parsed": {
+          "bindings": [
+            {
+              "path": "root",
+              "skill": "gated-species-presence-transfer"
+            },
+            {
+              "path": "root.source",
+              "skill": "merged-taxon-occurrence-search"
+            }
+          ]
+        },
+        "usage": {
+          "input_tokens": 28806,
+          "cached_input_tokens": 22272,
+          "output_tokens": 740,
+          "reasoning_output_tokens": 619
+        }
+      },
+      "bindings": [
+        {
+          "path": "root",
+          "skill": "gated-species-presence-transfer",
+          "accepted": true
+        },
+        {
+          "path": "root.source",
+          "skill": "merged-taxon-occurrence-search",
+          "accepted": true
+        }
+      ],
+      "ir": {
+        "op": "ESTIMATE",
+        "method": "envelope",
+        "target": {
+          "op": "REGION",
+          "place": "Elephants by the Lake"
+        },
+        "source": {
+          "op": "SELECT",
+          "entity": "Ophiophagus hannah",
+          "region": {
+            "op": "BUFFER",
+            "source": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "radius_km": "?radius_km"
+          },
+          "time": null
+        }
+      },
+      "schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [
+          {
+            "path": "root.source.region.radius_km",
+            "op": "BUFFER",
+            "field": "radius_km",
+            "name": "?radius_km"
+          }
+        ],
+        "ops": [
+          "ESTIMATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "REGION"
+        ],
+        "has_estimate": true,
+        "unbound": true
+      },
+      "execution": {
+        "status": "data_request",
+        "reason": "unbound_holes",
+        "detail": {
+          "holes": [
+            "?radius_km"
+          ],
+          "ask": "clarify: ?radius_km"
+        },
+        "provenance": []
+      },
+      "answer": "We cannot make a careful estimate yet.\n\nLocal observed evidence: no audited records were provided for inside EBTL.\n\nRegional reported evidence: none were provided from nearby areas.\n\nModelled evidence: no audited estimate could be produced, because key inputs are missing.\n\nWhat is missing:\n- The requested measure\n- The place definition to use\n- The time window\n- The survey effort\n\nWhat the field team can collect:\n- King cobra records from nearby areas\n- The exact boundary or search area for EBTL and “nearby”\n- The time period to assess\n- Survey effort details, such as where people looked, when, for how long, and with what method\n\nWith those inputs, a careful estimate can be made.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 11.434,
+        "session_id": "019f8627-c8a5-7892-b756-ab07d889f26c",
+        "prompt_sha256": "49a54de641fc710e7830bd322681b4d656dfad142e0c25d3d9e1cbdda4f6c921",
+        "final": "We cannot make a careful estimate yet.\n\nLocal observed evidence: no audited records were provided for inside EBTL.\n\nRegional reported evidence: none were provided from nearby areas.\n\nModelled evidence: no audited estimate could be produced, because key inputs are missing.\n\nWhat is missing:\n- The requested measure\n- The place definition to use\n- The time window\n- The survey effort\n\nWhat the field team can collect:\n- King cobra records from nearby areas\n- The exact boundary or search area for EBTL and “nearby”\n- The time period to assess\n- Survey effort details, such as where people looked, when, for how long, and with what method\n\nWith those inputs, a careful estimate can be made.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 43962,
+          "cached_input_tokens": 36992,
+          "output_tokens": 1086,
+          "reasoning_output_tokens": 811
+        }
+      }
+    },
+    {
+      "question": "Why did you accept or reject this estimate?",
+      "mode": "history",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 5.59,
+        "session_id": "019f8627-c8a5-7892-b756-ab07d889f26c",
+        "prompt_sha256": "a6d718814031c749d3a2e3f3ce013a0f4701bba15beed8ff6d31503640a6859c",
+        "final": "{\"mode\":\"history\",\"ir\":null}",
+        "parsed": {
+          "mode": "history",
+          "ir": null
+        },
+        "usage": {
+          "input_tokens": 62293,
+          "cached_input_tokens": 51712,
+          "output_tokens": 1154,
+          "reasoning_output_tokens": 864
+        }
+      },
+      "raw_ir": null,
+      "raw_ir_sha256": null,
+      "retrieval": [],
+      "linker": null,
+      "bindings": [],
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "interpret_prior_audit",
+        "detail": {}
+      },
+      "answer": "It was rejected as an estimate.\n\nModelled evidence: no estimate was accepted, because the audited result says this was only an interpretation of a prior audit, not a successful model output.\n\nLocal observed evidence: no audited king cobra records inside EBTL were provided.\n\nRegional reported evidence: no audited nearby records were provided.\n\nWhy it was rejected:\n- The earlier audit returned a `data_request`\n- The reason was `unbound_holes`\n- The missing inputs were the measure, place definition, time window, and survey effort\n\nWhat the field team can collect:\n- A clear boundary for EBTL and what counts as “nearby”\n- Nearby king cobra records\n- The time period to use\n- Survey effort details: where people searched, when, for how long, and by what method\n\nWith those missing pieces, a careful estimate can be attempted.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 8.64,
+        "session_id": "019f8627-c8a5-7892-b756-ab07d889f26c",
+        "prompt_sha256": "10e5b15e8849b24dc00dba338a025f0178819b8c322b946637c4ca34f9951a58",
+        "final": "It was rejected as an estimate.\n\nModelled evidence: no estimate was accepted, because the audited result says this was only an interpretation of a prior audit, not a successful model output.\n\nLocal observed evidence: no audited king cobra records inside EBTL were provided.\n\nRegional reported evidence: no audited nearby records were provided.\n\nWhy it was rejected:\n- The earlier audit returned a `data_request`\n- The reason was `unbound_holes`\n- The missing inputs were the measure, place definition, time window, and survey effort\n\nWhat the field team can collect:\n- A clear boundary for EBTL and what counts as “nearby”\n- Nearby king cobra records\n- The time period to use\n- Survey effort details: where people searched, when, for how long, and by what method\n\nWith those missing pieces, a careful estimate can be attempted.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 80790,
+          "cached_input_tokens": 69504,
+          "output_tokens": 1408,
+          "reasoning_output_tokens": 937
+        }
+      }
+    },
+    {
+      "question": "What is the biggest doubt in this estimate? What should our field team check at EBTL?",
+      "mode": "history",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 5.309,
+        "session_id": "019f8627-c8a5-7892-b756-ab07d889f26c",
+        "prompt_sha256": "37f122935202fcb04ef57b179b7fd0bd4290efdf3b790ddc3296cb5ec2aea3ca",
+        "final": "{\"mode\":\"history\",\"ir\":null}",
+        "parsed": {
+          "mode": "history",
+          "ir": null
+        },
+        "usage": {
+          "input_tokens": 102500,
+          "cached_input_tokens": 87808,
+          "output_tokens": 1473,
+          "reasoning_output_tokens": 987
+        }
+      },
+      "raw_ir": null,
+      "raw_ir_sha256": null,
+      "retrieval": [],
+      "linker": null,
+      "bindings": [],
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "interpret_prior_audit",
+        "detail": {}
+      },
+      "answer": "The biggest doubt is that there was no accepted estimate at all because key inputs were missing.\n\nModelled evidence: the estimate could not be completed. The earlier audit said `data_request` with `unbound_holes`, so the missing pieces were:\n- The measure\n- The place definition\n- The time window\n- The survey effort\n\nLocal observed evidence: no audited king cobra records from inside EBTL were provided.\n\nRegional reported evidence: no audited nearby king cobra records were provided.\n\nWhat the field team should check at EBTL:\n- The exact EBTL boundary\n- What distance should count as “nearby”\n- Whether any king cobra records exist just outside EBTL\n- The time period to assess\n- Survey effort details at EBTL: where people searched, when, for how long, and by what method\n\nWhat they can collect:\n- Verified king cobra records from nearby areas\n- A clear map or boundary for EBTL\n- Search logs or patrol notes showing effort inside EBTL\n- New field observations using a documented survey method\n\nWithout those, we cannot judge whether no records means true absence or just missing search data.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 13.2,
+        "session_id": "019f8627-c8a5-7892-b756-ab07d889f26c",
+        "prompt_sha256": "fd2e1fbc2f7ab1a4e27ee9f58c972ca77e309ada94ba6ab6c36c7685cffb2580",
+        "final": "The biggest doubt is that there was no accepted estimate at all because key inputs were missing.\n\nModelled evidence: the estimate could not be completed. The earlier audit said `data_request` with `unbound_holes`, so the missing pieces were:\n- The measure\n- The place definition\n- The time window\n- The survey effort\n\nLocal observed evidence: no audited king cobra records from inside EBTL were provided.\n\nRegional reported evidence: no audited nearby king cobra records were provided.\n\nWhat the field team should check at EBTL:\n- The exact EBTL boundary\n- What distance should count as “nearby”\n- Whether any king cobra records exist just outside EBTL\n- The time period to assess\n- Survey effort details at EBTL: where people searched, when, for how long, and by what method\n\nWhat they can collect:\n- Verified king cobra records from nearby areas\n- A clear map or boundary for EBTL\n- Search logs or patrol notes showing effort inside EBTL\n- New field observations using a documented survey method\n\nWithout those, we cannot judge whether no records means true absence or just missing search data.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 124387,
+          "cached_input_tokens": 109184,
+          "output_tokens": 1737,
+          "reasoning_output_tokens": 1007
+        }
+      }
+    }
+  ]
+}

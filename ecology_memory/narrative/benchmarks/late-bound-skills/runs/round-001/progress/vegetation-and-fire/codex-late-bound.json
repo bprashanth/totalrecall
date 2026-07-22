@@ -1,0 +1,381 @@
+{
+  "turns": [
+    {
+      "question": "Is the vegetation at EBTL getting better after restoration started? What about fire—has it gone up or down in the same years?",
+      "mode": "execute",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 19.263,
+        "session_id": "019f8633-bddb-70d1-b9ab-61a066dfd3ad",
+        "prompt_sha256": "df63f2a400d0234d4641d680aa5d5ba5e2c2791f6851c630c05870e40af5f319",
+        "final": "{\"mode\":\"execute\",\"ir\":{\"op\":\"COMPARE\",\"how\":\"difference\",\"left\":{\"op\":\"COMPARE\",\"how\":\"trend_direction\",\"left\":{\"op\":\"AGGREGATE\",\"by\":\"time\",\"metric\":\"mean\",\"source\":{\"op\":\"SELECT\",\"entity\":\"vegetation\",\"region\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"time\":null}}},\"right\":{\"op\":\"COMPARE\",\"how\":\"trend_direction\",\"left\":{\"op\":\"AGGREGATE\",\"by\":\"time\",\"metric\":\"mean\",\"source\":{\"op\":\"SELECT\",\"entity\":\"fire\",\"region\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"time\":null}}}}}",
+        "parsed": {
+          "mode": "execute",
+          "ir": {
+            "op": "COMPARE",
+            "how": "difference",
+            "left": {
+              "op": "COMPARE",
+              "how": "trend_direction",
+              "left": {
+                "op": "AGGREGATE",
+                "by": "time",
+                "metric": "mean",
+                "source": {
+                  "op": "SELECT",
+                  "entity": "vegetation",
+                  "region": {
+                    "op": "REGION",
+                    "place": "EBTL"
+                  },
+                  "time": null
+                }
+              }
+            },
+            "right": {
+              "op": "COMPARE",
+              "how": "trend_direction",
+              "left": {
+                "op": "AGGREGATE",
+                "by": "time",
+                "metric": "mean",
+                "source": {
+                  "op": "SELECT",
+                  "entity": "fire",
+                  "region": {
+                    "op": "REGION",
+                    "place": "EBTL"
+                  },
+                  "time": null
+                }
+              }
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 13880,
+          "cached_input_tokens": 10624,
+          "output_tokens": 651,
+          "reasoning_output_tokens": 516
+        }
+      },
+      "raw_ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "COMPARE",
+          "how": "trend_direction",
+          "left": {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "vegetation",
+              "region": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "time": null
+            }
+          }
+        },
+        "right": {
+          "op": "COMPARE",
+          "how": "trend_direction",
+          "left": {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "fire",
+              "region": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "time": null
+            }
+          }
+        }
+      },
+      "raw_ir_sha256": "c81c3ef2be3cc2e809dc9ecd35e2f941cd6d13a83eb18b545aef1ff5f8d06275",
+      "retrieval": [
+        {
+          "path": "root.left.left.source",
+          "op": "SELECT",
+          "query": "Algebra operation: SELECT\nRequested subject or layer: vegetation\nParent operation: AGGREGATE\nRequired output: Records or declared operator result\nComplete algebra leaf: {\"op\": \"SELECT\", \"entity\": \"vegetation\", \"region\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"time\": null}",
+          "candidates": [
+            {
+              "id": "merged-taxon-occurrence-search",
+              "score": 0.6567,
+              "card": "Skill: merged-taxon-occurrence-search\nDescription: Resolve a named animal or plant and retrieve bounded georeferenced GBIF and iNaturalist occurrence records in the requested geometry.\nUse for: species records; sightings around a place; where a named species was observed\nDo not use for: abundance; complete site inventory; predicted presence; literature-only leads\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            },
+            {
+              "id": "local-site-fauna-summary",
+              "score": 0.6404,
+              "card": "Skill: local-site-fauna-summary\nDescription: Published EBTL 2024 survey group summaries for butterflies, odonates, birds and herpetofauna, with older-property herpetofauna records kept separate.\nUse for: what wildlife or animal groups were recorded locally; local survey coverage\nDo not use for: complete non-bird species lists; public occurrence points; abundance; proof of absence\nSupports: SELECT\nReturns: Records; georeferenced=False"
+            },
+            {
+              "id": "local-snake-inventory",
+              "score": 0.6281,
+              "card": "Skill: local-snake-inventory\nDescription: Complete documented EBTL snake inventory, separating snakes encountered in the September 2024 visual survey from older property records and retaining the declared dangerous subset.\nUse for: snakes recorded at EBTL; 2024 snakes versus older records; snakes dangerous to people\nDo not use for: regional occurrence search; population; proof of absence\nSupports: SELECT\nReturns: Records; georeferenced=False"
+            }
+          ]
+        },
+        {
+          "path": "root.right.left.source",
+          "op": "SELECT",
+          "query": "Algebra operation: SELECT\nRequested subject or layer: fire\nParent operation: AGGREGATE\nRequired output: Records or declared operator result\nComplete algebra leaf: {\"op\": \"SELECT\", \"entity\": \"fire\", \"region\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"time\": null}",
+          "candidates": [
+            {
+              "id": "local-snake-inventory",
+              "score": 0.6131,
+              "card": "Skill: local-snake-inventory\nDescription: Complete documented EBTL snake inventory, separating snakes encountered in the September 2024 visual survey from older property records and retaining the declared dangerous subset.\nUse for: snakes recorded at EBTL; 2024 snakes versus older records; snakes dangerous to people\nDo not use for: regional occurrence search; population; proof of absence\nSupports: SELECT\nReturns: Records; georeferenced=False"
+            },
+            {
+              "id": "declared-site-centre",
+              "score": 0.6041,
+              "card": "Skill: declared-site-centre\nDescription: Declared EBTL centre point used only as input to a raster annotation; it is not the property polygon.\nUse for: point input for satellite annotation\nDo not use for: whole-property measurement; survey boundary\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            },
+            {
+              "id": "local-site-fauna-summary",
+              "score": 0.5962,
+              "card": "Skill: local-site-fauna-summary\nDescription: Published EBTL 2024 survey group summaries for butterflies, odonates, birds and herpetofauna, with older-property herpetofauna records kept separate.\nUse for: what wildlife or animal groups were recorded locally; local survey coverage\nDo not use for: complete non-bird species lists; public occurrence points; abundance; proof of absence\nSupports: SELECT\nReturns: Records; georeferenced=False"
+            }
+          ]
+        }
+      ],
+      "linker": {
+        "stage": "link",
+        "exit_code": 0,
+        "latency_s": 5.353,
+        "session_id": "019f8633-bddb-70d1-b9ab-61a066dfd3ad",
+        "prompt_sha256": "ebb8a2d98c85871ecb3fa6ac15f7846ddc8715989a65088bb0ff7f4133c9f6a2",
+        "final": "{\"bindings\":[{\"path\":\"root.left.left.source\",\"skill\":\"NONE\"},{\"path\":\"root.right.left.source\",\"skill\":\"NONE\"}]}",
+        "parsed": {
+          "bindings": [
+            {
+              "path": "root.left.left.source",
+              "skill": "NONE"
+            },
+            {
+              "path": "root.right.left.source",
+              "skill": "NONE"
+            }
+          ]
+        },
+        "usage": {
+          "input_tokens": 29071,
+          "cached_input_tokens": 24320,
+          "output_tokens": 751,
+          "reasoning_output_tokens": 583
+        }
+      },
+      "bindings": [
+        {
+          "path": "root.left.left.source",
+          "skill": "NONE",
+          "accepted": false
+        },
+        {
+          "path": "root.right.left.source",
+          "skill": "NONE",
+          "accepted": false
+        }
+      ],
+      "ir": {
+        "op": "COMPARE",
+        "how": "difference",
+        "left": {
+          "op": "COMPARE",
+          "how": "trend_direction",
+          "left": {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "vegetation",
+              "region": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "time": null
+            }
+          }
+        },
+        "right": {
+          "op": "COMPARE",
+          "how": "trend_direction",
+          "left": {
+            "op": "AGGREGATE",
+            "by": "time",
+            "metric": "mean",
+            "source": {
+              "op": "SELECT",
+              "entity": "fire",
+              "region": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "time": null
+            }
+          }
+        }
+      },
+      "schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "COMPARE",
+          "COMPARE",
+          "AGGREGATE",
+          "SELECT",
+          "REGION",
+          "COMPARE",
+          "AGGREGATE",
+          "SELECT",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "execution": {
+        "status": "data_request",
+        "reason": "skill_unbound",
+        "detail": {
+          "unbound_paths": [
+            "root.left.left.source",
+            "root.right.left.source"
+          ]
+        },
+        "provenance": []
+      },
+      "answer": "We cannot tell yet.\n\nWhat is missing:\n- Vegetation measurements for EBTL across the restoration years\n- Fire measurements for EBTL across those same years\n- The restoration start year, so the “before” and “after” period is clear\n\nWhat the field team can collect:\n- For vegetation: repeat plot data or photo-point data from the same sites each year, such as plant cover, tree/shrub survival, canopy cover, grass cover, or a consistent greenness measure\n- For fire: yearly fire records for EBTL in the same period, such as burn dates, burned area, fire frequency, or fire severity\n- A confirmed restoration timeline: start date and any major restoration phases\n\nWith those time-linked records, we can check whether vegetation trends improved after restoration started and whether fire went up or down in the same years.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 8.491,
+        "session_id": "019f8633-bddb-70d1-b9ab-61a066dfd3ad",
+        "prompt_sha256": "bc3ffb0373619c2f5a8862340f20f12852b255524ee76a307c685a20d5e32569",
+        "final": "We cannot tell yet.\n\nWhat is missing:\n- Vegetation measurements for EBTL across the restoration years\n- Fire measurements for EBTL across those same years\n- The restoration start year, so the “before” and “after” period is clear\n\nWhat the field team can collect:\n- For vegetation: repeat plot data or photo-point data from the same sites each year, such as plant cover, tree/shrub survival, canopy cover, grass cover, or a consistent greenness measure\n- For fire: yearly fire records for EBTL in the same period, such as burn dates, burned area, fire frequency, or fire severity\n- A confirmed restoration timeline: start date and any major restoration phases\n\nWith those time-linked records, we can check whether vegetation trends improved after restoration started and whether fire went up or down in the same years.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 44482,
+          "cached_input_tokens": 39040,
+          "output_tokens": 998,
+          "reasoning_output_tokens": 650
+        }
+      }
+    },
+    {
+      "question": "Which parts of this answer come from satellite data? How detailed is that data?",
+      "mode": "history",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 7.918,
+        "session_id": "019f8633-bddb-70d1-b9ab-61a066dfd3ad",
+        "prompt_sha256": "faea065b90d80d71f4ca64b5576334b569f834888db92c9f44d304198ae76702",
+        "final": "{\"mode\":\"history\",\"ir\":null}",
+        "parsed": {
+          "mode": "history",
+          "ir": null
+        },
+        "usage": {
+          "input_tokens": 63101,
+          "cached_input_tokens": 54272,
+          "output_tokens": 1081,
+          "reasoning_output_tokens": 718
+        }
+      },
+      "raw_ir": null,
+      "raw_ir_sha256": null,
+      "retrieval": [],
+      "linker": null,
+      "bindings": [],
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "interpret_prior_audit",
+        "detail": {}
+      },
+      "answer": "None of the current answer comes from satellite data.\n\nWhat the earlier answer used:\n- Reported status: the result only said the needed vegetation and fire data for EBTL were not bound, so no trend could be assessed.\n- Missing data: vegetation measurements, fire measurements, and the restoration start year.\n\nWhat that means for detail:\n- There is no satellite-based detail in the current answer, because no satellite dataset was actually used.\n- The mention of a “consistent greenness measure” was only a suggested type of data the team could collect or obtain later. It was not an observed result here.\n\nWhat the field team can collect if they want satellite-based evidence:\n- A yearly vegetation greenness series for EBTL from the restoration start year onward\n- A yearly fire series for the same years, such as burned area, fire frequency, or fire severity\n- The exact restoration start date so the before/after comparison is clear",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 9.227,
+        "session_id": "019f8633-bddb-70d1-b9ab-61a066dfd3ad",
+        "prompt_sha256": "0627cbd7ee99e3bc35e92cf19c84fb9b43927232369c6e1fa7e456c08862a84a",
+        "final": "None of the current answer comes from satellite data.\n\nWhat the earlier answer used:\n- Reported status: the result only said the needed vegetation and fire data for EBTL were not bound, so no trend could be assessed.\n- Missing data: vegetation measurements, fire measurements, and the restoration start year.\n\nWhat that means for detail:\n- There is no satellite-based detail in the current answer, because no satellite dataset was actually used.\n- The mention of a “consistent greenness measure” was only a suggested type of data the team could collect or obtain later. It was not an observed result here.\n\nWhat the field team can collect if they want satellite-based evidence:\n- A yearly vegetation greenness series for EBTL from the restoration start year onward\n- A yearly fire series for the same years, such as burned area, fire frequency, or fire severity\n- The exact restoration start date so the before/after comparison is clear",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 81893,
+          "cached_input_tokens": 72576,
+          "output_tokens": 1388,
+          "reasoning_output_tokens": 830
+        }
+      }
+    },
+    {
+      "question": "Can we say the restoration work caused these changes, or not?",
+      "mode": "history",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 6.205,
+        "session_id": "019f8633-bddb-70d1-b9ab-61a066dfd3ad",
+        "prompt_sha256": "ba4c074b68da8041f145aa37e6d6c8b96ea37fabb63ae47f8af147e1202715ec",
+        "final": "{\"mode\":\"history\",\"ir\":null}",
+        "parsed": {
+          "mode": "history",
+          "ir": null
+        },
+        "usage": {
+          "input_tokens": 103905,
+          "cached_input_tokens": 90880,
+          "output_tokens": 1491,
+          "reasoning_output_tokens": 918
+        }
+      },
+      "raw_ir": null,
+      "raw_ir_sha256": null,
+      "retrieval": [],
+      "linker": null,
+      "bindings": [],
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "interpret_prior_audit",
+        "detail": {}
+      },
+      "answer": "No, we cannot say the restoration work caused any changes.\n\nReported evidence:\n- Earlier results did not establish a vegetation trend for EBTL.\n- Earlier results did not establish a fire trend for EBTL.\n- The needed data were missing: vegetation measurements, fire measurements, and the restoration start year.\n\nWhat is missing to assess causality:\n- Clear before-and-after data for vegetation at EBTL\n- Clear before-and-after data for fire at EBTL\n- The exact restoration start date and phases\n- A comparison area without restoration, measured over the same years\n\nWhat the field team can collect:\n- Repeat yearly vegetation measurements from the same plots or photo-points\n- Yearly fire records for the same period\n- A dated restoration timeline\n- Matching monitoring data from a similar nearby area without restoration\n\nObserved evidence:\n- None yet in the audited results for vegetation or fire change at EBTL.\n\nModelled evidence:\n- None yet in the audited results.\n\nSo the safe conclusion is: not enough evidence to claim cause.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 8.598,
+        "session_id": "019f8633-bddb-70d1-b9ab-61a066dfd3ad",
+        "prompt_sha256": "345c6ef86b8981666b1b16d6f50d801cda43e2d6b282f42b14ec0e565c71535c",
+        "final": "No, we cannot say the restoration work caused any changes.\n\nReported evidence:\n- Earlier results did not establish a vegetation trend for EBTL.\n- Earlier results did not establish a fire trend for EBTL.\n- The needed data were missing: vegetation measurements, fire measurements, and the restoration start year.\n\nWhat is missing to assess causality:\n- Clear before-and-after data for vegetation at EBTL\n- Clear before-and-after data for fire at EBTL\n- The exact restoration start date and phases\n- A comparison area without restoration, measured over the same years\n\nWhat the field team can collect:\n- Repeat yearly vegetation measurements from the same plots or photo-points\n- Yearly fire records for the same period\n- A dated restoration timeline\n- Matching monitoring data from a similar nearby area without restoration\n\nObserved evidence:\n- None yet in the audited results for vegetation or fire change at EBTL.\n\nModelled evidence:\n- None yet in the audited results.\n\nSo the safe conclusion is: not enough evidence to claim cause.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 126087,
+          "cached_input_tokens": 112768,
+          "output_tokens": 1745,
+          "reasoning_output_tokens": 954
+        }
+      }
+    }
+  ]
+}
