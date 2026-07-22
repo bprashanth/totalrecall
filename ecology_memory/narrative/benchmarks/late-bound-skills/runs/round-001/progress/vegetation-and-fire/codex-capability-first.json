@@ -1,0 +1,297 @@
+{
+  "turns": [
+    {
+      "question": "Is the vegetation at EBTL getting better after restoration started? What about fire—has it gone up or down in the same years?",
+      "mode": "execute",
+      "selected_capabilities": [],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 13.304,
+        "session_id": "019f8632-b186-7c62-9248-69ec102f3d8e",
+        "prompt_sha256": "b80c03994388932d469b8b6b98ce58fcc404f3d46b996d5ac27f12d46bbc329f",
+        "final": "{\"mode\":\"execute\",\"entities\":[]}",
+        "parsed": {
+          "mode": "execute",
+          "entities": []
+        },
+        "usage": {
+          "input_tokens": 12656,
+          "cached_input_tokens": 12160,
+          "output_tokens": 229,
+          "reasoning_output_tokens": 215
+        }
+      },
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 16.705,
+        "session_id": "019f8632-b186-7c62-9248-69ec102f3d8e",
+        "prompt_sha256": "ae7a4931ded34227bad67ba024f425a93a16b4eb75aba083a38524bee709e81a",
+        "final": "{\"op\":\"COMPARE\",\"how\":\"difference\",\"left\":{\"op\":\"COMPARE\",\"how\":\"trend_direction\",\"left\":{\"op\":\"AGGREGATE\",\"by\":\"time\",\"metric\":\"mean\",\"source\":{\"op\":\"ANNOTATE\",\"layer\":\"greenness trend\",\"source\":{\"op\":\"SELECT\",\"entity\":\"EBTL restoration site\",\"region\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"time\":null}}}},\"right\":{\"op\":\"COMPARE\",\"how\":\"trend_direction\",\"left\":{\"op\":\"AGGREGATE\",\"by\":\"time\",\"metric\":\"mean\",\"source\":{\"op\":\"ANNOTATE\",\"layer\":\"historical fire exposure\",\"source\":{\"op\":\"SELECT\",\"entity\":\"EBTL restoration site\",\"region\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"time\":null}}}}}",
+        "parsed": {
+          "op": "COMPARE",
+          "how": "difference",
+          "left": {
+            "op": "COMPARE",
+            "how": "trend_direction",
+            "left": {
+              "op": "AGGREGATE",
+              "by": "time",
+              "metric": "mean",
+              "source": {
+                "op": "ANNOTATE",
+                "layer": "greenness trend",
+                "source": {
+                  "op": "SELECT",
+                  "entity": "EBTL restoration site",
+                  "region": {
+                    "op": "REGION",
+                    "place": "EBTL"
+                  },
+                  "time": null
+                }
+              }
+            }
+          },
+          "right": {
+            "op": "COMPARE",
+            "how": "trend_direction",
+            "left": {
+              "op": "AGGREGATE",
+              "by": "time",
+              "metric": "mean",
+              "source": {
+                "op": "ANNOTATE",
+                "layer": "historical fire exposure",
+                "source": {
+                  "op": "SELECT",
+                  "entity": "EBTL restoration site",
+                  "region": {
+                    "op": "REGION",
+                    "place": "EBTL"
+                  },
+                  "time": null
+                }
+              }
+            }
+          }
+        },
+        "usage": {
+          "input_tokens": 27653,
+          "cached_input_tokens": 24320,
+          "output_tokens": 907,
+          "reasoning_output_tokens": 731
+        }
+      },
+      "ir": {
+        "op": "SELECT",
+        "entity": "?proxy",
+        "region": {
+          "op": "REGION",
+          "place": "Elephants by the Lake"
+        },
+        "time": null
+      },
+      "schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [
+          {
+            "path": "root.entity",
+            "op": "SELECT",
+            "field": "entity",
+            "name": "?proxy"
+          }
+        ],
+        "ops": [
+          "SELECT",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": true
+      },
+      "execution": {
+        "status": "data_request",
+        "reason": "unbound_holes",
+        "detail": {
+          "holes": [
+            "?proxy"
+          ],
+          "ask": "clarify: ?proxy"
+        },
+        "provenance": []
+      },
+      "answer": "We cannot tell yet whether vegetation at EBTL is improving, or whether fire has gone up or down in the same years.\n\nWhat is missing:\n- A defined vegetation measure\n- A defined fire measure\n- The exact time window after restoration started\n- The survey effort or data source used in each year\n\nWhat the field team can collect:\n- Vegetation: the same yearly measure at the same plots or point, such as plant cover, survival, canopy cover, or NDVI-linked field checks\n- Fire: yearly fire records for the site, such as burned area, fire counts, or dated fire incidents\n- Dates: the restoration start year and the exact years to compare\n- Effort: the same method each year so the results are comparable\n\nRight now this is a data gap, not evidence of improvement or decline.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 8.08,
+        "session_id": "019f8632-b186-7c62-9248-69ec102f3d8e",
+        "prompt_sha256": "d11afc5b116b2588b4a40f42da23af4baf1d78807944694f075145341ea4768e",
+        "final": "We cannot tell yet whether vegetation at EBTL is improving, or whether fire has gone up or down in the same years.\n\nWhat is missing:\n- A defined vegetation measure\n- A defined fire measure\n- The exact time window after restoration started\n- The survey effort or data source used in each year\n\nWhat the field team can collect:\n- Vegetation: the same yearly measure at the same plots or point, such as plant cover, survival, canopy cover, or NDVI-linked field checks\n- Fire: yearly fire records for the site, such as burned area, fire counts, or dated fire incidents\n- Dates: the restoration start year and the exact years to compare\n- Effort: the same method each year so the results are comparable\n\nRight now this is a data gap, not evidence of improvement or decline.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 43003,
+          "cached_input_tokens": 39040,
+          "output_tokens": 1157,
+          "reasoning_output_tokens": 806
+        }
+      }
+    },
+    {
+      "question": "Which parts of this answer come from satellite data? How detailed is that data?",
+      "mode": "history",
+      "selected_capabilities": [
+        {
+          "entity": "greenness trend",
+          "kind": "ANNOTATE layer",
+          "source_entity": "EBTL restoration site",
+          "description": "MODIS annual NDVI trend at declared centre; annotate site point",
+          "grain": "250 m pixel",
+          "evidence": "proxy",
+          "selected": true
+        },
+        {
+          "entity": "historical fire exposure",
+          "kind": "ANNOTATE layer",
+          "source_entity": "EBTL restoration site",
+          "description": "MODIS exact-AOI active-fire history and separate 5 km exposure; annotate site point",
+          "grain": "AOI + 5 km buffer",
+          "evidence": "proxy",
+          "selected": true
+        }
+      ],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 6.765,
+        "session_id": "019f8632-b186-7c62-9248-69ec102f3d8e",
+        "prompt_sha256": "fa48ee3b34ae708500a27f61a6b6bb84a51a33891023b4511aa6276e10c30960",
+        "final": "{\"mode\":\"history\",\"entities\":[\"greenness trend\",\"historical fire exposure\"]}",
+        "parsed": {
+          "mode": "history",
+          "entities": [
+            "greenness trend",
+            "historical fire exposure"
+          ]
+        },
+        "usage": {
+          "input_tokens": 60332,
+          "cached_input_tokens": 54272,
+          "output_tokens": 1320,
+          "reasoning_output_tokens": 946
+        }
+      },
+      "compiler": null,
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "history",
+        "detail": {
+          "candidate_capabilities": [
+            "greenness trend",
+            "historical fire exposure"
+          ]
+        }
+      },
+      "answer": "The satellite-based parts are the vegetation signal and the fire signal.\n\nLocal proxy evidence from satellite data:\n- Vegetation: `greenness trend` uses MODIS annual NDVI trend at the declared EBTL centre point.\n- Detail: one 250 m pixel. This is a coarse proxy, not a field measure of plant recovery.\n- Fire: `historical fire exposure` uses MODIS active-fire history for the exact site area, plus a separate 5 km exposure view.\n- Detail: site-area history plus a broader 5 km buffer. This is also a proxy, not a direct field record of burned area or fire severity.\n\nWhat is missing:\n- The actual satellite results for EBTL\n- The restoration start year and the exact years compared\n- Matching field checks to confirm what the satellite proxy means on the ground\n\nWhat the field team can collect:\n- Fixed-point vegetation plots or photo points\n- Plant cover, survival, canopy, or biomass measures\n- Dated local fire incident records and mapped burned patches",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 10.287,
+        "session_id": "019f8632-b186-7c62-9248-69ec102f3d8e",
+        "prompt_sha256": "870a33ab8399bd8e3abc70c3af46655e6fd19bcecf93f59fd6f3600e878001eb",
+        "final": "The satellite-based parts are the vegetation signal and the fire signal.\n\nLocal proxy evidence from satellite data:\n- Vegetation: `greenness trend` uses MODIS annual NDVI trend at the declared EBTL centre point.\n- Detail: one 250 m pixel. This is a coarse proxy, not a field measure of plant recovery.\n- Fire: `historical fire exposure` uses MODIS active-fire history for the exact site area, plus a separate 5 km exposure view.\n- Detail: site-area history plus a broader 5 km buffer. This is also a proxy, not a direct field record of burned area or fire severity.\n\nWhat is missing:\n- The actual satellite results for EBTL\n- The restoration start year and the exact years compared\n- Matching field checks to confirm what the satellite proxy means on the ground\n\nWhat the field team can collect:\n- Fixed-point vegetation plots or photo points\n- Plant cover, survival, canopy, or biomass measures\n- Dated local fire incident records and mapped burned patches",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 77855,
+          "cached_input_tokens": 71552,
+          "output_tokens": 1685,
+          "reasoning_output_tokens": 1096
+        }
+      }
+    },
+    {
+      "question": "Can we say the restoration work caused these changes, or not?",
+      "mode": "history",
+      "selected_capabilities": [
+        {
+          "entity": "greenness trend",
+          "kind": "ANNOTATE layer",
+          "source_entity": "EBTL restoration site",
+          "description": "MODIS annual NDVI trend at declared centre; annotate site point",
+          "grain": "250 m pixel",
+          "evidence": "proxy",
+          "selected": true
+        },
+        {
+          "entity": "historical fire exposure",
+          "kind": "ANNOTATE layer",
+          "source_entity": "EBTL restoration site",
+          "description": "MODIS exact-AOI active-fire history and separate 5 km exposure; annotate site point",
+          "grain": "AOI + 5 km buffer",
+          "evidence": "proxy",
+          "selected": true
+        }
+      ],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 5.159,
+        "session_id": "019f8632-b186-7c62-9248-69ec102f3d8e",
+        "prompt_sha256": "b5e9a702e18a11f3ff904982b236661bbfadd0ed441f06288e60696af831efe1",
+        "final": "{\"mode\":\"history\",\"entities\":[\"greenness trend\",\"historical fire exposure\"]}",
+        "parsed": {
+          "mode": "history",
+          "entities": [
+            "greenness trend",
+            "historical fire exposure"
+          ]
+        },
+        "usage": {
+          "input_tokens": 97394,
+          "cached_input_tokens": 88832,
+          "output_tokens": 1754,
+          "reasoning_output_tokens": 1142
+        }
+      },
+      "compiler": null,
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "history",
+        "detail": {
+          "candidate_capabilities": [
+            "greenness trend",
+            "historical fire exposure"
+          ]
+        }
+      },
+      "answer": "No, we cannot say the restoration work caused the changes from the evidence here.\n\nLocal proxy evidence:\n- The only named measures in this thread are satellite proxies for greenness and fire.\n- Proxy change is not proof of cause.\n\nWhat is missing for a causal claim:\n- The actual EBTL satellite results\n- The restoration start year and the exact years compared\n- Field measurements from the site to confirm what the satellite proxy means\n- A before-and-after design, or a comparison with similar non-restored areas\n- Other possible drivers in the same years, such as weather or outside disturbance\n\nWhat the field team can collect:\n- Fixed vegetation plots or photo points before and after restoration\n- The same measurements each year: cover, survival, canopy, biomass\n- Dated local fire records and mapped burned patches\n- A comparison area without restoration\n- Records of rainfall, drought, grazing, cutting, or other disturbances\n\nSo, at this stage, we can discuss possible change signals, but not restoration causing them.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 8.63,
+        "session_id": "019f8632-b186-7c62-9248-69ec102f3d8e",
+        "prompt_sha256": "c6e1aa632a784f0daac770a79bfa2b241906c9255e7a494cd0830d2ae8c25c98",
+        "final": "No, we cannot say the restoration work caused the changes from the evidence here.\n\nLocal proxy evidence:\n- The only named measures in this thread are satellite proxies for greenness and fire.\n- Proxy change is not proof of cause.\n\nWhat is missing for a causal claim:\n- The actual EBTL satellite results\n- The restoration start year and the exact years compared\n- Field measurements from the site to confirm what the satellite proxy means\n- A before-and-after design, or a comparison with similar non-restored areas\n- Other possible drivers in the same years, such as weather or outside disturbance\n\nWhat the field team can collect:\n- Fixed vegetation plots or photo points before and after restoration\n- The same measurements each year: cover, survival, canopy, biomass\n- Dated local fire records and mapped burned patches\n- A comparison area without restoration\n- Records of rainfall, drought, grazing, cutting, or other disturbances\n\nSo, at this stage, we can discuss possible change signals, but not restoration causing them.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 117124,
+          "cached_input_tokens": 108160,
+          "output_tokens": 2023,
+          "reasoning_output_tokens": 1198
+        }
+      }
+    }
+  ]
+}

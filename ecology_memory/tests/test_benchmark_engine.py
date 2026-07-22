@@ -61,6 +61,23 @@ class BenchmarkEngineTests(unittest.TestCase):
         self.assertEqual(mode, "execute")
         self.assertEqual([item["entity"] for item in selected], names)
 
+    def test_selector_observer_exposes_proposal_then_verified_selection(self):
+        name = "EBTL bird inventory"
+        replies = iter([
+            __import__("json").dumps({"mode": "execute", "entities": [name]}),
+            __import__("json").dumps({"entities": [name]}),
+        ])
+        stages = []
+        with mock.patch.object(E, "chat", side_effect=lambda *args, **kwargs: next(replies)):
+            E._select_capabilities(
+                "What birds are documented at EBTL?", "qwen9b>deepseekv4", [],
+                observer=lambda stage, payload: stages.append((stage, payload)))
+        self.assertEqual([stage for stage, _ in stages],
+                         ["capability_selected", "capability_verified"])
+        self.assertEqual(stages[0][1]["model"], "qwen9b")
+        self.assertEqual(stages[1][1]["model"], "deepseekv4")
+        self.assertIn("capability_verifier:retained", " ".join(stages[1][1]["events"]))
+
     def test_regional_composition_prunes_incompatible_site_only_card(self):
         names = ["EBTL elephant evidence", "taxon occurrence records",
                  "spatial relation between occurrence records", "declared EBTL donor belt"]
@@ -421,6 +438,35 @@ class BenchmarkEngineTests(unittest.TestCase):
             "provenance": [{"tool": "upstream", "species": "Invented bait"}],
         }}
         self.assertEqual(E.response_pack(compiled)["provenance"], [])
+
+    def test_deterministic_responder_observer_exposes_pack_then_audit(self):
+        compiled = {"dialogue_mode": "execute", "execution": {
+            "status": "answer", "label": "observed", "provenance": [],
+            "value": {"kind": "records", "rows": [], "source": "test source"}}}
+        stages = []
+        rendered = E.render_turn(
+            "What was found?", compiled, "deterministic", [],
+            observer=lambda stage, payload: stages.append((stage, payload)))
+        self.assertEqual([stage for stage, _ in stages],
+                         ["response_preview", "response_complete"])
+        self.assertEqual(stages[0][1]["model"], "deterministic")
+        self.assertEqual(stages[1][1]["audit"], rendered["audit"])
+
+    def test_local_responder_plan_paragraphs_are_removed_at_both_edges(self):
+        raw = ("The user is asking for the inventory. Let me organize it.\n\n"
+               "Three snakes were encountered during the survey.\n\n"
+               "I should present this clearly.")
+        self.assertEqual(E.strip_reasoning(raw),
+                         "Three snakes were encountered during the survey.")
+
+    def test_response_audit_rejects_plan_narration(self):
+        compiled = {"dialogue_mode": "execute", "execution": {
+            "status": "answer", "label": "observed", "provenance": [],
+            "value": {"kind": "records", "rows": [], "source": "test source"}}}
+        audit = E.audit_response(
+            "What was found?", compiled,
+            "The user is asking what was found. Let me organize the answer.", [])
+        self.assertFalse(audit["no_plan_narration"])
 
 
 if __name__ == "__main__":

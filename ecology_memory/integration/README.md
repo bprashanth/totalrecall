@@ -96,3 +96,54 @@ closed if occurrence-grain donor evidence is unavailable.
 `manifests/origin-lock.json` inventories the admitted origin-facing files by commit and SHA-256.
 Export to an origin-side `dss_typed/` remains a later explicit operation after framework
 reconciliation and the audited comparison matrix.
+
+## Step-by-step REPL
+
+`step_chat.py` pauses inside the real typed pipeline after capability selection, selection
+verification, algebra compilation, algebra verification, execution preview, connector execution,
+and response synthesis. It is a diagnostic teaching interface; it does not replace Hermes.
+
+```text
+cd /home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory
+python3 integration/step_chat.py
+```
+
+The evidence-informed defaults are Qwen 9B selection, DeepSeek-V4 verification, Qwen 2B
+last-mile compilation, the pinned v2.2.1 executor, and local `merged-9b-003` response synthesis.
+Override any role explicitly:
+
+```text
+python3 integration/step_chat.py \
+  --context ebtl \
+  --selector 'qwen9b>deepseekv4' \
+  --compiler qwen2b \
+  --responder lora9b
+```
+
+The REPL exposes model outages as stage failures instead of silently changing roles. If the shared
+2B compiler is unavailable, explicitly use the slower local 9B compiler:
+
+```text
+python3 integration/step_chat.py --compiler lora9b --responder lora9b
+```
+
+At each checkpoint use `y` to continue, `n` to stop safely, `?` for a short explanation, `raw` for
+the complete stage payload, `catalog` for selected capability declarations, or `trace` for the
+live trace path. ANSI colour is automatic; use `--color never` or the `NO_COLOR` environment
+variable for plain output. Every checkpoint is atomically persisted under
+`integration/runs/step-repl/`; `latest.json` always mirrors the current session.
+
+For a non-pausing smoke or a shareable trace:
+
+```text
+python3 integration/step_chat.py --yes --color never \
+  --question 'tell me about snakes at EBTL'
+```
+
+## Codex CLI + native skills through Idlisseus
+
+The strongest native-skills benchmark arm is also available as an OpenAI-compatible local bridge.
+It keeps Codex CLI as the sole agent loop while the stock Idlisseus browser and API act as
+transport. Skill discovery, reads, invocations, compact results and transparent calculations
+stream visibly before the final answer. See `codex_native/README.md` for setup, the remote API
+client and the manual POC bank.

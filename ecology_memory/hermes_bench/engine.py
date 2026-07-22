@@ -13,6 +13,7 @@ import re
 import sys
 import time
 from copy import deepcopy
+from typing import Callable
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -33,6 +34,15 @@ from llm import chat  # noqa: E402
 SITE_ALIASES = {"ebtl", "ebtl analysis bbox", "elephants by the lake", "our site", "the site",
                 "restoration site"}
 SITE_CANONICAL = "Elephants by the Lake"
+
+
+StageObserver = Callable[[str, dict], None]
+
+
+def _observe(observer: StageObserver | None, stage: str, **payload) -> None:
+    """Expose real pipeline boundaries to diagnostic clients without changing production flow."""
+    if observer is not None:
+        observer(stage, payload)
 
 
 def _bind_context(value, context, parent_key=None):
@@ -156,6 +166,18 @@ def strip_reasoning(text: str) -> str:
                 text = envelope["content"].strip()
         except json.JSONDecodeError:
             pass
+    # Local responder shims can serialize a short plan before and/or after an otherwise usable
+    # answer. Strip only paragraphs that announce the response-writing task; factual first-person
+    # prose in the middle remains untouched.
+    plan_edge = re.compile(
+        r"^(?:The user (?:is asking|wants)|Let me |I (?:need|should|have) |"
+        r"I(?:'ll| will) |Now I |Looking at |Alright, let me|I've read|First, I)", re.I)
+    paragraphs = [item.strip() for item in re.split(r"\n\s*\n", text) if item.strip()]
+    while len(paragraphs) > 1 and plan_edge.match(paragraphs[0]):
+        paragraphs.pop(0)
+    while len(paragraphs) > 1 and plan_edge.match(paragraphs[-1]):
+        paragraphs.pop()
+    text = "\n\n".join(paragraphs)
     return text
 
 
@@ -228,7 +250,9 @@ def _semantic_critic(question: str, ir: dict | None, critic: str,
 
 
 def _select_capabilities(question: str, selector: str,
-                         history: list[dict]) -> tuple[list[dict], str, list[str], str]:
+                         history: list[dict],
+                         observer: StageObserver | None = None
+                         ) -> tuple[list[dict], str, list[str], str]:
     """Use an LLM as a semantic capability lookup, not as an evidence source."""
     selector, verify_sep, verifier = selector.partition(">")
     catalog = C.capability_catalog()
@@ -314,6 +338,12 @@ def _select_capabilities(question: str, selector: str,
     # user to choose that same single item again.
     if mode == "clarify" and len(selected) == 1:
         mode = "execute"
+    _observe(
+        observer, "capability_selected", model=selector, prompt=prompt,
+        raw_output=raw, parsed={"mode": mode, "entities": names},
+        selected=selected,
+    )
+    verify_raw = None
     if verify_sep and mode == "execute" and selected:
         verify_prompt = (
             "Audit a semantic capability selection for the CURRENT request. Capabilities return "
@@ -453,6 +483,10 @@ def _select_capabilities(question: str, selector: str,
     if unknown:
         events.append("capability_selector:unknown_ignored:" + ",".join(unknown))
     events.append("capability_selector:mode:" + mode)
+    _observe(
+        observer, "capability_verified", model=(verifier if verify_sep else None),
+        raw_output=verify_raw, mode=mode, selected=selected, events=events,
+    )
     return selected, raw, events, mode
 
 
@@ -717,7 +751,8 @@ def _bind_single_capability(draft: dict | None, capabilities: list[dict]) -> dic
     return source
 
 
-def compile_turn(question: str, compiler: str, history: list[dict], context: str = "ebtl") -> dict:
+def compile_turn(question: str, compiler: str, history: list[dict], context: str = "ebtl",
+                 observer: StageObserver | None = None) -> dict:
     """Compile with the selected model and execute with deterministic code."""
     started = time.time()
     compile_spec, _, critic = compiler.partition("+")
@@ -731,10 +766,15 @@ def compile_turn(question: str, compiler: str, history: list[dict], context: str
     dialogue_mode = "execute"
     if selector:
         capabilities, raw_selector, selector_events, dialogue_mode = _select_capabilities(
-            question, capability_selector, history
+            question, selector, history, observer=observer
         )
     if dialogue_mode == "synthesize_history":
         execution = _history_synthesis_execution(history)
+        _observe(observer, "execution_preview", ir=None,
+                 schema={"valid": True, "errors": [], "holes": [], "ops": []},
+                 dialogue_mode=dialogue_mode, selected_capabilities=[])
+        _observe(observer, "execution_complete", execution=execution,
+                 dialogue_mode=dialogue_mode)
         return {
             "compiler": compiler, "base_compiler": base_compiler, "selector": selector,
             "critic": critic or None, "dialogue_mode": dialogue_mode, "question": question,
@@ -749,6 +789,11 @@ def compile_turn(question: str, compiler: str, history: list[dict], context: str
         execution = {"status": "data_request", "reason": "ambiguous_request",
                      "detail": {"ask": "Which measurement should I use?",
                                 "candidate_capabilities": choices}}
+        _observe(observer, "execution_preview", ir=None,
+                 schema={"valid": True, "errors": [], "holes": [], "ops": []},
+                 dialogue_mode=dialogue_mode, selected_capabilities=capabilities)
+        _observe(observer, "execution_complete", execution=execution,
+                 dialogue_mode=dialogue_mode)
         return {
             "compiler": compiler, "base_compiler": base_compiler, "selector": selector,
             "critic": critic or None, "dialogue_mode": dialogue_mode, "question": question,
@@ -776,6 +821,11 @@ def compile_turn(question: str, compiler: str, history: list[dict], context: str
     if json.dumps(bound_ir, sort_keys=True) != json.dumps(draft_ir, sort_keys=True):
         selector_events.append("capability_binding:declared_contract_applied")
     draft_ir = bound_ir
+    _observe(
+        observer, "algebra_compiled", model=base_compiler,
+        raw_output=parsed.get("raw"), ir=draft_ir,
+        parser_events=parsed.get("events", []), selected_capabilities=capabilities,
+    )
     if verifier_sep:
         draft_ir, raw_critic, verifier_events = _semantic_critic(
             question, draft_ir, ir_verifier, history, capabilities=capabilities
@@ -785,6 +835,10 @@ def compile_turn(question: str, compiler: str, history: list[dict], context: str
         if json.dumps(rebound, sort_keys=True) != json.dumps(draft_ir, sort_keys=True):
             selector_events.append("capability_binding:post_verifier_declared_contract")
         draft_ir = rebound
+        _observe(
+            observer, "algebra_verified", model=ir_verifier,
+            raw_output=raw_critic, ir=draft_ir, events=verifier_events,
+        )
     if critic:
         draft_ir, raw_critic, final_critic_events = _semantic_critic(
             question, draft_ir, critic, history, capabilities=capabilities
@@ -794,6 +848,13 @@ def compile_turn(question: str, compiler: str, history: list[dict], context: str
     schema = validate(ir) if ir is not None else {
         "valid": False, "errors": ["no IR"], "holes": [], "ops": [], "unbound": True,
     }
+    _observe(
+        observer, "execution_preview", ir=ir,
+        schema={"valid": schema["valid"], "errors": schema["errors"],
+                "holes": [h.get("name") for h in schema.get("holes", [])],
+                "ops": schema.get("ops", [])},
+        dialogue_mode=dialogue_mode, selected_capabilities=capabilities,
+    )
     if ir is None:
         execution = {"status": "error", "reason": "no_ir", "detail": {}}
     elif not schema["valid"]:
@@ -805,6 +866,8 @@ def compile_turn(question: str, compiler: str, history: list[dict], context: str
         except Exception as exc:  # benchmark trace, never turn a crash into prose
             execution = {"status": "error", "reason": "executor_crash",
                          "detail": {"error": f"{type(exc).__name__}: {str(exc)[:300]}"}}
+    _observe(observer, "execution_complete", execution=execution,
+             dialogue_mode=dialogue_mode)
     return {
         "compiler": compiler,
         "base_compiler": base_compiler,
@@ -1229,6 +1292,10 @@ def audit_response(question: str, compiled: dict, answer: str,
             answer, re.I),
         "no_chat_envelope": not re.search(
             r'\{\s*"role"\s*:|"content"\s*:|CURRENT AUDITED RESULT', answer, re.I),
+        "no_plan_narration": not re.search(
+            r"(?:^|\n\s*\n)(?:The user (?:is asking|wants)|Let me |I (?:need|should) |"
+            r"I(?:'ll| will) (?:answer|present|organize|summarize))",
+            answer, re.I),
         "no_typed_holes": not re.search(r"\?(?:proxy|place|indicator|entity|time)\b", answer, re.I),
         "length": 4 <= len(answer.split()) <= (
             320 if compiled.get("dialogue_mode") == "synthesize_history" else 230),
@@ -1252,16 +1319,19 @@ def audit_response(question: str, compiled: dict, answer: str,
 
 
 def render_turn(question: str, compiled: dict, responder: str,
-                history: list[dict]) -> dict:
+                history: list[dict], observer: StageObserver | None = None) -> dict:
     started = time.time()
+    pack = response_pack(compiled)
+    _observe(observer, "response_preview", model=responder, evidence_pack=pack)
     if responder == "deterministic":
         answer = deterministic_render(question, compiled)
-        return {"responder": responder, "answer": answer,
-                "audit": audit_response(question, compiled, answer, history),
-                "responder_attempts": 0, "fallback": False,
-                "render_latency_s": round(time.time() - started, 3)}
+        rendered = {"responder": responder, "answer": answer,
+                    "audit": audit_response(question, compiled, answer, history),
+                    "responder_attempts": 0, "fallback": False,
+                    "render_latency_s": round(time.time() - started, 3)}
+        _observe(observer, "response_complete", **rendered)
+        return rendered
 
-    pack = response_pack(compiled)
     compact_history = history[-6:]
     messages = [
         {"role": "system", "content": RESPONDER_SYSTEM},
@@ -1349,8 +1419,10 @@ def render_turn(question: str, compiled: dict, responder: str,
     if fallback:
         answer = deterministic_render(question, compiled)
         audit = audit_response(question, compiled, answer, history)
-    return {"responder": responder, "answer": answer, "raw_responder": raw,
-            "audit": audit, "responder_attempts": attempts, "fallback": fallback,
-            "semantic_critic": semantic_critic,
-            "semantic_critic_raw": semantic_critic_raw,
-            "render_latency_s": round(time.time() - started, 3)}
+    rendered = {"responder": responder, "answer": answer, "raw_responder": raw,
+                "audit": audit, "responder_attempts": attempts, "fallback": fallback,
+                "semantic_critic": semantic_critic,
+                "semantic_critic_raw": semantic_critic_raw,
+                "render_latency_s": round(time.time() - started, 3)}
+    _observe(observer, "response_complete", **rendered)
+    return rendered
