@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-22T22:27:59.778605+00:00",
+  "run": "postfix-eucalyptus-001",
+  "method": {
+    "score": "mean per-turn rubric fraction; weighted score is passed/required",
+    "latency": "linear-interpolated p95; end-to-end is native plus verifier",
+    "replay": "absolute score difference for identical arm/conversation/turn pairs"
+  },
+  "coverage": {
+    "rows": 10,
+    "passes": [
+      1,
+      2
+    ],
+    "arms": [
+      "codex-native"
+    ],
+    "conversations": [
+      "eucalyptus-bird-evidence-chain"
+    ],
+    "turns_per_arm_per_pass": 5,
+    "expected_rows": 10
+  },
+  "arms": {
+    "codex-native": {
+      "turns": 10,
+      "mean_turn_score": 0.76,
+      "weighted_requirement_score": 0.764706,
+      "passed_requirements": 26,
+      "total_requirements": 34,
+      "perfect_turns": 6,
+      "zero_turns": 2,
+      "critical_failures": 0,
+      "mean_score_by_pass": {
+        "1": 0.96,
+        "2": 0.56
+      },
+      "absolute_pass_mean_change": 0.4,
+      "latency_s": {
+        "native": {
+          "count": 10,
+          "mean": 72.123,
+          "median": 35.605,
+          "p95": 250.233,
+          "max": 409.216
+        },
+        "verifier": {
+          "count": 0,
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "end_to_end": {
+          "count": 10,
+          "mean": 72.123,
+          "median": 35.605,
+          "p95": 250.233,
+          "max": 409.216
+        }
+      },
+      "verifier_decisions": {},
+      "skill_mentions": {
+        "build-ecology-field-map": 2,
+        "build-source-backed-field-protocol": 2,
+        "discover-ecology-evidence": 6,
+        "gated-species-presence-transfer": 3,
+        "inspect-evidence-dataset": 2,
+        "merged-taxon-occurrence-search": 7
+      },
+      "replay": {
+        "pairs": 5,
+        "exact_pairs": 3,
+        "exact_rate": 0.6,
+        "mean_absolute_delta": 0.4,
+        "max_absolute_delta": 1.0
+      },
+      "conversations": {
+        "eucalyptus-bird-evidence-chain": {
+          "turns": 10,
+          "mean_score": 0.76,
+          "replay": {
+            "pairs": 5,
+            "exact_pairs": 3,
+            "exact_rate": 0.6,
+            "mean_absolute_delta": 0.4,
+            "max_absolute_delta": 1.0
+          }
+        }
+      }
+    }
+  }
+}

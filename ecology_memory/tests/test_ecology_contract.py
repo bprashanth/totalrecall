@@ -285,6 +285,17 @@ class EcologyContractTests(unittest.TestCase):
         self.assertIn("No specific tree species", answer)
         self.assertIn("general ecology", answer)
 
+    def test_short_local_taxon_name_returns_structured_scientific_match(self):
+        got = C.local_site_evidence_search("sand boa", C.resolve_region("EBTL"))
+        self.assertEqual(got["query_semantics"], "snake_habitat_requirements")
+        self.assertEqual(len(got["rows"]), 1)
+        self.assertEqual(got["rows"][0]["common_name"], "Common Sand Boa")
+        self.assertEqual(got["rows"][0]["scientific_name"], "Eryx conicus")
+        search = got["source_metadata"]["local_search"]
+        self.assertEqual(search["matched_category"], "snake_habitat_requirements")
+        self.assertEqual(
+            search["resolved_named_entities"][0]["scientific_name"], "Eryx conicus")
+
     def test_elephant_site_evidence_is_indirect_not_api_absence(self):
         resolution = C.resolve_ecology_entity("EBTL elephant evidence")
         got = C.published_site_evidence(resolution, C.resolve_region("EBTL"))

@@ -49,7 +49,7 @@ def _alive(pid_path: pathlib.Path) -> bool:
 
 
 def _start(state: pathlib.Path, host: str, port: int, python: str, sandbox: str,
-           corpus: pathlib.Path, runner: str, container: str) -> None:
+           corpus: pathlib.Path, runner: str, container: str, idlisseus: pathlib.Path) -> None:
     paths = _paths(state)
     if _alive(paths["pid"]):
         return
@@ -58,12 +58,17 @@ def _start(state: pathlib.Path, host: str, port: int, python: str, sandbox: str,
     env.update({
         "CODEX_NATIVE_API_TOKEN": token,
         "CODEX_NATIVE_STATE_DIR": str(state / "sessions"),
+        "CODEX_NATIVE_DISCOVERY_CACHE": str(state / "cache" / "discovery"),
         "CODEX_NATIVE_HOST": host,
         "CODEX_NATIVE_PORT": str(port),
         "CODEX_NATIVE_SANDBOX": sandbox,
         "CODEX_NATIVE_RUNNER": runner,
         "CODEX_NATIVE_HERMES_CONTAINER": container,
         "CODEX_NATIVE_CORPUS": str(corpus),
+        "CODEX_NATIVE_IDLISSEUS_ROOT": str(idlisseus),
+        "CODEX_NATIVE_UPLOAD_ROOT": str(idlisseus / "data" / "uploads"),
+        "CODEX_NATIVE_RESEARCH_ROOT": str(idlisseus / "data" / "deep_research"),
+        "CODEX_NATIVE_PUBLIC_MODEL": "idli-insight",
     })
     paths["stdout"].parent.mkdir(parents=True, exist_ok=True)
     stdout = paths["stdout"].open("ab")
@@ -100,20 +105,22 @@ def _register(idlisseus: pathlib.Path, token: str, port: int) -> str:
     from core.database import ModelEndpoint, SessionLocal
 
     base_url = f"http://host.docker.internal:{port}/v1"
-    model_id = "gpt-5.4-codex-native-skills"
+    model_id = "idli-insight"
     db = SessionLocal()
     try:
         endpoint = db.query(ModelEndpoint).filter(ModelEndpoint.base_url == base_url).first()
         if endpoint is None:
             endpoint = ModelEndpoint(id=str(uuid.uuid4())[:8], base_url=base_url)
             db.add(endpoint)
-        endpoint.name = "Codex CLI · Native Skills"
+        endpoint.name = "Idli Insight"
         endpoint.api_key = token
         endpoint.is_enabled = True
         endpoint.cached_models = json.dumps([model_id])
         endpoint.pinned_models = json.dumps([model_id])
         endpoint.model_type = "llm"
-        endpoint.endpoint_kind = "api"
+        # The bridge is an internal OpenAI-compatible endpoint. Marking it local also lets the
+        # chat transport attach the stable Idlisseus session id used to resume one Codex thread.
+        endpoint.endpoint_kind = "local"
         endpoint.model_refresh_mode = "manual"
         endpoint.supports_tools = False
         endpoint.owner = None
@@ -150,13 +157,13 @@ def main(argv: list[str] | None = None) -> int:
                           "token_file": str(paths["token"]), "port": args.port}, indent=2))
         return 0
     _start(args.state, args.host, args.port, args.python, args.sandbox, args.corpus,
-           args.runner, args.container)
+           args.runner, args.container, args.idlisseus)
     token = _token(paths["token"])
     endpoint_id = None if args.no_register else _register(args.idlisseus, token, args.port)
     print(json.dumps({
         "status": "ready", "endpoint_id": endpoint_id,
-        "endpoint_name": "Codex CLI · Native Skills",
-        "model": "gpt-5.4-codex-native-skills",
+        "endpoint_name": "Idli Insight",
+        "model": "idli-insight",
         "health": f"http://127.0.0.1:{args.port}/health",
         "token_file": str(paths["token"]),
         "pid_file": str(paths["pid"]),
