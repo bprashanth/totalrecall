@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-22T22:30:59.850650+00:00",
+  "run": "postfix-lineage-001",
+  "method": {
+    "score": "mean per-turn rubric fraction; weighted score is passed/required",
+    "latency": "linear-interpolated p95; end-to-end is native plus verifier",
+    "replay": "absolute score difference for identical arm/conversation/turn pairs"
+  },
+  "coverage": {
+    "rows": 3,
+    "passes": [
+      1
+    ],
+    "arms": [
+      "codex-native"
+    ],
+    "conversations": [
+      "eucalyptus-bird-evidence-chain"
+    ],
+    "turns_per_arm_per_pass": 3,
+    "expected_rows": 3
+  },
+  "arms": {
+    "codex-native": {
+      "turns": 3,
+      "mean_turn_score": 0.666667,
+      "weighted_requirement_score": 0.666667,
+      "passed_requirements": 6,
+      "total_requirements": 9,
+      "perfect_turns": 1,
+      "zero_turns": 0,
+      "critical_failures": 0,
+      "mean_score_by_pass": {
+        "1": 0.666667
+      },
+      "absolute_pass_mean_change": null,
+      "latency_s": {
+        "native": {
+          "count": 3,
+          "mean": 29.339,
+          "median": 27.837,
+          "p95": 38.812,
+          "max": 40.032
+        },
+        "verifier": {
+          "count": 0,
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "end_to_end": {
+          "count": 3,
+          "mean": 29.339,
+          "median": 27.837,
+          "p95": 38.812,
+          "max": 40.032
+        }
+      },
+      "verifier_decisions": {},
+      "skill_mentions": {
+        "discover-ecology-evidence": 3,
+        "gated-species-presence-transfer": 1
+      },
+      "replay": {
+        "pairs": 0,
+        "exact_pairs": 0,
+        "exact_rate": null,
+        "mean_absolute_delta": null,
+        "max_absolute_delta": null
+      },
+      "conversations": {
+        "eucalyptus-bird-evidence-chain": {
+          "turns": 3,
+          "mean_score": 0.666667,
+          "replay": {
+            "pairs": 0,
+            "exact_pairs": 0,
+            "exact_rate": null,
+            "mean_absolute_delta": null,
+            "max_absolute_delta": null
+          }
+        }
+      }
+    }
+  }
+}

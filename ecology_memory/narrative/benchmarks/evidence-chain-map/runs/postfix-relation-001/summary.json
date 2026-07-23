@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-22T22:11:54.663027+00:00",
+  "run": "postfix-relation-001",
+  "method": {
+    "score": "mean per-turn rubric fraction; weighted score is passed/required",
+    "latency": "linear-interpolated p95; end-to-end is native plus verifier",
+    "replay": "absolute score difference for identical arm/conversation/turn pairs"
+  },
+  "coverage": {
+    "rows": 8,
+    "passes": [
+      1,
+      2
+    ],
+    "arms": [
+      "codex-native"
+    ],
+    "conversations": [
+      "relation-and-sparse-taxa"
+    ],
+    "turns_per_arm_per_pass": 4,
+    "expected_rows": 8
+  },
+  "arms": {
+    "codex-native": {
+      "turns": 8,
+      "mean_turn_score": 1.0,
+      "weighted_requirement_score": 1.0,
+      "passed_requirements": 18,
+      "total_requirements": 18,
+      "perfect_turns": 8,
+      "zero_turns": 0,
+      "critical_failures": 0,
+      "mean_score_by_pass": {
+        "1": 1.0,
+        "2": 1.0
+      },
+      "absolute_pass_mean_change": 0.0,
+      "latency_s": {
+        "native": {
+          "count": 8,
+          "mean": 44.889,
+          "median": 42.505,
+          "p95": 93.455,
+          "max": 104.206
+        },
+        "verifier": {
+          "count": 0,
+          "mean": null,
+          "median": null,
+          "p95": null,
+          "max": null
+        },
+        "end_to_end": {
+          "count": 8,
+          "mean": 44.889,
+          "median": 42.505,
+          "p95": 93.455,
+          "max": 104.206
+        }
+      },
+      "verifier_decisions": {},
+      "skill_mentions": {
+        "build-ecology-field-map": 6,
+        "discover-ecology-evidence": 4,
+        "gated-species-presence-transfer": 28,
+        "local-snake-inventory": 2,
+        "relate-taxon-occurrences": 2
+      },
+      "replay": {
+        "pairs": 4,
+        "exact_pairs": 4,
+        "exact_rate": 1.0,
+        "mean_absolute_delta": 0.0,
+        "max_absolute_delta": 0.0
+      },
+      "conversations": {
+        "relation-and-sparse-taxa": {
+          "turns": 8,
+          "mean_score": 1.0,
+          "replay": {
+            "pairs": 4,
+            "exact_pairs": 4,
+            "exact_rate": 1.0,
+            "mean_absolute_delta": 0.0,
+            "max_absolute_delta": 0.0
+          }
+        }
+      }
+    }
+  }
+}

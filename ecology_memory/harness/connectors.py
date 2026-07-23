@@ -24,6 +24,7 @@ import hashlib
 import http.client
 import math
 import os
+import re
 import time
 import urllib.parse
 import urllib.request
@@ -378,7 +379,12 @@ def capability_catalog():
 
 
 def _clean_entity(entity):
-    e = " ".join(str(entity).lower().replace("_", " ").replace("-", " ").split())
+    # Normalise typography at the language boundary. Mobile keyboards and generated prose often
+    # use curly apostrophes; taxonomic APIs index the same common name with an ASCII apostrophe.
+    text = str(entity).translate(str.maketrans({
+        "\u2018": "'", "\u2019": "'", "\u02bc": "'", "\uff07": "'",
+    }))
+    e = " ".join(text.lower().replace("_", " ").replace("-", " ").split())
     words = [w.strip(".,;:()[]") for w in e.split()]
     core = [w for w in words if w not in RECORD_WORDS and w not in {"documented", "recorded"}]
     return e, " ".join(core).strip()
@@ -1112,6 +1118,114 @@ def published_site_evidence(resolution, region, time_value=None):
     }
 
 
+LOCAL_SITE_SEARCH_KEYS = (
+    "wildlife_inventory", "bird_inventory", "snake_habitat_requirements",
+    "cobra_inventory", "venomous_snake_inventory", "elephant_evidence",
+    "nursery_inventory", "soil_evidence", "evidence_summary",
+)
+LOCAL_SEARCH_STOPWORDS = {
+    "a", "about", "and", "at", "can", "do", "for", "from", "in", "is", "me",
+    "of", "on", "site", "tell", "the", "to", "what", "you", "ebtl",
+    "entity", "evidence", "known", "local", "record", "records", "species", "taxon",
+}
+
+
+def _local_search_tokens(value):
+    words = re.findall(r"[a-z0-9]+", str(value or "").casefold())
+    return {
+        word[:-1] if word.endswith("s") and len(word) > 4 else word
+        for word in words if word not in LOCAL_SEARCH_STOPWORDS and len(word) > 2
+    }
+
+
+def _local_named_row_matches(rows, query_tokens):
+    """Return structured taxon/entity rows matching a shorter or contextual local name."""
+    matches = []
+    for row in rows or []:
+        if not isinstance(row, dict):
+            continue
+        names = [
+            row.get("common_name"), row.get("scientific_name"),
+            row.get("taxon"), row.get("species"), row.get("name"),
+        ]
+        matched_name = next((
+            str(name) for name in names
+            if name and (lambda tokens: tokens and (
+                tokens <= query_tokens or query_tokens <= tokens
+            ))(_local_search_tokens(name))
+        ), None)
+        if matched_name:
+            matches.append((row, matched_name))
+    return matches
+
+
+def local_site_evidence_search(query, region, time_value=None, limit=200):
+    """Search an organisation's admitted local evidence registry before external sources.
+
+    The skill-facing contract is site- and taxon-neutral. An organisation seeds its adapter with
+    local evidence categories and page-addressable records; this EBTL profile supplies those
+    categories through ``published_site_evidence``.
+    """
+    query_text = " ".join(str(query or "").split()).strip()
+    if not query_text:
+        raise ValueError("local evidence search requires a non-empty query")
+    query_tokens = _local_search_tokens(query_text)
+    candidates = []
+    for key in LOCAL_SITE_SEARCH_KEYS:
+        result = published_site_evidence(
+            {"kind": "published_site_evidence", "canonical": key,
+             "input": query_text}, region, time_value)
+        if not result:
+            continue
+        searchable = json.dumps({
+            "key": key, "rows": result.get("rows") or [],
+            "note": result.get("note"), "metadata": result.get("source_metadata") or {},
+        }, ensure_ascii=False, default=str)
+        evidence_tokens = _local_search_tokens(searchable)
+        key_tokens = _local_search_tokens(key)
+        matched = sorted(query_tokens & evidence_tokens)
+        named_rows = _local_named_row_matches(result.get("rows") or [], query_tokens)
+        score = len(matched) + 4 * len(query_tokens & key_tokens) + 20 * bool(named_rows)
+        if score:
+            candidates.append((score, len(named_rows), len(matched), key, result, matched,
+                               named_rows))
+    if not candidates:
+        return {
+            "rows": [], "kind": "records", "source": "Admitted local evidence registry",
+            "label": "reported", "grain": "published-evidence-record",
+            "count_admissible": True, "query_time": time_value, "region": region,
+            "query_semantics": "local_evidence_search", "source_metadata": {
+                "query": query_text, "searched_categories": list(LOCAL_SITE_SEARCH_KEYS),
+            },
+            "note": ("no matching seeded local evidence; this is a registry non-match, not proof "
+                     "that the entity or event is absent"), "connector_events": [],
+        }
+    _, _, _, key, result, matched, named_rows = max(
+        candidates, key=lambda item: (item[0], item[1], item[2], item[3]))
+    selected = dict(result)
+    selected_rows = [row for row, _name in named_rows] if named_rows else list(
+        selected.get("rows") or [])
+    selected["rows"] = selected_rows[:max(1, min(int(limit), 500))]
+    selected["source_metadata"] = {
+        **(selected.get("source_metadata") or {}),
+        "local_search": {"query": query_text, "matched_category": key,
+                         "matched_terms": matched,
+                         "resolved_named_entities": [{
+                             "common_name": row.get("common_name"),
+                             "scientific_name": row.get("scientific_name"),
+                             "matched_name": name,
+                         } for row, name in named_rows],
+                         "searched_categories": list(LOCAL_SITE_SEARCH_KEYS)},
+    }
+    selected["connector_events"] = list(selected.get("connector_events") or []) + [{
+        "tool": "local-site-evidence.search", "implementation": "organisation adapter",
+        "parameters": {"query": query_text, "region": region.get("name"),
+                       "limit": int(limit)},
+        "output_rows": len(selected["rows"]), "matched_category": key,
+    }]
+    return selected
+
+
 # ---------------------------------------------------------------- eBird recent observations
 def _ebird_key():
     if os.environ.get("EBIRD_API_KEY"):
@@ -1317,7 +1431,16 @@ def ee_fire_exposure(records, region, query_time=None, radius_km=5):
     end_year = int((end or "2025")[:4])
     if region is None:
         raise RuntimeError("fire exposure requires an explicit region for exact-AOI comparison")
-    return ORIGIN.fire_exposure(records, region, start_year, end_year, radius_km)
+    cache_key = "origin-fire-exposure-v1 " + hashlib.sha256(json.dumps({
+        "records": records, "region": region, "start_year": start_year,
+        "end_year": end_year, "radius_km": radius_km,
+    }, sort_keys=True, default=str).encode()).hexdigest()
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        return cached
+    out = ORIGIN.fire_exposure(records, region, start_year, end_year, radius_km)
+    _cache_put(cache_key, out)
+    return out
 
 
 def annotate_records(records, layer, query_time=None, region=None):
@@ -1332,11 +1455,27 @@ def annotate_records(records, layer, query_time=None, region=None):
         return ee_fire_exposure(records, region, query_time)
     if canonical == "landcover" and region and all(
             record.get("id") == "site:ebtl-center" for record in records):
-        return ORIGIN.landcover_summary(records, region)
+        cache_key = "origin-landcover-summary-v1 " + hashlib.sha256(json.dumps({
+            "records": records, "region": region,
+        }, sort_keys=True, default=str).encode()).hexdigest()
+        cached = _cache_get(cache_key)
+        if cached is not None:
+            return cached
+        out = ORIGIN.landcover_summary(records, region)
+        _cache_put(cache_key, out)
+        return out
     if canonical == "greenness_trend":
         start, end = _time_window(query_time)
-        return ORIGIN.greenness_trend(records, int((start or "2019")[:4]),
-                                      int((end or "2024")[:4]))
+        start_year, end_year = int((start or "2019")[:4]), int((end or "2024")[:4])
+        cache_key = "origin-greenness-trend-v1 " + hashlib.sha256(json.dumps({
+            "records": records, "start_year": start_year, "end_year": end_year,
+        }, sort_keys=True, default=str).encode()).hexdigest()
+        cached = _cache_get(cache_key)
+        if cached is not None:
+            return cached
+        out = ORIGIN.greenness_trend(records, start_year, end_year)
+        _cache_put(cache_key, out)
+        return out
     cache_key = "ee-annotate-v2 " + hashlib.sha256(json.dumps({"records": records, "layer": canonical,
                                                              "time": query_time}, sort_keys=True,
                                                             default=str).encode()).hexdigest()

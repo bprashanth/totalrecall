@@ -142,8 +142,12 @@ python3 integration/step_chat.py --yes --color never \
 
 ## Codex CLI + native skills through Idlisseus
 
-The strongest native-skills benchmark arm is also available as an OpenAI-compatible local bridge.
-It keeps Codex CLI as the sole agent loop while the stock Idlisseus browser and API act as
-transport. Skill discovery, reads, invocations, compact results and transparent calculations
-stream visibly before the final answer. See `codex_native/README.md` for setup, the remote API
-client and the manual POC bank.
+The strongest native-skills benchmark arm is also available as the provider-neutral `idli-insight`
+local bridge. It keeps Codex CLI as the sole agent loop while the Idlisseus browser and API provide
+stable multi-turn sessions, owner-validated file transfer, a collapsible Why trace, and optional
+shareable visual reports. See `codex_native/README.md` for setup, the remote API client and the
+manual POC bank. The separate `narrative/benchmarks/evidence-chain-map/` bank tests query-bound
+source discovery, two-taxon proximity with both denominators, gated estimates, field maps,
+source-backed protocols and structured T4GC model requests across native, algebra-backpedal,
+DeepSeek-V4 verifier and local LoRA verifier arms. Its completed two-pass development report is at
+`narrative/benchmarks/evidence-chain-map/runs/overnight-001/REPORT.md`.
