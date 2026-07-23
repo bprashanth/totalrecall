@@ -9,7 +9,7 @@ Idlisseus browser/API
   -> OpenAI-compatible bridge on :7011
   -> Codex CLI, GPT-5.4 low: conversation + evidence discovery
   -> local Algebra 9B-004d: frozen scientific-Algebra compilation
-  -> frozen 12-skill benchmark index + runtime operational skills
+  -> frozen 12-skill benchmark index + site-agnostic runtime operational skills
   -> allowlisted skill gateway
   -> deterministic resource binding + ecology executor/connectors
   -> concise answer + collapsible Why trace + optional visual report
@@ -32,6 +32,12 @@ summaries. It disappears from the prose area when answer text starts. The final 
 by default and contains only skill names, bounded summaries and the audit id—not progress comments,
 commands, paths, model routing or raw rows.
 
+Site overview, local-registry lookup, accumulated-dashboard publication, historical-fire exposure
+and vegetation-greenness trend are controller-owned capability routes. They start immediately and
+emit the same bounded live skill events before Codex explains the result. The fire/greenness routes
+bind measurement families, not site answers: proxy, time and geometry boundaries still apply.
+Other evidence retrieval remains interactive and model-directed within the gateway constraints.
+
 Owner-authorized uploads are sent as a manifest, revalidated beneath Idlisseus's upload root,
 copied into the session's bounded `input/attachments` directory, and exposed to Codex by their
 safe sandbox paths. The original host path is not exposed to the model. An explicit “make a
@@ -49,8 +55,8 @@ benchmark input unchanged.
 
 ## Evidence, protocol and map chain
 
-The frozen benchmark catalog remains 12 skills. Nine operational skills are added at runtime, for
-21 visible skills in `/health`:
+The frozen benchmark catalog remains 12 skills. Eleven operational skills are added at runtime,
+for 23 visible skills in `/health`:
 
 - `compile-scientific-algebra-9b` gives the local 9B-004d model one explicit scientific question,
   the frozen Algebra grammar, and a controller-generated manifest of admitted entity, region and
@@ -85,6 +91,15 @@ The frozen benchmark catalog remains 12 skills. Nine operational skills are adde
   produce a labelled, spatially balanced confirmation design instead of invented overlap.
 - `request-model-from-t4gc` records a structured user-authorized request when the needed model is
   absent.
+- `discover-biotic-interactions` queries the source-linked GloBI interaction index. Returned taxa
+  may seed later occurrence retrieval; an indexed interaction is not a site interaction. If
+  GloBI's live relation filter returns a server error, the connector repeats the same source and
+  target query without that server-side filter and applies the requested relation locally. It
+  records the fallback and never changes evidence source.
+- `publish-evidence-dashboard` renders only current-session result handles into evidence cards,
+  row-count visuals, map links and audited gaps. The caller cannot supply metrics or HTML.
+  Previous dashboard envelopes are excluded, so refreshes do not recursively turn presentations
+  into ecological evidence.
 
 Discovery and inspection results are stored as session-scoped result handles. Map and protocol
 skills publish self-contained HTML into Idlisseus's existing document panel. Only the labelled
@@ -148,7 +163,9 @@ The chat formats this boundary explicitly under **Scientific analysis**:
 - a collapsed exact Algebra tree for audit.
 
 Normal prose uses natural provenance phrases such as “From the onboarded site records” rather
-than bracket tags. This is a hybrid runtime arm—Codex dialogue/discovery + 9B scientific compiler
+than bracket tags. The UI preserves the same distinction as controller-derived **Local asset**,
+**Public data**, **Proxy**, **Modelled**, **Designed**, **Data gap**, and **Model background**
+badges. This is a hybrid runtime arm—Codex dialogue/discovery + 9B scientific compiler
 + deterministic execution—not evidence that 9B alone is an agent.
 
 ## Guided investigation trial
@@ -158,8 +175,21 @@ explicitly asks for the complete workflow or a concrete artifact. An explicit ma
 field-point or “where on the site” request is artifact-complete in that turn: the controller
 retrieves admitted evidence, asks 9B to compile the scientific estimate when one is required, then
 invokes `build-ecology-field-map`. The map skill runs its own occurrence and environmental gates.
+If Codex completes the valid scientific estimate but omits the renderer call, the controller
+finishes that already-requested map from the latest admitted taxon and appends the map link; it does
+not wait for a special incantation from the user.
 If the gate passes but only an AOI-wide score is available, or if the gate fails, it still returns
 a clearly labelled spatially balanced confirmation design rather than fabricated hotspots.
+
+For the guided model-map action, the gateway enforces:
+
+```text
+merged occurrence retrieval -> Algebra 9B compilation -> field-map renderer
+```
+
+The controller binds the scientific question from the selected entity and declared donor/target
+regions. It rejects an early compiler or map call. Harmless compiler surface forms such as a
+source-record suffix and an explicit EBTL long form bind only to already-admitted symbols.
 
 A deterministic capability graph derives the next valid operations from the skill that actually
 completed and its result:
@@ -199,7 +229,9 @@ AOI-wide estimate.
 `build-ecology-field-map` accepts `map_mode: observed` for the raw-map stage. That mode retrieves
 and exports returned observations with stable `OBS-...` ids, runs no estimate, creates no designed
 field points and collapses its long record table by default. `map_mode: modelled` remains a
-separate explicit stage.
+separate explicit stage. If the intended occurrence source is unavailable and no source-identified
+cache is admitted, the renderer does not try another connector: it returns stable `FIELD-...`
+collection points labelled `Designed`.
 
 The typed scientific Algebra is unchanged. Holes still represent required missing values; this
 session envelope represents optional scope-expansion decisions.

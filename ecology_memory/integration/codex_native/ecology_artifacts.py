@@ -128,11 +128,13 @@ def write_field_map(output_dir: pathlib.Path, title: str, bbox_wsen: list[float]
             f'fill="#fff" font-size="9" font-weight="700">{point_id[-2:]}</text></g>')
         maps_url = f'https://www.google.com/maps/search/?api=1&query={row["lat"]:.6f},{row["lon"]:.6f}'
         rows_html.append(
-            f'<tr><td>{point_id}</td><td>{row["lat"]:.6f}, {row["lon"]:.6f}</td>'
-            f'<td>{float(row.get("score") or 0):.3f}</td>'
-            f'<td>{html.escape(str(row.get("evidence_label") or ""))}</td>'
-            f'<td>{html.escape(str(row.get("reason") or ""))}</td>'
-            f'<td><a href="{maps_url}" target="_blank" rel="noopener">navigate</a></td></tr>')
+            f'<tr><td data-label="ID">{point_id}</td>'
+            f'<td data-label="Coordinates">{row["lat"]:.6f}, {row["lon"]:.6f}</td>'
+            f'<td data-label="Score">{float(row.get("score") or 0):.3f}</td>'
+            f'<td data-label="Evidence">{html.escape(str(row.get("evidence_label") or ""))}</td>'
+            f'<td data-label="Why inspect">{html.escape(str(row.get("reason") or ""))}</td>'
+            f'<td data-label="Navigation"><a href="{maps_url}" target="_blank" '
+            'rel="noopener">navigate</a></td></tr>')
 
     ticks = []
     for index in range(5):
@@ -172,7 +174,12 @@ header,.body{{max-width:1120px;margin:auto;padding:18px}}h1{{font-size:22px;marg
 svg{{display:block;width:100%;height:auto}}svg text{{fill:#8ea2b7;font-size:11px}}.notes,.sheet{{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}}
 table{{width:100%;border-collapse:collapse;font-size:12px}}th,td{{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}}th{{color:#9fb0c3}}
 a{{color:#7dd3fc}}button{{background:#173047;color:#fff;border:1px solid #31516c;border-radius:8px;padding:8px 11px;cursor:pointer}}.actions{{display:flex;gap:8px;flex-wrap:wrap}}summary{{cursor:pointer}}
-@media(max-width:680px){{header,.body{{padding:12px}}h1{{font-size:18px}}.sheet{{overflow:auto}}table{{min-width:820px}}}}
+@media(max-width:680px){{header,.body{{padding:12px}}h1{{font-size:18px}}
+.sheet table,.sheet tbody,.sheet tr,.sheet td{{display:block;width:100%}}.sheet thead{{display:none}}
+.sheet tr{{padding:8px 0;border-bottom:1px solid var(--line)}}.sheet tr:last-child{{border:0}}
+.sheet td{{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px;padding:5px 0;
+border:0;overflow-wrap:anywhere}}.sheet td::before{{content:attr(data-label);color:var(--muted);
+font-size:11px;font-weight:700;text-transform:uppercase}}}}
 </style></head><body><header><h1>{html.escape(title)}</h1>
 <div class="sub">{html.escape(map_mode)} · audit {html.escape(audit_id)} · {html.escape(point_note)}</div></header>
 <main class="body"><div class="controls">{''.join(controls)}</div><div class="map">

@@ -22,17 +22,19 @@ class CodexNativeBridgeTests(unittest.TestCase):
             "late-bound-skills" / "skills.json"
         ).read_text())
         self.assertEqual(len(benchmark["skills"]), 12)
-        self.assertEqual(len(SERVER.SKILLS), 21)
+        self.assertEqual(len(SERVER.SKILLS), 23)
         self.assertIn("vegetation-greenness-trend", SERVER.SKILLS_BY_ID)
         self.assertIn("gated-species-presence-transfer", SERVER.SKILLS_BY_ID)
         self.assertIn("request-model-from-t4gc", SERVER.SKILLS_BY_ID)
         self.assertIn("local-site-evidence-search", SERVER.SKILLS_BY_ID)
         self.assertNotIn("local-elephant-site-evidence", SERVER.SKILLS_BY_ID)
         self.assertIn("discover-ecology-evidence", SERVER.SKILLS_BY_ID)
+        self.assertIn("discover-biotic-interactions", SERVER.SKILLS_BY_ID)
         self.assertIn("relate-taxon-occurrences", SERVER.SKILLS_BY_ID)
         self.assertIn("inspect-evidence-dataset", SERVER.SKILLS_BY_ID)
         self.assertIn("build-source-backed-field-protocol", SERVER.SKILLS_BY_ID)
         self.assertIn("build-ecology-field-map", SERVER.SKILLS_BY_ID)
+        self.assertIn("publish-evidence-dashboard", SERVER.SKILLS_BY_ID)
         self.assertIn("site-overview", SERVER.SKILLS_BY_ID)
         self.assertIn("compile-scientific-algebra-9b", SERVER.SKILLS_BY_ID)
         self.assertNotIn("plan-data-with-algebra-9b", SERVER.SKILLS_BY_ID)
@@ -181,6 +183,16 @@ class CodexNativeBridgeTests(unittest.TestCase):
         self.assertIn("candidate + focal entity + relation", prompt)
         self.assertIn("do not promote it", prompt)
         self.assertIn("untrusted query seeds", prompt)
+        self.assertIn("public interaction claim requires", prompt)
+        self.assertIn("Never cite a public occurrence", prompt)
+
+    def test_native_prompt_requires_occurrence_connector_for_wider_records(self):
+        session = SimpleNamespace(id="prompt-test", input=ROOT, attachments=[])
+        prompt = SERVER._native_prompt(
+            "Find wider occurrence records for one locally reported reptile.", session)
+        self.assertIn("explicitly requested wider occurrence evidence", prompt)
+        self.assertIn("invoke `merged-taxon-occurrence-search`", prompt)
+        self.assertIn("Do not cite occurrence portals", prompt)
 
     def test_native_prompt_routes_any_local_site_question_before_literature(self):
         session = SimpleNamespace(id="prompt-test", input=ROOT, attachments=[])
@@ -222,12 +234,60 @@ class CodexNativeBridgeTests(unittest.TestCase):
             "what I want to know is where I can expect to find it to get data"),
             "modelled",
         )
+        self.assertEqual(SERVER._map_intent(
+            "Use those records to test an environmental transfer and show me where "
+            "field checks would give us the most information."),
+            "modelled",
+        )
         self.assertEqual(
             SERVER._map_intent("show where on the site it was observed"), "observed")
         self.assertIsNone(SERVER._map_intent("where is Russell's viper at EBTL?"))
         self.assertIn("Then use `build-ecology-field-map`", prompt)
         self.assertIn("labelled observation or field-check points", prompt)
         self.assertIn("Do not substitute prose instructions", prompt)
+
+    def test_controller_completes_explicit_map_after_valid_scientific_estimate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            audit = pathlib.Path(temporary) / "audit.jsonl"
+            audit.write_text(json.dumps({
+                "type": "skill_call", "skill": "compile-scientific-algebra-9b",
+                "result": {"execution": {"value": {"ir": {
+                    "op": "ESTIMATE",
+                    "source": {"op": "SELECT", "entity": "Geochelone elegans",
+                               "region": {"op": "REGION",
+                                          "place": "dry-Deccan donor belt"}},
+                    "target": {"op": "REGION", "place": "EBTL"},
+                }}}},
+            }) + "\n")
+            appended = []
+            recorded = []
+            session = SimpleNamespace(
+                audit_path=audit, turn_skill_calls=[],
+                has_result_kind=lambda kinds, require_estimate_ir=False: True,
+                append_audit=appended.append,
+                record_skill_call=lambda skill, args, result: recorded.append(
+                    (skill, args, result)),
+            )
+            result = {
+                "execution": {"status": "answer", "value": {
+                    "label": "designed",
+                    "artifact": {"url": "#map-completed"},
+                }},
+            }
+            emitted = []
+            with mock.patch.object(SERVER, "_execute_skill", return_value=result) as execute:
+                got = SERVER._complete_requested_map(
+                    session,
+                    "Run the gated transfer and give me an exact field-check map.",
+                    emitted.append,
+                )
+        self.assertIs(got, result)
+        args = execute.call_args.args[1]
+        self.assertEqual(args["entities"], ["Geochelone elegans"])
+        self.assertEqual(args["map_mode"], "modelled")
+        self.assertEqual([event["type"] for event in emitted],
+                         ["tool_start", "tool_output"])
+        self.assertEqual(recorded[0][0], "build-ecology-field-map")
 
     def test_scientific_compiler_uses_9b_ir_then_controller_execution(self):
         stored = {}
@@ -350,6 +410,30 @@ class CodexNativeBridgeTests(unittest.TestCase):
         self.assertEqual(
             [event for event in invented_events if event["kind"] == "entity"], [])
 
+    def test_scientific_binder_keeps_all_admitted_aliases_and_ebtl_long_form(self):
+        ir = {
+            "op": "SELECT", "entity": "Star Tortoise occurrence records",
+            "region": {
+                "op": "REGION",
+                "place": "Elephants by the Lake (EBTL), Rainmatter Foundation",
+            },
+            "time": None,
+        }
+        manifest = {
+            "entities": [{
+                "symbol": "Geochelone elegans", "input": "Indian star tortoise",
+                "aliases": ["Star Tortoise", "Indian star tortoise"],
+            }],
+            "regions": [{
+                "symbol": "EBTL", "input": "EBTL",
+                "resolved_name": "Elephants by the Lake (EBTL), Krishnagiri, Tamil Nadu",
+            }],
+        }
+        bound, events = SERVER._bind_scientific_symbols(ir, manifest)
+        self.assertEqual(bound["entity"], "Geochelone elegans")
+        self.assertEqual(bound["region"]["place"], "EBTL")
+        self.assertEqual([event["kind"] for event in events], ["entity", "region"])
+
     def test_scientific_response_block_names_question_9b_interpretation_and_execution(self):
         ir = {
             "op": "SELECT", "entity": "Daboia russelii",
@@ -384,6 +468,122 @@ class CodexNativeBridgeTests(unittest.TestCase):
         self.assertIn("- From local records: Russell's viper", rendered)
         self.assertIn("What is still unknown: Exact locations", rendered)
         self.assertNotIn("[Local asset]", rendered)
+
+    def test_evidence_badges_are_derived_from_execution_not_answer_claims(self):
+        estimate_ir = {
+            "op": "ESTIMATE", "method": "feature",
+            "source": {
+                "op": "SELECT", "entity": "Daboia russelii",
+                "region": {"op": "REGION", "place": "dry-Deccan donor belt"},
+            },
+            "target": {"op": "REGION", "place": "EBTL"},
+        }
+        session = SimpleNamespace(
+            id="evidence-chat", turn=3,
+            turn_skill_calls=[{
+                "skill": "local-site-evidence-search",
+                "result": {"execution": {"status": "answer", "value": {"rows": [{}]}}},
+            }, {
+                "skill": "compile-scientific-algebra-9b",
+                "result": {"execution": {"status": "answer", "value": {
+                    "ir": estimate_ir,
+                    "execution": {"status": "answer", "value": {"rows": [{}]}},
+                }}},
+            }, {
+                "skill": "build-ecology-field-map",
+                "result": {"execution": {"status": "answer", "value": {
+                    "label": "designed", "rows": [{}],
+                }}},
+            }],
+        )
+        evidence = SERVER._insight_evidence(
+            session, "General ecological context: snakes use refuges.")
+        kinds = [item["kind"] for item in evidence["items"]]
+        self.assertEqual(
+            kinds, ["model_background", "local_asset", "modelled", "designed"])
+        self.assertEqual(evidence["audit_id"], "evidence-chat/3")
+
+    def test_dashboard_uses_only_current_session_result_ledger(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            results = root / "results"
+            results.mkdir()
+            stored = {
+                "schema": 1, "result_id": "map-result-1", "kind": "map",
+                "session_id": "dashboard-chat", "turn": 2,
+                "payload": {
+                    "label": "designed", "source": "audited renderer",
+                    "rows": [{"point_id": "FIELD-01"}, {"point_id": "FIELD-02"}],
+                    "artifact": {"url": "#map-idli-map-1"},
+                },
+            }
+            (results / "map-result-1.json").write_text(json.dumps(stored))
+            audit = root / "audit.jsonl"
+            audit.write_text(json.dumps({
+                "type": "skill_call", "turn": 1,
+                "skill": "merged-taxon-occurrence-search",
+                "result": {"execution": {
+                    "status": "data_request", "reason": "no_occurrences",
+                }},
+            }) + "\n")
+            saved = {}
+            session = SimpleNamespace(
+                id="dashboard-chat", turn=3, results=results, audit_path=audit,
+                load_result=lambda result_id: (
+                    stored if result_id == "map-result-1" else None),
+                store_result=lambda kind, payload: (
+                    saved.update({"kind": kind, "payload": payload}) or "dashboard-result-1"),
+            )
+            with mock.patch.object(
+                SERVER, "_publish_html_document",
+                return_value={
+                    "document_id": "idli-dashboard-1",
+                    "url": "#dashboard-idli-dashboard-1",
+                    "label": "Open evidence dashboard",
+                },
+            ) as publish:
+                result = SERVER._publish_evidence_dashboard(
+                    {"title": "Field evidence", "result_ids": ["map-result-1"]}, session)
+
+        self.assertEqual(result["status"], "answer")
+        self.assertEqual(result["value"]["rows"][0]["evidence"], "Designed")
+        self.assertEqual(result["value"]["gap_count"], 1)
+        self.assertEqual(saved["kind"], "dashboard")
+        html = publish.call_args.args[2]
+        self.assertIn("FIELD", json.dumps(stored))
+        self.assertIn("map-result-1", html)
+        self.assertIn("no_occurrences", html)
+        self.assertIn("They are not", html)
+        self.assertIn("abundance", html.lower())
+
+    def test_dashboard_refresh_does_not_treat_prior_dashboard_as_evidence(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = pathlib.Path(temporary)
+            results = root / "results"
+            results.mkdir()
+            for result_id, kind in (("local-1", "local_evidence"),
+                                    ("dashboard-old", "dashboard")):
+                (results / f"{result_id}.json").write_text(json.dumps({
+                    "schema": 1, "result_id": result_id, "kind": kind,
+                    "session_id": "dashboard-chat", "turn": 1,
+                    "payload": {"source": kind, "rows": [{"id": result_id}]},
+                }))
+            audit = root / "audit.jsonl"
+            audit.write_text("")
+            session = SimpleNamespace(
+                id="dashboard-chat", turn=2, results=results, audit_path=audit,
+                load_result=lambda result_id: None,
+                store_result=lambda kind, payload: "dashboard-new",
+            )
+            with mock.patch.object(
+                SERVER, "_publish_html_document",
+                return_value={"document_id": "dashboard-new",
+                              "url": "#dashboard-dashboard-new"},
+            ):
+                result = SERVER._publish_evidence_dashboard(
+                    {"title": "Refreshed evidence"}, session)
+        result_ids = [row["result_id"] for row in result["value"]["rows"]]
+        self.assertEqual(result_ids, ["local-1"])
 
     def test_empty_select_is_explained_as_a_data_gap_not_absence(self):
         rendered = SERVER._execution_plain_text({
@@ -423,6 +623,30 @@ class CodexNativeBridgeTests(unittest.TestCase):
         self.assertIn("gap", sections)
         self.assertEqual(result["execution"]["value"]["result_id"], "site-123")
         self.assertNotIn("elephant datasets", json.dumps(rows).lower())
+
+    def test_first_skill_routing_prevents_local_source_substitution(self):
+        self.assertEqual(
+            SERVER._required_first_skill("Tell me about the site."), "site-overview")
+        self.assertEqual(
+            SERVER._required_first_skill(
+                "Show me the local wildlife records actually onboarded."),
+            "local-site-evidence-search",
+        )
+        self.assertEqual(
+            SERVER._required_first_skill("Make a small evidence dashboard."),
+            "publish-evidence-dashboard",
+        )
+        self.assertEqual(
+            SERVER._required_first_skill("What can we measure about fire at EBTL?"),
+            "historical-fire-exposure",
+        )
+        self.assertEqual(
+            SERVER._required_first_skill(
+                "Did vegetation greenness improve after restoration at this site?"),
+            "vegetation-greenness-trend",
+        )
+        self.assertIsNone(SERVER._required_first_skill(
+            "Search external literature and Zenodo for local wildlife methods."))
 
     def test_site_overview_offers_short_topic_buttons(self):
         session = SimpleNamespace(
@@ -651,6 +875,45 @@ class CodexNativeBridgeTests(unittest.TestCase):
             ).read_text(encoding="utf-8")
             self.assertIn("<details><summary><b>Observed records (2)", map_html)
 
+    def test_source_outage_map_designs_points_without_calling_another_occurrence_source(self):
+        with tempfile.TemporaryDirectory() as root_text:
+            root = pathlib.Path(root_text)
+
+            class FakeSession:
+                id = "chat-source-outage-map"
+                turn = 3
+                owner = "benchmark"
+                benchmark_faults = {"disable_occurrence_connectors"}
+                output = root
+
+                def store_result(self, kind, payload):
+                    return "map-source-outage"
+
+            with mock.patch.object(SERVER.C, "resolve_region", return_value={
+                "bbox": [12.72, 12.75, 78.17, 78.20], "lat": 12.735, "lon": 78.185,
+            }), mock.patch.object(
+                SERVER, "_taxon_execution"
+            ) as taxon_execution, mock.patch.object(
+                SERVER, "_publish_html_document",
+                return_value={"document_id": "doc-source-outage",
+                              "url": "#map-doc-source-outage",
+                              "label": "Open field map"},
+            ):
+                result = SERVER._build_field_map({
+                    "entities": ["Eryx conicus"], "region": "EBTL",
+                    "source_region": "dry-Deccan donor belt", "map_mode": "observed",
+                    "points": 9,
+                }, FakeSession())
+
+            taxon_execution.assert_not_called()
+            self.assertEqual(result["label"], "designed")
+            self.assertEqual(len(result["value"]["rows"]), 9)
+            self.assertEqual(result["value"]["rows"][0]["point_id"], "FIELD-01")
+            self.assertIn(
+                "no source-identified cached points",
+                result["value"]["rows"][0]["reason"],
+            )
+
     def test_field_map_promotes_unique_seeded_local_name_to_scientific_query(self):
         with tempfile.TemporaryDirectory() as root_text:
             root = pathlib.Path(root_text)
@@ -765,6 +1028,27 @@ class CodexNativeBridgeTests(unittest.TestCase):
         })
         self.assertEqual(text, "answer · 2 rows · observed · survey")
 
+    def test_generic_skill_results_enter_session_resource_ledger(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            session = SERVER.Session.__new__(SERVER.Session)
+            session.id = "ledger-chat"
+            session.turn = 2
+            session.results = pathlib.Path(temporary)
+            session.turn_skill_calls = []
+            session.guided_sequence = []
+            session.guided_sequence_index = 0
+            result = {"execution": {"status": "answer", "value": {
+                "rows": [{"scientific_name": "Geochelone elegans"}],
+            }}}
+            session.record_skill_call(
+                "merged-taxon-occurrence-search",
+                {"entity": "Indian star tortoise"}, result)
+            result_id = result["execution"]["value"]["result_id"]
+            self.assertTrue(result_id.startswith("merged-taxon-occurrence-search-"))
+            self.assertTrue(session.has_result_kind({
+                "merged-taxon-occurrence-search"}))
+            self.assertEqual(session.load_result(result_id)["session_id"], "ledger-chat")
+
     def test_trace_finishes_with_answer_and_audit_id(self):
         rendered = SERVER._trace_markdown({
             "type": "final", "answer": "Careful answer", "session_id": "abc",
@@ -874,6 +1158,32 @@ class CodexNativeBridgeTests(unittest.TestCase):
         )
         self.assertIsNone(SERVER._derive_guidance(session))
 
+    def test_interaction_rows_offer_only_returned_taxa_for_occurrence_retrieval(self):
+        session = SimpleNamespace(
+            id="chat-interaction", turn=2,
+            turn_skill_calls=[{
+                "skill": "discover-biotic-interactions",
+                "args": {"source_entity": "Eucalyptus", "target_entity": "Aves"},
+                "result": {"execution": {"status": "answer", "value": {"rows": [
+                    {"source_taxon_name": "Eucalyptus punctata",
+                     "interaction_type": "eatenBy",
+                     "target_taxon_name": "Callocephalon fimbriatum"},
+                    {"source_taxon_name": "Eucalyptus robusta",
+                     "interaction_type": "eatenBy",
+                     "target_taxon_name": "Trichoglossus moluccanus"},
+                ]}}},
+            }],
+        )
+        guidance = SERVER._derive_guidance(session)
+        self.assertEqual(
+            guidance["question"],
+            "Which returned interaction candidate should I check spatially?",
+        )
+        entities = [option["args"]["entity"] for option in guidance["options"]]
+        self.assertEqual(entities, [
+            "Callocephalon fimbriatum", "Trichoglossus moluccanus"])
+        self.assertNotIn("candidate bird", json.dumps(guidance))
+
     def test_failed_occurrence_search_does_not_offer_map_or_transfer(self):
         session = SimpleNamespace(
             id="chat-guided", turn=2,
@@ -932,6 +1242,62 @@ class CodexNativeBridgeTests(unittest.TestCase):
         with self.assertRaises(PermissionError):
             session.bind_guided_skill_args(
                 "gated-species-presence-transfer", {"entity": "Daboia russelii"})
+
+    def test_model_map_guidance_enforces_evidence_then_9b_then_map(self):
+        session = SERVER.Session.__new__(SERVER.Session)
+        session.id = "chat-sequence"
+        session.turn = 4
+        session.pending_guidance = {
+            "state_id": "state-2",
+            "options": [SERVER._guided_action(
+                "Map field-check locations", "build_model_map", "Model then map.",
+                entity="Star Tortoise", region="EBTL",
+                source_region="dry-Deccan donor belt")],
+        }
+        session.investigation_history = []
+        session.turn_skill_calls = []
+        session.guided_action = None
+        session.guided_allowed_skills = None
+        session.guided_sequence = []
+        session.guided_sequence_index = 0
+        session.store_result = lambda _kind, _payload: "guided-result"
+        session._save = lambda: None
+
+        directive, _selected = session.begin_turn("Map field-check locations")
+        self.assertIn(
+            "merged-taxon-occurrence-search → compile-scientific-algebra-9b "
+            "→ build-ecology-field-map",
+            directive,
+        )
+        with self.assertRaises(PermissionError):
+            session.bind_guided_skill_args(
+                "compile-scientific-algebra-9b", {"scientific_question": "skip evidence"})
+        occurrence_args = session.bind_guided_skill_args(
+            "merged-taxon-occurrence-search", {})
+        self.assertEqual(occurrence_args, {
+            "entity": "Star Tortoise", "region": "dry-Deccan donor belt",
+            "target_region": "EBTL",
+        })
+        session.record_skill_call(
+            "merged-taxon-occurrence-search", occurrence_args,
+            {"execution": {"status": "answer", "value": {"rows": [{}]}}},
+        )
+        compiler_args = session.bind_guided_skill_args(
+            "compile-scientific-algebra-9b", {"scientific_question": "wrong"})
+        self.assertIn("Star Tortoise suitability at EBTL", compiler_args["scientific_question"])
+        session.record_skill_call(
+            "compile-scientific-algebra-9b", compiler_args,
+            {"execution": {"status": "data_request", "reason": "scientific_ir_rejected"}},
+        )
+        with self.assertRaises(PermissionError):
+            session.bind_guided_skill_args("build-ecology-field-map", {})
+        session.record_skill_call(
+            "compile-scientific-algebra-9b", compiler_args,
+            {"execution": {"status": "answer", "value": {}}},
+        )
+        map_args = session.bind_guided_skill_args("build-ecology-field-map", {})
+        self.assertEqual(map_args["entities"], ["Star Tortoise"])
+        self.assertEqual(map_args["map_mode"], "modelled")
 
     def test_idlisseus_guidance_event_exposes_labels_not_controller_arguments(self):
         session = SimpleNamespace(id="chat-guided", turn=3)
