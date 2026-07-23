@@ -296,6 +296,53 @@ class EcologyContractTests(unittest.TestCase):
         self.assertEqual(
             search["resolved_named_entities"][0]["scientific_name"], "Eryx conicus")
 
+    def test_globi_interaction_connector_retains_candidate_lineage(self):
+        csv_text = (
+            '"source_taxon_external_id","source_taxon_name","interaction_type",'
+            '"target_taxon_external_id","target_taxon_name",'
+            '"source_specimen_occurrence_id","target_specimen_occurrence_id",'
+            '"target_specimen_basis_of_record","latitude","longitude","study_title"\n'
+            '"COL:1","Eucalyptus punctata","eatenBy","COL:2",'
+            '"Callocephalon fimbriatum","https://example.test/source",'
+            '"https://www.inaturalist.org/observations/103037810",'
+            '"HumanObservation","-34.13","150.84","iNaturalist source dataset"\n'
+        )
+        with mock.patch.object(C, "_get", return_value=csv_text) as get:
+            got = C.biotic_interactions("Eucalyptus", "Aves", limit=20)
+        self.assertEqual(len(got["rows"]), 1)
+        row = got["rows"][0]
+        self.assertEqual(row["interaction_type"], "eatenBy")
+        self.assertEqual(row["target_taxon_name"], "Callocephalon fimbriatum")
+        self.assertEqual(
+            row["source_record"],
+            "https://www.inaturalist.org/observations/103037810",
+        )
+        self.assertEqual(got["versioned_dataset_doi"], "10.5281/zenodo.3950589")
+        self.assertIn("targetTaxon=Aves", get.call_args.args[0])
+        self.assertIn("not establish", got["note"])
+
+    def test_globi_relation_filter_failure_retries_same_source_without_source_lottery(self):
+        csv_text = (
+            '"source_taxon_name","interaction_type","target_taxon_name",'
+            '"target_specimen_occurrence_id","study_title"\n'
+            '"Eucalyptus punctata","eatenBy","Callocephalon fimbriatum",'
+            '"https://example.test/observation/1","source dataset"\n'
+            '"Eucalyptus robusta","dispersedBy","Aves",'
+            '"https://example.test/observation/2","source dataset"\n'
+        )
+        with mock.patch.object(
+            C, "_get", side_effect=[RuntimeError("HTTP 500"), csv_text]
+        ) as get:
+            got = C.biotic_interactions(
+                "Eucalyptus", "Aves", interaction_type="disperses", limit=20)
+        self.assertEqual(len(got["rows"]), 1)
+        self.assertEqual(got["rows"][0]["interaction_type"], "dispersedBy")
+        self.assertEqual(get.call_count, 2)
+        self.assertIn("interactionType=disperses", get.call_args_list[0].args[0])
+        self.assertNotIn("interactionType=", get.call_args_list[1].args[0])
+        self.assertTrue(got["connector_events"][0]["relation_filter_fallback"])
+        self.assertIn("no alternative evidence source", got["note"])
+
     def test_elephant_site_evidence_is_indirect_not_api_absence(self):
         resolution = C.resolve_ecology_entity("EBTL elephant evidence")
         got = C.published_site_evidence(resolution, C.resolve_region("EBTL"))

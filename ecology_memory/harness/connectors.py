@@ -6,6 +6,7 @@ source to ``rows/kind/source/note/label`` while retaining record URL, time, qual
 
 Source families currently admitted:
   - GBIF + iNaturalist -> licensed taxon occurrence records
+  - GloBI               -> source-identified exploratory biotic-interaction records
   - eBird              -> recent bird observations (API-key connector; bbox post-filtered)
   - Earth Engine       -> MODIS NDVI series and point raster annotations
   - Zenodo 10077040    -> the published Anamalai vegetation *survey* sites
@@ -1224,6 +1225,142 @@ def local_site_evidence_search(query, region, time_value=None, limit=200):
         "output_rows": len(selected["rows"]), "matched_category": key,
     }]
     return selected
+
+
+# -------------------------------------------------------- GloBI biotic interactions
+def biotic_interactions(source_entity, target_entity=None, interaction_type=None, limit=50):
+    """Retrieve source-identified interaction records without inferring an interaction.
+
+    GloBI's live API is an exploratory search index. Returned rows retain their underlying
+    occurrence/study identifiers; callers must inspect the original source or use the versioned
+    GloBI publication before treating a row as a research-grade interaction claim.
+    """
+    source = " ".join(str(source_entity or "").split()).strip()
+    target = " ".join(str(target_entity or "").split()).strip()
+    relation = " ".join(str(interaction_type or "").split()).strip()
+    if not source:
+        raise ValueError("source_entity is required")
+    result_limit = max(1, min(int(limit or 50), 200))
+    params = {
+        "sourceTaxon": source,
+        "includeObservations": "true",
+        "limit": str(result_limit),
+    }
+    if target:
+        params["targetTaxon"] = target
+    if relation:
+        params["interactionType"] = relation
+    query_url = (
+        "https://api.globalbioticinteractions.org/interaction.csv?"
+        + urllib.parse.urlencode(params)
+    )
+    relation_fallback = False
+    try:
+        raw = _get(
+            query_url, headers={"Accept": "text/csv"}, timeout=60, retries=2, is_json=False)
+    except RuntimeError:
+        if not relation:
+            raise
+        # GloBI deployments have intermittently returned HTTP 5xx for valid
+        # ``interactionType`` filters while the same source/target query remains healthy.
+        # Retry the same source and target, then apply the requested relation locally. This
+        # preserves the estimand and source identity instead of silently trying another source.
+        relation_fallback = True
+        fallback_params = {key: value for key, value in params.items()
+                           if key != "interactionType"}
+        fallback_params["limit"] = str(max(result_limit, 200))
+        query_url = (
+            "https://api.globalbioticinteractions.org/interaction.csv?"
+            + urllib.parse.urlencode(fallback_params)
+        )
+        raw = _get(
+            query_url, headers={"Accept": "text/csv"}, timeout=60, retries=2, is_json=False)
+    parsed = list(csv.DictReader(raw.splitlines()))
+    rows = []
+    relation_stem = re.sub(r"[^a-z]", "", relation.casefold())
+    if relation_stem.startswith(("spread", "dispers")):
+        relation_stem = "dispers"
+    for item in parsed:
+        source_name = " ".join(str(item.get("source_taxon_name") or "").split())
+        target_name = " ".join(str(item.get("target_taxon_name") or "").split())
+        interaction = " ".join(str(item.get("interaction_type") or "").split())
+        if not source_name or not target_name or not interaction:
+            continue
+        if relation_fallback and relation_stem:
+            interaction_key = re.sub(r"[^a-z]", "", interaction.casefold())
+            if relation_stem not in interaction_key:
+                continue
+        occurrence_url = (
+            item.get("target_specimen_occurrence_id")
+            or item.get("source_specimen_occurrence_id")
+            or ""
+        )
+        stable = hashlib.sha256(
+            "|".join((source_name, interaction, target_name, occurrence_url,
+                      str(item.get("study_title") or ""))).encode()
+        ).hexdigest()[:18]
+        row = {
+            "id": f"globi:{stable}",
+            "source_taxon_name": source_name,
+            "source_taxon_external_id": item.get("source_taxon_external_id") or None,
+            "interaction_type": interaction,
+            "target_taxon_name": target_name,
+            "target_taxon_external_id": item.get("target_taxon_external_id") or None,
+            "source_occurrence_id": item.get("source_specimen_occurrence_id") or None,
+            "target_occurrence_id": item.get("target_specimen_occurrence_id") or None,
+            "basis_of_record": (
+                item.get("target_specimen_basis_of_record")
+                or item.get("source_specimen_basis_of_record")
+                or None
+            ),
+            "study_title": item.get("study_title") or None,
+            "source": "Global Biotic Interactions live index",
+            "source_record": occurrence_url or query_url,
+        }
+        try:
+            if item.get("latitude") and item.get("longitude"):
+                row["lat"] = float(item["latitude"])
+                row["lon"] = float(item["longitude"])
+        except (TypeError, ValueError):
+            pass
+        rows.append(row)
+        if len(rows) >= result_limit:
+            break
+    return {
+        "rows": rows,
+        "kind": "records",
+        "source": "Global Biotic Interactions (GloBI) live exploratory index",
+        "label": "reported interaction record",
+        "grain": "indexed source interaction",
+        "count_admissible": True,
+        "query": {
+            "source_entity": source,
+            "target_entity": target or None,
+            "interaction_type": relation or None,
+        },
+        "retrieved_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "versioned_dataset_doi": "10.5281/zenodo.3950589",
+        "note": (
+            "GloBI rows are exploratory, source-linked interaction leads. They do not establish "
+            "that the interaction occurs at the target site. Inspect the retained occurrence or "
+            "study source; use the versioned GloBI publication for research-grade reuse."
+            + (
+                " The live relation filter failed, so the same source/target result was retrieved "
+                "without that server filter and the requested relation was retained by local "
+                "filtering; no alternative evidence source was substituted."
+                if relation_fallback else ""
+            )
+        ),
+        "connector_events": [{
+            "tool": "globi.interaction.csv",
+            "implementation": "GloBI Web API",
+            "parameters": params,
+            "output_rows": len(rows),
+            "source_url": query_url,
+            "versioned_dataset_doi": "10.5281/zenodo.3950589",
+            "relation_filter_fallback": relation_fallback,
+        }],
+    }
 
 
 # ---------------------------------------------------------------- eBird recent observations

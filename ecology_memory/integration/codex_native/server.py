@@ -21,6 +21,7 @@ import concurrent.futures
 import contextlib
 import datetime as dt
 import hashlib
+import html
 import http.server
 import json
 import math
@@ -214,6 +215,27 @@ OPERATIONAL_SKILLS = [{
         "'{\"site_id\":\"EBTL\"}'\n```"
     ),
 }, {
+    "id": "publish-evidence-dashboard",
+    "description": (
+        "Build a self-contained visual dashboard from audited result handles in the current "
+        "conversation, with evidence classes, maps, row counts and data gaps."
+    ),
+    "use_for": ["summarise an investigation as a dashboard",
+                "show accumulated evidence, visuals and gaps without inventing metrics"],
+    "exclude": ["inventing outcomes or trends", "using another session's result handle",
+                "replacing a scientific analysis or field map"],
+    "supports_ops": ["DASHBOARD"], "returns": "Dashboard artefact",
+    "georeferenced": True, "binding": {"mode": "evidence_dashboard"},
+    "instructions": (
+        "Pass a short `title` and optionally `result_ids` returned earlier in this conversation. "
+        "When result_ids are omitted, the controller uses all audited results in the current "
+        "session. The controller derives every card and chart; do not pass metrics, claims, HTML "
+        "or prose sections. Include the returned `[Open evidence dashboard](#dashboard-...)` "
+        "link.\n\n"
+        "```bash\npython3 {skill_call} publish-evidence-dashboard "
+        "'{\"title\":\"Site ecology evidence dashboard\"}'\n```"
+    ),
+}, {
     "id": "request-model-from-t4gc",
     "description": (
         "Record an explicit user request for a missing ecological model or predictor in the "
@@ -243,6 +265,27 @@ OPERATIONAL_SKILLS = [{
         "Use `--pairs` for names containing apostrophes so the shell cannot alter the query.\n\n"
         "```bash\npython3 {skill_call} local-site-evidence-search "
         "--pairs query=\"Russell's viper\" region=EBTL\n```"
+    ),
+}, {
+    "id": "discover-biotic-interactions",
+    "description": (
+        "Search the source-linked Global Biotic Interactions index for reported interactions "
+        "between a named source taxon and an optional target taxon or interaction type."
+    ),
+    "use_for": ["find evidence-backed candidates for dispersal, feeding or other biotic relations",
+                "test a model-memory interaction seed against an admitted interaction index"],
+    "exclude": ["claiming an indexed interaction occurs at the site",
+                "using colocation as an interaction", "estimating a distribution"],
+    "supports_ops": ["DISCOVER"], "returns": "Interaction evidence leads",
+    "georeferenced": False, "binding": {"mode": "biotic_interaction_discovery"},
+    "instructions": (
+        "Pass a named `source_entity`, and optional `target_entity`, `interaction_type`, and "
+        "`limit`. A group such as Aves may be the target only as a search filter; downstream "
+        "occurrence or modelling must use a named taxon returned by this skill. Treat every row "
+        "as an exploratory, source-linked lead and preserve its occurrence/study identifier. It "
+        "does not establish an interaction at the target site.\n\n"
+        "```bash\npython3 {skill_call} discover-biotic-interactions "
+        "'{\"source_entity\":\"Eucalyptus\",\"target_entity\":\"Aves\",\"limit\":20}'\n```"
     ),
 }, {
     "id": "discover-ecology-evidence",
@@ -643,6 +686,9 @@ def _map_intent(question: object) -> str | None:
         r".{0,80}\bdata\b", text,
     ) or re.search(
         r"\bdata\b.{0,80}\bwhere .{0,60}\b(?:collect|sample|survey|check)\b", text,
+    ) or re.search(
+        r"\b(?:show (?:me )?)?where .{0,50}\b(?:field|survey|sampling) checks?\b"
+        r".{0,80}\b(?:information|useful|help|priority|priorit)\w*\b", text,
     ))
     if not asks_for_map:
         return None
@@ -997,7 +1043,7 @@ def _publish_html_document(session: "Session", title: str, content: str,
                                SessionLocal)  # type: ignore
 
     digest = _sha256({"session": session.id, "turn": session.turn, "content": content})[:20]
-    document_id = f"idli-map-{digest}"
+    document_id = f"idli-{_safe_id(link_kind)}-{digest}"
     db = SessionLocal()
     try:
         existing = db.query(Document).filter(Document.id == document_id).first()
@@ -1011,7 +1057,7 @@ def _publish_html_document(session: "Session", title: str, content: str,
             ))
             db.add(DocumentVersion(
                 id=str(uuid.uuid4()), document_id=document_id, version_number=1,
-                content=content, summary="Audited ecology field map", source="ai",
+                content=content, summary=f"Audited ecology {link_kind}", source="ai",
             ))
             db.commit()
         return {"document_id": document_id, "url": f"#{_safe_id(link_kind)}-{document_id}",
@@ -1053,6 +1099,7 @@ def _manifest_entity_candidates(value: Any) -> list[tuple[str, str]]:
     for key in (
         "scientific_name", "common_name", "canonical", "resolved_entity",
         "donor_entity", "left_entity", "right_entity", "taxon",
+        "source_taxon_name", "target_taxon_name",
     ):
         candidate = value.get(key)
         if isinstance(candidate, str) and candidate.strip():
@@ -1113,9 +1160,16 @@ def _scientific_resource_manifest(session: "Session") -> dict:
         }:
             return
         canonical = str(resolution.get("canonical") or name)
+        existing = entities.get(canonical.casefold())
+        aliases = list(existing.get("aliases") or []) if existing else []
+        for alias in (name, canonical):
+            if alias and alias.casefold() not in {item.casefold() for item in aliases}:
+                aliases.append(alias)
         entities[canonical.casefold()] = {
-            "symbol": canonical, "input": name, "kind": resolution.get("kind"),
-            "source": source, "source_field": field,
+            "symbol": canonical, "input": (existing or {}).get("input") or name,
+            "aliases": aliases[:12], "kind": resolution.get("kind"),
+            "source": (existing or {}).get("source") or source,
+            "source_field": (existing or {}).get("source_field") or field,
         }
 
     result_summaries = []
@@ -1194,7 +1248,7 @@ def _bind_scientific_symbols(ir: dict, manifest: dict) -> tuple[dict, list[dict]
         canonical = str(item.get("symbol") or "").strip()
         if not canonical:
             continue
-        for alias in (canonical, item.get("input")):
+        for alias in (canonical, item.get("input"), *(item.get("aliases") or [])):
             key = _normalise_match_text(alias)
             if key:
                 entity_aliases[key] = canonical
@@ -1249,11 +1303,15 @@ def _bind_scientific_symbols(ir: dict, manifest: dict) -> tuple[dict, list[dict]
         elif node.get("op") == "REGION":
             value = node.get("place")
             if isinstance(value, str) and not value.startswith("?"):
-                canonical = region_aliases.get(_normalise_match_text(value))
+                key = _normalise_match_text(value)
+                canonical = region_aliases.get(key)
+                if canonical is None and "elephants by the lake" in key and re.search(
+                        r"\bebtl\b", key):
+                    canonical = region_aliases.get("ebtl")
                 if canonical and canonical != value:
                     bindings.append({
                         "kind": "region", "model_text": value, "bound_symbol": canonical,
-                        "rule": "exact admitted region alias",
+                        "rule": "exact admitted region alias or explicit EBTL long-form alias",
                     })
                     node["place"] = canonical
     return bound, bindings
@@ -1623,6 +1681,46 @@ def _discover_evidence(args: dict, session: "Session") -> dict:
                                            for event in connector_events]}]}
 
 
+def _discover_biotic_interactions(args: dict, session: "Session") -> dict:
+    source_entity = " ".join(str(args.get("source_entity") or "").split()).strip()
+    if not source_entity:
+        return {
+            "status": "data_request", "reason": "missing_source_entity",
+            "detail": {"ask": "name the source taxon for the interaction search"},
+            "provenance": [],
+        }
+    try:
+        value = C.biotic_interactions(
+            source_entity,
+            args.get("target_entity"),
+            args.get("interaction_type"),
+            int(args.get("limit") or 30),
+        )
+    except (TypeError, ValueError, RuntimeError) as exc:
+        return {
+            "status": "data_request", "reason": "interaction_source_unavailable",
+            "detail": {"error": f"{type(exc).__name__}: {str(exc)[:400]}"},
+            "provenance": [],
+        }
+    rows = value.get("rows") or []
+    status = "answer" if rows else "data_request"
+    result_id = session.store_result("biotic_interactions", value)
+    value["result_id"] = result_id
+    return {
+        "status": status,
+        "reason": None if rows else "no_interaction_records",
+        "label": value.get("label"),
+        "value": value,
+        "provenance": [{
+            "op": "DISCOVER_INTERACTIONS",
+            "query": value.get("query"),
+            "result_id": result_id,
+            "connector": "globi.interaction.csv",
+            "versioned_dataset_doi": value.get("versioned_dataset_doi"),
+        }],
+    }
+
+
 def _inspect_dataset(args: dict, session: "Session") -> dict:
     result_id = str(args.get("result_id") or "").strip()
     doi = (str(args.get("doi") or "").strip().lower()
@@ -1746,6 +1844,10 @@ def _build_field_map(args: dict, session: "Session") -> dict:
         "dry-Deccan donor belt" if map_mode == "modelled"
         else str(args.get("source_region") or region_name)
     )
+    occurrence_source_disabled = (
+        session.owner == "benchmark"
+        and "disable_occurrence_connectors" in getattr(session, "benchmark_faults", set())
+    )
     method = str(args.get("method") or "feature")
     target = C.resolve_region(source_region_name if map_mode == "observed" else region_name)
     west_south_east_north = [target["bbox"][2], target["bbox"][0],
@@ -1782,14 +1884,24 @@ def _build_field_map(args: dict, session: "Session") -> dict:
                     "status": "unavailable",
                     "reason": f"{type(exc).__name__}: {str(exc)[:240]}",
                 }
-        observed = _taxon_execution(
-            resolved_entity,
-            source_region_name if map_mode == "observed" else region_name, False)
-        estimated = (
-            _taxon_execution(resolved_entity, region_name, True, method)
-            if map_mode == "modelled" else
-            {"status": "not_run", "reason": "observed_only_map", "provenance": []}
-        )
+        if occurrence_source_disabled:
+            observed = {
+                "status": "data_request", "reason": "occurrence_connector_unavailable",
+                "provenance": [{"op": "SELECT", "fault": "disable_occurrence_connectors"}],
+            }
+            estimated = {
+                "status": "data_request", "reason": "occurrence_connector_unavailable",
+                "provenance": [{"op": "ESTIMATE", "fault": "disable_occurrence_connectors"}],
+            }
+        else:
+            observed = _taxon_execution(
+                resolved_entity,
+                source_region_name if map_mode == "observed" else region_name, False)
+            estimated = (
+                _taxon_execution(resolved_entity, region_name, True, method)
+                if map_mode == "modelled" else
+                {"status": "not_run", "reason": "observed_only_map", "provenance": []}
+            )
         rows = ((observed.get("value") or {}).get("rows") or []) \
             if observed.get("status") == "answer" else []
         local_rows[entity] = rows
@@ -1829,8 +1941,17 @@ def _build_field_map(args: dict, session: "Session") -> dict:
     mode = ("observed occurrence map" if map_mode == "observed"
             else "spatially balanced confirmation design")
     candidates = []
-    if map_mode == "observed":
+    if map_mode == "observed" and not occurrence_source_disabled:
         candidates = []
+    elif map_mode == "observed":
+        candidates = ARTIFACTS.balanced_sampling_points(west_south_east_north, 9)
+        for row in candidates:
+            row["reason"] = (
+                "The intended occurrence connector is unavailable and no source-identified "
+                "cached points were admitted; collect a new observation at this spatially "
+                "balanced point instead of substituting another public source."
+            )
+        mode = "source-outage collection design"
     elif len(surface_rows) == 2:
         left, right = (surface_rows[entity] for entity in entities)
         by_coord = {(round(row["lat"], 6), round(row["lon"], 6)): row for row in right}
@@ -1889,7 +2010,7 @@ def _build_field_map(args: dict, session: "Session") -> dict:
         for row in candidates:
             row["reason"] = reason[:500]
 
-    if map_mode == "observed":
+    if map_mode == "observed" and not occurrence_source_disabled:
         waypoints = []
         for entity, rows in local_rows.items():
             for row in rows:
@@ -1920,10 +2041,14 @@ def _build_field_map(args: dict, session: "Session") -> dict:
     ).casefold() in {"ebtl", "elephants by the lake"}
     if use_base_image:
         notes.append("The background is contextual dry-season Sentinel-2 imagery; it is not evidence for the mapped taxon.")
-    if map_mode == "observed":
+    if map_mode == "observed" and not occurrence_source_disabled:
         notes.append(
             f"This view contains returned occurrence records from {source_region_name}; "
             "it is not a prediction.")
+    elif occurrence_source_disabled:
+        notes.append(
+            "The intended occurrence connector was unavailable and no auditable cached points "
+            "were admitted. These are new collection points, not occurrences or predictions.")
     if not surfaces:
         if map_mode != "observed":
             notes.append(
@@ -1942,10 +2067,12 @@ def _build_field_map(args: dict, session: "Session") -> dict:
         if key in artifact
     }
     public_artifact["downloads"] = ["GeoJSON", "CSV field sheet"]
-    evidence_label = (
-        "observed" if map_mode == "observed"
-        else ("modelled" if surfaces else "designed")
-    )
+    if occurrence_source_disabled:
+        evidence_label = "designed"
+    elif map_mode == "observed":
+        evidence_label = "observed"
+    else:
+        evidence_label = "modelled" if surfaces else "designed"
     value = {
         "kind": "records", "rows": waypoints, "source": "audited ecology field-map renderer",
         "label": evidence_label, "entities": entities,
@@ -1953,7 +2080,7 @@ def _build_field_map(args: dict, session: "Session") -> dict:
         "artifact": {**public_artifact, **published},
         "note": (
             f"Created {mode} with {len(waypoints)} "
-            f"{'returned observation points' if map_mode == 'observed' else 'stable field points'}. "
+            f"{'returned observation points' if map_mode == 'observed' and not occurrence_source_disabled else 'stable field points'}. "
             "Use the side-panel map; overlap remains a confirmation hypothesis, not an interaction."
         ),
     }
@@ -1964,6 +2091,175 @@ def _build_field_map(args: dict, session: "Session") -> dict:
                        "point_ids": artifact["point_ids"], "document_id": published["document_id"]})
     return {"status": "answer", "label": value["label"], "value": value,
             "provenance": provenance}
+
+
+def _publish_evidence_dashboard(args: dict, session: "Session") -> dict:
+    """Render only controller-observed result metadata into a visual investigation dashboard."""
+    title = " ".join(str(args.get("title") or "Ecology evidence dashboard").split())[:160]
+    requested = args.get("result_ids")
+    if requested is not None and not isinstance(requested, list):
+        return {
+            "status": "data_request", "reason": "invalid_result_ids",
+            "detail": {"ask": "result_ids must be a list of handles from this conversation"},
+            "provenance": [],
+        }
+    requested_ids = [
+        str(item) for item in (requested or [])[:40] if isinstance(item, str) and item.strip()
+    ]
+    stored_results = []
+    if requested_ids:
+        for result_id in requested_ids:
+            stored = session.load_result(result_id)
+            if stored is None:
+                return {
+                    "status": "data_request", "reason": "unknown_result_id",
+                    "detail": {"result_id": result_id,
+                               "ask": "use a result handle from this conversation"},
+                    "provenance": [],
+                }
+            stored_results.append(stored)
+    else:
+        for path in sorted(
+                session.results.glob("*.json"), key=lambda item: item.stat().st_mtime)[:80]:
+            with contextlib.suppress(OSError, ValueError, TypeError):
+                stored = json.loads(path.read_text(encoding="utf-8"))
+                if stored.get("session_id") == session.id:
+                    stored_results.append(stored)
+    # A dashboard is a view over evidence, not new ecological evidence. Excluding prior
+    # dashboard envelopes keeps refreshes idempotent and prevents recursive dashboard cards.
+    stored_results = [
+        stored for stored in stored_results if str(stored.get("kind") or "") != "dashboard"
+    ]
+
+    gaps = []
+    if session.audit_path.exists():
+        for line in session.audit_path.read_text(encoding="utf-8").splitlines():
+            with contextlib.suppress(json.JSONDecodeError):
+                event = json.loads(line)
+                if event.get("type") != "skill_call":
+                    continue
+                execution = ((event.get("result") or {}).get("execution") or {})
+                if execution.get("status") == "data_request":
+                    gaps.append({
+                        "turn": event.get("turn"), "skill": event.get("skill"),
+                        "reason": execution.get("reason") or "unspecified",
+                    })
+
+    def evidence_class(stored: dict, payload: dict) -> str:
+        kind = str(stored.get("kind") or "")
+        label = str(payload.get("label") or "").casefold()
+        if kind in {"local_evidence", "site_overview"}:
+            return "Local asset"
+        if kind == "scientific_algebra":
+            actual = payload.get("execution") if isinstance(payload.get("execution"), dict) else {}
+            ir = payload.get("ir") if isinstance(payload.get("ir"), dict) else {}
+            if actual.get("status") == "answer" and any(
+                    node.get("op") == "ESTIMATE" for node in _iter_ir_nodes(ir)):
+                return "Modelled"
+        if kind == "map":
+            return {"modelled": "Modelled", "designed": "Designed"}.get(
+                label, "Public data")
+        if kind in {"evidence_discovery", "inspected_dataset", "occurrence"}:
+            return "Public data"
+        return "Audited result"
+
+    cards = []
+    max_rows = 1
+    for stored in stored_results:
+        payload = stored.get("payload") if isinstance(stored.get("payload"), dict) else {}
+        rows = payload.get("rows") if isinstance(payload.get("rows"), list) else []
+        for row in rows:
+            if isinstance(row, dict) and str(row.get("section") or "").casefold() == "gap":
+                gaps.append({
+                    "turn": stored.get("turn"),
+                    "skill": stored.get("kind") or "site resource",
+                    "reason": row.get("value") or row.get("label") or "declared site gap",
+                })
+        max_rows = max(max_rows, len(rows))
+        artifact = payload.get("artifact") if isinstance(payload.get("artifact"), dict) else {}
+        cards.append({
+            "result_id": str(stored.get("result_id") or ""),
+            "turn": stored.get("turn"),
+            "kind": str(stored.get("kind") or "result"),
+            "label": str(payload.get("label") or ""),
+            "evidence": evidence_class(stored, payload),
+            "row_count": len(rows),
+            "source": str(payload.get("source") or "")[:240],
+            "url": str(artifact.get("url") or ""),
+        })
+
+    e = html.escape
+    card_html = []
+    for card in cards:
+        width = max(3, round(card["row_count"] / max_rows * 100)) if card["row_count"] else 0
+        visual = (
+            f'<div class="bar" aria-label="{card["row_count"]} returned rows">'
+            f'<span style="width:{width}%"></span></div>'
+        )
+        link = (
+            f'<a href="{e(card["url"], quote=True)}">Open visual</a>' if card["url"] else "")
+        card_html.append(
+            '<article class="card">'
+            f'<div class="badge">{e(card["evidence"])}</div>'
+            f'<h2>{e(card["kind"].replace("_", " ").title())}</h2>'
+            f'<div class="metric">{card["row_count"]}</div><div class="caption">returned rows</div>'
+            f'{visual}<p>{e(card["source"] or card["label"] or "Source retained in audit")}</p>'
+            f'<code>{e(card["result_id"])}</code><div>{link}</div></article>'
+        )
+    gap_html = "".join(
+        "<li><strong>Turn {}</strong> · {} · <code>{}</code></li>".format(
+            e(str(item.get("turn") or "?")), e(str(item["skill"])),
+            e(str(item["reason"])))
+        for item in gaps[-20:]
+    ) or "<li>No audited data requests in the included conversation.</li>"
+    document = """<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{color-scheme:light dark;--bg:#f6f3eb;--panel:#fff;--ink:#20302a;--muted:#65736d;
+--accent:#397b62;--line:#d8ddd8}*{box-sizing:border-box}body{margin:0;padding:24px;
+font:15px/1.45 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:1180px;margin:auto}header{display:flex;gap:18px;justify-content:space-between;
+align-items:end;margin-bottom:18px}h1{font-size:clamp(1.5rem,4vw,2.6rem);margin:0}header p{margin:0;
+color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:12px}.card,.gaps{padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--panel);
+box-shadow:0 3px 14px #0000000a}.card h2{font-size:1rem;margin:8px 0}.badge{display:inline-block;
+padding:3px 8px;border-radius:999px;background:#397b6218;color:var(--accent);font-size:.72rem;
+font-weight:700}.metric{font-size:2rem;font-weight:750}.caption{font-size:.72rem;color:var(--muted)}
+.bar{height:7px;margin:10px 0;background:var(--line);border-radius:9px;overflow:hidden}.bar span{display:block;
+height:100%;background:var(--accent)}code{display:block;margin:8px 0;overflow-wrap:anywhere;font-size:.7rem}
+a{color:var(--accent);font-weight:650}.gaps{margin-top:14px}.gaps h2{margin-top:0;font-size:1rem}
+footer{margin:14px 2px;color:var(--muted);font-size:.78rem}
+@media(prefers-color-scheme:dark){:root{--bg:#151b18;--panel:#1d2622;--ink:#e6eee9;--muted:#9eaaa4;
+--line:#33413a;--accent:#75c5a3}}@media(max-width:520px){body{padding:14px}header{display:block}
+header p{margin-top:5px}.grid{grid-template-columns:1fr}}
+</style></head><body><main><header><div><h1>""" + e(title) + """</h1>
+<p>Controller-derived evidence ledger</p></div><p>Audit """ + e(
+        f"{session.id}/{session.turn}") + """</p></header><section class="grid">""" + "".join(
+            card_html) + """</section><section class="gaps"><h2>Data and model gaps</h2><ul>""" + \
+        gap_html + """</ul></section><footer>Bars show returned row counts only. They are not
+abundance, ecological importance, occupancy or evidence strength.</footer></main></body></html>"""
+    published = _publish_html_document(
+        session, title, document, link_kind="dashboard", label="Open evidence dashboard")
+    value = {
+        "kind": "dashboard", "label": "audited synthesis", "rows": cards,
+        "source": "current-session audited result ledger",
+        "artifact": published, "gap_count": len(gaps),
+        "note": (
+            f"Dashboard includes {len(cards)} audited result handles and {len(gaps)} data gaps. "
+            "Row-count bars describe returned records only; they are not abundance or importance."
+        ),
+    }
+    result_id = session.store_result("dashboard", value)
+    value["result_id"] = result_id
+    return {
+        "status": "answer", "label": "audited synthesis", "value": value,
+        "provenance": [{
+            "op": "DASHBOARD", "result_id": result_id,
+            "input_result_ids": [card["result_id"] for card in cards],
+            "audit_id": f"{session.id}/{session.turn}",
+            "document_id": published["document_id"],
+        }],
+    }
 
 
 def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) -> dict:
@@ -2066,11 +2362,17 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
             },
             "execution": execution,
         }
-    if mode in {"evidence_discovery", "dataset_inspect", "field_protocol", "field_map"}:
+    if mode in {
+        "evidence_discovery", "dataset_inspect", "field_protocol", "field_map",
+        "evidence_dashboard", "biotic_interaction_discovery",
+    }:
         if session is None:
             raise ValueError(f"{skill_id} requires a session")
         if mode == "evidence_discovery":
             execution = _discover_evidence(args, session)
+            op = "DISCOVER"
+        elif mode == "biotic_interaction_discovery":
+            execution = _discover_biotic_interactions(args, session)
             op = "DISCOVER"
         elif mode == "dataset_inspect":
             execution = _inspect_dataset(args, session)
@@ -2078,6 +2380,9 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         elif mode == "field_protocol":
             execution = _build_protocol(args, session)
             op = "PROTOCOL"
+        elif mode == "evidence_dashboard":
+            execution = _publish_evidence_dashboard(args, session)
+            op = "DASHBOARD"
         else:
             execution = _build_field_map(args, session)
             op = "MAP"
@@ -2129,12 +2434,68 @@ GUIDED_OPERATION_SKILLS = {
     "search_wider_evidence": {"discover-ecology-evidence"},
     "show_observed_map": {"build-ecology-field-map"},
     "test_transfer": {
-        "compile-scientific-algebra-9b", "gated-species-presence-transfer"},
+        "merged-taxon-occurrence-search", "compile-scientific-algebra-9b",
+        "gated-species-presence-transfer"},
     "build_model_map": {
-        "compile-scientific-algebra-9b", "build-ecology-field-map"},
+        "merged-taxon-occurrence-search", "compile-scientific-algebra-9b",
+        "build-ecology-field-map"},
     "inspect_dataset": {"inspect-evidence-dataset"},
     "build_protocol": {"build-source-backed-field-protocol"},
 }
+
+GUIDED_OPERATION_SEQUENCE = {
+    "test_transfer": [
+        "merged-taxon-occurrence-search",
+        "compile-scientific-algebra-9b",
+        "gated-species-presence-transfer",
+    ],
+    "build_model_map": [
+        "merged-taxon-occurrence-search",
+        "compile-scientific-algebra-9b",
+        "build-ecology-field-map",
+    ],
+}
+
+
+def _required_first_skill(message: str, selected_action: dict | None = None) -> str | None:
+    """Protect broad/local requests from source substitution before model reasoning begins."""
+    if selected_action:
+        sequence = GUIDED_OPERATION_SEQUENCE.get(str(selected_action.get("operation"))) or []
+        return sequence[0] if sequence else None
+    normal = _normalise_match_text(message)
+    if re.search(r"\bdashboard\b", normal):
+        return "publish-evidence-dashboard"
+    # These are site-agnostic capability routes, not answers. They bind an ecological
+    # measurement family to its admitted connector before the language model can substitute
+    # an unrelated local asset or a remembered web result.
+    if re.search(r"\b(fire|wildfire|burn(?:ed|t|ing)?|burn scar)\b", normal):
+        return "historical-fire-exposure"
+    if (
+        re.search(r"\b(ndvi|greenness|vegetation condition)\b", normal)
+        and re.search(r"\b(change|changed|trend|improv|declin|before|after|over time)\w*\b", normal)
+    ):
+        return "vegetation-greenness-trend"
+    if re.fullmatch(
+        r"(?:please )?(?:tell me about|describe|give me an overview of|"
+        r"give me a summary of|what is|what do we know about) "
+        r"(?:the |this |our )?(?:site|property|aoi|ebtl|elephants by the lake)[?.! ]*",
+        normal,
+    ):
+        return "site-overview"
+    if re.search(
+        r"\b(literature|papers?|public datasets?|external sources?|wider region|"
+        r"openalex|zenodo|dryad|gbif|inaturalist)\b",
+        normal,
+    ):
+        return None
+    if (
+        re.search(
+            r"\b(local|locally|onboarded|our site|this site|the site|this landscape|"
+            r"our landscape|this property|our property|ebtl)\b", normal)
+        or "elephants by the lake" in normal
+    ):
+        return "local-site-evidence-search"
+    return None
 
 
 def _guided_value(value: Any) -> Any:
@@ -2361,6 +2722,22 @@ def _derive_guidance(session: "Session") -> dict | None:
             "Check whether these donor observations can support an estimate at the site.",
             entity=entity, donor_region=args.get("source_region") or region,
             target=args.get("target_region") or "EBTL"))
+    elif skill == "discover-biotic-interactions":
+        candidates = []
+        for row in returned_rows:
+            if not isinstance(row, dict):
+                continue
+            candidate = " ".join(str(row.get("target_taxon_name") or "").split())
+            if candidate and candidate.casefold() not in {
+                    item.casefold() for item in candidates}:
+                candidates.append(candidate)
+        for candidate in candidates[:2]:
+            actions.append(_guided_action(
+                f"Retrieve {candidate[:34]} records", "search_wider_occurrences",
+                "Use this returned interaction candidate in an admitted occurrence search.",
+                entity=candidate, target_region="EBTL", region="dry-Deccan donor belt"))
+        if actions:
+            question = "Which returned interaction candidate should I check spatially?"
     elif skill == "discover-ecology-evidence":
         result_id = str(value.get("result_id") or "")
         for row in (value.get("rows") or [])[:3]:
@@ -2419,13 +2796,22 @@ def _guided_directive(action: dict) -> str:
     operation = action["operation"]
     args = action.get("args") or {}
     allowed = sorted(GUIDED_OPERATION_SKILLS[operation])
+    sequence = GUIDED_OPERATION_SEQUENCE.get(operation) or []
+    sequence_note = (
+        " Execute these stages in order in this turn: " + " → ".join(sequence) + "."
+        if sequence else ""
+    )
     return (
         "The user selected the guided investigation action "
-        f"{action['label']!r}. Perform exactly one investigation stage. "
+        f"{action['label']!r}."
+        + sequence_note +
+        (" Perform exactly one investigation stage." if not sequence else "") +
+        " "
         f"Authorized skill set for this stage: {', '.join(allowed)}. "
         f"Use these controller-bound arguments: {_stable_json(args)}. "
-        "Do not silently continue to another stage; report the useful result briefly and stop "
-        "so the controller can offer the next valid actions."
+        "For an ordered sequence, do not skip evidence retrieval, and stop if the controller "
+        "rejects or cannot complete a stage. Report the useful result briefly so the controller "
+        "can offer the next valid actions."
     )
 
 
@@ -2451,10 +2837,14 @@ class Session:
         self.turn_skill_calls: list[dict] = []
         self.guided_action: dict | None = None
         self.guided_allowed_skills: set[str] | None = None
+        self.guided_sequence: list[str] = []
+        self.guided_sequence_index = 0
         self.current_data_question = ""
         self.algebra_planner_calls = 0
         self.algebra_plans: list[dict] = []
         self.active_algebra_plan: dict | None = None
+        self.benchmark_faults: set[str] = set()
+        self.required_first_skill: str | None = None
         self.turn = 0
         self._load()
         self._prepare()
@@ -2619,6 +3009,9 @@ class Session:
             set(GUIDED_OPERATION_SKILLS.get(str(selected.get("operation")), set()))
             if selected else None
         )
+        self.guided_sequence = list(
+            GUIDED_OPERATION_SEQUENCE.get(str((selected or {}).get("operation")), []))
+        self.guided_sequence_index = 0
         if selected:
             self.investigation_history.append({
                 "state_id": pending.get("state_id") if pending else "",
@@ -2630,6 +3023,7 @@ class Session:
         else:
             message = display_message
         self.current_data_question = str(message or "")[:8000]
+        self.required_first_skill = _required_first_skill(display_message, selected)
         self.algebra_planner_calls = 0
         self.algebra_plans = []
         self.active_algebra_plan = None
@@ -2718,14 +3112,33 @@ class Session:
         action = self.guided_action
         if not action:
             return supplied
-        if skill_id == "compile-scientific-algebra-9b":
-            return supplied
         if self.guided_allowed_skills is not None and skill_id not in self.guided_allowed_skills:
             raise PermissionError(
                 f"guided action {action.get('operation')} does not authorize {skill_id}")
+        if self.guided_sequence:
+            expected = self.guided_sequence[min(
+                self.guided_sequence_index, len(self.guided_sequence) - 1)]
+            if skill_id != expected:
+                raise PermissionError(
+                    f"guided action {action.get('operation')} requires {expected} before "
+                    f"{skill_id}; completed {self.guided_sequence_index} of "
+                    f"{len(self.guided_sequence)} evidence stages")
         bound = dict(action.get("args") or {})
         entity = str(bound.get("entity") or "").strip()
         operation = str(action.get("operation") or "")
+        if operation in {"test_transfer", "build_model_map"}:
+            donor = bound.get("donor_region") or bound.get("source_region") or \
+                "dry-Deccan donor belt"
+            target = bound.get("target") or bound.get("region") or "EBTL"
+            if skill_id == "merged-taxon-occurrence-search":
+                return {"entity": entity, "region": donor, "target_region": target}
+            if skill_id == "compile-scientific-algebra-9b":
+                return {
+                    "scientific_question": (
+                        f"Estimate {entity} suitability at {target} from occurrence records "
+                        f"in {donor} using the admitted environmental transfer gate"
+                    )[:1600],
+                }
         if operation == "search_wider_evidence":
             return {
                 "query": " ".join(
@@ -2757,15 +3170,33 @@ class Session:
         return supplied
 
     def record_skill_call(self, skill_id: str, args: dict, result: dict) -> None:
+        execution = result.get("execution") if isinstance(result, dict) else {}
+        value = execution.get("value") if isinstance(execution, dict) else {}
+        if isinstance(value, dict) and not value.get("result_id"):
+            result_id = self.store_result(skill_id, value)
+            value["result_id"] = result_id
         self.turn_skill_calls.append({
             "skill": skill_id, "args": _redact_audit(args), "result": result,
         })
+        if self.guided_sequence and self.guided_sequence_index < len(self.guided_sequence):
+            expected = self.guided_sequence[self.guided_sequence_index]
+            execution = result.get("execution") if isinstance(result, dict) else {}
+            status = execution.get("status") if isinstance(execution, dict) else None
+            reason = execution.get("reason") if isinstance(execution, dict) else None
+            terminal_failure = (
+                skill_id == "compile-scientific-algebra-9b"
+                and reason in {"scientific_ir_rejected", "algebra_compiler_failed"}
+            )
+            if skill_id == expected and status in {"answer", "data_request"} and not terminal_failure:
+                self.guided_sequence_index += 1
 
     def finish_guided_turn(self) -> dict | None:
         guidance = _derive_guidance(self)
         self.pending_guidance = guidance
         self.guided_action = None
         self.guided_allowed_skills = None
+        self.guided_sequence = []
+        self.guided_sequence_index = 0
         if guidance:
             self.investigation_history.append({
                 "state_id": guidance["state_id"], "offered_at": dt.datetime.now().isoformat(),
@@ -2798,6 +3229,23 @@ class Session:
         except (OSError, json.JSONDecodeError):
             return None
         return value if value.get("session_id") == self.id else None
+
+    def has_result_kind(self, kinds: set[str], require_estimate_ir: bool = False) -> bool:
+        """Check only this session's durable result ledger for an admitted prerequisite."""
+        for path in self.results.glob("*.json"):
+            with contextlib.suppress(OSError, ValueError, TypeError):
+                stored = json.loads(path.read_text(encoding="utf-8"))
+                if stored.get("session_id") != self.id or stored.get("kind") not in kinds:
+                    continue
+                if not require_estimate_ir:
+                    return True
+                payload = stored.get("payload") if isinstance(stored.get("payload"), dict) else {}
+                ir = payload.get("ir") if isinstance(payload.get("ir"), dict) else {}
+                schema = payload.get("schema") if isinstance(payload.get("schema"), dict) else {}
+                if schema.get("valid") and any(
+                        node.get("op") == "ESTIMATE" for node in _iter_ir_nodes(ir)):
+                    return True
+        return False
 
     def append_audit(self, event: dict) -> None:
         event = _redact_audit({"at": dt.datetime.now().isoformat(), "session_id": self.id,
@@ -2938,7 +3386,11 @@ def _native_prompt(message: str, session: Session) -> str:
     routing_note = ""
     site_aliases = [item.strip().casefold() for item in os.environ.get(
         "CODEX_NATIVE_SITE_ALIASES", "EBTL|Elephants by the Lake").split("|") if item.strip()]
-    mentions_site = any(alias in normalised_message for alias in site_aliases)
+    mentions_site = (
+        any(alias in normalised_message for alias in site_aliases)
+        or bool(re.search(
+            r"\b(?:this|our) (?:site|property|aoi|landscape)\b", normalised_message))
+    )
     broad_site_request = bool(re.fullmatch(
         r"(?:please )?(?:tell me about|describe|give me an overview of|"
         r"give me a summary of|what is|what do we know about) "
@@ -2946,6 +3398,14 @@ def _native_prompt(message: str, session: Session) -> str:
         normalised_message))
     asks_external = bool(re.search(
         r"\b(literature|papers?|public datasets?|external sources?|openalex|zenodo|dryad)\b",
+        normalised_message))
+    asks_wider_occurrence = bool(re.search(
+        r"\b(?:wider|regional|donor).{0,50}\b(?:occurrence|records?|observations?)\b|"
+        r"\b(?:occurrence|records?|observations?).{0,50}\b(?:wider|regional|donor)\b",
+        normalised_message))
+    asks_biotic_relation = bool(re.search(
+        r"\b(?:spread|dispers|pollinat|eat(?:en|s|ing)?|feed(?:s|ing)?|prey|"
+        r"biotic interaction|co-occur|colocat)\w*\b",
         normalised_message))
     requested_map_mode = _map_intent(message)
     if requested_map_mode and not getattr(session, "guided_action", None):
@@ -2964,6 +3424,36 @@ def _native_prompt(message: str, session: Session) -> str:
             "a measurable ecological question. Do not turn words in the organisation or site "
             "name into a taxon search, and do not use external literature as a substitute for the "
             "onboarded site profile."
+        )
+    elif (
+        getattr(session, "required_first_skill", None) in {
+            "historical-fire-exposure", "vegetation-greenness-trend"}
+        and not getattr(session, "guided_action", None)
+    ):
+        routing_note = (
+            "\n\nROUTING REQUIREMENT: The controller has selected the admitted measurement "
+            f"capability `{session.required_first_skill}` for this question. Use its audited "
+            "result. Keep a historical exposure or remote-sensing proxy distinct from current "
+            "risk, abundance, intervention effect, and causality. If the requested estimand is "
+            "not supplied by that result, name the missing predictors or model rather than "
+            "substituting another local asset."
+        )
+    elif asks_wider_occurrence and not getattr(session, "guided_action", None):
+        routing_note = (
+            "\n\nROUTING REQUIREMENT: The user explicitly requested wider occurrence evidence. "
+            "Resolve the taxon from audited local or prior-turn results, then invoke "
+            "`merged-taxon-occurrence-search`. Do not cite occurrence portals, record URLs, "
+            "counts or distributions from model memory. If the admitted occurrence connector "
+            "fails, expose that exact source failure and retain the same ecological question."
+        )
+    elif asks_biotic_relation and not getattr(session, "guided_action", None):
+        routing_note = (
+            "\n\nROUTING REQUIREMENT: This is a biotic-relation question. Model knowledge may "
+            "propose search terms, but a public interaction claim requires an invocation of "
+            "`discover-biotic-interactions` (or query-bound `discover-ecology-evidence`) in this "
+            "investigation. Keep indexed interaction, site occurrence, spatial overlap and "
+            "demonstrated mechanism separate. If the source or target entity is ambiguous, ask "
+            "one short clarification rather than supplying remembered citations."
         )
     elif mentions_site and not asks_external and not getattr(session, "guided_action", None):
         routing_note = (
@@ -2995,7 +3485,11 @@ def _native_prompt(message: str, session: Session) -> str:
         "untrusted query seeds, but it is not site evidence and cannot fill a data gap. Use the "
         "candidate + focal entity + relation as the discovery query when testing a proposed "
         "ecological link, and do not promote it unless a returned source supports that "
-        "link. Use the "
+        "link. Never cite a public occurrence, literature or interaction URL from model memory: "
+        "a corresponding admitted connector call must exist in this investigation. For a "
+        "biotic-interaction question with a named source taxon, use "
+        "`discover-biotic-interactions` to test the seed against source-linked interaction rows; "
+        "a returned interaction remains regional evidence, not a site interaction. Use the "
         "command-backed ecology skills for onboarded assets and connectors. Read only a relevant "
         "skill's SKILL.md, invoke it through the supplied Python wrapper, and briefly tell the user "
         "what evidence is being checked. Do not list skill directories or inspect skill_call.py.\n\n"
@@ -3017,6 +3511,9 @@ def _native_prompt(message: str, session: Session) -> str:
         "tags. Keep observations, reports, search leads, proxies, estimates and designed field "
         "points distinct. Include returned map or protocol links, never local paths. Do not call "
         "a SELECT occurrence search modelled; reserve `modelled` for an executed ESTIMATE. When "
+        "the user asks for a dashboard, use `publish-evidence-dashboard`; pass result handles or "
+        "let the controller include the current session ledger, and never invent dashboard "
+        "metrics. "
         "a shell argument contains an apostrophe, use the documented `--pairs` form instead of "
         "single-quoted JSON. Do not "
         "manually reproduce the scientific question, Algebra 9B response, raw IR or bound "
@@ -3202,6 +3699,240 @@ def _replace_provenance_brackets(text: str) -> str:
     return text
 
 
+def _insight_evidence(session: Session, raw_answer: str) -> dict:
+    """Derive public evidence badges from audited execution, never from scientific prose."""
+    items: dict[str, dict] = {}
+
+    def add(kind: str, label: str, summary: str, skill: str | None = None) -> None:
+        item = items.setdefault(kind, {
+            "kind": kind, "label": label, "summary": summary, "skills": [],
+        })
+        if skill and skill not in item["skills"]:
+            item["skills"].append(skill)
+
+    if re.search(r"(?im)^\s*(?:[-*]\s+)?(?:\[Model background\]|"
+                 r"General ecological context:)", raw_answer or ""):
+        add("model_background", "Model background",
+            "General context from the dialogue model; not site evidence.")
+
+    proxy_skills = {
+        "historical-fire-exposure", "vegetation-greenness-trend",
+        "declared-site-centre",
+    }
+    public_skills = {
+        "merged-taxon-occurrence-search", "discover-ecology-evidence",
+        "discover-biotic-interactions", "inspect-evidence-dataset",
+        "gated-species-presence-transfer",
+    }
+    for call in session.turn_skill_calls:
+        skill = str(call.get("skill") or "")
+        result = call.get("result") if isinstance(call.get("result"), dict) else {}
+        execution = result.get("execution") if isinstance(result.get("execution"), dict) else {}
+        value = execution.get("value") if isinstance(execution.get("value"), dict) else {}
+        status = str(execution.get("status") or "")
+        mode = ((SKILLS_BY_ID.get(skill) or {}).get("binding") or {}).get("mode")
+
+        if mode in {"site_overview", "local_evidence_search"} or skill.startswith("local-"):
+            add("local_asset", "Local asset",
+                "Evidence returned from the organisation's onboarded site resources.", skill)
+        if skill in public_skills:
+            add("public_connector", "Public data",
+                "Evidence returned by an admitted external connector.", skill)
+        if skill in proxy_skills:
+            add("proxy", "Proxy",
+                "An indirect measurement; it is not the ecological outcome itself.", skill)
+
+        if skill == "compile-scientific-algebra-9b":
+            ir = value.get("ir") if isinstance(value.get("ir"), dict) else {}
+            actual = value.get("execution") if isinstance(value.get("execution"), dict) else {}
+            if actual.get("status") == "answer" and any(
+                    node.get("op") == "ESTIMATE" for node in _iter_ir_nodes(ir)):
+                add("modelled", "Modelled",
+                    "An estimate passed the registered scientific execution gate.", skill)
+        elif skill == "build-ecology-field-map" and status == "answer":
+            label = str(value.get("label") or execution.get("label") or "").casefold()
+            if label == "modelled":
+                add("modelled", "Modelled",
+                    "The map contains a modelled surface produced by an admitted operation.", skill)
+            elif label == "designed":
+                add("designed", "Designed",
+                    "Map points are a collection design, not predicted presence.", skill)
+            else:
+                add("public_connector", "Public data",
+                    "The map displays returned occurrence points, not a prediction.", skill)
+        elif skill == "build-source-backed-field-protocol" and status == "answer":
+            add("designed", "Designed",
+                "The field material is a survey design derived from inspected evidence.", skill)
+        elif (
+            skill != "build-ecology-field-map"
+            and status == "answer"
+            and bool((result.get("schema") or {}).get("has_estimate"))
+        ):
+            add("modelled", "Modelled",
+                "A registered estimate operation returned an answer.", skill)
+        elif skill == "publish-evidence-dashboard" and status == "answer":
+            dashboard_classes = {
+                str(row.get("evidence") or "") for row in (value.get("rows") or [])
+                if isinstance(row, dict)
+            }
+            for evidence_class in dashboard_classes:
+                mapped = {
+                    "Local asset": ("local_asset", "Local asset",
+                                    "The dashboard includes onboarded organisation evidence."),
+                    "Public data": ("public_connector", "Public data",
+                                    "The dashboard includes admitted connector results."),
+                    "Modelled": ("modelled", "Modelled",
+                                 "The dashboard includes a gate-passing estimate."),
+                    "Designed": ("designed", "Designed",
+                                 "The dashboard includes a collection design."),
+                }.get(evidence_class)
+                if mapped:
+                    add(*mapped, skill)
+
+        if status == "data_request":
+            add("data_gap", "Data gap",
+                "A requested result could not pass its evidence or model gate.", skill)
+
+    return {
+        "schema": 1,
+        "audit_id": f"{session.id}/{session.turn}",
+        "items": list(items.values())[:8],
+    }
+
+
+def _prefetch_required_skill(session: Session, message: str,
+                             emit: Callable[[dict], None]) -> dict | None:
+    """Run deterministic orientation/presentation prerequisites before model deliberation."""
+    skill_id = session.required_first_skill
+    if session.guided_action or skill_id not in {
+        "site-overview", "local-site-evidence-search", "publish-evidence-dashboard",
+        "historical-fire-exposure", "vegetation-greenness-trend",
+    }:
+        return None
+    if skill_id == "site-overview":
+        args = {"site_id": "EBTL"}
+    elif skill_id == "local-site-evidence-search":
+        args = {"query": " ".join(message.split())[:1200], "region": "EBTL"}
+    elif skill_id in {"historical-fire-exposure", "vegetation-greenness-trend"}:
+        args = {"region": "EBTL"}
+    else:
+        title = re.sub(r"(?i)\b(?:give|make|build|show)\s+me\b", "", message)
+        args = {"title": " ".join(title.split()).strip(" .?!")[:160]
+                or "Ecology evidence dashboard"}
+    started_event = {"type": "tool_start", "kind": "skill", "tool": skill_id,
+                     "controller_prefetch": True}
+    session.append_audit(started_event)
+    emit(started_event)
+    try:
+        result = _execute_skill(skill_id, args, session)
+        session.record_skill_call(skill_id, args, result)
+        session.append_audit({
+            "type": "skill_call", "skill": skill_id, "args": args,
+            "result": result, "controller_prefetch": True,
+        })
+        completed_event = {
+            "type": "tool_output", "kind": "skill", "tool": skill_id,
+            "output": _summary(result), "exit_code": 0, "controller_prefetch": True,
+        }
+        session.append_audit(completed_event)
+        emit(completed_event)
+        return result
+    except Exception as exc:
+        failed_event = {
+            "type": "tool_output", "kind": "skill", "tool": skill_id,
+            "output": f"{type(exc).__name__}: {str(exc)[:500]}",
+            "exit_code": 1, "controller_prefetch": True,
+        }
+        session.append_audit(failed_event)
+        emit(failed_event)
+        return None
+
+
+def _latest_mappable_entity(session: Session) -> tuple[str, str]:
+    """Return the latest evidence-bound taxon and donor region from this investigation."""
+    events = []
+    if session.audit_path.exists():
+        for line in session.audit_path.read_text(encoding="utf-8").splitlines():
+            with contextlib.suppress(json.JSONDecodeError):
+                events.append(json.loads(line))
+    for event in reversed(events):
+        if event.get("type") != "skill_call":
+            continue
+        skill = event.get("skill")
+        args = event.get("args") if isinstance(event.get("args"), dict) else {}
+        if skill == "merged-taxon-occurrence-search":
+            entity = " ".join(str(
+                args.get("entity") or args.get("taxon") or args.get("query") or "").split())
+            if entity:
+                return entity, str(
+                    args.get("region") or args.get("source_region")
+                    or "dry-Deccan donor belt")
+        if skill == "compile-scientific-algebra-9b":
+            result = event.get("result") if isinstance(event.get("result"), dict) else {}
+            execution = result.get("execution") if isinstance(result.get("execution"), dict) else {}
+            value = execution.get("value") if isinstance(execution.get("value"), dict) else {}
+            ir = value.get("ir") if isinstance(value.get("ir"), dict) else {}
+            for node in _iter_ir_nodes(ir):
+                if node.get("op") != "SELECT":
+                    continue
+                entity = " ".join(str(node.get("entity") or "").split())
+                region = node.get("region") if isinstance(node.get("region"), dict) else {}
+                if entity:
+                    return entity, str(region.get("place") or "dry-Deccan donor belt")
+    return "", ""
+
+
+def _complete_requested_map(session: Session, display_message: str,
+                            emit: Callable[[dict], None]) -> dict | None:
+    """Finish an explicit visual request when Codex completed the science but omitted rendering."""
+    map_mode = _map_intent(display_message)
+    if not map_mode or any(
+            call.get("skill") == "build-ecology-field-map"
+            for call in session.turn_skill_calls):
+        return None
+    entity, source_region = _latest_mappable_entity(session)
+    if not entity:
+        return None
+    if map_mode == "modelled" and not session.has_result_kind(
+            {"scientific_algebra"}, require_estimate_ir=True):
+        return None
+    skill_id = "build-ecology-field-map"
+    args = {
+        "entities": [entity], "region": "EBTL", "source_region": source_region,
+        "map_mode": map_mode, "points": 9,
+        "title": f"Field checks for {entity} at EBTL",
+    }
+    started = {
+        "type": "tool_start", "kind": "skill", "tool": skill_id,
+        "controller_completion": True,
+    }
+    session.append_audit(started)
+    emit(started)
+    try:
+        result = _execute_skill(skill_id, args, session)
+        session.record_skill_call(skill_id, args, result)
+        session.append_audit({
+            "type": "skill_call", "skill": skill_id, "args": args, "result": result,
+            "controller_completion": True,
+        })
+        completed = {
+            "type": "tool_output", "kind": "skill", "tool": skill_id,
+            "output": _summary(result), "exit_code": 0, "controller_completion": True,
+        }
+        session.append_audit(completed)
+        emit(completed)
+        return result
+    except Exception as exc:
+        failed = {
+            "type": "tool_output", "kind": "skill", "tool": skill_id,
+            "output": f"{type(exc).__name__}: {str(exc)[:500]}",
+            "exit_code": 1, "controller_completion": True,
+        }
+        session.append_audit(failed)
+        emit(failed)
+        return None
+
+
 def run_turn(session: Session, message: str, emit: Callable[[dict], None]) -> dict:
     with session.lock:
         display_message = message
@@ -3209,6 +3940,24 @@ def run_turn(session: Session, message: str, emit: Callable[[dict], None]) -> di
         session.turn_skill_calls = []
         session.turn += 1
         turn = session.turn
+        started = time.time()
+        emit({"type": "turn_start", "turn": turn, "model": MODEL,
+              "reasoning": REASONING, "audit_path": str(session.audit_path)})
+        prefetched = _prefetch_required_skill(session, message, emit)
+        if prefetched:
+            prefetch_value = {
+                "skill": prefetched.get("skill"),
+                "schema": prefetched.get("schema"),
+                "execution": prefetched.get("execution"),
+            }
+            message = (
+                message
+                + "\n\nCONTROLLER-PREFETCHED PREREQUISITE: The controller already invoked "
+                + str(prefetched.get("skill") or session.required_first_skill)
+                + ". Do not invoke it again. Answer from this audited result and keep its "
+                "limitations:\n"
+                + json.dumps(prefetch_value, ensure_ascii=False, default=str)[:30000]
+            )
         prompt = _native_prompt(message, session)
         final_path = session.output / f"{turn:04d}-final.txt"
         env = os.environ.copy()
@@ -3257,11 +4006,9 @@ def run_turn(session: Session, message: str, emit: Callable[[dict], None]) -> di
             "reasoning": REASONING, "prompt_sha256": _sha256(prompt),
             "skills_sha256": _sha256(SKILLS), "sandbox": requested_sandbox,
             "runner": RUNNER,
+            "benchmark_faults": sorted(session.benchmark_faults),
         }
         session.append_audit(request)
-        emit({"type": "turn_start", "turn": turn, "model": MODEL,
-              "reasoning": REASONING, "audit_path": str(session.audit_path)})
-        started = time.time()
         process = subprocess.Popen(
             command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
             text=True, bufsize=1, env=env,
@@ -3313,6 +4060,24 @@ def run_turn(session: Session, message: str, emit: Callable[[dict], None]) -> di
         scientific_block = _scientific_response_block(session)
         if scientific_block and "### Scientific analysis" not in final:
             final = final.rstrip() + scientific_block
+        completed_map = _complete_requested_map(session, display_message, emit)
+        if completed_map:
+            map_execution = completed_map.get("execution") or {}
+            map_value = map_execution.get("value") or {}
+            artifact = map_value.get("artifact") if isinstance(map_value, dict) else {}
+            link = artifact.get("url") if isinstance(artifact, dict) else None
+            if map_execution.get("status") == "answer" and link and str(link) not in final:
+                label = str(map_value.get("label") or "designed")
+                final = (
+                    final.rstrip()
+                    + "\n\n### Field map\n\n"
+                    + "The controller completed the requested visual after the dialogue draft; "
+                      "this audited renderer result supersedes any earlier statement that no map "
+                      "link was available.\n\n"
+                    + f"[Open the {label} field map]({link})\n\n"
+                    + str(map_value.get("note") or "")
+                )
+        evidence = _insight_evidence(session, final)
         elapsed = round(time.time() - started, 3)
         if return_code != 0:
             error = {"type": "error", "error": stderr.strip()[-1000:] or
@@ -3324,11 +4089,16 @@ def run_turn(session: Session, message: str, emit: Callable[[dict], None]) -> di
             guidance_event = {"type": "insight_actions", **guidance}
             session.append_audit(guidance_event)
             emit(guidance_event)
+        if evidence["items"]:
+            evidence_event = {"type": "insight_evidence", **evidence}
+            session.append_audit(evidence_event)
+            emit(evidence_event)
         result = {
             "type": "final", "answer": final, "thread_id": session.thread_id,
             "session_id": session.id, "turn": turn, "usage": usage,
             "latency_s": elapsed, "exit_code": return_code,
             "audit_path": str(session.audit_path), "insight_actions": guidance,
+            "insight_evidence": evidence,
         }
         session.append_audit(result)
         session._save()
@@ -3379,6 +4149,28 @@ def _idlisseus_event(event: dict, session: Session) -> dict | None:
     stable audit id.  This keeps the answer readable without making skill use invisible.
     """
     event_type = event.get("type")
+    if event_type == "insight_evidence":
+        allowed_kinds = {
+            "local_asset", "public_connector", "modelled", "proxy",
+            "designed", "data_gap", "model_background",
+        }
+        items = []
+        for item in (event.get("items") or [])[:8]:
+            if not isinstance(item, dict) or item.get("kind") not in allowed_kinds:
+                continue
+            items.append({
+                "kind": item["kind"],
+                "label": " ".join(str(item.get("label") or "").split())[:40],
+                "summary": " ".join(str(item.get("summary") or "").split())[:240],
+            })
+        if not items:
+            return None
+        return {
+            "type": "insight_evidence",
+            "schema": 1,
+            "audit_id": str(event.get("audit_id") or "")[:160],
+            "items": items,
+        }
     if event_type == "insight_actions":
         options = []
         for option in (event.get("options") or [])[:3]:
@@ -3467,6 +4259,17 @@ def _compat_actions_marker(event: dict, session: Session | None) -> str:
     ) + "-->"
 
 
+def _compat_evidence_marker(event: dict, session: Session | None) -> str:
+    """Invisible evidence-class marker for older Idlisseus transports."""
+    browser_event = _idlisseus_event(event, session)
+    if not browser_event or browser_event.get("type") != "insight_evidence":
+        return ""
+    return "<!--idli-evidence:" + json.dumps(
+        {key: browser_event[key] for key in ("schema", "audit_id", "items")},
+        separators=(",", ":"),
+    ) + "-->"
+
+
 def _compact_compat_answer(final_event: dict, events: list[dict]) -> str:
     """Embed an invisible audit envelope for older OpenAI-compatible clients.
 
@@ -3488,12 +4291,17 @@ def _compact_compat_answer(final_event: dict, events: list[dict]) -> str:
         _compat_actions_marker(event, None)
         for event in reversed(events) if event.get("type") == "insight_actions"
     ), "")
+    evidence_marker = next((
+        _compat_evidence_marker(event, None)
+        for event in reversed(events) if event.get("type") == "insight_evidence"
+    ), "")
     audit_id = f"{final_event.get('session_id')}/{final_event.get('turn')}"
     skill_marker = ""
     if skills:
         envelope = json.dumps({"skills": skills, "audit_id": audit_id}, separators=(",", ":"))
         skill_marker = f"<!--idli-insight:{envelope}-->"
-    markers = "\n".join(marker for marker in (skill_marker, actions_marker) if marker)
+    markers = "\n".join(
+        marker for marker in (skill_marker, evidence_marker, actions_marker) if marker)
     return f"{markers}\n{answer}".strip() if markers else answer
 
 
@@ -3511,7 +4319,13 @@ def _answer_with_actions_marker(final_event: dict, events: list[dict],
         _compat_actions_marker(event, session)
         for event in reversed(events) if event.get("type") == "insight_actions"
     ), "")
-    return f"{actions_marker}\n{answer}".strip() if actions_marker else answer
+    evidence_marker = next((
+        _compat_evidence_marker(event, session)
+        for event in reversed(events) if event.get("type") == "insight_evidence"
+    ), "")
+    markers = "\n".join(
+        marker for marker in (evidence_marker, actions_marker) if marker)
+    return f"{markers}\n{answer}".strip() if markers else answer
 
 
 SERVER_PORT = int(os.environ.get("CODEX_NATIVE_PORT", "7011"))
@@ -3613,9 +4427,83 @@ class Handler(http.server.BaseHTTPRequestHandler):
             try:
                 skill_id = str(body.get("skill") or "")
                 args = body.get("args") if isinstance(body.get("args"), dict) else {}
+                if (
+                    session.required_first_skill
+                    and not session.turn_skill_calls
+                    and skill_id != session.required_first_skill
+                ):
+                    raise PermissionError(
+                        f"this request requires {session.required_first_skill} before {skill_id}; "
+                        "do not substitute a public source for onboarded evidence")
+                if skill_id == "compile-scientific-algebra-9b":
+                    scientific_question = _normalise_match_text(
+                        args.get("scientific_question") or args.get("question"))
+                    needs_occurrences = (
+                        "occurrence records" in scientific_question
+                        or (
+                            "suitability" in scientific_question
+                            and any(token in scientific_question for token in (
+                                "donor", "transfer", "regional"))
+                        )
+                    )
+                    has_occurrences_this_turn = any(
+                        call.get("skill") == "merged-taxon-occurrence-search"
+                        for call in session.turn_skill_calls
+                    )
+                    if (
+                        needs_occurrences
+                        and not has_occurrences_this_turn
+                        and not session.has_result_kind({
+                            "merged-taxon-occurrence-search",
+                        })
+                    ):
+                        raise PermissionError(
+                            "species transfer compilation requires "
+                            "merged-taxon-occurrence-search first; retrieve and admit the donor "
+                            "records, then invoke Algebra 9B")
+                if (
+                    skill_id == "build-ecology-field-map"
+                    and _normalise_match_text(args.get("map_mode") or "modelled") == "modelled"
+                    and not session.has_result_kind(
+                        {"scientific_algebra"}, require_estimate_ir=True)
+                ):
+                    raise PermissionError(
+                        "a modelled map requires one validated ESTIMATE from "
+                        "compile-scientific-algebra-9b; if its scientific gate fails, the map may "
+                        "then render a labelled collection design")
                 args = session.bind_guided_skill_args(skill_id, args)
                 args = session.bind_scientific_skill_args(skill_id, args)
-                result = _execute_skill(skill_id, args, session)
+                if (
+                    "disable_occurrence_connectors" in session.benchmark_faults
+                    and skill_id in {
+                        "merged-taxon-occurrence-search", "relate-taxon-occurrences",
+                        "gated-species-presence-transfer",
+                    }
+                ):
+                    result = {
+                        "skill": skill_id,
+                        "schema": {
+                            "valid": True, "errors": [], "holes": [],
+                            "ops": ["SELECT"], "has_estimate": False, "unbound": False,
+                            "note": "benchmark fault injection; scientific request unchanged",
+                        },
+                        "execution": {
+                            "status": "data_request",
+                            "reason": "occurrence_connector_unavailable",
+                            "detail": {
+                                "ask": (
+                                    "retry the same occurrence retrieval when its intended "
+                                    "connectors are available; do not substitute another measure"
+                                ),
+                            },
+                            "provenance": [{
+                                "op": "BENCHMARK_FAULT",
+                                "fault": "disable_occurrence_connectors",
+                            }],
+                        },
+                    }
+                else:
+                    result = _execute_skill(skill_id, args, session)
                 session.record_skill_call(skill_id, args, result)
                 session.append_audit({"type": "skill_call", "skill": skill_id,
                                       "args": args, "result": result})
@@ -3664,6 +4552,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self._send_json(400, {"error": {"message": "session context mismatch"}})
                 return
             session.owner = str(idlisseus_context.get("owner") or "")[:200]
+            requested_faults = idlisseus_context.get("benchmark_faults")
+            session.benchmark_faults = (
+                {
+                    str(item) for item in requested_faults
+                    if item == "disable_occurrence_connectors"
+                }
+                if session.owner == "benchmark" and isinstance(requested_faults, list)
+                else set()
+            )
+        else:
+            session.benchmark_faults = set()
         try:
             _stage_attachments(session, body.get("attachments"))
         except Exception as exc:
@@ -3711,6 +4610,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 if not native_browser_events:
                     marker = (_compat_skill_marker(event, session)
                               or _compat_progress_marker(event, session)
+                              or _compat_evidence_marker(event, session)
                               or _compat_actions_marker(event, session))
                     if marker:
                         self._sse({
