@@ -13,3 +13,8 @@ The current Zenodo record is MIT-licensed companion code for the observations ad
 approved production models. Cards marked `requires_model_review` or
 `research_reference_not_operational` must pass their stated gates before a result can be labelled
 modelled.
+
+`github-ebird-occupancy-v3.3` is a separate GPL-3.0 method snapshot for detection-aware
+single-season occupancy modelling. It includes only code and published aggregate/model summaries.
+Underlying checklist rows, coordinates, rasters and fitted objects are not admitted; their
+separate data terms still apply.

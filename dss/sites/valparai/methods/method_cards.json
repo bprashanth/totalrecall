@@ -13,6 +13,12 @@
       "doi": "10.5281/zenodo.10692141",
       "role": "MIT-licensed analysis and figure code",
       "integrity_manifest": "zenodo-10692141-restoration-opportunities/ACQUISITION.json"
+    },
+    {
+      "source_id": "github-ebird-occupancy-v3.3",
+      "doi": "10.5281/zenodo.6501805",
+      "role": "GPL-3.0 detection-aware occupancy code and published model summaries",
+      "integrity_manifest": "github-ebird-occupancy-v3.3/ACQUISITION.json"
     }
   ],
   "method_cards": [
@@ -253,6 +259,72 @@
         {
           "path": "zenodo-10692141-restoration-opportunities/Osuri_simulation_script.R",
           "lines": "7-145"
+        }
+      ]
+    },
+    {
+      "method_id": "detection-aware-single-season-occupancy",
+      "label": "Detection-aware occupancy from repeated complete checklists",
+      "implementation_state": "research_reference_requires_authorised_inputs_and_transfer_review",
+      "applies_to": ["repeat_complete_checklist", "site_visit_detection_history"],
+      "required_inputs": [
+        "resolved_species",
+        "site_id",
+        "repeat_visit_id",
+        "complete_checklist_detection_history",
+        "observation_duration",
+        "distance_travelled",
+        "protocol_type",
+        "start_time",
+        "observer_count",
+        "observer_expertise_or_calibration",
+        "occupancy_predictors"
+      ],
+      "source_instantiation": {
+        "species_screen": "reported in at least 5 percent of checklists across at least 50 percent of occupied 25 km grids",
+        "maximum_duration_minutes": 300,
+        "maximum_distance_km": 5,
+        "maximum_observers": 10,
+        "season": "1 December to 31 May",
+        "time_window": "05:00 to 19:00",
+        "visits_per_site": 10,
+        "site_resolution": "2.5 km grid",
+        "model_family": "single-season occupancy using unmarked::occu",
+        "candidate_model_set": "detection covariates plus combinations of climate and land-cover occupancy predictors",
+        "top_model_rule": "delta AICc below 4",
+        "coefficient_summary": "model-averaged estimates and 95 percent intervals",
+        "goodness_of_fit": "chi-square test with 1000 parametric bootstrap simulations"
+      },
+      "uncertainty": "show detection probability, occupancy estimate, model-averaged interval, fit result, spatial support and source/checklist coverage separately",
+      "first_visual": "observed_checklist_coverage_detection_probability_occupancy_and_uncertainty_map",
+      "evidence_class": "modelled",
+      "allowed_claim": "estimated probability of occupancy under the fitted observation model and supported predictor domain",
+      "forbidden_claim": "confirmed local presence, abundance, population trend, or transfer to a target whose environmental and observation-process gates were not evaluated",
+      "gates": [
+        "use complete checklists or another defensible detection-nondetection design",
+        "retain repeated visits and detection covariates rather than treating missing reports as absence",
+        "make species-screening and effort filters question-specific and visible",
+        "inspect spatial and temporal sampling bias",
+        "evaluate goodness of fit and overdispersion",
+        "use spatially separated validation and environmental-support checks before transfer",
+        "do not apply the source study's season, time or species exclusions as universal defaults"
+      ],
+      "source_code": [
+        {
+          "path": "github-ebird-occupancy-v3.3/02_prep-ebird-data.Rmd",
+          "lines": "source workflow"
+        },
+        {
+          "path": "github-ebird-occupancy-v3.3/04_checklist-calibration-index.Rmd",
+          "lines": "source workflow"
+        },
+        {
+          "path": "github-ebird-occupancy-v3.3/09_occupancy-models.Rmd",
+          "lines": "source workflow"
+        },
+        {
+          "path": "github-ebird-occupancy-v3.3/11_predict-probOfOccupancy.Rmd",
+          "lines": "source workflow"
         }
       ]
     }
