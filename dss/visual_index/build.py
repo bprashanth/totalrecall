@@ -92,6 +92,13 @@ CREATE TABLE cell_features (
   FOREIGN KEY(cell_id) REFERENCES cells(cell_id),
   FOREIGN KEY(source_id) REFERENCES sources(source_id)
 );
+CREATE TABLE matrix_values (
+  matrix_row_id TEXT PRIMARY KEY, source_id TEXT NOT NULL, source_row INTEGER NOT NULL,
+  matrix_id TEXT NOT NULL, series_id TEXT NOT NULL, x_value TEXT NOT NULL,
+  y_value TEXT NOT NULL, value REAL NOT NULL, unit TEXT NOT NULL,
+  evidence_class TEXT NOT NULL, latitude REAL, longitude REAL, cell_id TEXT,
+  properties_json TEXT NOT NULL, FOREIGN KEY(source_id) REFERENCES sources(source_id)
+);
 CREATE TABLE event_cell (
   cell_id TEXT NOT NULL, entity_id TEXT, source_id TEXT NOT NULL,
   event_count INTEGER NOT NULL, first_date TEXT, last_date TEXT,
@@ -118,6 +125,8 @@ CREATE INDEX interactions_subject_idx ON interactions(subject_entity_id, interac
 CREATE INDEX interactions_object_idx ON interactions(object_entity_id, interaction_type);
 CREATE INDEX interactions_cell_idx ON interactions(cell_id, interaction_type);
 CREATE INDEX cell_features_feature_idx ON cell_features(feature_id, year, cell_id);
+CREATE INDEX matrix_values_matrix_idx
+  ON matrix_values(source_id, matrix_id, series_id, x_value, y_value);
 """
 
 
@@ -410,6 +419,9 @@ class Builder:
                 }
             else:
                 row = rows[0]
+                property_spec = spec.get("properties") or {}
+                if isinstance(property_spec, list):
+                    property_spec = {name: name for name in property_spec}
                 result[key] = {
                     "latitude": _coord(row.get(spec.get("latitude", "")), latitude=True),
                     "longitude": _coord(row.get(spec.get("longitude", "")), latitude=False),
@@ -419,6 +431,11 @@ class Builder:
                     ),
                     "canonical": row.get(spec.get("canonical", "")),
                     "label": row.get(spec.get("label", "")),
+                    "properties": {
+                        output: row.get(column)
+                        for output, column in property_spec.items()
+                        if row.get(column) not in (None, "", "NA")
+                    },
                 }
         return result
 
@@ -754,6 +771,47 @@ class Builder:
             )
             self.stats["cell_features"] += 1
 
+    def _ingest_matrix(self, source: dict, spec: dict) -> None:
+        """Ingest a long-form x/y matrix while preserving series and lineage."""
+        source_id = source["source_id"]
+        location_lookup = self._lookup(spec.get("location_lookup"))
+        for row_number, row in enumerate(
+            _rows(self.path(spec["path"]), spec.get("delimiter", ",")), 1
+        ):
+            series_id = str(row.get(spec["series_id"]) or "").strip()
+            x_value = str(row.get(spec["x"]) or "").strip()
+            y_value = str(row.get(spec["y"]) or "").strip()
+            value = _float(row.get(spec["value"]))
+            if not series_id or not x_value or not y_value or value is None:
+                continue
+            location = location_lookup.get(_key(series_id), {})
+            lat = location.get("latitude")
+            lon = location.get("longitude")
+            properties = {
+                name: row.get(column)
+                for name, column in (spec.get("properties") or {}).items()
+                if row.get(column) not in (None, "", "NA")
+            }
+            properties.update(location.get("properties") or {})
+            self.sql.execute(
+                """INSERT OR REPLACE INTO matrix_values
+                   (matrix_row_id,source_id,source_row,matrix_id,series_id,
+                    x_value,y_value,value,unit,evidence_class,latitude,longitude,
+                    cell_id,properties_json)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    _stable(
+                        "mat", source_id, spec.get("adapter_id") or spec["path"],
+                        series_id, x_value, y_value, row_number,
+                    ),
+                    source_id, row_number, spec["matrix_id_value"], series_id,
+                    x_value, y_value, value, spec["unit"],
+                    spec.get("evidence_class", "derived"), lat, lon,
+                    _cell(lat, lon), json.dumps(properties, sort_keys=True),
+                ),
+            )
+            self.stats["matrix_values"] += 1
+
     def _inside_target(self, lat: float, lon: float) -> bool:
         polygon = self.site["target_aoi"]["geometry"]["coordinates"][0]
         west = min(point[0] for point in polygon)
@@ -769,6 +827,7 @@ class Builder:
                 "SELECT cell_id FROM effort WHERE cell_id IS NOT NULL UNION "
                 "SELECT cell_id FROM measurements WHERE cell_id IS NOT NULL UNION "
                 "SELECT cell_id FROM interactions WHERE cell_id IS NOT NULL"
+                " UNION SELECT cell_id FROM matrix_values WHERE cell_id IS NOT NULL"
             )
         }
         for cell_id in sorted(cell_ids):
@@ -825,6 +884,10 @@ class Builder:
             (
                 "plot_indicator_map", "map",
                 "Source-linked plot indicator and category distributions", "ready", None,
+            ),
+            (
+                "matrix_profile", "matrix",
+                "Grouped matrix with source coverage and site map", "ready", None,
             ),
             ("hierarchy_sunburst", "hierarchy", "Entity hierarchy", "ready", None),
             (
@@ -948,6 +1011,9 @@ class Builder:
                 "interactions": self.sql.execute("SELECT COUNT(*) FROM interactions").fetchone()[0],
                 "cell_features": self.sql.execute(
                     "SELECT COUNT(*) FROM cell_features"
+                ).fetchone()[0],
+                "matrix_values": self.sql.execute(
+                    "SELECT COUNT(*) FROM matrix_values"
                 ).fetchone()[0],
                 "cells": self.sql.execute("SELECT COUNT(*) FROM cells").fetchone()[0],
                 "ready_views": self.sql.execute(

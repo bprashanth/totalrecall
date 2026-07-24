@@ -62,7 +62,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
         self.assertEqual(
             result["visuals"][0]["summary"]["denominators"]["records"], 42_348
         )
-        self.assertEqual(len(result["audit"]["source_versions"]), 20)
+        self.assertEqual(len(result["audit"]["source_versions"]), 21)
         for layer in result["visuals"][0]["layers"]:
             resolved = self.service.load_data(result["result_id"], layer["data_ref"]["handle"])
             self.assertIsNotNone(resolved)
@@ -324,6 +324,41 @@ class ValparaiResultServiceTest(unittest.TestCase):
             {item["code"] for item in result["limitations"]},
         )
 
+    def test_acoustic_matrix_profile_keeps_frequency_time_and_sites_visible(self):
+        result = self.service.query(
+            "acoustic-matrix-1",
+            "matrix-profile",
+            {
+                "source_id": "github-acoustics-restoration-v1",
+                "matrix_id": "acoustic_space_use_by_hour_frequency",
+                "category_property": "comparison_class",
+            },
+            "How does the soundscape change through the day across the three site types?",
+        )
+        self.assert_contract(result)
+        self.assertEqual(
+            [item["visual_type"] for item in result["visuals"]], ["matrix", "map"]
+        )
+        denominators = result["visuals"][0]["summary"]["denominators"]
+        self.assertEqual(denominators["series"], 43)
+        self.assertEqual(denominators["categories"], 3)
+        self.assertEqual(denominators["x_bins"], 24)
+        self.assertEqual(denominators["y_bins"], 128)
+        self.assertEqual(denominators["source_rows"], 132_096)
+        matrix = json.loads(
+            self.service.load_data(result["result_id"], "grouped-matrix-values")[1]
+        )
+        self.assertEqual(len(matrix), 3 * 24 * 128)
+        self.assertTrue(all(0 <= item["value"] <= 1 for item in matrix))
+        points = json.loads(
+            self.service.load_data(result["result_id"], "matrix-series-sites")[1]
+        )
+        self.assertEqual(len(points["features"]), 43)
+        self.assertIn(
+            "soundscape-not-species-abundance",
+            {item["code"] for item in result["limitations"]},
+        )
+
     def test_feature_with_no_finite_support_is_blocked_not_zero_filled(self):
         result = self.service.query(
             "cloudy-july-1",
@@ -506,7 +541,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            expected_typed = 13 if pack_name == "real" else 7
+            expected_typed = 14 if pack_name == "real" else 7
             self.assertEqual(len(typed), expected_typed)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):

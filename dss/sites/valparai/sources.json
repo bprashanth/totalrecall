@@ -1166,6 +1166,146 @@
       ]
     },
     {
+      "source_id": "github-acoustics-restoration-v1",
+      "title": "Passive acoustic restoration monitoring aggregates and methods",
+      "doi": "10.5281/zenodo.7036137",
+      "url": "https://github.com/vjjan91/acoustics-Restoration/tree/72064c89c9f9d14344c6e217aade02e074e70597",
+      "publisher": "Pinned research repository snapshot",
+      "license": "GPL-3.0",
+      "capabilities": [
+        "inspectable",
+        "mappable",
+        "derived",
+        "has_locations",
+        "has_measurements",
+        "has_matrix_values",
+        "has_methods"
+      ],
+      "local_metadata": "raw/github-acoustics-restoration-v1/ACQUISITION.json",
+      "adapters": [
+        {
+          "kind": "location",
+          "path": "raw/github-acoustics-restoration-v1/data/list-of-sites.csv",
+          "location_id": "Site code",
+          "label": "Forest name",
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "properties": [
+            "Restoration type",
+            "Year Active",
+            "No.\nsaplings planted",
+            "No.\nspecies planted",
+            "Planted\narea (ha)",
+            "Distance to\ncontinuous forest (m)",
+            "Remnant area (ha)"
+          ]
+        },
+        {
+          "kind": "matrix",
+          "adapter_id": "site-level-acoustic-space-use",
+          "path": "raw/github-acoustics-restoration-v1/results/site-wise-asu.csv",
+          "matrix_id_value": "acoustic_space_use_by_hour_frequency",
+          "series_id": "Site",
+          "x": "time_of_day",
+          "y": "freq",
+          "value": "f.cont.sum",
+          "unit": "within-site-scaled-index",
+          "evidence_class": "derived",
+          "location_lookup": {
+            "path": "raw/github-acoustics-restoration-v1/data/list-of-sites.csv",
+            "lookup_key": "Site code",
+            "latitude": "Latitude",
+            "longitude": "Longitude",
+            "properties": {
+              "comparison_class": "Restoration type",
+              "forest_name": "Forest name"
+            }
+          }
+        },
+        {
+          "kind": "measurement",
+          "adapter_id": "site-date-acoustic-bird-summary",
+          "path": "raw/github-acoustics-restoration-v1/results/acoustic-detections.csv",
+          "record_id": ["Site", "Date"],
+          "date": "Date",
+          "date_format": "%Y%m%d",
+          "location_id": "Site",
+          "evidence_class": "derived",
+          "location_lookup": {
+            "path": "raw/github-acoustics-restoration-v1/data/list-of-sites.csv",
+            "event_key": "Site",
+            "lookup_key": "Site code",
+            "location_id": "Site code",
+            "latitude": "Latitude",
+            "longitude": "Longitude"
+          },
+          "metrics": {
+            "rainforest_bird_acoustic_detections": "source-detections/site-date",
+            "open_country_bird_acoustic_detections": "source-detections/site-date",
+            "rainforest_bird_detection_proportion": "proportion",
+            "open_country_bird_detection_proportion": "proportion"
+          },
+          "metric_columns": {
+            "rainforest_bird_acoustic_detections": "totRFDetections",
+            "open_country_bird_acoustic_detections": "totOCDetections",
+            "rainforest_bird_detection_proportion": "propRF",
+            "open_country_bird_detection_proportion": "propOC"
+          },
+          "metric_labels": {
+            "rainforest_bird_acoustic_detections": "Source-classified rainforest bird acoustic detections",
+            "open_country_bird_acoustic_detections": "Source-classified open-country bird acoustic detections",
+            "rainforest_bird_detection_proportion": "Proportion of source-classified detections from rainforest birds",
+            "open_country_bird_detection_proportion": "Proportion of source-classified detections from open-country birds"
+          },
+          "metric_methods": {
+            "rainforest_bird_acoustic_detections": "source-manual-acoustic-bird-detections",
+            "open_country_bird_acoustic_detections": "source-manual-acoustic-bird-detections",
+            "rainforest_bird_detection_proportion": "source-habitat-affiliation-proportion",
+            "open_country_bird_detection_proportion": "source-habitat-affiliation-proportion"
+          },
+          "properties": ["Site", "Restoration.type"]
+        },
+        {
+          "kind": "measurement",
+          "adapter_id": "site-bird-richness-estimators",
+          "path": "raw/github-acoustics-restoration-v1/results/jackAll.csv",
+          "record_id": "Site",
+          "date_value": "2020",
+          "location_id": "Site",
+          "evidence_class": "derived",
+          "location_lookup": {
+            "path": "raw/github-acoustics-restoration-v1/data/list-of-sites.csv",
+            "event_key": "Site",
+            "lookup_key": "Site code",
+            "location_id": "Site code",
+            "latitude": "Latitude",
+            "longitude": "Longitude"
+          },
+          "metrics": {
+            "acoustic_bird_observed_species_richness": "species/site",
+            "acoustic_bird_chao_richness": "estimated-species/site",
+            "acoustic_bird_first_order_jackknife_richness": "estimated-species/site"
+          },
+          "metric_columns": {
+            "acoustic_bird_observed_species_richness": "Species",
+            "acoustic_bird_chao_richness": "chao",
+            "acoustic_bird_first_order_jackknife_richness": "jack1"
+          },
+          "metric_labels": {
+            "acoustic_bird_observed_species_richness": "Observed acoustically detected bird species richness",
+            "acoustic_bird_chao_richness": "Chao-estimated acoustic bird species richness",
+            "acoustic_bird_first_order_jackknife_richness": "First-order jackknife acoustic bird species richness"
+          },
+          "metric_methods": {
+            "acoustic_bird_observed_species_richness": "source-manual-acoustic-bird-detections",
+            "acoustic_bird_chao_richness": "source-chao-richness",
+            "acoustic_bird_first_order_jackknife_richness": "source-first-order-jackknife-richness"
+          },
+          "properties": ["Site", "Restoration.type", "n", "chao.se", "jack1.se"]
+        }
+      ]
+    },
+    {
       "source_id": "derived-restoration-plot-indicators-v1",
       "title": "Source-linked restoration plot indicators, version 1",
       "doi": "10.5061/dryad.8kprr4xvb",

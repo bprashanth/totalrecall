@@ -48,20 +48,22 @@ python3 -m unittest \
 
 The current build indexes:
 
-- 20 source records, including a reproducible multi-asset feature cube and a derived
+- 21 source records, including a reproducible multi-asset feature cube and a derived
   plot-indicator source;
 - 45,328 source-linked events, including 3,199 regeneration rows and 10,752
   restoration-study bird/tree records;
 - 42,348 georeferenced events;
 - 1,145 resolved or retained broad entities and 1,893 aliases;
-- 161 named/source locations;
+- 205 named/source locations, including 44 acoustic-recorder sites;
 - 974 explicit effort rows, including 460 fifteen-minute bird point counts and 264
   declared 0.04-hectare adult-tree or regeneration plots;
-- 70,438 typed weather, canopy, carbon, tree-structure, seed-fate and habitat measurement rows,
+- 71,595 typed weather, canopy, carbon, tree-structure, seed-fate, bird and habitat measurement rows,
   including 17 method-linked indicators for each of 132 restoration/reference plots;
 - 5,622 explicit visitor–focal-tree or animal–seed-experiment association rows; and
 - 28,764 finite 2024 Earth-observation feature values across 97 available features, with
   832 cloudy-season gaps retained as missing; and
+- 132,096 site-level acoustic-space-use matrix values across 43 recorder sites, 24 hourly
+  windows and 128 frequency bins; and
 - 302 spatial cells.
 
 The typed result service can map a single resolved entity or a broad canonical hierarchy value.
@@ -80,8 +82,12 @@ The plot-indicator capability maps a unit-compatible derived or observed measure
 category distributions with the map. Its generic binding is metric, source and category-property;
 the operation itself contains no Valparai treatment names or indicator formulas. Formulae,
 denominators and gates remain in the source-linked recipe and method cards.
+The matrix capability groups any compatible source-linked x/y matrix by a declared category and
+keeps contributing sites on a supporting map. For the acoustic source it exposes frequency-time
+patterns and recorder coverage; within-site scaling and the distinction between soundscape
+activity and bird detections remain explicit limitations.
 
-Thirteen typed probes are immediately executable, alongside five visual-contract probes awaiting
+Fourteen typed probes are immediately executable, alongside five visual-contract probes awaiting
 their next producer operation. Transfer now produces a versioned all-axis AlphaEarth
 environmental-analogue screen, spatial support gates, observed donor points and unsupported
 target cells. It remains partial because similarity has not passed an effort-aware predictive

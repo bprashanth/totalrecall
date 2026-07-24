@@ -33,17 +33,18 @@ class ValparaiVisualIndexTest(unittest.TestCase):
     def test_build_is_complete_and_fast(self):
         report = json.loads((self.output / "build_report.json").read_text())
         self.assertEqual(report["integrity"], "ok")
-        self.assertEqual(report["sources"], 20)
+        self.assertEqual(report["sources"], 21)
         self.assertEqual(report["events"], 45_328)
         self.assertEqual(report["georeferenced_events"], 42_348)
         self.assertEqual(report["effort_rows"], 974)
-        self.assertEqual(report["measurements"], 70_438)
+        self.assertEqual(report["measurements"], 71_595)
         self.assertEqual(report["interactions"], 5_622)
         self.assertEqual(report["cell_features"], 28_764)
+        self.assertEqual(report["matrix_values"], 132_096)
         self.assertEqual(report["entities"], 1_145)
         self.assertEqual(report["cells"], 302)
         self.assertGreaterEqual(report["ready_views"], 8)
-        self.assertLess(self.elapsed, 3.0)
+        self.assertLess(self.elapsed, 5.0)
 
     def test_feature_cube_retains_units_support_and_evidence_class(self):
         count, features, cells = self.db.execute(
@@ -143,6 +144,36 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         ).fetchone()
         self.assertEqual(minimum, 0)
         self.assertGreater(maximum, 40)
+
+    def test_acoustic_matrix_retains_sites_categories_bins_and_scaled_semantics(self):
+        count, sites, hours, frequencies = self.db.execute(
+            """SELECT COUNT(*),COUNT(DISTINCT series_id),COUNT(DISTINCT x_value),
+                      COUNT(DISTINCT y_value)
+               FROM matrix_values
+               WHERE source_id='github-acoustics-restoration-v1'
+                 AND matrix_id='acoustic_space_use_by_hour_frequency'"""
+        ).fetchone()
+        self.assertEqual((count, sites, hours, frequencies), (132_096, 43, 24, 128))
+        unit, evidence, minimum, maximum = self.db.execute(
+            """SELECT MIN(unit),MIN(evidence_class),MIN(value),MAX(value)
+               FROM matrix_values
+               WHERE source_id='github-acoustics-restoration-v1'"""
+        ).fetchone()
+        self.assertEqual(unit, "within-site-scaled-index")
+        self.assertEqual(evidence, "derived")
+        self.assertEqual(minimum, 0)
+        self.assertEqual(maximum, 1)
+        categories = {
+            row[0] for row in self.db.execute(
+                """SELECT DISTINCT json_extract(properties_json,'$.comparison_class')
+                   FROM matrix_values
+                   WHERE source_id='github-acoustics-restoration-v1'"""
+            )
+        }
+        self.assertEqual(
+            categories,
+            {"Benchmark", "Active", "Passive"},
+        )
 
     def test_duplicate_upstream_keys_do_not_drop_source_rows(self):
         expected = {

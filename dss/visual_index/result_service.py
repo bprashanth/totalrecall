@@ -301,6 +301,7 @@ class ResultService:
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
             "plot-indicator-profile": self._plot_indicator_profile,
+            "matrix-profile": self._matrix_profile,
         }
         implementation = dispatch.get(capability_id)
         if not implementation:
@@ -2570,6 +2571,273 @@ class ResultService:
                 ),
                 "plot-indicator-category-summary": ("application/json", summaries),
                 "plot-indicator-source-rows": ("application/json", rows),
+            },
+        )
+
+    def _matrix_profile(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if (
+            not {"source_id", "matrix_id"}.issubset(arguments)
+            or not set(arguments).issubset(
+                {"source_id", "matrix_id", "category_property"}
+            )
+        ):
+            raise ValueError(
+                "matrix-profile requires source_id and matrix_id and accepts "
+                "optional category_property"
+            )
+        source_id = str(arguments.get("source_id") or "").strip()
+        matrix_id = str(arguments.get("matrix_id") or "").strip()
+        category_property = str(
+            arguments.get("category_property") or "comparison_class"
+        ).strip()
+        if (
+            not source_id
+            or not matrix_id
+            or len(source_id) > 200
+            or len(matrix_id) > 200
+            or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", category_property)
+        ):
+            raise ValueError("matrix-profile arguments are invalid")
+        with self.connect() as connection:
+            rows = [
+                dict(row) for row in connection.execute(
+                    """SELECT matrix_row_id,source_row,series_id,x_value,y_value,
+                              value,unit,evidence_class,latitude,longitude,
+                              properties_json
+                       FROM matrix_values
+                       WHERE source_id=? AND matrix_id=?
+                       ORDER BY series_id,x_value,CAST(y_value AS REAL),y_value""",
+                    (source_id, matrix_id),
+                )
+            ]
+            sources = self._source_versions(connection, {source_id})
+            available = [
+                {"source_id": row[0], "matrix_id": row[1]}
+                for row in connection.execute(
+                    """SELECT DISTINCT source_id,matrix_id FROM matrix_values
+                       ORDER BY source_id,matrix_id"""
+                )
+            ]
+        if not rows:
+            result = self._base_result(
+                request_id, "matrix-profile", original,
+                "Resolve a source-linked matrix and aggregate compatible series by a declared category.",
+                {
+                    "source_id": source_id,
+                    "matrix_id": matrix_id,
+                    "category_property": category_property,
+                },
+                "No indexed matrix values matched this source and matrix.",
+                ["missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "unresolved-matrix",
+                "The requested source and matrix id are not available together.",
+                severity="error", affects=["answer"],
+            ))
+            result["actions"] = [self._action(
+                "choose-matrix", "filter", "Choose an indexed matrix",
+                "matrix-profile", {"available_matrices": available},
+            )]
+            return self._write_result(result, {})
+        units = sorted({row["unit"] for row in rows})
+        if len(units) != 1:
+            raise ValueError("matrix-profile requires one compatible unit")
+        series: dict[str, dict[str, Any]] = {}
+        grouped: dict[tuple[str, str, str], list[float]] = {}
+        for row in rows:
+            properties = json.loads(row["properties_json"] or "{}")
+            category = str(properties.get(category_property) or "Unspecified")
+            site = series.setdefault(row["series_id"], {
+                "series_id": row["series_id"],
+                "category": category,
+                "forest_name": properties.get("forest_name"),
+                "latitude": row["latitude"],
+                "longitude": row["longitude"],
+                "values": [],
+                "matrix_rows": 0,
+            })
+            site["values"].append(float(row["value"]))
+            site["matrix_rows"] += 1
+            grouped.setdefault(
+                (category, row["x_value"], row["y_value"]), []
+            ).append(float(row["value"]))
+        matrix_rows = []
+        for (category, x_value, y_value), values in grouped.items():
+            matrix_rows.append({
+                "category": category,
+                "x": x_value,
+                "y": float(y_value) if re.fullmatch(
+                    r"-?(?:\d+(?:\.\d*)?|\.\d+)", y_value
+                ) else y_value,
+                "value": statistics.fmean(values),
+                "series": len(values),
+                "unit": units[0],
+            })
+        matrix_rows.sort(
+            key=lambda item: (
+                item["category"], item["x"],
+                item["y"] if isinstance(item["y"], float) else str(item["y"]),
+            )
+        )
+        site_rows = []
+        for site in series.values():
+            values = site.pop("values")
+            site_rows.append({
+                **site,
+                "mean_value": statistics.fmean(values),
+                "minimum": min(values),
+                "maximum": max(values),
+                "unit": units[0],
+            })
+        site_rows.sort(key=lambda item: (item["category"], item["series_id"]))
+        points = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": site["series_id"],
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [site["longitude"], site["latitude"]],
+                },
+                "properties": {
+                    "label": (
+                        f"{site['forest_name'] or site['series_id']} · "
+                        f"{site['category']} · mean {site['mean_value']:.3f}"
+                    ),
+                    **{
+                        key: site[key] for key in (
+                            "series_id", "forest_name", "category", "mean_value",
+                            "minimum", "maximum", "matrix_rows", "unit",
+                        )
+                    },
+                },
+            } for site in site_rows if site["latitude"] is not None
+            and site["longitude"] is not None],
+        }
+        categories = sorted({site["category"] for site in site_rows})
+        x_values = sorted({row["x_value"] for row in rows})
+        y_values = sorted({row["y_value"] for row in rows}, key=lambda value: float(value))
+        limitations = [
+            self._limitation(
+                "scaled-matrix-not-absolute-activity",
+                "Values were scaled from zero to one within each site by the source workflow; compare frequency-time patterns, not absolute sound energy between sites.",
+                affects=["matrix-profile", "answer"],
+            ),
+            self._limitation(
+                "soundscape-not-species-abundance",
+                "Acoustic-space use is a derived soundscape activity index, not a species detection, abundance estimate or population trend.",
+                affects=["matrix-profile", "site-matrix-map", "answer"],
+            ),
+        ]
+        headline = (
+            f"{len(series):,} recorder sites are compared across {len(categories):,} "
+            f"{category_property.replace('_', ' ')} categories using "
+            f"{len(x_values):,} time and {len(y_values):,} frequency bins."
+        )
+        result = self._base_result(
+            request_id, "matrix-profile", original,
+            (
+                f"Aggregate {matrix_id} by source-reported {category_property}, "
+                "while retaining the contributing recorder sites."
+            ),
+            {
+                "source_id": source_id,
+                "matrix_id": matrix_id,
+                "category_property": category_property,
+            },
+            headline, ["derived"], "partial", sources,
+        )
+        result["answer"]["detail"] = (
+            "The first visual is the mean frequency-by-time pattern for each category. "
+            "The map keeps the contributing sites, category and matrix coverage visible."
+        )
+        result["limitations"].extend(limitations)
+        matrix_ref = self._data_ref(
+            "grouped-matrix-values", "application/json", matrix_rows
+        )
+        points_ref = self._data_ref(
+            "matrix-series-sites", "application/geo+json", points
+        )
+        sites_ref = self._data_ref("matrix-series-summary", "application/json", site_rows)
+        scope = {"aoi_ids": ["target", "context"], "time": {"start": None, "end": None}}
+        denominators = {
+            "series": len(series),
+            "categories": len(categories),
+            "x_bins": len(x_values),
+            "y_bins": len(y_values),
+            "source_rows": len(rows),
+            "unit": units[0],
+        }
+        result["visuals"] = [
+            {
+                "visual_id": "matrix-profile",
+                "visual_type": "matrix",
+                "view": "matrix-profile",
+                "title": "Soundscape pattern by time, frequency and site category",
+                "priority": "primary",
+                "status": "partial",
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "grouped-matrix-values",
+                    "evidence_class": "derived",
+                    "geometry_type": "table",
+                    "data_ref": matrix_ref,
+                    "legend": {"label": f"Mean matrix value ({units[0]})"},
+                    "style_hint": {
+                        "palette_role": "derived",
+                        "facet_field": "category",
+                        "x_field": "x",
+                        "y_field": "y",
+                        "value_field": "value",
+                        "coverage_field": "series",
+                    },
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-grouped-matrix",
+                    "label": "Inspect matrix values and contributing series",
+                    "data_ref": matrix_ref,
+                }],
+                "limitations": limitations,
+            },
+            {
+                "visual_id": "site-matrix-map",
+                "visual_type": "map",
+                "view": "matrix-series-sites",
+                "title": "Recorder sites contributing to the soundscape matrix",
+                "priority": "supporting",
+                "status": "partial",
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "matrix-series-sites",
+                    "evidence_class": "derived",
+                    "geometry_type": "point",
+                    "data_ref": points_ref,
+                    "legend": {"label": category_property.replace("_", " ")},
+                    "style_hint": {
+                        "palette_role": "derived",
+                        "category_field": "category",
+                        "value_field": "mean_value",
+                    },
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-matrix-sites",
+                    "label": "Inspect recorder-site coverage",
+                    "data_ref": sites_ref,
+                }],
+                "limitations": limitations,
+            },
+        ]
+        return self._write_result(
+            result,
+            {
+                "grouped-matrix-values": ("application/json", matrix_rows),
+                "matrix-series-sites": ("application/geo+json", points),
+                "matrix-series-summary": ("application/json", site_rows),
             },
         )
 

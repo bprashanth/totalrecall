@@ -216,6 +216,31 @@
       "latency_class": "interactive",
       "evidence_classes": ["observed", "derived", "missing"],
       "availability": "ready"
+    },
+    {
+      "capability_id": "matrix-profile",
+      "version": "1.0.0",
+      "label": "Compare a source-linked matrix across declared categories and sites",
+      "input_schema": {
+        "type": "object",
+        "required": ["source_id", "matrix_id"],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1},
+          "matrix_id": {"type": "string", "minLength": 1},
+          "category_property": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$",
+            "default": "comparison_class"
+          }
+        },
+        "additionalProperties": false
+      },
+      "output_views": ["matrix-profile", "matrix-series-sites"],
+      "required_planes": ["matrix_values", "locations", "source_coverage"],
+      "optional_planes": ["measurements", "effort"],
+      "latency_class": "interactive",
+      "evidence_classes": ["derived", "missing"],
+      "availability": "ready"
     }
   ]
 }

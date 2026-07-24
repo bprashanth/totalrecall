@@ -27,6 +27,9 @@ The first two admitted tranches now cover:
 - verified companion analysis code and method cards for plot-area normalisation,
   trait-qualified richness, reference-community similarity, canopy-response curves and an
   exploratory enrichment simulation.
+- 44 acoustic-recorder sites, 43 site-level frequency-by-hour soundscape matrices, site-day
+  matrices, habitat traits, vegetation, bird-detection summaries and the pinned analysis
+  notebooks; the source-contact-requested clip-level table remains excluded.
 
 This supports immediate maps of records, coverage, effort and measured habitat. It does not yet
 support a claim of local absence, causal restoration effect, population trend, dispersal from
