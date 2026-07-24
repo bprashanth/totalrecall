@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import pathlib
 import tempfile
 import threading
@@ -7,7 +8,10 @@ import unittest
 import urllib.error
 import urllib.request
 
-import jsonschema
+try:
+    import jsonschema
+except ImportError:  # The producer itself remains standard-library only.
+    jsonschema = None
 
 from dss.visual_index.build import Builder
 from dss.visual_index.result_service import ResultService, make_server
@@ -15,8 +19,11 @@ from dss.visual_index.result_service import ResultService, make_server
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 PACK = ROOT / "dss" / "sites" / "valparai"
-IDLISSEUS_SCHEMA = (
-    ROOT.parent / "idlisseus" / "dss" / "contracts" / "idli-result.schema.json"
+IDLISSEUS_SCHEMA = pathlib.Path(
+    os.environ.get(
+        "IDLI_RESULT_SCHEMA",
+        str(ROOT.parent / "idlisseus" / "dss" / "contracts" / "idli-result.schema.json"),
+    )
 )
 
 
@@ -33,7 +40,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
         )
         cls.schema = (
             json.loads(IDLISSEUS_SCHEMA.read_text(encoding="utf-8"))
-            if IDLISSEUS_SCHEMA.is_file() else None
+            if jsonschema is not None and IDLISSEUS_SCHEMA.is_file() else None
         )
 
     @classmethod
@@ -63,7 +70,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
     def test_real_entity_query_returns_source_linked_valparai_points(self):
         result = self.service.query(
             "presence-1",
-            "observed-presence-map",
+            "entity-record-map",
             {"entity": "lion-tailed macaque"},
             "Where have lion-tailed macaques been recorded?",
         )
@@ -80,7 +87,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
     def test_empty_target_keeps_surrounding_data_and_offers_transfer(self):
         result = self.service.query(
             "surrounding-1",
-            "observed-presence-map",
+            "entity-record-map",
             {"entity": "Axis axis"},
             "Is Axis axis present here?",
         )
@@ -185,6 +192,146 @@ class ValparaiResultServiceTest(unittest.TestCase):
     def test_result_handles_cannot_escape_pinned_state(self):
         self.assertIsNone(self.service.load_result("../site"))
         self.assertIsNone(self.service.load_data("anything", "../site.json"))
+
+
+class PackSwapContractTest(unittest.TestCase):
+    """The synthetic and real Valparai packs must use one producer/UI contract."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.temp = tempfile.TemporaryDirectory()
+        cls.root = pathlib.Path(cls.temp.name)
+        cls.packs = {
+            "real": ROOT / "dss" / "sites" / "valparai",
+            "synthetic": ROOT / "dss" / "sites" / "valparai_livelihoods",
+        }
+        cls.services = {}
+        for name, pack in cls.packs.items():
+            index = cls.root / name / "index"
+            state = cls.root / name / "state"
+            Builder(pack, index).run()
+            cls.services[name] = ResultService(
+                pack, index / "site_index.sqlite", state
+            )
+        cls.schema = (
+            json.loads(IDLISSEUS_SCHEMA.read_text(encoding="utf-8"))
+            if jsonschema is not None and IDLISSEUS_SCHEMA.is_file() else None
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.temp.cleanup()
+
+    @staticmethod
+    def capability_interface(item):
+        return {
+            key: item.get(key) for key in (
+                "version", "input_schema", "output_views", "required_planes",
+                "optional_planes", "latency_class", "evidence_classes", "availability",
+            )
+        }
+
+    @staticmethod
+    def visual_grammar(result):
+        if not result["visuals"]:
+            return None
+        visual = result["visuals"][0]
+        return {
+            "visual_type": visual["visual_type"],
+            "view": visual["view"],
+            "layers": [{
+                key: layer[key] for key in (
+                    "layer_id", "evidence_class", "geometry_type",
+                )
+            } for layer in visual["layers"]],
+            "drilldowns": [
+                item["action_id"] for item in visual["drilldowns"]
+            ],
+        }
+
+    def test_capability_interfaces_are_identical_across_packs(self):
+        real = self.services["real"].capabilities
+        synthetic = self.services["synthetic"].capabilities
+        self.assertEqual(set(real), set(synthetic))
+        for capability_id in sorted(real):
+            with self.subTest(capability=capability_id):
+                self.assertEqual(
+                    self.capability_interface(real[capability_id]),
+                    self.capability_interface(synthetic[capability_id]),
+                )
+
+    def test_every_typed_question_probe_emits_the_contract(self):
+        for pack_name, pack in self.packs.items():
+            probes = json.loads(
+                (pack / "questions.json").read_text(encoding="utf-8")
+            )["questions"]
+            typed = [probe for probe in probes if probe.get("capability_id")]
+            self.assertEqual(len(typed), 5)
+            for probe in typed:
+                with self.subTest(pack=pack_name, probe=probe["id"]):
+                    result = self.services[pack_name].query(
+                        f"{pack_name}-{probe['id']}",
+                        probe["capability_id"],
+                        probe.get("arguments") or {},
+                        probe["question"],
+                    )
+                    if self.schema:
+                        jsonschema.Draft202012Validator(self.schema).validate(result)
+                    else:
+                        self.assertEqual(result["schema_version"], "idli-result/1")
+                    self.assertEqual(
+                        result["status"], probe.get("expected_status", "complete")
+                    )
+                    expected_view = probe.get("expected_result_view")
+                    if expected_view:
+                        self.assertEqual(result["visuals"][0]["view"], expected_view)
+
+    def test_ready_capabilities_have_the_same_renderer_grammar(self):
+        pairs = {
+            "site-orientation": ({}, {}),
+            "entity-record-map": (
+                {"entity": "lion-tailed macaque"},
+                {"entity": "Karumalai Estate"},
+            ),
+            "coverage-versus-effort": ({}, {}),
+            "metric-time-series": (
+                {"metric": "rainfall"},
+                {"metric": "daily_wage"},
+            ),
+        }
+        for capability_id, (real_args, synthetic_args) in pairs.items():
+            with self.subTest(capability=capability_id):
+                real = self.services["real"].query(
+                    f"swap-real-{capability_id}", capability_id, real_args
+                )
+                synthetic = self.services["synthetic"].query(
+                    f"swap-synthetic-{capability_id}", capability_id, synthetic_args
+                )
+                self.assertEqual(
+                    self.visual_grammar(real), self.visual_grammar(synthetic)
+                )
+
+    def test_synthetic_status_is_visible_but_real_pack_is_not_mislabelled(self):
+        synthetic = self.services["synthetic"].query(
+            "synthetic-label", "metric-time-series", {"metric": "daily_wage"}
+        )
+        real = self.services["real"].query(
+            "real-label", "metric-time-series", {"metric": "rainfall"}
+        )
+        self.assertTrue(synthetic["site"]["synthetic"])
+        self.assertIn(
+            "synthetic-data", {item["code"] for item in synthetic["limitations"]}
+        )
+        self.assertTrue(all(
+            source["synthetic"] for source in synthetic["audit"]["source_versions"]
+        ))
+        self.assertNotIn("synthetic", real["site"])
+        self.assertNotIn(
+            "synthetic-data", {item["code"] for item in real["limitations"]}
+        )
+        self.assertTrue(all(
+            not source["synthetic"] for source in real["audit"]["source_versions"]
+        ))
 
 
 if __name__ == "__main__":

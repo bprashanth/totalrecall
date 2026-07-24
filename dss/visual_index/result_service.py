@@ -74,6 +74,7 @@ class ResultService:
         self.index_path = index_path.resolve()
         self.state_root = state_root.resolve()
         self.site = _load_json(self.site_pack / "site.json")
+        self.source_registry = _load_json(self.site_pack / "sources.json")
         self.capability_registry = _load_json(self.site_pack / "capabilities.json")
         self.capabilities = {
             item["capability_id"]: item
@@ -83,6 +84,10 @@ class ResultService:
             raise FileNotFoundError(self.index_path)
         if not self.capabilities:
             raise ValueError("site pack has no registered capabilities")
+        self.synthetic = any(
+            "synthetic" in source.get("capabilities", [])
+            for source in self.source_registry.get("sources", [])
+        )
         digest_files = [
             self.site_pack / "site.json",
             self.site_pack / "sources.json",
@@ -101,13 +106,14 @@ class ResultService:
         self, connection: sqlite3.Connection, source_ids: set[str] | None = None
     ) -> list[dict[str, Any]]:
         rows = connection.execute(
-            "SELECT source_id,content_sha256 FROM sources ORDER BY source_id"
+            "SELECT source_id,content_sha256,capabilities_json FROM sources ORDER BY source_id"
         ).fetchall()
         return [
             {
                 "source_id": row["source_id"],
                 "version": None,
                 "digest": "sha256:" + row["content_sha256"],
+                "synthetic": "synthetic" in json.loads(row["capabilities_json"]),
             }
             for row in rows
             if source_ids is None or row["source_id"] in source_ids
@@ -167,17 +173,20 @@ class ResultService:
             _stable_json({"request_id": request_id, **query_material}).encode()
         ).hexdigest()[:24]
         descriptor = self.capabilities[capability_id]
-        return {
+        site = {
+            "site_id": self.site["site_id"],
+            "label": self.site["label"],
+            "pack_digest": self.pack_digest,
+        }
+        if self.synthetic:
+            site["synthetic"] = True
+        result = {
             "schema_version": "idli-result/1",
             "result_id": result_id,
             "request_id": request_id,
             "revision": 1,
             "status": status,
-            "site": {
-                "site_id": self.site["site_id"],
-                "label": self.site["label"],
-                "pack_digest": self.pack_digest,
-            },
+            "site": site,
             "question": {
                 "original": original,
                 "resolved": resolved,
@@ -205,6 +214,13 @@ class ResultService:
                 "query_hash": query_hash,
             },
         }
+        if self.synthetic:
+            result["limitations"].append(self._limitation(
+                "synthetic-data",
+                "This result uses synthetic test data and is not evidence about a real place.",
+                severity="info", affects=["answer"],
+            ))
+        return result
 
     def _write_result(
         self, result: dict[str, Any], payloads: dict[str, tuple[str, Any]]
@@ -259,7 +275,7 @@ class ResultService:
             )
         dispatch = {
             "site-orientation": self._site_orientation,
-            "observed-presence-map": self._observed_presence,
+            "entity-record-map": self._entity_records,
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
         }
@@ -283,7 +299,7 @@ class ResultService:
             "capability-not-ready", reason, severity="error",
             affects=["answer"],
         )
-        result["limitations"] = [gap]
+        result["limitations"].append(gap)
         return self._write_result(result, {})
 
     def _site_orientation(
@@ -352,7 +368,7 @@ class ResultService:
         )
         result["answer"]["detail"] = (
             "The boundary is shown using its declared geometry role; record density shows data "
-            "coverage, not abundance or absence."
+            "coverage, not a rate, outcome or non-occurrence."
         )
         aoi_ref = self._data_ref("declared-aoi", "application/geo+json", aoi)
         density_ref = self._data_ref("event-density", "application/geo+json", density)
@@ -412,18 +428,18 @@ class ResultService:
             (_key(entity),),
         ).fetchone()
 
-    def _observed_presence(
+    def _entity_records(
         self, request_id: str, arguments: dict[str, Any], original: str
     ) -> dict[str, Any]:
         if set(arguments) != {"entity"} or not str(arguments.get("entity") or "").strip():
-            raise ValueError("observed-presence-map requires only a non-empty entity")
+            raise ValueError("entity-record-map requires only a non-empty entity")
         requested = str(arguments["entity"]).strip()
         with self.connect() as connection:
             entity = self._resolve_entity(connection, requested)
             if entity is None:
                 sources = self._source_versions(connection)
                 result = self._base_result(
-                    request_id, "observed-presence-map", original,
+                    request_id, "entity-record-map", original,
                     "Resolve an entity alias, then map admitted observations.",
                     {"entity": requested},
                     f"No indexed entity matched “{requested}”.",
@@ -434,7 +450,7 @@ class ResultService:
                     "The supplied name did not resolve to a canonical entity in this pack.",
                     severity="error", affects=["answer"],
                 )
-                result["limitations"] = [unresolved]
+                result["limitations"].append(unresolved)
                 return self._write_result(result, {})
             rows = connection.execute(
                 """SELECT e.event_id,e.source_id,e.source_row,e.event_date,e.latitude,
@@ -492,7 +508,7 @@ class ResultService:
             limitations = [self._limitation(
                 "no-target-records",
                 "No admitted records fall inside the target cells; this is not evidence of absence.",
-                affects=["observed-presence", "answer"],
+                affects=["entity-records", "answer"],
             )]
         else:
             status = "partial"
@@ -501,10 +517,10 @@ class ResultService:
             limitations = [self._limitation(
                 "no-georeferenced-records",
                 "The entity resolved, but no admitted georeferenced records can be mapped.",
-                affects=["observed-presence", "answer"],
+                affects=["entity-records", "answer"],
             )]
         result = self._base_result(
-            request_id, "observed-presence-map", original,
+            request_id, "entity-record-map", original,
             (
                 f"Map admitted records for {entity['canonical_name']} and distinguish target "
                 "from surrounding context."
@@ -518,14 +534,14 @@ class ResultService:
             status, sources,
         )
         result["answer"]["detail"] = (
-            "Points show source coverage. They do not establish abundance, absence, habitat "
-            "preference or a transferable distribution."
+            "Points show source coverage. They do not by themselves establish rates, "
+            "non-occurrence, causal conditions or whether a model transfers to another scope."
         )
-        result["limitations"] = limitations
+        result["limitations"].extend(limitations)
         points_ref = self._data_ref("observations", "application/geo+json", points)
         rows_ref = self._data_ref("source-rows", "application/json", source_rows)
         result["visuals"] = [{
-            "visual_id": "observed-presence",
+            "visual_id": "entity-records",
             "visual_type": "map",
             "view": view,
             "title": f"Where {entity['display_name']} records are available",
@@ -716,7 +732,7 @@ class ResultService:
                     "The requested metric is not in the measurement registry.",
                     severity="error", affects=["answer"],
                 )
-                result["limitations"] = [missing]
+                result["limitations"].append(missing)
                 result["actions"] = [self._action(
                     "choose-metric", "filter", "Choose an indexed metric",
                     "metric-time-series", {"available_metrics": available[:30]},
@@ -759,7 +775,7 @@ class ResultService:
         result["answer"]["detail"] = (
             "The series reports indexed measurements and coverage; no trend test is implied."
         )
-        result["limitations"] = limitations
+        result["limitations"].extend(limitations)
         series_ref = self._data_ref("metric-series", "application/json", rows)
         coverage_ref = self._data_ref("coverage-strip", "application/json", coverage)
         result["visuals"] = [{

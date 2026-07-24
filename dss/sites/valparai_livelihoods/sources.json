@@ -1,0 +1,245 @@
+{
+  "schema_version": "visual-source-registry/0.1",
+  "sources": [
+    {
+      "source_id": "syn-estate-labour",
+      "title": "SYNTHETIC estate labour census, 2015-2024",
+      "doi": null,
+      "url": "synthetic://valparai_livelihoods/syn-estate-labour",
+      "publisher": "Synthetic POC generator (totalrecall)",
+      "license": "CC0-1.0 (synthetic test data)",
+      "capabilities": [
+        "inspectable",
+        "mappable",
+        "has_events",
+        "has_locations",
+        "has_entity_hierarchy",
+        "synthetic"
+      ],
+      "local_metadata": "raw/syn-estate-labour/README.txt",
+      "hierarchy": {
+        "path": "raw/syn-estate-labour/entity_names.csv",
+        "key": "estate_code",
+        "canonical": "estate_name",
+        "label": "estate_name",
+        "levels": [
+          "sector",
+          "division",
+          "ownership_type",
+          "estate_unit"
+        ]
+      },
+      "adapters": [
+        {
+          "kind": "location",
+          "path": "raw/syn-estate-labour/estates.csv",
+          "location_id": "estate_code",
+          "label": "estate_name",
+          "latitude": "decimalLatitude",
+          "longitude": "decimalLongitude",
+          "uncertainty_m": "coordinateUncertaintyInMeters",
+          "properties": [
+            "division",
+            "ownership_type",
+            "planted_area_ha"
+          ]
+        },
+        {
+          "kind": "event",
+          "path": "raw/syn-estate-labour/estate_headcount.csv",
+          "record_id": "record_id",
+          "date": "eventDate",
+          "entity": "estate_name",
+          "entity_alias": "estate_code",
+          "event_type": "census_type",
+          "count": "worker_count",
+          "location_lookup": {
+            "path": "raw/syn-estate-labour/estates.csv",
+            "event_key": "estate_code",
+            "lookup_key": "estate_code",
+            "latitude": "decimalLatitude",
+            "longitude": "decimalLongitude",
+            "uncertainty_m": "coordinateUncertaintyInMeters"
+          },
+          "properties": [
+            "estate_code",
+            "women_workers",
+            "workers_per_ha"
+          ]
+        }
+      ],
+      "content_sha256": "94340f17cda4959ce1807146b29a06a6f474a87bdfa8a23f75a058bf892829ff"
+    },
+    {
+      "source_id": "syn-wages",
+      "title": "SYNTHETIC monthly plantation wage rates, 2017-2024",
+      "doi": null,
+      "url": "synthetic://valparai_livelihoods/syn-wages",
+      "publisher": "Synthetic POC generator (totalrecall)",
+      "license": "CC0-1.0 (synthetic test data)",
+      "capabilities": [
+        "inspectable",
+        "mappable",
+        "has_measurements",
+        "synthetic"
+      ],
+      "local_metadata": "raw/syn-wages/README.txt",
+      "adapters": [
+        {
+          "kind": "measurement",
+          "path": "raw/syn-wages/wage_monthly.csv",
+          "record_id": [
+            "year",
+            "month"
+          ],
+          "date_parts": [
+            "year",
+            "month"
+          ],
+          "location_id_value": "valparai-town-centre",
+          "latitude_value": 10.327,
+          "longitude_value": 76.954,
+          "metrics": {
+            "daily_wage": "INR/day",
+            "overtime_rate": "INR/hour",
+            "paid_days_per_month": "days/month"
+          }
+        }
+      ],
+      "content_sha256": "18e831b8ec96fcbc823d7fa0cfe94e681fe7606fe126d3f2011243a121b239b7"
+    },
+    {
+      "source_id": "syn-mgnrega",
+      "title": "SYNTHETIC MGNREGA-style public works, 2019-2024",
+      "doi": null,
+      "url": "synthetic://valparai_livelihoods/syn-mgnrega",
+      "publisher": "Synthetic POC generator (totalrecall)",
+      "license": "CC0-1.0 (synthetic test data)",
+      "capabilities": [
+        "inspectable",
+        "mappable",
+        "has_events",
+        "synthetic"
+      ],
+      "local_metadata": "raw/syn-mgnrega/README.txt",
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/syn-mgnrega/works.csv",
+          "record_id": "work_id",
+          "latitude": "latitude",
+          "longitude": "longitude",
+          "date": "eventDate",
+          "entity": "work_code",
+          "entity_alias": "work_label",
+          "event_type": "event_type",
+          "uncertainty_m": "gps_accuracy_m",
+          "count": "persondays",
+          "properties": [
+            "village",
+            "households_engaged",
+            "work_label"
+          ]
+        }
+      ],
+      "content_sha256": "fa7c90735536b01afecc05cb31205c38bc5695afd57888568f07737b61cce5c9"
+    },
+    {
+      "source_id": "syn-migration",
+      "title": "SYNTHETIC out-migration events by occupation, 2018-2024",
+      "doi": null,
+      "url": "synthetic://valparai_livelihoods/syn-migration",
+      "publisher": "Synthetic POC generator (totalrecall)",
+      "license": "CC0-1.0 (synthetic test data)",
+      "capabilities": [
+        "inspectable",
+        "mappable",
+        "has_events",
+        "has_entity_crosswalk",
+        "synthetic"
+      ],
+      "local_metadata": "raw/syn-migration/README.txt",
+      "crosswalks": [
+        {
+          "path": "raw/syn-migration/occupation_crosswalk.csv",
+          "alias": "verbatim_occupation",
+          "canonical": "occupation_code",
+          "label": "occupation_label"
+        }
+      ],
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/syn-migration/migration_events.csv",
+          "record_id": "record_id",
+          "latitude": "latitude",
+          "longitude": "longitude",
+          "date": "eventDate",
+          "entity": "occupation_code",
+          "entity_alias": "occupation_label",
+          "event_type": "event_type",
+          "uncertainty_m": "gps_accuracy_m",
+          "count": "persons_moved",
+          "properties": [
+            "origin_village",
+            "destination",
+            "occupation_label"
+          ]
+        }
+      ],
+      "content_sha256": "d5417d88f0ad87a3ac4c372b6ae42cf3343bfc419c10079c4c0dc6e5b07181f2"
+    },
+    {
+      "source_id": "syn-household-survey",
+      "title": "SYNTHETIC household survey effort, 2021-2024",
+      "doi": null,
+      "url": "synthetic://valparai_livelihoods/syn-household-survey",
+      "publisher": "Synthetic POC generator (totalrecall)",
+      "license": "CC0-1.0 (synthetic test data)",
+      "capabilities": [
+        "inspectable",
+        "mappable",
+        "has_effort",
+        "synthetic"
+      ],
+      "local_metadata": "raw/syn-household-survey/README.txt",
+      "adapters": [
+        {
+          "kind": "effort",
+          "path": "raw/syn-household-survey/survey_visits.csv",
+          "record_id": "visit_id",
+          "date": "eventDate",
+          "method_value": "household_survey",
+          "effort_value": "households_visited",
+          "effort_unit": "households",
+          "location_lookup": {
+            "path": "raw/syn-household-survey/villages.csv",
+            "event_key": "village_code",
+            "lookup_key": "village_code",
+            "latitude": "latitude",
+            "longitude": "longitude"
+          },
+          "properties": [
+            "season",
+            "village",
+            "village_code",
+            "enumerator_hours",
+            "village_population"
+          ]
+        },
+        {
+          "kind": "location",
+          "path": "raw/syn-household-survey/villages.csv",
+          "location_id": "village_code",
+          "label": "village_name",
+          "latitude": "latitude",
+          "longitude": "longitude",
+          "properties": [
+            "population"
+          ]
+        }
+      ],
+      "content_sha256": "9d6d196adf817cd759791347ed0ef510a09cf6ccca993c495311b9d85c943857"
+    }
+  ]
+}

@@ -3,7 +3,7 @@
   "questions": [
     {
       "id": "site-overview",
-      "question": "Tell me about Valparai.",
+      "question": "Tell me about livelihoods in the Valparai plateau area.",
       "first_visual": "site_overview_map",
       "capability_id": "site-orientation",
       "arguments": {},
@@ -12,28 +12,37 @@
     },
     {
       "id": "named-place",
-      "question": "Tell me about Iyerpadi.",
+      "question": "Tell me about Thonimalai Village.",
       "first_visual": "named_location_map",
       "required_planes": ["location_aliases", "nearby_events", "nearby_measurements"]
     },
     {
-      "id": "entity-presence",
-      "question": "Where have lion-tailed macaques been recorded?",
+      "id": "estate-workforce-trend",
+      "question": "Where are the workforce census records for Karumalai Estate?",
       "first_visual": "observed_points_map",
       "capability_id": "entity-record-map",
-      "arguments": {"entity": "lion-tailed macaque"},
+      "arguments": {"entity": "Karumalai Estate"},
       "expected_result_view": "observed-points",
       "required_planes": ["entity_aliases", "events", "time_coverage"]
     },
     {
-      "id": "broad-group",
-      "question": "What trees have been measured here?",
-      "first_visual": "entity_richness_map",
-      "required_planes": ["entity_hierarchy", "events", "locations"]
+      "id": "wage-time-series",
+      "question": "How have daily wage rates moved over the available period?",
+      "first_visual": "metric_time_series",
+      "capability_id": "metric-time-series",
+      "arguments": {"metric": "daily_wage"},
+      "expected_result_view": "metric-time-series",
+      "required_planes": ["measurements", "metric_units", "time_buckets"]
     },
     {
-      "id": "presence-vs-effort",
-      "question": "Where do we have records and where did people actually look?",
+      "id": "scheme-works",
+      "question": "Where has MGNREGA generated the most persondays?",
+      "first_visual": "entity_richness_map",
+      "required_planes": ["entities", "events", "locations"]
+    },
+    {
+      "id": "migration-vs-effort",
+      "question": "Where have we recorded out-migration and where did enumerators actually visit?",
       "first_visual": "coverage_and_effort_map",
       "capability_id": "coverage-versus-effort",
       "arguments": {},
@@ -41,45 +50,30 @@
       "required_planes": ["events", "effort", "source_coverage"]
     },
     {
-      "id": "time-pattern",
-      "question": "How do road events vary through the year?",
+      "id": "seasonal-survey",
+      "question": "Do survey findings differ by season once survey effort is accounted for?",
       "first_visual": "seasonal_effort_normalised_chart",
       "required_planes": ["events", "effort", "time_buckets"]
     },
     {
-      "id": "environment-time-series",
-      "question": "How has rainfall changed over the available period?",
-      "first_visual": "metric_time_series",
-      "capability_id": "metric-time-series",
-      "arguments": {"metric": "rainfall"},
-      "expected_result_view": "metric-time-series",
-      "required_planes": ["measurements", "metric_units", "time_buckets"]
-    },
-    {
-      "id": "hierarchy",
-      "question": "How are the measured entities related?",
+      "id": "occupation-structure",
+      "question": "How are estates, villages and occupations related in this pack?",
       "first_visual": "hierarchy_sunburst",
       "required_planes": ["entities", "entity_aliases", "entity_hierarchy"]
     },
     {
       "id": "transfer",
-      "question": "Where is there enough data to transfer a model into the target area?",
+      "question": "Can workforce records from the wider context support an estimate in the target area?",
       "first_visual": "donor_coverage_and_gate_map",
       "capability_id": "gated-transfer",
       "arguments": {
-        "entity": "Macaca silenus",
+        "entity": "Karumalai Estate",
         "donor_scope": "context",
         "target_scope": "target"
       },
       "expected_result_view": null,
       "expected_status": "blocked",
-      "required_planes": ["events", "cells", "feature_cube", "model_runs", "gate_results"]
-    },
-    {
-      "id": "missing-data",
-      "question": "Where would one more survey reduce uncertainty most?",
-      "first_visual": "value_of_information_map",
-      "required_planes": ["cells", "effort", "model_runs", "data_requests"]
+      "required_planes": ["events", "feature_cube", "model_runs", "gate_results"]
     }
   ]
 }

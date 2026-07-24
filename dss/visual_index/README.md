@@ -47,7 +47,7 @@ python3 dss/visual_index/result_service.py \
   --site-pack dss/sites/valparai \
   --index /tmp/valparai-visual-index/site_index.sqlite \
   --state /tmp/valparai-result-state \
-  --query '{"request_id":"demo-1","capability_id":"observed-presence-map","arguments":{"entity":"lion-tailed macaque"},"question":"Where have lion-tailed macaques been recorded?"}'
+  --query '{"request_id":"demo-1","capability_id":"entity-record-map","arguments":{"entity":"lion-tailed macaque"},"question":"Where have lion-tailed macaques been recorded?"}'
 ```
 
 Internal HTTP service:
@@ -65,3 +65,7 @@ python3 dss/visual_index/result_service.py \
 It exposes `POST /v1/results/query`, `GET /v1/results/{result_id}` and
 `GET /v1/results/{result_id}/data/{handle}`. These are bridge/server endpoints, not public browser
 URLs. Idlisseus should proxy authorised handles through its own same-origin API.
+
+`PackSwapContractTest` builds the real Valparai pack and the synthetic Valparai livelihoods pack,
+runs their declared typed question probes through this same service, validates both against the
+shared schema and asserts that matching capabilities return identical renderer grammar.
