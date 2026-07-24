@@ -304,6 +304,7 @@ class ResultService:
             "interaction-map": self._interaction_map,
             "stratified-survey-summary": self._stratified_survey_summary,
             "cell-feature-map": self._cell_feature_map,
+            "seasonal-surface-profile": self._seasonal_surface_profile,
             "gated-transfer": self._gated_transfer,
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
@@ -1550,6 +1551,385 @@ class ResultService:
                 "cell-feature-values": ("application/geo+json", cells),
                 "target-aoi-boundary": ("application/geo+json", target_boundary),
                 "cell-feature-metadata": ("application/json", metadata),
+            },
+        )
+
+    def _seasonal_surface_profile(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if (
+            not {"series_id", "year"}.issubset(arguments)
+            or not set(arguments).issubset({"series_id", "year", "scope"})
+        ):
+            raise ValueError(
+                "seasonal-surface-profile requires series_id and year, with optional scope"
+            )
+        series_id = str(arguments.get("series_id") or "").strip()
+        year = arguments.get("year")
+        scope_name = str(arguments.get("scope") or "context")
+        if (
+            not SAFE_HANDLE.fullmatch(series_id)
+            or not isinstance(year, int)
+            or isinstance(year, bool)
+            or not 1900 <= year <= 2200
+            or scope_name not in {"target", "context", "all_indexed"}
+        ):
+            raise ValueError(
+                "a safe series_id, integer year and declared scope are required"
+            )
+        descriptor = self.capabilities["seasonal-surface-profile"]
+        preset = next(
+            (
+                item for item in descriptor.get("series_presets", [])
+                if item.get("series_id") == series_id
+            ),
+            None,
+        )
+        if not preset:
+            available = [
+                item.get("series_id")
+                for item in descriptor.get("series_presets", [])
+                if item.get("series_id")
+            ]
+            with self.connect() as connection:
+                sources = self._source_versions(connection)
+            result = self._base_result(
+                request_id, "seasonal-surface-profile", original,
+                "Resolve a declared ordered surface series and show its spatial and seasonal pattern.",
+                {"series_id": series_id, "year": year, "scope": scope_name},
+                f"No declared surface series matched “{series_id}”.",
+                ["missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "surface-series-not-declared",
+                "The requested surface series is not declared by this site pack.",
+                severity="error", affects=["answer"],
+            ))
+            result["actions"] = [self._action(
+                "choose-surface-series", "filter", "Choose an indexed surface series",
+                "seasonal-surface-profile", {"available_series_ids": available},
+            )]
+            return self._write_result(result, {})
+        members = preset.get("members") or []
+        if (
+            not members
+            or any(
+                not item.get("feature_id")
+                or not isinstance(item.get("position"), int)
+                or isinstance(item.get("position"), bool)
+                for item in members
+            )
+        ):
+            raise RuntimeError(f"invalid surface-series preset: {series_id}")
+        members = sorted(members, key=lambda item: item["position"])
+        member_by_feature = {
+            item["feature_id"]: {
+                "position": item["position"],
+                "label": str(item.get("label") or item["position"]),
+            }
+            for item in members
+        }
+        if len(member_by_feature) != len(members):
+            raise RuntimeError(f"duplicate feature in surface-series preset: {series_id}")
+        if scope_name == "target":
+            scope_sql = "c.target_role='target'"
+            scope_parameters: tuple[Any, ...] = ()
+        elif scope_name == "context":
+            west, south, east, north = self.site["context_aoi"]["bbox"]
+            scope_sql = (
+                "c.center_lon BETWEEN ? AND ? AND c.center_lat BETWEEN ? AND ?"
+            )
+            scope_parameters = (west, east, south, north)
+        else:
+            scope_sql = "1=1"
+            scope_parameters = ()
+        placeholders = ",".join("?" for _ in member_by_feature)
+        with self.connect() as connection:
+            rows = [
+                dict(row) for row in connection.execute(
+                    f"""SELECT f.cell_id,c.west,c.south,c.east,c.north,c.target_role,
+                               f.feature_id,f.value,f.unit,f.evidence_class,
+                               f.source_asset,f.aggregation,f.scale_m,f.source_id
+                        FROM cell_features f JOIN cells c USING(cell_id)
+                        WHERE f.year=? AND f.feature_id IN ({placeholders})
+                              AND {scope_sql}
+                        ORDER BY f.cell_id,f.feature_id""",
+                    (year, *member_by_feature, *scope_parameters),
+                )
+            ]
+            total_cells = connection.execute(
+                f"SELECT COUNT(*) FROM cells c WHERE {scope_sql}",
+                scope_parameters,
+            ).fetchone()[0]
+            sources = self._source_versions(
+                connection, {row["source_id"] for row in rows}
+            )
+        if not rows:
+            result = self._base_result(
+                request_id, "seasonal-surface-profile", original,
+                "Show a declared ordered surface series with cell support and source lineage.",
+                {"series_id": series_id, "year": year, "scope": scope_name},
+                f"No finite values for {preset.get('label', series_id)} are indexed in this scope.",
+                ["missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "surface-series-empty",
+                "None of the declared series members has finite support in this scope and year.",
+                severity="error", affects=["answer"],
+            ))
+            return self._write_result(result, {})
+        units = {row["unit"] for row in rows}
+        evidence_classes = {row["evidence_class"] for row in rows}
+        if len(units) != 1 or len(evidence_classes) != 1:
+            raise RuntimeError(
+                f"surface series has incompatible units or evidence classes: {series_id}"
+            )
+        unit = next(iter(units))
+        evidence_class = next(iter(evidence_classes))
+        dimension = str(preset.get("dimension") or "step").strip()
+        dimension_label = dimension.replace("_", " ")
+        rows_by_position: dict[int, list[dict[str, Any]]] = {}
+        rows_by_cell: dict[str, list[dict[str, Any]]] = {}
+        for row in rows:
+            member = member_by_feature[row["feature_id"]]
+            row["position"] = member["position"]
+            row["position_label"] = member["label"]
+            rows_by_position.setdefault(member["position"], []).append(row)
+            rows_by_cell.setdefault(row["cell_id"], []).append(row)
+        profile_rows = []
+        for position in sorted(rows_by_position):
+            position_rows = rows_by_position[position]
+            values = [row["value"] for row in position_rows]
+            profile_rows.append({
+                "position": position,
+                "label": position_rows[0]["position_label"],
+                "median": statistics.median(values),
+                "p10": _percentile(values, 0.1),
+                "p90": _percentile(values, 0.9),
+                "minimum": min(values),
+                "maximum": max(values),
+                "cells_with_values": len(position_rows),
+                "cells_without_values": max(total_cells - len(position_rows), 0),
+                "unit": unit,
+            })
+        peak_rows = []
+        for cell_id, cell_rows in rows_by_cell.items():
+            peak = max(cell_rows, key=lambda row: (row["value"], -row["position"]))
+            peak_rows.append({
+                **peak,
+                "available_steps": len(cell_rows),
+            })
+        peak_cells = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": row["cell_id"],
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [row["west"], row["south"]],
+                        [row["east"], row["south"]],
+                        [row["east"], row["north"]],
+                        [row["west"], row["north"]],
+                        [row["west"], row["south"]],
+                    ]],
+                },
+                "properties": {
+                    "label": row["cell_id"],
+                    "peak_position": row["position"],
+                    "peak_label": row["position_label"],
+                    "peak_value": row["value"],
+                    "available_steps": row["available_steps"],
+                    "declared_steps": len(members),
+                    "unit": unit,
+                    "scope_role": row["target_role"],
+                },
+            } for row in peak_rows],
+        }
+        target_boundary = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": "target-aoi-boundary",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": self.site["target_aoi"]["geometry"]["coordinates"][0],
+                },
+                "properties": {
+                    "label": self.site["label"],
+                    "role": self.site["target_aoi"]["geometry_role"],
+                },
+            }],
+        }
+        peak_profile = max(profile_rows, key=lambda row: row["median"])
+        complete_cells = sum(
+            row["available_steps"] == len(members) for row in peak_rows
+        )
+        status = (
+            "complete"
+            if complete_cells == total_cells and len(profile_rows) == len(members)
+            else "partial"
+        )
+        visual_status = "ready" if status == "complete" else "partial"
+        label = str(preset.get("label") or series_id.replace("-", " "))
+        headline = (
+            f"{label} has finite values in {len(peak_rows):,} of {total_cells:,} cells; "
+            f"the across-cell median is highest in {peak_profile['label']} "
+            f"({peak_profile['median']:.3g} {unit})."
+        )
+        limitations = [
+            self._limitation(
+                "surface-not-field-observation",
+                "The surface is remotely sensed or model-derived context, not a field observation.",
+                affects=["seasonal-peak-map", "seasonal-profile", "answer"],
+            ),
+            self._limitation(
+                "seasonal-profile-not-trend",
+                "An ordered within-year profile does not establish a multi-year trend.",
+                affects=["seasonal-profile", "answer"],
+            ),
+            self._limitation(
+                "peak-step-not-event-date",
+                f"A cell's highest available {dimension_label} composite is not an observed biological event date.",
+                affects=["seasonal-peak-map", "answer"],
+            ),
+        ]
+        incomplete_cells = total_cells - complete_cells
+        if incomplete_cells:
+            limitations.append(self._limitation(
+                "incomplete-seasonal-support",
+                f"{incomplete_cells:,} cells are missing one or more declared series steps.",
+                affects=["seasonal-peak-map", "seasonal-profile", "answer"],
+            ))
+        result = self._base_result(
+            request_id, "seasonal-surface-profile", original,
+            "Summarise a declared ordered cell-feature series without treating it as occurrence evidence.",
+            {"series_id": series_id, "year": year, "scope": scope_name},
+            headline, ["reported", evidence_class], status, sources,
+        )
+        result["answer"]["detail"] = (
+            f"The map shows which available {dimension_label} has the highest cell value; "
+            "the chart shows "
+            "the median and 10th–90th percentile envelope across cells, with coverage retained."
+        )
+        result["limitations"].extend(limitations)
+        profile_ref = self._data_ref(
+            "seasonal-surface-profile", "application/json", profile_rows
+        )
+        peak_ref = self._data_ref(
+            "seasonal-peak-cells", "application/geo+json", peak_cells
+        )
+        boundary_ref = self._data_ref(
+            "target-aoi-boundary", "application/geo+json", target_boundary
+        )
+        all_values_ref = self._data_ref(
+            "seasonal-cell-values", "application/json", rows
+        )
+        scope = {
+            "aoi_ids": [scope_name],
+            "time": {"start": f"{year}-01-01", "end": f"{year}-12-31"},
+        }
+        denominators = {
+            "cells": total_cells,
+            "cells_with_any_value": len(peak_rows),
+            "cells_with_all_steps": complete_cells,
+            "declared_steps": len(members),
+            "available_steps": len(profile_rows),
+            "year": year,
+            "scope": scope_name,
+            "unit": unit,
+        }
+        result["visuals"] = [
+            {
+                "visual_id": "seasonal-peak-map",
+                "visual_type": "map",
+                "view": "seasonal-peak-map",
+                "title": f"Where {label} peaks · {year}",
+                "priority": "primary",
+                "status": visual_status,
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "seasonal-peak-cells",
+                    "evidence_class": evidence_class,
+                    "geometry_type": "cell",
+                    "data_ref": peak_ref,
+                    "legend": {
+                        "label": (
+                            f"Peak {dimension_label} number "
+                            f"(1={members[0].get('label', 1)}; "
+                            f"{members[-1]['position']}="
+                            f"{members[-1].get('label', members[-1]['position'])})"
+                        )
+                    },
+                    "style_hint": {
+                        "palette_role": evidence_class,
+                        "category_field": "peak_position",
+                        "value_field": "peak_value",
+                    },
+                }, {
+                    "layer_id": "target-aoi-boundary",
+                    "evidence_class": "reported",
+                    "geometry_type": "line",
+                    "data_ref": boundary_ref,
+                    "legend": {"label": "Declared study envelope"},
+                    "style_hint": {"palette_role": "reported"},
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-seasonal-cell-values",
+                    "label": "Inspect every cell and step",
+                    "data_ref": all_values_ref,
+                }],
+                "limitations": limitations,
+            },
+            {
+                "visual_id": "seasonal-profile",
+                "visual_type": "chart",
+                "view": "seasonal-profile",
+                "title": f"{label} through the declared sequence",
+                "priority": "supporting",
+                "status": visual_status,
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "seasonal-surface-profile",
+                    "evidence_class": evidence_class,
+                    "geometry_type": "series",
+                    "data_ref": profile_ref,
+                    "legend": {"label": f"Median and 10th–90th percentile ({unit})"},
+                    "style_hint": {
+                        "palette_role": evidence_class,
+                        "x_field": "position",
+                        "y_field": "median",
+                        "low_field": "p10",
+                        "high_field": "p90",
+                        "coverage_field": "cells_with_values",
+                    },
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [],
+                "limitations": limitations,
+            },
+        ]
+        result["actions"] = [self._action(
+            "open-peak-step-surface", "drilldown",
+            f"Map the {peak_profile['label']} surface",
+            "cell-feature-map",
+            {
+                "feature_id": next(
+                    feature_id for feature_id, member in member_by_feature.items()
+                    if member["position"] == peak_profile["position"]
+                ),
+                "year": year,
+                "scope": scope_name,
+            },
+        )]
+        return self._write_result(
+            result,
+            {
+                "seasonal-surface-profile": ("application/json", profile_rows),
+                "seasonal-peak-cells": ("application/geo+json", peak_cells),
+                "target-aoi-boundary": ("application/geo+json", target_boundary),
+                "seasonal-cell-values": ("application/json", rows),
             },
         )
 

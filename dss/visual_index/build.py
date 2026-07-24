@@ -882,6 +882,10 @@ class Builder:
                 "Cell-aligned context or predictor surface", "ready", None,
             ),
             (
+                "seasonal_surface_profile", "dashboard",
+                "Ordered surface peak map and coverage-aware profile", "ready", None,
+            ),
+            (
                 "plot_indicator_map", "map",
                 "Source-linked plot indicator and category distributions", "ready", None,
             ),

@@ -142,6 +142,46 @@ class ValparaiResultServiceTest(unittest.TestCase):
             {item["code"] for item in result["limitations"]},
         )
 
+    def test_seasonal_surface_profile_maps_peak_and_keeps_coverage(self):
+        result = self.service.query(
+            "seasonal-greenness-1",
+            "seasonal-surface-profile",
+            {
+                "series_id": "sentinel2-ndvi-monthly",
+                "year": 2024,
+                "scope": "context",
+            },
+            "How does greenness change through the year?",
+        )
+        self.assert_contract(result)
+        self.assertEqual(
+            [item["visual_type"] for item in result["visuals"]], ["map", "chart"]
+        )
+        denominators = result["visuals"][0]["summary"]["denominators"]
+        self.assertEqual(denominators["declared_steps"], 12)
+        self.assertGreaterEqual(denominators["available_steps"], 10)
+        profile = json.loads(
+            self.service.load_data(
+                result["result_id"], "seasonal-surface-profile"
+            )[1]
+        )
+        self.assertGreaterEqual(len(profile), 10)
+        self.assertTrue(
+            all(
+                {"position", "median", "p10", "p90", "cells_with_values"}
+                <= set(row)
+                for row in profile
+            )
+        )
+        peaks = json.loads(
+            self.service.load_data(result["result_id"], "seasonal-peak-cells")[1]
+        )
+        self.assertGreater(len(peaks["features"]), 100)
+        self.assertIn(
+            "seasonal-profile-not-trend",
+            {item["code"] for item in result["limitations"]},
+        )
+
     def test_real_interaction_query_returns_linked_map_and_network(self):
         result = self.service.query(
             "interaction-1",
@@ -567,7 +607,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            expected_typed = 15 if pack_name == "real" else 7
+            expected_typed = 16 if pack_name == "real" else 7
             self.assertEqual(len(typed), expected_typed)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):

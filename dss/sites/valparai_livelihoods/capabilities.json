@@ -260,6 +260,52 @@
       "latency_class": "interactive",
       "evidence_classes": ["reported", "missing"],
       "availability": "ready"
+    },
+    {
+      "capability_id": "seasonal-surface-profile",
+      "version": "1.0.0",
+      "label": "Map where an ordered environmental surface peaks and chart its sequence",
+      "input_schema": {
+        "type": "object",
+        "required": ["series_id", "year"],
+        "properties": {
+          "series_id": {"type": "string", "minLength": 1},
+          "year": {"type": "integer", "minimum": 1900, "maximum": 2200},
+          "scope": {
+            "type": "string",
+            "enum": ["target", "context", "all_indexed"],
+            "default": "context"
+          }
+        },
+        "additionalProperties": false
+      },
+      "series_presets": [
+        {
+          "series_id": "sentinel2-ndvi-monthly",
+          "label": "Monthly Sentinel-2 greenness",
+          "dimension": "month",
+          "members": [
+            {"position": 1, "label": "January", "feature_id": "s2_ndvi_m01_median"},
+            {"position": 2, "label": "February", "feature_id": "s2_ndvi_m02_median"},
+            {"position": 3, "label": "March", "feature_id": "s2_ndvi_m03_median"},
+            {"position": 4, "label": "April", "feature_id": "s2_ndvi_m04_median"},
+            {"position": 5, "label": "May", "feature_id": "s2_ndvi_m05_median"},
+            {"position": 6, "label": "June", "feature_id": "s2_ndvi_m06_median"},
+            {"position": 7, "label": "July", "feature_id": "s2_ndvi_m07_median"},
+            {"position": 8, "label": "August", "feature_id": "s2_ndvi_m08_median"},
+            {"position": 9, "label": "September", "feature_id": "s2_ndvi_m09_median"},
+            {"position": 10, "label": "October", "feature_id": "s2_ndvi_m10_median"},
+            {"position": 11, "label": "November", "feature_id": "s2_ndvi_m11_median"},
+            {"position": 12, "label": "December", "feature_id": "s2_ndvi_m12_median"}
+          ]
+        }
+      ],
+      "output_views": ["seasonal-peak-map", "seasonal-profile"],
+      "required_planes": ["cell_features", "cells", "source_coverage"],
+      "optional_planes": ["aoi"],
+      "latency_class": "interactive",
+      "evidence_classes": ["reported", "derived", "modelled", "missing"],
+      "availability": "ready"
     }
   ]
 }
