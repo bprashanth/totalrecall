@@ -31,6 +31,7 @@ import queue
 import re
 import secrets
 import shutil
+import sqlite3
 import subprocess
 import sys
 import threading
@@ -95,6 +96,10 @@ SITE_PROFILE_PATH = pathlib.Path(os.environ.get(
     "CODEX_NATIVE_SITE_PROFILE",
     str(MEMORY / "integration" / "origin" / "connectors" / "SITE_EBTL.json"),
 ))
+_SITE_PACK_VALUE = os.environ.get("CODEX_NATIVE_SITE_PACK", "").strip()
+SITE_PACK_PATH = pathlib.Path(_SITE_PACK_VALUE) if _SITE_PACK_VALUE else None
+_VISUAL_INDEX_VALUE = os.environ.get("CODEX_NATIVE_VISUAL_INDEX", "").strip()
+VISUAL_INDEX_PATH = pathlib.Path(_VISUAL_INDEX_VALUE) if _VISUAL_INDEX_VALUE else None
 ALGEBRA_9B_URL = os.environ.get(
     "CODEX_NATIVE_ALGEBRA_9B_URL",
     "http://172.17.0.1:8012/v1/chat/completions",
@@ -542,21 +547,124 @@ def _load_site_profile() -> dict:
     return value if isinstance(value, dict) else {}
 
 
+def _site_aliases() -> list[str]:
+    def unique(values: list[str]) -> list[str]:
+        result: list[str] = []
+        seen: set[str] = set()
+        for item in values:
+            key = item.casefold()
+            if item and key not in seen:
+                seen.add(key)
+                result.append(item)
+        return result
+
+    configured = unique([
+        item.strip() for item in os.environ.get("CODEX_NATIVE_SITE_ALIASES", "").split("|")
+        if item.strip()
+    ])
+    if configured:
+        return configured
+    profile = _load_site_profile()
+    aliases = profile.get("aliases") if isinstance(profile.get("aliases"), list) else []
+    values = [
+        str(profile.get("site_id") or profile.get("site") or "").strip(),
+        str(profile.get("label") or "").strip(),
+        *(str(item).strip() for item in aliases),
+    ]
+    profile_name = " ".join(values).casefold()
+    if "ebtl" in profile_name:
+        values = ["EBTL", "Elephants by the Lake", *values]
+    result = unique([item for item in values if item])
+    return result or ["EBTL", "Elephants by the Lake"]
+
+
+def _visual_site_region(profile: dict) -> dict | None:
+    target = profile.get("target_aoi") if isinstance(profile.get("target_aoi"), dict) else {}
+    geometry = target.get("geometry") if isinstance(target.get("geometry"), dict) else {}
+    coordinates = geometry.get("coordinates")
+    points: list[list[float]] = []
+    if geometry.get("type") == "Polygon" and isinstance(coordinates, list) and coordinates:
+        points = coordinates[0] if isinstance(coordinates[0], list) else []
+    numeric = [
+        point for point in points
+        if isinstance(point, list) and len(point) >= 2
+        and isinstance(point[0], (int, float)) and isinstance(point[1], (int, float))
+    ]
+    if not numeric:
+        return None
+    west, east = min(point[0] for point in numeric), max(point[0] for point in numeric)
+    south, north = min(point[1] for point in numeric), max(point[1] for point in numeric)
+    return {
+        "name": str(profile.get("label") or profile.get("site_id") or "site"),
+        "bbox": [south, north, west, east],
+        "lat": (south + north) / 2,
+        "lon": (west + east) / 2,
+        "geometry_role": target.get("geometry_role"),
+    }
+
+
+def _resolve_configured_site(site_id: str, profile: dict) -> dict:
+    try:
+        return C.resolve_region(site_id)
+    except Exception:
+        region = _visual_site_region(profile)
+        aliases = {item.casefold() for item in _site_aliases()}
+        if region and (
+            site_id.casefold() in aliases
+            or site_id.casefold() in {"site", "the site", "this site", "our site"}
+        ):
+            return region
+        raise
+
+
+def _is_visual_site_pack(profile: dict) -> bool:
+    return str(profile.get("schema_version") or "").startswith("visual-site-pack/")
+
+
+def _visual_index_summary() -> dict:
+    if VISUAL_INDEX_PATH is None:
+        return {}
+    summary_path = VISUAL_INDEX_PATH.parent / "build_report.json"
+    with contextlib.suppress(OSError, ValueError, TypeError):
+        value = json.loads(summary_path.read_text(encoding="utf-8"))
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def _site_pack_sources() -> list[dict]:
+    if SITE_PACK_PATH is None:
+        return []
+    path = SITE_PACK_PATH / "sources.json"
+    with contextlib.suppress(OSError, ValueError, TypeError):
+        value = json.loads(path.read_text(encoding="utf-8"))
+        rows = value.get("sources") if isinstance(value, dict) else None
+        if isinstance(rows, list):
+            return [row for row in rows if isinstance(row, dict)]
+    return []
+
+
 def _site_overview(args: dict, session: "Session | None") -> dict:
     """Compile the onboarded site resources into one labelled runtime snapshot."""
-    site_id = " ".join(str(args.get("site_id") or args.get("region") or "EBTL").split())
+    default_site = _site_aliases()[0]
+    site_id = " ".join(str(args.get("site_id") or args.get("region") or default_site).split())
+    profile = _load_site_profile()
     try:
-        region = C.resolve_region(site_id)
+        region = _resolve_configured_site(site_id, profile)
     except Exception as exc:
         return {
             "status": "data_request", "reason": "unknown_site",
             "detail": {"site_id": site_id, "error": f"{type(exc).__name__}: {exc}"},
             "provenance": [],
         }
-    profile = _load_site_profile()
-    profile_site = str(profile.get("site") or region.get("name") or site_id)
-    description = str(profile.get("where") or "").strip()
+    profile_site = str(
+        profile.get("label") or profile.get("site") or region.get("name") or site_id
+    )
+    description = str(profile.get("where") or profile.get("description") or "").strip()
     bbox = profile.get("site_bbox_wsen")
+    if _is_visual_site_pack(profile):
+        south, north, west, east = region["bbox"]
+        bbox = [west, south, east, north]
     if not isinstance(bbox, list) or len(bbox) != 4:
         south, north, west, east = region["bbox"]
         bbox = [west, south, east, north]
@@ -585,7 +693,8 @@ def _site_overview(args: dict, session: "Session | None") -> dict:
         "source_record": SITE_PROFILE_PATH.name,
     }]
 
-    summary = C.published_site_evidence(
+    visual_pack = _is_visual_site_pack(profile)
+    summary = {} if visual_pack else C.published_site_evidence(
         {"kind": "published_site_evidence", "canonical": "evidence_summary",
          "input": site_id}, region, None)
     for item in (summary or {}).get("rows") or []:
@@ -600,7 +709,7 @@ def _site_overview(args: dict, session: "Session | None") -> dict:
             "source": (summary or {}).get("source") or "Imported local evidence",
         })
 
-    partitions = [
+    partitions = [] if visual_pack else [
         ("wildlife_inventory", "wildlife survey groups"),
         ("bird_inventory", "bird inventory"),
         ("snake_habitat_requirements", "snake inventory and habitat fields"),
@@ -621,14 +730,43 @@ def _site_overview(args: dict, session: "Session | None") -> dict:
                     "evidence_label": result.get("label") or "reported",
                     "source": result.get("source"),
                 })
-    rows.append({
-        "id": "site-profile:resource-census",
-        "section": "resource census",
-        "finding": f"{len(partition_rows)} local evidence partitions are registered.",
-        "partitions": partition_rows,
-        "evidence_label": "computed inventory",
-        "source": "Idli Insight site-profile compiler",
-    })
+    if not visual_pack:
+        rows.append({
+            "id": "site-profile:resource-census",
+            "section": "resource census",
+            "finding": f"{len(partition_rows)} local evidence partitions are registered.",
+            "partitions": partition_rows,
+            "evidence_label": "computed inventory",
+            "source": "Idli Insight site-profile compiler",
+        })
+
+    if visual_pack:
+        sources = _site_pack_sources()
+        rows.append({
+            "id": "site-profile:source-registry",
+            "section": "resource census",
+            "finding": f"{len(sources)} versioned sources are registered for this site pack.",
+            "sources": [{
+                "source_id": item.get("source_id"),
+                "title": item.get("title"),
+                "capabilities": item.get("capabilities") or [],
+            } for item in sources],
+            "evidence_label": "computed inventory",
+            "source": "Totalrecall site-pack source registry",
+        })
+        visual_summary = _visual_index_summary()
+        if visual_summary:
+            rows.append({
+                "id": "site-profile:visual-index",
+                "section": "visual index",
+                "finding": (
+                    f"{visual_summary.get('events', 0)} events and "
+                    f"{visual_summary.get('measurements', 0)} measurements are indexed."
+                ),
+                "summary": visual_summary,
+                "evidence_label": "computed inventory",
+                "source": "Totalrecall visual index",
+            })
 
     geometry_files = []
     if session is not None:
@@ -658,13 +796,17 @@ def _site_overview(args: dict, session: "Session | None") -> dict:
             "source": "Idli Insight site-profile compiler",
         })
 
-    capability_ids = [
-        skill_id for skill_id in (
+    configured_capabilities = (
+        ("site-overview", "local-site-evidence-search", "publish-evidence-dashboard")
+        if visual_pack else (
             "vegetation-greenness-trend", "historical-fire-exposure",
             "merged-taxon-occurrence-search", "map-evidence-coverage",
             "compile-scientific-algebra-9b", "build-ecology-field-map",
-            "discover-ecology-evidence")
-        if skill_id in SKILLS_BY_ID
+            "discover-ecology-evidence",
+        )
+    )
+    capability_ids = [
+        skill_id for skill_id in configured_capabilities if skill_id in SKILLS_BY_ID
     ]
     rows.append({
         "id": "site-profile:capabilities",
@@ -674,6 +816,17 @@ def _site_overview(args: dict, session: "Session | None") -> dict:
         "evidence_label": "runtime capability",
         "source": "Idli Insight capability registry",
     })
+    if visual_pack:
+        rows.append({
+            "id": "site-profile:poc-capability-gap",
+            "section": "gap",
+            "finding": (
+                "Transfer models, remote layers and rendered map workflows are not yet "
+                "parameterised for this site-pack POC."
+            ),
+            "evidence_label": "runtime limitation",
+            "source": "Idli Insight capability registry",
+        })
     value = {
         "kind": "records", "rows": rows,
         "source": "Onboarded profile + imported local evidence + capability registry",
@@ -694,6 +847,117 @@ def _site_overview(args: dict, session: "Session | None") -> dict:
             "partitions": [item["partition"] for item in partition_rows],
         }],
     }
+
+
+def _normalise_entity_key(value: str) -> str:
+    return re.sub(
+        r"[^a-z0-9]+", " ", str(value or "").replace("_", " ").casefold()
+    ).strip()
+
+
+def _visual_index_local_search(query: str, limit: int) -> dict | None:
+    """Read the configured site's canonical observed-event index.
+
+    This is intentionally a small POC adapter. It supports exact/partial entity lookup and returns
+    source-linked observed rows. It does not implement feature transfer, remote connectors, or
+    arbitrary SQL authored by a model.
+    """
+    if VISUAL_INDEX_PATH is None or not VISUAL_INDEX_PATH.is_file():
+        return None
+    query_key = _normalise_entity_key(query)
+    if not query_key:
+        return {
+            "kind": "local_site_evidence", "query": query, "rows": [],
+            "source": "Totalrecall visual index", "label": "observed",
+            "limitations": ["An entity or topic is required."],
+        }
+    connection = sqlite3.connect(
+        f"file:{VISUAL_INDEX_PATH.resolve()}?mode=ro", uri=True, timeout=2
+    )
+    connection.row_factory = sqlite3.Row
+    try:
+        entity_ids = [
+            row["entity_id"] for row in connection.execute(
+                """SELECT entity_id FROM entity_aliases WHERE alias_key=?
+                   UNION
+                   SELECT entity_id FROM entities
+                   WHERE lower(canonical_name)=? OR lower(display_name)=?
+                   LIMIT 20""",
+                (query_key, query_key, query_key),
+            )
+        ]
+        match_mode = "exact_alias"
+        if not entity_ids:
+            terms = [term for term in query_key.split() if len(term) >= 3][:4]
+            if terms:
+                clauses = " AND ".join(
+                    "(a.alias_key LIKE ? OR lower(e.canonical_name) LIKE ? "
+                    "OR lower(e.display_name) LIKE ?)" for _ in terms
+                )
+                parameters: list[str] = []
+                for term in terms:
+                    parameters.extend([f"%{term}%"] * 3)
+                entity_ids = [
+                    row["entity_id"] for row in connection.execute(
+                        f"""SELECT DISTINCT e.entity_id
+                            FROM entities e LEFT JOIN entity_aliases a
+                              ON a.entity_id=e.entity_id
+                            WHERE {clauses} LIMIT 20""",
+                        parameters,
+                    )
+                ]
+                match_mode = "partial_alias"
+        if not entity_ids:
+            return {
+                "kind": "local_site_evidence", "query": query, "rows": [],
+                "source": "Totalrecall visual index", "label": "observed",
+                "query_semantics": {"match_mode": "no_entity_match"},
+                "limitations": [
+                    "No indexed entity alias matched this query. This is not evidence of absence."
+                ],
+            }
+        placeholders = ",".join("?" for _ in entity_ids)
+        rows = [
+            {
+                "id": row["event_id"],
+                "entity_id": row["entity_id"],
+                "entity": row["display_name"],
+                "canonical_name": row["canonical_name"],
+                "event_type": row["event_type"],
+                "status": row["status"],
+                "date": row["event_date"],
+                "latitude": row["latitude"],
+                "longitude": row["longitude"],
+                "coordinate_uncertainty_m": row["uncertainty_m"],
+                "source_id": row["source_id"],
+                "source": row["source_title"],
+                "source_row": row["source_row"],
+                "label": row["evidence_class"],
+            }
+            for row in connection.execute(
+                f"""SELECT v.*,e.canonical_name,e.display_name,s.title AS source_title
+                    FROM events v JOIN entities e ON e.entity_id=v.entity_id
+                    JOIN sources s ON s.source_id=v.source_id
+                    WHERE v.entity_id IN ({placeholders})
+                    ORDER BY v.event_date DESC,v.source_id,v.source_row
+                    LIMIT ?""",
+                [*entity_ids, max(1, min(limit, 500))],
+            )
+        ]
+        return {
+            "kind": "local_site_evidence", "query": query, "rows": rows,
+            "source": "Totalrecall visual index", "label": "observed",
+            "query_semantics": {
+                "match_mode": match_mode, "matched_entity_ids": entity_ids,
+                "returned": len(rows),
+            },
+            "limitations": [
+                "Rows are source-linked recorded events; they are not a complete inventory.",
+                "A registry non-match or a missing point is not evidence of absence.",
+            ],
+        }
+    finally:
+        connection.close()
 
 
 def _extract_first_json_object(text: str) -> dict | None:
@@ -1774,11 +2038,7 @@ def _compile_scientific_algebra(args: dict, session: "Session") -> dict:
 
 
 def _site_discovery_context(query: str, region: object = None) -> str:
-    aliases = [
-        item.strip() for item in os.environ.get(
-            "CODEX_NATIVE_SITE_ALIASES", "EBTL|Elephants by the Lake").split("|")
-        if item.strip()
-    ]
+    aliases = _site_aliases()
     combined = f"{query} {region or ''}"
     if not any(re.search(rf"\b{re.escape(alias)}\b", combined, flags=re.IGNORECASE)
                for alias in aliases):
@@ -1797,11 +2057,7 @@ def _site_discovery_queries(query: str, region: object = None) -> list[dict]:
     biogeographic context. This is a query rewrite only: it does not promote a taxon or claim that
     any returned work is site evidence.
     """
-    aliases = [
-        item.strip() for item in os.environ.get(
-            "CODEX_NATIVE_SITE_ALIASES", "EBTL|Elephants by the Lake").split("|")
-        if item.strip()
-    ]
+    aliases = _site_aliases()
     context = _site_discovery_context(query, region)
     if not context:
         return []
@@ -2712,6 +2968,36 @@ abundance, ecological importance, occupancy or evidence strength.</footer></main
 def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) -> dict:
     if skill_id not in SKILLS_BY_ID:
         raise KeyError(f"unknown skill: {skill_id}")
+    profile = _load_site_profile()
+    visual_pack_allowed = {
+        "site-overview",
+        "local-site-evidence-search",
+        "publish-evidence-dashboard",
+    }
+    if _is_visual_site_pack(profile) and skill_id not in visual_pack_allowed:
+        execution = {
+            "status": "data_request",
+            "reason": "site_pack_capability_not_parameterised",
+            "detail": {
+                "skill": skill_id,
+                "site_id": profile.get("site_id"),
+                "allowed_skills": sorted(visual_pack_allowed),
+                "ask": (
+                    "Parameterise this capability with explicit site/result handles before "
+                    "running it against this site pack."
+                ),
+            },
+            "provenance": [],
+        }
+        return {
+            "skill": skill_id,
+            "schema": {
+                "valid": False, "errors": [execution["reason"]], "holes": [],
+                "ops": [], "has_estimate": False, "unbound": True,
+                "note": "The POC refused a legacy site-bound capability.",
+            },
+            "execution": execution,
+        }
     mode = (SKILLS_BY_ID[skill_id].get("binding") or {}).get("mode")
     if mode == "algebra_9b_planner":
         if session is None:
@@ -2729,7 +3015,9 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         execution = _site_overview(args, session)
         return {
             "skill": skill_id,
-            "site_profile": {"site_id": args.get("site_id") or args.get("region") or "EBTL"},
+            "site_profile": {
+                "site_id": args.get("site_id") or args.get("region") or _site_aliases()[0]
+            },
             "schema": {"valid": execution.get("status") == "answer",
                        "errors": [], "holes": [], "ops": [],
                        "has_estimate": False, "unbound": False,
@@ -2738,11 +3026,16 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         }
     if mode == "local_evidence_search":
         query = " ".join(str(args.get("query") or args.get("entity") or "").split()).strip()
-        region_name = _normalise_region_name(args.get("region") or "EBTL")
+        region_name = _normalise_region_name(args.get("region") or _site_aliases()[0])
         try:
-            region = C.resolve_region(region_name)
-            value = C.local_site_evidence_search(
-                query, region, args.get("time"), int(args.get("limit") or 200))
+            region = _resolve_configured_site(region_name, profile)
+            value = (
+                _visual_index_local_search(query, int(args.get("limit") or 200))
+                if _is_visual_site_pack(profile) else None
+            )
+            if value is None:
+                value = C.local_site_evidence_search(
+                    query, region, args.get("time"), int(args.get("limit") or 200))
             status = "answer" if value.get("rows") else "data_request"
             execution = {
                 "status": status, "label": value.get("label") or "reported", "value": value,
@@ -2906,6 +3199,19 @@ GUIDED_OPERATION_SEQUENCE = {
 }
 
 
+def _is_broad_site_request_text(normal: str) -> bool:
+    aliases = ["site", "property", "aoi", *_site_aliases()]
+    alternatives = "|".join(
+        re.escape(alias.casefold()) for alias in sorted(set(aliases), key=len, reverse=True)
+    )
+    return bool(re.fullmatch(
+        r"(?:please )?(?:tell me about|describe|give me an overview of|"
+        r"give me a summary of|what is|what do we know about) "
+        rf"(?:the |this |our )?(?:{alternatives})[?.! ]*",
+        normal,
+    ))
+
+
 def _required_first_skill(message: str, selected_action: dict | None = None) -> str | None:
     """Protect broad/local requests from source substitution before model reasoning begins."""
     if selected_action:
@@ -2914,6 +3220,24 @@ def _required_first_skill(message: str, selected_action: dict | None = None) -> 
     normal = _normalise_match_text(message)
     if re.search(r"\bdashboard\b", normal):
         return "publish-evidence-dashboard"
+    visual_pack = _is_visual_site_pack(_load_site_profile())
+    if visual_pack:
+        if _is_broad_site_request_text(normal):
+            return "site-overview"
+        mentions_configured_site = any(
+            re.search(rf"\b{re.escape(alias.casefold())}\b", normal)
+            for alias in _site_aliases()
+        )
+        if (
+            mentions_configured_site
+            or re.search(
+                r"\b(local|locally|onboarded|our site|this site|the site|this landscape|"
+                r"our landscape|this property|our property)\b",
+                normal,
+            )
+        ):
+            return "local-site-evidence-search"
+        return None
     # These are site-agnostic capability routes, not answers. They bind an ecological
     # measurement family to its admitted connector before the language model can substitute
     # an unrelated local asset or a remembered web result.
@@ -2924,12 +3248,7 @@ def _required_first_skill(message: str, selected_action: dict | None = None) -> 
         and re.search(r"\b(change|changed|trend|improv|declin|before|after|over time)\w*\b", normal)
     ):
         return "vegetation-greenness-trend"
-    if re.fullmatch(
-        r"(?:please )?(?:tell me about|describe|give me an overview of|"
-        r"give me a summary of|what is|what do we know about) "
-        r"(?:the |this |our )?(?:site|property|aoi|ebtl|elephants by the lake)[?.! ]*",
-        normal,
-    ):
+    if _is_broad_site_request_text(normal):
         return "site-overview"
     if re.search(
         r"\b(literature|papers?|public datasets?|external sources?|wider region|"
@@ -2937,11 +3256,16 @@ def _required_first_skill(message: str, selected_action: dict | None = None) -> 
         normal,
     ):
         return None
+    mentions_configured_site = any(
+        re.search(rf"\b{re.escape(alias.casefold())}\b", normal)
+        for alias in _site_aliases()
+    )
     if (
         re.search(
             r"\b(local|locally|onboarded|our site|this site|the site|this landscape|"
             r"our landscape|this property|our property|ebtl)\b", normal)
         or "elephants by the lake" in normal
+        or mentions_configured_site
     ):
         return "local-site-evidence-search"
     return None
@@ -3910,18 +4234,13 @@ def _native_prompt(message: str, session: Session) -> str:
         )
     normalised_message = " ".join(message.casefold().split())
     routing_note = ""
-    site_aliases = [item.strip().casefold() for item in os.environ.get(
-        "CODEX_NATIVE_SITE_ALIASES", "EBTL|Elephants by the Lake").split("|") if item.strip()]
+    site_aliases = [item.casefold() for item in _site_aliases()]
     mentions_site = (
         any(alias in normalised_message for alias in site_aliases)
         or bool(re.search(
             r"\b(?:this|our) (?:site|property|aoi|landscape)\b", normalised_message))
     )
-    broad_site_request = bool(re.fullmatch(
-        r"(?:please )?(?:tell me about|describe|give me an overview of|"
-        r"give me a summary of|what is|what do we know about) "
-        r"(?:the |this |our )?(?:site|property|aoi|ebtl|elephants by the lake)[?.! ]*",
-        normalised_message))
+    broad_site_request = _is_broad_site_request_text(normalised_message)
     asks_external = bool(re.search(
         r"\b(literature|papers?|public datasets?|external sources?|openalex|zenodo|dryad)\b",
         normalised_message))

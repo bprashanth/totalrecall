@@ -3,7 +3,9 @@
 Status: first feasibility implementation of `visual-site-pack/0.1`.
 
 This site pack consolidates the source files, AOI roles, aliases, source adapters and question
-probes used to test the future visual-first data design. It is not yet connected to live chat.
+probes used to test the future visual-first data design. It can be exposed through the
+deployment-pinned chat POC described in
+[`../../SITE_PACK_DEPLOYMENT.md`](../../SITE_PACK_DEPLOYMENT.md).
 
 ## Contents
 
@@ -19,7 +21,7 @@ boundary. Organisation-supplied KML/GeoJSON should replace or supplement it duri
 
 ## Build and test
 
-From the Idlisseus repository root:
+From the Totalrecall repository root:
 
 ```bash
 python3 dss/visual_index/build.py \

@@ -3,6 +3,10 @@
 Status: **design only**. This document authorizes no runtime migration, connector rewrite, model
 deployment or serving change.
 
+The narrower implemented proof of concept for keeping site data in Totalrecall while exposing
+separate site-pinned endpoints through one Idlisseus UI is documented in
+[`SITE_PACK_DEPLOYMENT.md`](SITE_PACK_DEPLOYMENT.md).
+
 ## Goal
 
 Provide one stable command for the current conversational data system while keeping four axes
@@ -163,4 +167,3 @@ The migration is complete only when the old explicit EBTL commands produce equiv
 answers through the new entrypoint, connector routing is pack-owned rather than hardwired in the
 shell, place binding survives multi-turn resume, `/why` exposes actual audited calls, and adding a
 new pack requires no edit to shared routing code.
-
