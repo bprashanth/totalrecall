@@ -723,6 +723,10 @@ class Builder:
                 "source_reported_interaction_map", "map",
                 "Source-reported subject-object associations and network", "ready", None,
             ),
+            (
+                "stratified_survey_comparison", "dashboard",
+                "Survey locations and effort-aware category comparison", "ready", None,
+            ),
             ("hierarchy_sunburst", "hierarchy", "Entity hierarchy", "ready", None),
             (
                 "donor_coverage_and_gate_map", "map", "Donor coverage, target and gate result",

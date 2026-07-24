@@ -166,6 +166,39 @@ class ValparaiResultServiceTest(unittest.TestCase):
             {item["code"] for item in result["limitations"]},
         )
 
+    def test_real_stratified_survey_keeps_effort_and_replication_visible(self):
+        result = self.service.query(
+            "restoration-summary-1",
+            "stratified-survey-summary",
+            {
+                "source_id": "dryad-rjdfn2zc3-restoration-birds",
+                "category_property": "Site_type",
+            },
+            "How do bird detections compare across restored, naturally growing and benchmark plots?",
+        )
+        self.assert_contract(result)
+        self.assertEqual(
+            [item["visual_type"] for item in result["visuals"]], ["map", "table"]
+        )
+        denominators = result["visuals"][0]["summary"]["denominators"]
+        self.assertEqual(denominators["sites"], 69)
+        self.assertEqual(denominators["categories"], 3)
+        self.assertEqual(denominators["visits"], 460)
+        summary = json.loads(
+            self.service.load_data(
+                result["result_id"], "stratified-category-summary"
+            )[1]
+        )
+        self.assertEqual(
+            {item["category"] for item in summary},
+            {"Benchmark", "Restored", "Unrestored"},
+        )
+        self.assertTrue(all(item["sites"] and item["visits"] for item in summary))
+        self.assertIn(
+            "descriptive-not-causal",
+            {item["code"] for item in result["limitations"]},
+        )
+
     def test_unavailable_model_capability_is_explicitly_blocked(self):
         result = self.service.query(
             "transfer-1",
@@ -312,7 +345,8 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            self.assertEqual(len(typed), 7)
+            expected_typed = 8 if pack_name == "real" else 7
+            self.assertEqual(len(typed), expected_typed)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):
                     result = self.services[pack_name].query(

@@ -133,6 +133,32 @@
       "evidence_classes": ["observed", "modelled", "missing"],
       "availability": "partial",
       "reason": "The feature cube and versioned gate/model run are not yet onboarded."
+    },
+    {
+      "capability_id": "stratified-survey-summary",
+      "version": "1.0.0",
+      "label": "Map surveyed sites and compare source-reported categories with effort",
+      "input_schema": {
+        "type": "object",
+        "required": ["source_id", "category_property"],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1},
+          "category_property": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "output_views": [
+        "stratified-survey-sites",
+        "stratified-category-comparison"
+      ],
+      "required_planes": ["events", "effort", "cells"],
+      "optional_planes": ["measurements", "entity_aliases"],
+      "latency_class": "interactive",
+      "evidence_classes": ["observed", "derived", "missing"],
+      "availability": "ready"
     }
   ]
 }

@@ -53,8 +53,11 @@ entity retained. It does not collapse mixed protocols into a comparative abundan
 The interaction capability likewise requires a source-declared subject and object. It can render
 the seed-experiment camera detections as a linked map and network, but it does not call every
 detection predation or infer an interaction from two nearby points.
+The stratified survey capability maps source-declared sites and compares categories while keeping
+site replication and survey effort visible. Its summaries are descriptive observation-process
+results; they are not silently promoted to treatment effects or population estimates.
 
-Seven typed probes are immediately executable, alongside five visual-contract probes awaiting
+Eight typed probes are immediately executable, alongside five visual-contract probes awaiting
 their next producer operation. Transfer is partial because the pack does not yet include a
 versioned feature cube and gate result. Expected-value collection
 mapping is blocked because there is no versioned uncertainty surface or action-cost layer.

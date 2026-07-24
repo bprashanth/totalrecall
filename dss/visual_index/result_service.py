@@ -278,6 +278,7 @@ class ResultService:
             "entity-record-map": self._entity_records,
             "group-record-map": self._group_records,
             "interaction-map": self._interaction_map,
+            "stratified-survey-summary": self._stratified_survey_summary,
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
         }
@@ -984,6 +985,225 @@ class ResultService:
                 "interaction-points": ("application/geo+json", points),
                 "interaction-nodes": ("application/json", list(nodes.values())),
                 "interaction-edges": ("application/json", edges),
+            },
+        )
+
+    def _stratified_survey_summary(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if set(arguments) != {"source_id", "category_property"}:
+            raise ValueError(
+                "stratified-survey-summary requires only source_id and category_property"
+            )
+        source_id = str(arguments.get("source_id") or "").strip()
+        category_property = str(arguments.get("category_property") or "").strip()
+        if not source_id or not re.fullmatch(
+            r"[A-Za-z][A-Za-z0-9_]{0,63}", category_property
+        ):
+            raise ValueError("source_id and a safe category_property are required")
+        category_path = f"$.{category_property}"
+        with self.connect() as connection:
+            source_exists = connection.execute(
+                "SELECT 1 FROM sources WHERE source_id=?", (source_id,)
+            ).fetchone()
+            event_rows = [
+                dict(row) for row in connection.execute(
+                    """SELECT json_extract(properties_json,'$.Site_ID') AS site_id,
+                              json_extract(properties_json,?) AS category,
+                              AVG(latitude) AS latitude,AVG(longitude) AS longitude,
+                              COUNT(*) AS event_records,
+                              COUNT(DISTINCT entity_id) AS detected_entities,
+                              SUM(COALESCE(count_value,0)) AS detected_count
+                       FROM events
+                       WHERE source_id=? AND latitude IS NOT NULL AND longitude IS NOT NULL
+                         AND json_extract(properties_json,'$.Site_ID') IS NOT NULL
+                         AND json_extract(properties_json,?) IS NOT NULL
+                       GROUP BY site_id,category ORDER BY category,site_id""",
+                    (category_path, source_id, category_path),
+                )
+            ]
+            effort_rows = [
+                dict(row) for row in connection.execute(
+                    """SELECT json_extract(properties_json,'$.Site_ID') AS site_id,
+                              json_extract(properties_json,?) AS category,
+                              COUNT(*) AS visits,SUM(effort_value) AS effort,
+                              MIN(effort_unit) AS effort_unit
+                       FROM effort
+                       WHERE source_id=?
+                         AND json_extract(properties_json,'$.Site_ID') IS NOT NULL
+                         AND json_extract(properties_json,?) IS NOT NULL
+                       GROUP BY site_id,category ORDER BY category,site_id""",
+                    (category_path, source_id, category_path),
+                )
+            ]
+            sources = self._source_versions(connection, {source_id})
+        if not source_exists or not event_rows or not effort_rows:
+            result = self._base_result(
+                request_id, "stratified-survey-summary", original,
+                "Summarise one source whose event and effort rows share a site and category.",
+                {"source_id": source_id, "category_property": category_property},
+                "This source does not have compatible site-level events, effort and categories.",
+                ["missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "incompatible-stratified-survey",
+                "Both event and effort planes must retain the same Site_ID and category property.",
+                severity="error", affects=["answer"],
+            ))
+            return self._write_result(result, {})
+        effort_by_site = {
+            (row["site_id"], row["category"]): row for row in effort_rows
+        }
+        sites = []
+        for row in event_rows:
+            effort = effort_by_site.get((row["site_id"], row["category"]), {})
+            sites.append({
+                **row,
+                "visits": effort.get("visits", 0),
+                "effort": effort.get("effort"),
+                "effort_unit": effort.get("effort_unit"),
+                "records_per_visit": (
+                    row["event_records"] / effort["visits"]
+                    if effort.get("visits") else None
+                ),
+            })
+        category_rows: list[dict[str, Any]] = []
+        for category in sorted({row["category"] for row in sites}):
+            members = [row for row in sites if row["category"] == category]
+            category_rows.append({
+                "category": category,
+                "sites": len(members),
+                "visits": sum(row["visits"] for row in members),
+                "effort": sum(row["effort"] or 0 for row in members),
+                "effort_unit": next(
+                    (row["effort_unit"] for row in members if row["effort_unit"]), None
+                ),
+                "event_records": sum(row["event_records"] for row in members),
+                "detected_count": sum(row["detected_count"] or 0 for row in members),
+                "mean_detected_entities_per_site": (
+                    sum(row["detected_entities"] for row in members) / len(members)
+                ),
+                "records_per_visit": (
+                    sum(row["event_records"] for row in members)
+                    / sum(row["visits"] for row in members)
+                    if sum(row["visits"] for row in members) else None
+                ),
+            })
+        points = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": row["site_id"],
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [row["longitude"], row["latitude"]],
+                },
+                "properties": {
+                    key: row[key] for key in (
+                        "site_id", "category", "event_records", "detected_entities",
+                        "detected_count", "visits", "effort", "effort_unit",
+                        "records_per_visit",
+                    )
+                },
+            } for row in sites],
+        }
+        total_visits = sum(row["visits"] for row in sites)
+        headline = (
+            f"{len(sites):,} surveyed sites in {len(category_rows):,} categories are mapped "
+            f"with {total_visits:,} explicit visits; category summaries retain effort."
+        )
+        limitations = [
+            self._limitation(
+                "descriptive-not-causal",
+                "These are effort-visible descriptive summaries, not a causal treatment effect.",
+                affects=["survey-sites", "category-comparison", "answer"],
+            ),
+            self._limitation(
+                "detections-not-populations",
+                "Records per visit and detected entities are observation-process summaries, not population abundance.",
+                affects=["category-comparison", "answer"],
+            ),
+        ]
+        result = self._base_result(
+            request_id, "stratified-survey-summary", original,
+            f"Compare {source_id} by source-reported {category_property} with site replication and effort.",
+            {"source_id": source_id, "category_property": category_property},
+            headline, ["observed", "derived"], "partial", sources,
+        )
+        result["answer"]["detail"] = (
+            "The map shows every surveyed site and its denominator. The category comparison is "
+            "suitable for orientation; an inferential comparison still needs the declared design "
+            "and uncertainty."
+        )
+        result["limitations"].extend(limitations)
+        points_ref = self._data_ref("stratified-survey-sites", "application/geo+json", points)
+        summary_ref = self._data_ref(
+            "stratified-category-summary", "application/json", category_rows
+        )
+        scope = {"aoi_ids": ["target", "context"], "time": {"start": None, "end": None}}
+        denominators = {
+            "sites": len(sites), "categories": len(category_rows),
+            "visits": total_visits, "source": source_id,
+        }
+        result["visuals"] = [
+            {
+                "visual_id": "stratified-survey-sites",
+                "visual_type": "map",
+                "view": "stratified-survey-sites",
+                "title": "Survey sites, categories and effort",
+                "priority": "primary",
+                "status": "partial",
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "stratified-survey-sites",
+                    "evidence_class": "observed",
+                    "geometry_type": "point",
+                    "data_ref": points_ref,
+                    "legend": {"label": category_property.replace("_", " ")},
+                    "style_hint": {
+                        "palette_role": "observed", "category_field": "category",
+                        "size_field": "visits",
+                    },
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [],
+                "limitations": limitations,
+            },
+            {
+                "visual_id": "stratified-category-comparison",
+                "visual_type": "table",
+                "view": "stratified-category-comparison",
+                "title": "Detection summaries with effort by category",
+                "priority": "supporting",
+                "status": "partial",
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "stratified-category-summary",
+                    "evidence_class": "derived",
+                    "geometry_type": "table",
+                    "data_ref": summary_ref,
+                    "legend": {"label": "Effort-visible category summary"},
+                    "style_hint": {
+                        "palette_role": "derived", "category_field": "category",
+                        "value_fields": [
+                            "mean_detected_entities_per_site", "records_per_visit",
+                        ],
+                    },
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-category-summary",
+                    "label": "Inspect denominators by category",
+                    "data_ref": summary_ref,
+                }],
+                "limitations": limitations,
+            },
+        ]
+        return self._write_result(
+            result,
+            {
+                "stratified-survey-sites": ("application/geo+json", points),
+                "stratified-category-summary": ("application/json", category_rows),
             },
         )
 
