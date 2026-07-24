@@ -90,6 +90,29 @@
       "availability": "ready"
     },
     {
+      "capability_id": "interaction-map",
+      "version": "1.0.0",
+      "label": "Map and connect explicitly admitted subject-object associations",
+      "input_schema": {
+        "type": "object",
+        "required": ["interaction_type"],
+        "properties": {
+          "interaction_type": {"type": "string", "minLength": 1},
+          "entity": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      },
+      "output_views": [
+        "source-reported-interaction-map",
+        "source-reported-interaction-network"
+      ],
+      "required_planes": ["interactions", "entity_aliases", "cells"],
+      "optional_planes": ["events", "effort"],
+      "latency_class": "interactive",
+      "evidence_classes": ["observed", "derived", "missing"],
+      "availability": "ready"
+    },
+    {
       "capability_id": "gated-transfer",
       "version": "0.1.0",
       "label": "Test transfer from admitted donor data into the target",

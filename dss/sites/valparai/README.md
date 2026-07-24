@@ -42,15 +42,20 @@ The current build indexes:
 - 942 resolved or retained broad entities and 1,574 aliases;
 - 29 named/source locations;
 - 250 explicit effort rows;
-- 56,326 typed weather, canopy and habitat measurement rows (51,963 with usable values); and
+- 56,326 typed weather, canopy and habitat measurement rows (51,963 with usable values);
+- 745 explicit animal–focal-seed-experiment association rows; and
 - 302 spatial cells.
 
 The typed result service can map a single resolved entity or a broad canonical hierarchy value.
 For example, `{"rank":"class","group":"Amphibia"}` maps each amphibian record with its member
 entity retained. It does not collapse mixed protocols into a comparative abundance claim.
+The interaction capability likewise requires a source-declared subject and object. It can render
+the seed-experiment camera detections as a linked map and network, but it does not call every
+detection predation or infer an interaction from two nearby points.
 
-Eight of the ten probed visual contracts are immediately renderable. Transfer is partial because
-the pack does not yet include a versioned feature cube and gate result. Expected-value collection
+Seven typed probes are immediately executable, alongside five visual-contract probes awaiting
+their next producer operation. Transfer is partial because the pack does not yet include a
+versioned feature cube and gate result. Expected-value collection
 mapping is blocked because there is no versioned uncertainty surface or action-cost layer.
 
 ## Important data findings
@@ -60,6 +65,11 @@ mapping is blocked because there is no versioned uncertainty surface or action-c
   entity.
 - Several source rows use broad labels at different hierarchy levels. The index retains them
   rather than pretending every row is at the same rank.
+- The GBIF frugivory archive contains visitor and focal-tree occurrences but does not retain the
+  animal-to-tree join on visitor rows. The richer cited Dryad tables are therefore still required
+  before rendering a plant–frugivore network. By contrast, the seed-experiment event identifier
+  explicitly names the focal seed species; 745 camera rows can be linked, while three redacted
+  event identifiers remain ordinary occurrence rows.
 - Presence records and explicit survey effort come from different planes. The builder never
   manufactures effort from the number of presence rows.
 - One plot dataset stores entities and coordinates in separate files joined by point id. All 3,684

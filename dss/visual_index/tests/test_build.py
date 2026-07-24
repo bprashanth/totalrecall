@@ -38,6 +38,7 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         self.assertEqual(report["georeferenced_events"], 27_769)
         self.assertEqual(report["effort_rows"], 250)
         self.assertEqual(report["measurements"], 56_326)
+        self.assertEqual(report["interactions"], 745)
         self.assertEqual(report["entities"], 942)
         self.assertEqual(report["cells"], 302)
         self.assertGreaterEqual(report["ready_views"], 8)
@@ -172,6 +173,21 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         )
         self.assertEqual(methods["time-constrained visual encounter survey"], 410)
         self.assertEqual(methods["ad-hoc observation"], 25)
+
+    def test_interactions_require_an_explicit_source_mapping(self):
+        count, relation, sources = self.db.execute(
+            """SELECT COUNT(*),MIN(interaction_type),COUNT(DISTINCT source_id)
+               FROM interactions"""
+        ).fetchone()
+        self.assertEqual(count, 745)
+        self.assertEqual(relation, "detected_at_seed_experiment")
+        self.assertEqual(sources, 1)
+        cullenia = self.db.execute(
+            """SELECT COUNT(DISTINCT i.subject_entity_id)
+               FROM interactions i JOIN entities e ON e.entity_id=i.object_entity_id
+               WHERE e.canonical_name='Cullenia exarillata'"""
+        ).fetchone()[0]
+        self.assertGreater(cullenia, 5)
 
     def test_evidence_classes_and_source_capabilities_are_explicit(self):
         classes = self.db.execute(

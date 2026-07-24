@@ -13,9 +13,11 @@ Archive SHA-256:
 CONTENTS AND USE
 The source contains 2,641 tree, bird and mammal occurrence records collected
 from November 2017 to March 2019 for a plant-frugivore and seed-predation
-study. Shared event and tree context can support inspectable association
-views. Spatial or temporal co-occurrence alone must not be described as a
-confirmed dispersal or predation interaction.
+study. The visitor rows in this Darwin Core export do not retain a focal-tree
+join, so they support occurrence maps but not a plant-frugivore edge table.
+Use the richer cited Dryad tables for that relation. Spatial or temporal
+co-occurrence alone must not be described as a confirmed dispersal or
+predation interaction.
 
 RIGHTS
 CC BY 4.0. Preserve the publisher, dataset DOI, source row and archive version

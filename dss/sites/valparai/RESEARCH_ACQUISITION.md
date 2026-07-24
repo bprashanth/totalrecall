@@ -15,17 +15,21 @@ The first two admitted tranches now cover:
 - daily and monthly weather;
 - butterfly point counts and frog belt transects with source-reported effort;
 - systematic and incidental herpetofauna records, kept distinguishable by method;
-- threatened-tree, PCQ and trail-inventory observations; and
-- fruiting-tree visitor and seed-predation study occurrences linked by source event.
+- threatened-tree, PCQ and trail-inventory observations;
+- fruiting-tree visitor and seed-predation study occurrences; and
+- source-linked camera detections at focal seed experiments.
 
 This supports immediate maps of records, coverage, effort and measured habitat. It does not yet
-support a claim of local absence, causal restoration effect, population trend, confirmed
-interaction, phenophase, corridor use or transferable suitability.
+support a claim of local absence, causal restoration effect, population trend, dispersal from
+unjoined visitor occurrences, phenophase, corridor use or transferable suitability.
 
 ## Acquisition order
 
-1. Repair the Dryad connector and admit the active-restoration bird study. Its point-count,
-   treatment, plot, guild and habitat tables provide the clearest next visual comparison.
+1. Repair the Dryad connector and admit the active-restoration bird study and the two relational
+   frugivory/seed-fate datasets. Their point-count, treatment, behaviour, effort and focal-tree
+   tables provide the clearest next visual comparisons and interaction networks. The metadata and
+   file manifests are public, but this host currently receives HTTP 401/403 for file downloads;
+   do not reconstruct joins from the flatter GBIF occurrence export.
 2. Build a versioned Earth-observation feature cube for the declared target and wider context.
    Start with harmonised Sentinel-2 surface reflectance, Dynamic World probabilities,
    terrain, ERA5-Land and annual AlphaEarth embeddings. Every export needs its asset IDs,

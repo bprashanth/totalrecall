@@ -37,10 +37,12 @@ warehouse.
 `result_service.py` translates the pinned index into browser-neutral `idli-result/1` objects. It
 does not interpret free text: a conversation layer selects a declared capability and binds typed
 arguments. The current producer supports site orientation, entity and canonical hierarchy-group
-record maps, coverage versus effort and metric time series. The group operation takes a hierarchy
-rank and value rather than a site-specific list, so the same result grammar can map a taxonomic
-class, an occupation sector or another pack-defined hierarchy. A declared but incomplete transfer
-capability returns a structured blocked result.
+record maps, explicit subject-object association maps and networks, coverage versus effort and
+metric time series. The group operation takes a hierarchy rank and value rather than a
+site-specific list, so the same result grammar can map a taxonomic class, an occupation sector or
+another pack-defined hierarchy. Interaction adapters are equally generic but stricter: a source
+must expose the relation or an explicit join; proximity never creates an edge. A declared but
+incomplete transfer capability returns a structured blocked result.
 
 One-shot query:
 

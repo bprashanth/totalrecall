@@ -60,13 +60,13 @@
     },
     {
       "indicator_id": "coevent-association-network",
-      "label": "Entities reported in the same source event",
-      "readiness": "partial",
-      "inputs": ["events", "source_event_id", "protocol", "behaviour_annotation"],
-      "formula": "count distinct source events containing entity A and entity B",
-      "denominator": "source events in which both entities could have been detected",
+      "label": "Explicit subject-object associations retained by a source",
+      "readiness": "ready",
+      "inputs": ["interactions", "subject_entity_id", "object_entity_id", "protocol", "source_row"],
+      "formula": "count immutable source rows explicitly joining subject A and object B",
+      "denominator": "source-reported association rows; use eligible observation effort when available for a rate",
       "first_visual": "linked_map_and_bipartite_network",
-      "allowed_claim": "co-reporting or explicitly annotated behaviour",
+      "allowed_claim": "the relation explicitly retained by the source, with its original semantics",
       "forbidden_claim": "dispersal, predation, facilitation or causality from proximity alone"
     },
     {

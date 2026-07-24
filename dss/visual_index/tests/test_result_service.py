@@ -142,6 +142,30 @@ class ValparaiResultServiceTest(unittest.TestCase):
             {item["code"] for item in result["limitations"]},
         )
 
+    def test_real_interaction_query_returns_linked_map_and_network(self):
+        result = self.service.query(
+            "interaction-1",
+            "interaction-map",
+            {
+                "interaction_type": "detected_at_seed_experiment",
+                "entity": "Cullenia exarillata",
+            },
+            "Which animals were detected at Cullenia exarillata seed experiments, and where?",
+        )
+        self.assert_contract(result)
+        self.assertEqual([item["visual_type"] for item in result["visuals"]], ["map", "network"])
+        self.assertGreater(
+            result["visuals"][0]["summary"]["denominators"]["records"], 100
+        )
+        edges = json.loads(
+            self.service.load_data(result["result_id"], "interaction-edges")[1]
+        )
+        self.assertGreater(len(edges), 5)
+        self.assertIn(
+            "association-not-causation",
+            {item["code"] for item in result["limitations"]},
+        )
+
     def test_unavailable_model_capability_is_explicitly_blocked(self):
         result = self.service.query(
             "transfer-1",
@@ -288,7 +312,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            self.assertEqual(len(typed), 6)
+            self.assertEqual(len(typed), 7)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):
                     result = self.services[pack_name].query(
@@ -323,6 +347,16 @@ class PackSwapContractTest(unittest.TestCase):
             "metric-time-series": (
                 {"metric": "rainfall"},
                 {"metric": "daily_wage"},
+            ),
+            "interaction-map": (
+                {
+                    "interaction_type": "detected_at_seed_experiment",
+                    "entity": "Cullenia exarillata",
+                },
+                {
+                    "interaction_type": "reported_migration_destination",
+                    "entity": "tea_plucker",
+                },
             ),
         }
         for capability_id, (real_args, synthetic_args) in pairs.items():

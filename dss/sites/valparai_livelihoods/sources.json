@@ -156,6 +156,7 @@
         "mappable",
         "has_events",
         "has_entity_crosswalk",
+        "has_interactions",
         "synthetic"
       ],
       "local_metadata": "raw/syn-migration/README.txt",
@@ -180,6 +181,26 @@
           "event_type": "event_type",
           "uncertainty_m": "gps_accuracy_m",
           "count": "persons_moved",
+          "properties": [
+            "origin_village",
+            "destination",
+            "occupation_label"
+          ]
+        },
+        {
+          "kind": "interaction",
+          "adapter_id": "occupation-destination-associations",
+          "path": "raw/syn-migration/migration_events.csv",
+          "record_id": "record_id",
+          "latitude": "latitude",
+          "longitude": "longitude",
+          "date": "eventDate",
+          "subject": "occupation_code",
+          "subject_alias": "occupation_label",
+          "object": "destination",
+          "interaction_type_value": "reported_migration_destination",
+          "count": "persons_moved",
+          "uncertainty_m": "gps_accuracy_m",
           "properties": [
             "origin_village",
             "destination",

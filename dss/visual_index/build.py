@@ -62,6 +62,16 @@ CREATE TABLE measurements (
   event_date TEXT, year INTEGER, month INTEGER, latitude REAL, longitude REAL,
   cell_id TEXT, properties_json TEXT NOT NULL
 );
+CREATE TABLE interactions (
+  interaction_id TEXT PRIMARY KEY, source_id TEXT NOT NULL, source_row INTEGER NOT NULL,
+  subject_entity_id TEXT NOT NULL, object_entity_id TEXT NOT NULL,
+  interaction_type TEXT NOT NULL, evidence_class TEXT NOT NULL,
+  event_date TEXT, year INTEGER, month INTEGER, latitude REAL, longitude REAL,
+  uncertainty_m REAL, count_value REAL, cell_id TEXT, properties_json TEXT NOT NULL,
+  FOREIGN KEY(source_id) REFERENCES sources(source_id),
+  FOREIGN KEY(subject_entity_id) REFERENCES entities(entity_id),
+  FOREIGN KEY(object_entity_id) REFERENCES entities(entity_id)
+);
 CREATE TABLE cells (
   cell_id TEXT PRIMARY KEY, west REAL NOT NULL, south REAL NOT NULL,
   east REAL NOT NULL, north REAL NOT NULL, center_lat REAL NOT NULL,
@@ -89,6 +99,9 @@ CREATE INDEX events_entity_idx ON events(entity_id, year, month);
 CREATE INDEX events_cell_idx ON events(cell_id, entity_id);
 CREATE INDEX effort_cell_idx ON effort(cell_id, year, month);
 CREATE INDEX measurements_metric_idx ON measurements(metric, year, month);
+CREATE INDEX interactions_subject_idx ON interactions(subject_entity_id, interaction_type);
+CREATE INDEX interactions_object_idx ON interactions(object_entity_id, interaction_type);
+CREATE INDEX interactions_cell_idx ON interactions(cell_id, interaction_type);
 """
 
 
@@ -497,6 +510,86 @@ class Builder:
             )
             self.stats["effort_rows"] += 1
 
+    def _ingest_interaction(self, source: dict, spec: dict) -> None:
+        """Ingest an explicitly configured subject-object association.
+
+        The adapter carries the source's semantics. Merely sharing coordinates
+        or dates never creates an interaction row.
+        """
+        location_lookup = self._lookup(spec.get("location_lookup"))
+        source_id = source["source_id"]
+        for row_number, row in enumerate(
+            _rows(self.path(spec["path"]), spec.get("delimiter", ",")), 1
+        ):
+            if any(
+                str(row.get(rule["column"]) or "") != str(rule["equals"])
+                for rule in spec.get("row_filters", [])
+            ):
+                continue
+
+            def value(name: str) -> str:
+                direct = _configured(row, spec, name)
+                if direct not in (None, ""):
+                    return str(direct)
+                extract = spec.get(f"{name}_extract")
+                if not extract:
+                    return ""
+                match = re.search(
+                    extract["pattern"], str(row.get(extract["column"]) or "")
+                )
+                if not match:
+                    return ""
+                found = match.group(int(extract.get("group", 1)))
+                for old, new in extract.get("replace", {}).items():
+                    found = found.replace(old, new)
+                return found
+
+            subject = value("subject")
+            object_ = value("object")
+            if _key(subject) in {"", "na", "unknown"} or _key(object_) in {
+                "", "na", "unknown"
+            }:
+                continue
+            subject_id = self._ensure_entity(
+                subject, _configured(row, spec, "subject_alias") or subject, source_id
+            )
+            object_id = self._ensure_entity(
+                object_, _configured(row, spec, "object_alias") or object_, source_id
+            )
+            if not subject_id or not object_id:
+                continue
+            location = location_lookup.get(
+                _key(row.get((spec.get("location_lookup") or {}).get("event_key", ""))), {}
+            )
+            lat = _coord(_configured(row, spec, "latitude"), latitude=True)
+            lon = _coord(_configured(row, spec, "longitude"), latitude=False)
+            lat = lat if lat is not None else location.get("latitude")
+            lon = lon if lon is not None else location.get("longitude")
+            uncertainty = _float(_configured(row, spec, "uncertainty_m"))
+            if uncertainty is None:
+                uncertainty = location.get("uncertainty_m")
+            event_date, year, month = _date_parts(
+                _configured(row, spec, "date") or spec.get("date_value")
+            )
+            original_id = _row_id(row, spec.get("record_id"), row_number)
+            adapter_id = spec.get("adapter_id") or spec["path"]
+            interaction_type = str(
+                _configured(row, spec, "interaction_type")
+                or spec.get("interaction_type_value")
+                or "source_reported_association"
+            )
+            self.sql.execute(
+                "INSERT OR REPLACE INTO interactions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    _stable("int", source_id, adapter_id, original_id, row_number),
+                    source_id, row_number, subject_id, object_id, interaction_type,
+                    spec.get("evidence_class", "observed"), event_date, year, month,
+                    lat, lon, uncertainty, _float(_configured(row, spec, "count")),
+                    _cell(lat, lon), _properties(row, spec.get("properties")),
+                ),
+            )
+            self.stats["interactions"] += 1
+
     def _ingest_measurement(self, source: dict, spec: dict) -> None:
         location_lookup = self._lookup(spec.get("location_lookup"))
         for row_number, row in enumerate(
@@ -552,7 +645,8 @@ class Builder:
             row[0] for row in self.sql.execute(
                 "SELECT cell_id FROM events WHERE cell_id IS NOT NULL UNION "
                 "SELECT cell_id FROM effort WHERE cell_id IS NOT NULL UNION "
-                "SELECT cell_id FROM measurements WHERE cell_id IS NOT NULL"
+                "SELECT cell_id FROM measurements WHERE cell_id IS NOT NULL UNION "
+                "SELECT cell_id FROM interactions WHERE cell_id IS NOT NULL"
             )
         }
         for cell_id in sorted(cell_ids):
@@ -594,6 +688,10 @@ class Builder:
             ("coverage_and_effort_map", "map", "Observed records and survey effort", "ready", None),
             ("seasonal_effort_normalised_chart", "chart", "Events with explicit effort denominator", "ready", None),
             ("metric_time_series", "chart", "Unit-aware measurement time series", "ready", None),
+            (
+                "source_reported_interaction_map", "map",
+                "Source-reported subject-object associations and network", "ready", None,
+            ),
             ("hierarchy_sunburst", "hierarchy", "Entity hierarchy", "ready", None),
             (
                 "donor_coverage_and_gate_map", "map", "Donor coverage, target and gate result",
@@ -713,6 +811,7 @@ class Builder:
                 "locations": self.sql.execute("SELECT COUNT(*) FROM locations").fetchone()[0],
                 "effort_rows": self.sql.execute("SELECT COUNT(*) FROM effort").fetchone()[0],
                 "measurements": self.sql.execute("SELECT COUNT(*) FROM measurements").fetchone()[0],
+                "interactions": self.sql.execute("SELECT COUNT(*) FROM interactions").fetchone()[0],
                 "cells": self.sql.execute("SELECT COUNT(*) FROM cells").fetchone()[0],
                 "ready_views": self.sql.execute(
                     "SELECT COUNT(*) FROM visual_views WHERE availability='ready'"

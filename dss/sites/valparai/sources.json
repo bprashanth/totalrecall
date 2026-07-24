@@ -587,7 +587,7 @@
       "url": "https://www.gbif.org/dataset/a013718d-4d97-4fea-85d4-7f976c6cbb35",
       "publisher": "Nature Conservation Foundation",
       "license": "CC-BY-4.0",
-      "capabilities": ["inspectable", "mappable", "has_events", "has_coevents", "has_entity_hierarchy", "candidate_model_input"],
+      "capabilities": ["inspectable", "mappable", "has_events", "has_interactions", "has_entity_hierarchy", "candidate_model_input"],
       "local_metadata": "raw/gbif-utzvkm-seed-predation/README.txt",
       "adapters": [
         {
@@ -609,6 +609,34 @@
             "eventID", "basisOfRecord", "samplingProtocol", "habitat",
             "occurrenceRemarks", "locality", "verbatimLocality", "class",
             "order", "family", "genus", "verbatimIdentification"
+          ]
+        },
+        {
+          "kind": "interaction",
+          "adapter_id": "camera-detection-seed-experiment-associations",
+          "path": "raw/gbif-utzvkm-seed-predation/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "occurrenceID",
+          "latitude": "decimalLatitude",
+          "longitude": "decimalLongitude",
+          "date": "eventDate",
+          "subject": "scientificName",
+          "subject_alias": "vernacularName",
+          "object_extract": {
+            "column": "eventID",
+            "pattern": "seed_predation:[^:]+:([^:]+):",
+            "group": 1,
+            "replace": {"_": " "}
+          },
+          "interaction_type_value": "detected_at_seed_experiment",
+          "uncertainty_m": "coordinateUncertaintyInMeters",
+          "row_filters": [
+            {"column": "samplingProtocol", "equals": "camera trap detection"}
+          ],
+          "properties": [
+            "eventID", "basisOfRecord", "samplingProtocol", "habitat",
+            "occurrenceRemarks", "locality", "verbatimLocality",
+            "class", "order", "family", "identificationRemarks"
           ]
         }
       ]

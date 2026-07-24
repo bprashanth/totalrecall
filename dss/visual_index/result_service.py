@@ -277,6 +277,7 @@ class ResultService:
             "site-orientation": self._site_orientation,
             "entity-record-map": self._entity_records,
             "group-record-map": self._group_records,
+            "interaction-map": self._interaction_map,
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
         }
@@ -756,6 +757,233 @@ class ResultService:
             {
                 "group-observations": ("application/geo+json", points),
                 "group-entities": ("application/json", entity_summary),
+            },
+        )
+
+    def _interaction_map(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if not set(arguments).issubset({"interaction_type", "entity"}):
+            raise ValueError("interaction-map accepts only interaction_type and optional entity")
+        interaction_type = str(arguments.get("interaction_type") or "").strip()
+        requested = str(arguments.get("entity") or "").strip()
+        if not interaction_type:
+            raise ValueError("interaction-map requires a non-empty interaction_type")
+        with self.connect() as connection:
+            entity = self._resolve_entity(connection, requested) if requested else None
+            if requested and entity is None:
+                sources = self._source_versions(connection)
+                result = self._base_result(
+                    request_id, "interaction-map", original,
+                    "Resolve an optional entity, then map explicitly admitted associations.",
+                    {"interaction_type": interaction_type, "entity": requested},
+                    f"No indexed entity matched “{requested}”.",
+                    ["missing"], "blocked", sources,
+                )
+                result["limitations"].append(self._limitation(
+                    "unresolved-entity",
+                    "The supplied name did not resolve to a canonical entity in this pack.",
+                    severity="error", affects=["answer"],
+                ))
+                return self._write_result(result, {})
+            parameters: list[Any] = [interaction_type]
+            entity_filter = ""
+            if entity:
+                entity_filter = " AND (i.subject_entity_id=? OR i.object_entity_id=?)"
+                parameters.extend([entity["entity_id"], entity["entity_id"]])
+            rows = connection.execute(
+                f"""SELECT i.interaction_id,i.source_id,i.source_row,i.interaction_type,
+                           i.event_date,i.latitude,i.longitude,i.uncertainty_m,i.count_value,
+                           s.entity_id AS subject_id,s.canonical_name AS subject_canonical,
+                           s.display_name AS subject_name,
+                           o.entity_id AS object_id,o.canonical_name AS object_canonical,
+                           o.display_name AS object_name,
+                           COALESCE(c.target_role,'unlocated') AS target_role
+                    FROM interactions i
+                    JOIN entities s ON s.entity_id=i.subject_entity_id
+                    JOIN entities o ON o.entity_id=i.object_entity_id
+                    LEFT JOIN cells c ON c.cell_id=i.cell_id
+                    WHERE lower(i.interaction_type)=lower(?) {entity_filter}
+                      AND i.latitude IS NOT NULL AND i.longitude IS NOT NULL
+                    ORDER BY i.event_date,i.source_id,i.source_row""",
+                parameters,
+            ).fetchall()
+            available_types = [
+                row[0] for row in connection.execute(
+                    "SELECT DISTINCT interaction_type FROM interactions ORDER BY interaction_type"
+                )
+            ]
+            source_ids = {row["source_id"] for row in rows}
+            sources = self._source_versions(connection, source_ids)
+        if not rows:
+            result = self._base_result(
+                request_id, "interaction-map", original,
+                "Map explicitly admitted subject-object associations without inferring them from proximity.",
+                {
+                    "interaction_type": interaction_type,
+                    **({"entity": requested} if requested else {}),
+                },
+                "No matching source-reported associations are indexed.",
+                ["missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "no-matching-interactions",
+                "No rows match this relation and optional entity; spatial co-occurrence was not used as a substitute.",
+                severity="error", affects=["answer"],
+            ))
+            result["actions"] = [self._action(
+                "choose-interaction-type", "filter", "Choose an indexed relation",
+                "interaction-map", {"available_interaction_types": available_types},
+            )]
+            return self._write_result(result, {})
+        edge_counts: dict[tuple[str, str], dict[str, Any]] = {}
+        nodes: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            subject_node = nodes.setdefault(row["subject_id"], {
+                "id": row["subject_id"], "label": row["subject_name"],
+                "canonical_name": row["subject_canonical"], "role": "subject",
+            })
+            if subject_node["role"] == "object":
+                subject_node["role"] = "both"
+            object_node = nodes.setdefault(row["object_id"], {
+                "id": row["object_id"], "label": row["object_name"],
+                "canonical_name": row["object_canonical"], "role": "object",
+            })
+            if object_node["role"] == "subject":
+                object_node["role"] = "both"
+            key = (row["subject_id"], row["object_id"])
+            edge = edge_counts.setdefault(key, {
+                "source": row["subject_id"], "target": row["object_id"],
+                "interaction_type": row["interaction_type"], "records": 0,
+                "count_sum": 0.0, "source_ids": set(),
+            })
+            edge["records"] += 1
+            edge["count_sum"] += row["count_value"] or 0
+            edge["source_ids"].add(row["source_id"])
+        edges = [
+            {**edge, "source_ids": sorted(edge["source_ids"])}
+            for edge in sorted(
+                edge_counts.values(),
+                key=lambda item: (-item["records"], item["source"], item["target"]),
+            )
+        ]
+        points = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": row["interaction_id"],
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [row["longitude"], row["latitude"]],
+                },
+                "properties": {
+                    "subject": row["subject_name"],
+                    "subject_canonical": row["subject_canonical"],
+                    "object": row["object_name"],
+                    "object_canonical": row["object_canonical"],
+                    "interaction_type": row["interaction_type"],
+                    "source_id": row["source_id"],
+                    "source_row": row["source_row"],
+                    "event_date": row["event_date"],
+                    "count": row["count_value"],
+                    "coordinate_uncertainty_m": row["uncertainty_m"],
+                    "scope_role": row["target_role"],
+                },
+            } for row in rows],
+        }
+        focus = f" involving {entity['display_name']}" if entity else ""
+        headline = (
+            f"{len(rows):,} source-reported {interaction_type.replace('_', ' ')} records"
+            f"{focus} link {len(nodes):,} entities in {len(edges):,} distinct pairs."
+        )
+        limitations = [self._limitation(
+            "association-not-causation",
+            "The visual retains the source-reported relation; it does not turn association into causation, dispersal, effect or preference.",
+            affects=["interaction-points", "interaction-network", "answer"],
+        )]
+        result = self._base_result(
+            request_id, "interaction-map", original,
+            "Map and connect explicitly admitted subject-object associations.",
+            {
+                "interaction_type": interaction_type,
+                **({"entity": entity["canonical_name"]} if entity else {}),
+            },
+            headline, ["observed"], "partial", sources,
+        )
+        result["answer"]["detail"] = (
+            "Each map point retains both entities and its source row. The network aggregates "
+            "those same rows into pairs; it is not inferred from nearby records."
+        )
+        result["limitations"].extend(limitations)
+        point_ref = self._data_ref("interaction-points", "application/geo+json", points)
+        node_ref = self._data_ref("interaction-nodes", "application/json", list(nodes.values()))
+        edge_ref = self._data_ref("interaction-edges", "application/json", edges)
+        scope = {"aoi_ids": ["target", "context"], "time": {"start": None, "end": None}}
+        denominators = {
+            "records": len(rows), "entities": len(nodes), "pairs": len(edges),
+            "sources": len(source_ids),
+        }
+        result["visuals"] = [
+            {
+                "visual_id": "interaction-points",
+                "visual_type": "map",
+                "view": "source-reported-interaction-map",
+                "title": "Where source-reported associations were recorded",
+                "priority": "primary",
+                "status": "partial",
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "interaction-points",
+                    "evidence_class": "observed",
+                    "geometry_type": "point",
+                    "data_ref": point_ref,
+                    "legend": {"label": interaction_type.replace("_", " ")},
+                    "style_hint": {
+                        "palette_role": "observed", "category_field": "subject",
+                        "linked_category_field": "object",
+                    },
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [],
+                "limitations": limitations,
+            },
+            {
+                "visual_id": "interaction-network",
+                "visual_type": "network",
+                "view": "source-reported-interaction-network",
+                "title": "Who or what is linked in the admitted source",
+                "priority": "supporting",
+                "status": "partial",
+                "scope": scope,
+                "layers": [
+                    {
+                        "layer_id": "interaction-nodes", "evidence_class": "observed",
+                        "geometry_type": "node", "data_ref": node_ref,
+                        "legend": {"label": "Entities"},
+                        "style_hint": {"palette_role": "observed", "category_field": "role"},
+                    },
+                    {
+                        "layer_id": "interaction-edges", "evidence_class": "derived",
+                        "geometry_type": "edge", "data_ref": edge_ref,
+                        "legend": {"label": "Aggregated source-reported pairs"},
+                        "style_hint": {"palette_role": "derived", "weight_field": "records"},
+                    },
+                ],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-interaction-pairs",
+                    "label": "Inspect pair counts and source IDs",
+                    "data_ref": edge_ref,
+                }],
+                "limitations": limitations,
+            },
+        ]
+        return self._write_result(
+            result,
+            {
+                "interaction-points": ("application/geo+json", points),
+                "interaction-nodes": ("application/json", list(nodes.values())),
+                "interaction-edges": ("application/json", edges),
             },
         )
 
