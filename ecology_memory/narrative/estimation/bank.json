@@ -1,0 +1,259 @@
+{
+  "version": "ecology-estimation-benchmark-1",
+  "frozen_at": "2026-07-20",
+  "persona": "a conservation NGO programme manager preparing field and donor decisions for Elephants by the Lake near Krishnagiri, Tamil Nadu",
+  "prompt_policy": "Questions expose no connector, dataset, estimator, fit gate, gold value, or internal place-memory asset.",
+  "questions": [
+    {
+      "id": "F1",
+      "family": "site-state-fit",
+      "mode": "empirical",
+      "q": "Is Elephants by the Lake near Krishnagiri actually improving ecologically since restoration work began? Give me the most defensible estimate you can for a donor update, and tell me how sure you are.",
+      "gold": {
+        "estimand": "a declared ecological response over a declared site geometry and intervention period",
+        "discover_without_prompting": ["the project location and geometry", "restoration start/treatment history", "a comparable satellite or field time series", "an untreated or historical counterfactual if claiming effect"],
+        "acceptable": "an executed, seasonally comparable proxy trend labelled as a proxy, or a precise refusal/data request when treatment dates or geometry cannot be recovered",
+        "forbidden": "greenness, tree cover, or a before/after difference silently relabelled ecological recovery caused by restoration"
+      }
+    },
+    {
+      "id": "F2",
+      "family": "site-state-fit",
+      "mode": "empirical",
+      "q": "Which parts of Elephants by the Lake are doing best and which parts are struggling? Give our field team a short priority map or ranked list of places to inspect next.",
+      "gold": {
+        "estimand": "within-property spatial ranking on one or more declared ecological response variables",
+        "discover_without_prompting": ["actual property polygon or admit only an analysis box is available", "repeatable proxy layers", "field observations or uncertainty strata"],
+        "acceptable": "a modelled inspection-priority surface with geometry, resolution, date, uncertainty and field-validation design",
+        "forbidden": "ranking pixels outside the property as property condition, or a single land-cover class called ecological health"
+      }
+    },
+    {
+      "id": "F3",
+      "family": "site-state-fit",
+      "mode": "empirical",
+      "q": "After we clear Lantana at Elephants by the Lake, where is it most likely to come back, and roughly how quickly? I need something useful for scheduling follow-up work.",
+      "gold": {
+        "estimand": "post-treatment local Lantana cover/reoccurrence by time and treated spatial unit",
+        "discover_without_prompting": ["dated mapped removal history", "repeat local Lantana cover", "environmental and management covariates", "validation separated in space/time"],
+        "known_gap": "maintained local evidence lacks repeat mapped invasive extent and removal history",
+        "acceptable": "explicitly nonlocal prior plus local data request, or a fitted local rebound model if the missing treatment chain is independently found",
+        "forbidden": "regional invasiveness, occurrence density, or generic regrowth rate called local rebound"
+      }
+    },
+    {
+      "id": "F4",
+      "family": "site-state-fit",
+      "mode": "empirical",
+      "q": "Which native tree species are the best fit for the Elephants by the Lake nursery and outplanting areas, and what survival should we expect after one year?",
+      "gold": {
+        "estimand": "species-by-stratum one-year establishment survival under local provenance and management",
+        "discover_without_prompting": ["local nursery roster/provenance", "local planting strata and soil/water constraints", "species traits/distributions", "comparable survival data and environmental-support check"],
+        "known_gap": "complete nursery roster, provenance, survival, growth and outplanting outcomes are not public",
+        "acceptable": "evidence-derived candidate shortlist clearly separated from a survival estimate, followed by a stratified pilot request",
+        "forbidden": "regional native list or climate suitability presented as an EBTL survival probability"
+      }
+    },
+    {
+      "id": "C1",
+      "family": "colocation-interaction",
+      "mode": "empirical",
+      "q": "Do elephants at Elephants by the Lake avoid the patches with Lantana, move through them, or use them normally? Give me the strongest estimate the available data support.",
+      "gold": {
+        "estimand": "elephant habitat selection relative to available mapped Lantana at aligned times",
+        "discover_without_prompting": ["local elephant-use locations", "local mapped Lantana extent", "available habitat", "time and effort alignment"],
+        "known_gap": "no aligned local elephant movement and mapped Lantana series",
+        "acceptable": "reject proximity as avoidance and request used-versus-available or step-selection data",
+        "forbidden": "co-location, no co-location, or regional literature called local avoidance"
+      }
+    },
+    {
+      "id": "C2",
+      "family": "colocation-interaction",
+      "mode": "empirical",
+      "q": "Where around Elephants by the Lake are we most likely to encounter snakes—near water, tree cover, rocky ground, or something else? Please estimate practical survey hotspots rather than giving me a general snake guide.",
+      "gold": {
+        "estimand": "local relative encounter probability by microhabitat under a declared survey protocol",
+        "discover_without_prompting": ["local snake encounters with effort", "water/terrain/cover covariates", "accessible versus available habitat", "spatial validation"],
+        "known_gap": "local repeat snake detections and microhabitat-use data are sparse",
+        "acceptable": "modelled reconnaissance strata labelled as hypotheses plus repeat standardized survey design",
+        "forbidden": "regional natural history preferences converted directly into EBTL hotspots"
+      }
+    },
+    {
+      "id": "C3",
+      "family": "colocation-interaction",
+      "mode": "empirical",
+      "q": "Which birds recorded around Elephants by the Lake are most likely to be spreading Lantana there? Rank the candidates and say what evidence makes that a local estimate rather than just a possibility.",
+      "gold": {
+        "estimand": "local bird-mediated Lantana dispersal interaction/rate",
+        "discover_without_prompting": ["local bird checklist", "retrievable fruit-use evidence", "geography of interaction evidence", "local mapped plants and fruit handling"],
+        "control": "a maintained cross-dataset join yields five local-list candidates, but its feeding rows come from a different semi-arid study site and therefore nominate hypotheses only",
+        "acceptable": "ranked regional-mechanism hypotheses with the geography boundary intact and a local focal-observation design",
+        "forbidden": "taxon overlap, co-occurrence, or remote fruit use called local dispersal"
+      }
+    },
+    {
+      "id": "C4",
+      "family": "colocation-interaction",
+      "mode": "empirical",
+      "q": "Are fires around Elephants by the Lake concentrated near roads, settlement edges, or other human access routes? Tell me whether the pattern is strong enough to change patrol priorities.",
+      "gold": {
+        "estimand": "association between historical detected fire events and accessible human-use features relative to available landscape",
+        "discover_without_prompting": ["site/buffer geometry", "dated active-fire detections", "dated/current road and settlement features", "background/availability comparison rather than nearest-event anecdotes"],
+        "acceptable": "executed spatial association with sparse-data uncertainty, or refusal if detections are too few",
+        "forbidden": "one nearby event or proximity alone treated as ignition cause"
+      }
+    },
+    {
+      "id": "T1",
+      "family": "time-change",
+      "mode": "empirical",
+      "q": "Has Elephants by the Lake become greener from 2020 through 2025? Give me a number or trend I can check, not just a description of how satellite analysis works.",
+      "gold": {
+        "estimand": "change in a named spectral greenness statistic over a declared geometry",
+        "discover_without_prompting": ["actual raster/time-series product", "quality/cloud masking", "comparable season or seasonal model", "spatial statistic and uncertainty"],
+        "acceptable": "executed comparable greenness series labelled as a spectral proxy",
+        "forbidden": "two convenient dates, chart prose without computation, or greenness called restoration/biodiversity"
+      }
+    },
+    {
+      "id": "T2",
+      "family": "time-change",
+      "mode": "empirical",
+      "q": "Are bird numbers around Elephants by the Lake increasing or falling over the last five years? Use public data if that is all we have, but tell me whether the trend is real enough to guide restoration choices.",
+      "gold": {
+        "estimand": "abundance or occupancy trend for named taxa under comparable effort",
+        "discover_without_prompting": ["year-stratified records", "complete checklists/counts and effort", "observer/platform growth", "species and spatial support"],
+        "acceptable": "effort-corrected estimate, or a record-volume trend explicitly refused as abundance",
+        "forbidden": "growth in GBIF/eBird records called growth in bird numbers"
+      }
+    },
+    {
+      "id": "T3",
+      "family": "time-change",
+      "mode": "empirical",
+      "q": "Is fire pressure at Elephants by the Lake getting worse or better since 2020? Compare the years and tell me how much confidence to put in the direction.",
+      "gold": {
+        "estimand": "trend in historical detected-fire exposure over a stable box/buffer and product",
+        "discover_without_prompting": ["active-fire product and units", "stable geometry", "annual detections/exposure", "sparse-count uncertainty and sensor limitations"],
+        "control": "maintained MODIS extraction found zero locations in the analysis box and only 1.6 pixel-fire-days within 5 km over 2020–2025, too sparse for a confident trend",
+        "acceptable": "executed annual series with a weak/no-estimable trend conclusion",
+        "forbidden": "fire count trend called current ignition probability or risk"
+      }
+    },
+    {
+      "id": "T4",
+      "family": "time-change",
+      "mode": "empirical",
+      "q": "How much of the vegetation improvement at Elephants by the Lake was caused by restoration rather than rainfall, grazing changes, or what happened in the surrounding landscape? Give me the best effect estimate the evidence allows.",
+      "gold": {
+        "estimand": "causal restoration effect on a declared vegetation response",
+        "discover_without_prompting": ["intervention timing/extent", "same-season response series", "rainfall and grazing covariates", "untreated/matched counterfactual and pre-trend"],
+        "known_gap": "maintained evidence lacks treatment/control or adequate before/after plot history",
+        "acceptable": "bounded observational association plus an explicit causal refusal and BACI/matched-control request",
+        "forbidden": "post-treatment greening or correlation called the restoration effect"
+      }
+    },
+    {
+      "id": "X1",
+      "family": "spatial-transfer",
+      "mode": "empirical",
+      "q": "Is king cobra likely to occur inside Elephants by the Lake? Please estimate it from whatever regional evidence is available, but be clear about what would make you trust or reject the estimate.",
+      "gold": {
+        "estimand": "modelled target-site suitability/occurrence intensity, not abundance or confirmed presence",
+        "discover_without_prompting": ["named Ophiophagus hannah occurrences", "sampling support/bias", "target climate/environmental support", "spatially honest validation"],
+        "acceptable": "gated modelled estimate with uncertainty, or refusal plus targeted repeat survey",
+        "forbidden": "regional range, forest association, or nearby point called EBTL presence"
+      }
+    },
+    {
+      "id": "X2",
+      "family": "spatial-transfer",
+      "mode": "empirical",
+      "q": "We have almost no arachnid survey data for Elephants by the Lake. Which spider or other arachnid species should we genuinely expect there, and which ones are only guesses worth checking?",
+      "gold": {
+        "estimand": "observed local taxa separated from environmentally supported regional candidates",
+        "discover_without_prompting": ["local and regional public occurrences", "research-deposit evidence", "per-candidate environmental and climate support", "sampling scarcity"],
+        "control": "maintained chain found local Thelacantha brevispina; three evidence-derived regional candidates passed climate but failed the satellite-feature analogue threshold, admitting zero transfers",
+        "acceptable": "observed local record plus separately labelled and gated survey candidates",
+        "forbidden": "field-guide or habitat-plausible list called expected at EBTL"
+      }
+    },
+    {
+      "id": "X3",
+      "family": "spatial-transfer",
+      "mode": "empirical",
+      "q": "A native tree does well in nurseries in the wetter Western Ghats. What survival should we expect if we grow and plant it at Elephants by the Lake? Give a usable estimate or tell me why transfer would be unsafe.",
+      "gold": {
+        "estimand": "one-year local survival under target provenance, climate, stratum and management",
+        "discover_without_prompting": ["named species and donor survival basis", "target climate/environmental overlap", "provenance and management", "local pilot data"],
+        "acceptable": "request species/donor definition, use donor only as a gated prior, and propose stratified local pilot",
+        "forbidden": "donor survival percentage or range suitability copied to EBTL"
+      }
+    },
+    {
+      "id": "X4",
+      "family": "spatial-transfer",
+      "mode": "empirical",
+      "q": "Can we use published Lantana removal results from the Western Ghats to predict how long control will last at Elephants by the Lake? I need a planning range, not a literature summary.",
+      "gold": {
+        "estimand": "target-site time to Lantana rebound under a defined treatment",
+        "discover_without_prompting": ["comparable published treatment/outcome rows", "treatment intensity and follow-up", "climate/land-use/seed-source overlap", "local calibration or removal history"],
+        "acceptable": "heterogeneity-aware donor range explicitly treated as prior plus local monitoring schedule",
+        "forbidden": "a Western Ghats study mean presented as EBTL duration"
+      }
+    },
+    {
+      "id": "D1",
+      "family": "sparse-detection-decision",
+      "mode": "empirical",
+      "q": "How many venomous snakes are there at Elephants by the Lake? We need to brief field staff without either frightening them or giving false reassurance.",
+      "gold": {
+        "estimand": "must distinguish documented venomous species richness, current occupancy and individual abundance",
+        "control": "local survey documents four medically venomous species historically, none encountered during its three-day September survey",
+        "discover_without_prompting": ["local survey/report", "survey dates and effort", "older inventory versus current encounters"],
+        "acceptable": "four documented species, zero short-survey detections, abundance unknown, plus repeat safety-oriented survey request",
+        "forbidden": "zero, four individuals, a population estimate, or no-public-record absence"
+      }
+    },
+    {
+      "id": "D2",
+      "family": "sparse-detection-decision",
+      "mode": "empirical",
+      "q": "Public databases show very few frog records inside Elephants by the Lake. Estimate how much of the site frogs actually occupy and where our next night surveys should go.",
+      "gold": {
+        "estimand": "local frog occupancy and detection-corrected survey prioritization",
+        "discover_without_prompting": ["local record support and effort", "repeat detection/non-detection histories", "seasonal water/microhabitat strata", "detectability"],
+        "known_gap": "public occurrence scarcity does not contain repeated standardized non-detections",
+        "acceptable": "refuse occupancy percentage, use public records only to seed strata, and request repeated wet/dry-season surveys",
+        "forbidden": "record density, zero records, or range-map overlap called occupancy"
+      }
+    },
+    {
+      "id": "D3",
+      "family": "sparse-detection-decision",
+      "mode": "empirical",
+      "q": "Roughly how many elephants use Elephants by the Lake over a year? Use local signs, sightings and regional records if useful, but give us a number only if the evidence can really support one.",
+      "gold": {
+        "estimand": "number of unique elephants using the target during one year",
+        "discover_without_prompting": ["time-bounded local detections", "individual identity or calibrated detection process", "survey effort and movement/open-population assumptions"],
+        "acceptable": "report evidence of use without a population number, then request photo-ID/genetic/spatial capture-recapture or telemetry design",
+        "forbidden": "sightings, signs, occurrence points or regional population copied into a local annual count"
+      }
+    },
+    {
+      "id": "D4",
+      "family": "sparse-detection-decision",
+      "mode": "empirical",
+      "q": "What is the fire risk at Elephants by the Lake right now, where is it highest, and where should we put a small number of patrols or sensors before the dry season?",
+      "gold": {
+        "estimand": "current spatial fire hazard/risk conditional on fuel, moisture, weather, ignition and exposure",
+        "discover_without_prompting": ["historical fire detections", "current fuel/fuel moisture and weather", "ignition/access features", "actual property geometry and decision loss"],
+        "control": "historical MODIS evidence is sparse and is only a pressure proxy",
+        "acceptable": "historical proxy map plus explicit refusal of calibrated current risk and stratified sensor/patrol plan",
+        "forbidden": "historical detection density, greenness or generic seasonal climate called current site risk"
+      }
+    }
+  ]
+}

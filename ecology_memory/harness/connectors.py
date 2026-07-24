@@ -6,6 +6,7 @@ source to ``rows/kind/source/note/label`` while retaining record URL, time, qual
 
 Source families currently admitted:
   - GBIF + iNaturalist -> licensed taxon occurrence records
+  - GloBI               -> source-identified exploratory biotic-interaction records
   - eBird              -> recent bird observations (API-key connector; bbox post-filtered)
   - Earth Engine       -> MODIS NDVI series and point raster annotations
   - Zenodo 10077040    -> the published Anamalai vegetation *survey* sites
@@ -24,6 +25,7 @@ import hashlib
 import http.client
 import math
 import os
+import re
 import time
 import urllib.parse
 import urllib.request
@@ -378,7 +380,12 @@ def capability_catalog():
 
 
 def _clean_entity(entity):
-    e = " ".join(str(entity).lower().replace("_", " ").replace("-", " ").split())
+    # Normalise typography at the language boundary. Mobile keyboards and generated prose often
+    # use curly apostrophes; taxonomic APIs index the same common name with an ASCII apostrophe.
+    text = str(entity).translate(str.maketrans({
+        "\u2018": "'", "\u2019": "'", "\u02bc": "'", "\uff07": "'",
+    }))
+    e = " ".join(text.lower().replace("_", " ").replace("-", " ").split())
     words = [w.strip(".,;:()[]") for w in e.split()]
     core = [w for w in words if w not in RECORD_WORDS and w not in {"documented", "recorded"}]
     return e, " ".join(core).strip()
@@ -1112,6 +1119,250 @@ def published_site_evidence(resolution, region, time_value=None):
     }
 
 
+LOCAL_SITE_SEARCH_KEYS = (
+    "wildlife_inventory", "bird_inventory", "snake_habitat_requirements",
+    "cobra_inventory", "venomous_snake_inventory", "elephant_evidence",
+    "nursery_inventory", "soil_evidence", "evidence_summary",
+)
+LOCAL_SEARCH_STOPWORDS = {
+    "a", "about", "and", "at", "can", "do", "for", "from", "in", "is", "me",
+    "of", "on", "site", "tell", "the", "to", "what", "you", "ebtl",
+    "entity", "evidence", "known", "local", "record", "records", "species", "taxon",
+}
+
+
+def _local_search_tokens(value):
+    words = re.findall(r"[a-z0-9]+", str(value or "").casefold())
+    return {
+        word[:-1] if word.endswith("s") and len(word) > 4 else word
+        for word in words if word not in LOCAL_SEARCH_STOPWORDS and len(word) > 2
+    }
+
+
+def _local_named_row_matches(rows, query_tokens):
+    """Return structured taxon/entity rows matching a shorter or contextual local name."""
+    matches = []
+    for row in rows or []:
+        if not isinstance(row, dict):
+            continue
+        names = [
+            row.get("common_name"), row.get("scientific_name"),
+            row.get("taxon"), row.get("species"), row.get("name"),
+        ]
+        matched_name = next((
+            str(name) for name in names
+            if name and (lambda tokens: tokens and (
+                tokens <= query_tokens or query_tokens <= tokens
+            ))(_local_search_tokens(name))
+        ), None)
+        if matched_name:
+            matches.append((row, matched_name))
+    return matches
+
+
+def local_site_evidence_search(query, region, time_value=None, limit=200):
+    """Search an organisation's admitted local evidence registry before external sources.
+
+    The skill-facing contract is site- and taxon-neutral. An organisation seeds its adapter with
+    local evidence categories and page-addressable records; this EBTL profile supplies those
+    categories through ``published_site_evidence``.
+    """
+    query_text = " ".join(str(query or "").split()).strip()
+    if not query_text:
+        raise ValueError("local evidence search requires a non-empty query")
+    query_tokens = _local_search_tokens(query_text)
+    candidates = []
+    for key in LOCAL_SITE_SEARCH_KEYS:
+        result = published_site_evidence(
+            {"kind": "published_site_evidence", "canonical": key,
+             "input": query_text}, region, time_value)
+        if not result:
+            continue
+        searchable = json.dumps({
+            "key": key, "rows": result.get("rows") or [],
+            "note": result.get("note"), "metadata": result.get("source_metadata") or {},
+        }, ensure_ascii=False, default=str)
+        evidence_tokens = _local_search_tokens(searchable)
+        key_tokens = _local_search_tokens(key)
+        matched = sorted(query_tokens & evidence_tokens)
+        named_rows = _local_named_row_matches(result.get("rows") or [], query_tokens)
+        score = len(matched) + 4 * len(query_tokens & key_tokens) + 20 * bool(named_rows)
+        if score:
+            candidates.append((score, len(named_rows), len(matched), key, result, matched,
+                               named_rows))
+    if not candidates:
+        return {
+            "rows": [], "kind": "records", "source": "Admitted local evidence registry",
+            "label": "reported", "grain": "published-evidence-record",
+            "count_admissible": True, "query_time": time_value, "region": region,
+            "query_semantics": "local_evidence_search", "source_metadata": {
+                "query": query_text, "searched_categories": list(LOCAL_SITE_SEARCH_KEYS),
+            },
+            "note": ("no matching seeded local evidence; this is a registry non-match, not proof "
+                     "that the entity or event is absent"), "connector_events": [],
+        }
+    _, _, _, key, result, matched, named_rows = max(
+        candidates, key=lambda item: (item[0], item[1], item[2], item[3]))
+    selected = dict(result)
+    selected_rows = [row for row, _name in named_rows] if named_rows else list(
+        selected.get("rows") or [])
+    selected["rows"] = selected_rows[:max(1, min(int(limit), 500))]
+    selected["source_metadata"] = {
+        **(selected.get("source_metadata") or {}),
+        "local_search": {"query": query_text, "matched_category": key,
+                         "matched_terms": matched,
+                         "resolved_named_entities": [{
+                             "common_name": row.get("common_name"),
+                             "scientific_name": row.get("scientific_name"),
+                             "matched_name": name,
+                         } for row, name in named_rows],
+                         "searched_categories": list(LOCAL_SITE_SEARCH_KEYS)},
+    }
+    selected["connector_events"] = list(selected.get("connector_events") or []) + [{
+        "tool": "local-site-evidence.search", "implementation": "organisation adapter",
+        "parameters": {"query": query_text, "region": region.get("name"),
+                       "limit": int(limit)},
+        "output_rows": len(selected["rows"]), "matched_category": key,
+    }]
+    return selected
+
+
+# -------------------------------------------------------- GloBI biotic interactions
+def biotic_interactions(source_entity, target_entity=None, interaction_type=None, limit=50):
+    """Retrieve source-identified interaction records without inferring an interaction.
+
+    GloBI's live API is an exploratory search index. Returned rows retain their underlying
+    occurrence/study identifiers; callers must inspect the original source or use the versioned
+    GloBI publication before treating a row as a research-grade interaction claim.
+    """
+    source = " ".join(str(source_entity or "").split()).strip()
+    target = " ".join(str(target_entity or "").split()).strip()
+    relation = " ".join(str(interaction_type or "").split()).strip()
+    if not source:
+        raise ValueError("source_entity is required")
+    result_limit = max(1, min(int(limit or 50), 200))
+    params = {
+        "sourceTaxon": source,
+        "includeObservations": "true",
+        "limit": str(result_limit),
+    }
+    if target:
+        params["targetTaxon"] = target
+    if relation:
+        params["interactionType"] = relation
+    query_url = (
+        "https://api.globalbioticinteractions.org/interaction.csv?"
+        + urllib.parse.urlencode(params)
+    )
+    relation_fallback = False
+    try:
+        raw = _get(
+            query_url, headers={"Accept": "text/csv"}, timeout=60, retries=2, is_json=False)
+    except RuntimeError:
+        if not relation:
+            raise
+        # GloBI deployments have intermittently returned HTTP 5xx for valid
+        # ``interactionType`` filters while the same source/target query remains healthy.
+        # Retry the same source and target, then apply the requested relation locally. This
+        # preserves the estimand and source identity instead of silently trying another source.
+        relation_fallback = True
+        fallback_params = {key: value for key, value in params.items()
+                           if key != "interactionType"}
+        fallback_params["limit"] = str(max(result_limit, 200))
+        query_url = (
+            "https://api.globalbioticinteractions.org/interaction.csv?"
+            + urllib.parse.urlencode(fallback_params)
+        )
+        raw = _get(
+            query_url, headers={"Accept": "text/csv"}, timeout=60, retries=2, is_json=False)
+    parsed = list(csv.DictReader(raw.splitlines()))
+    rows = []
+    relation_stem = re.sub(r"[^a-z]", "", relation.casefold())
+    if relation_stem.startswith(("spread", "dispers")):
+        relation_stem = "dispers"
+    for item in parsed:
+        source_name = " ".join(str(item.get("source_taxon_name") or "").split())
+        target_name = " ".join(str(item.get("target_taxon_name") or "").split())
+        interaction = " ".join(str(item.get("interaction_type") or "").split())
+        if not source_name or not target_name or not interaction:
+            continue
+        if relation_fallback and relation_stem:
+            interaction_key = re.sub(r"[^a-z]", "", interaction.casefold())
+            if relation_stem not in interaction_key:
+                continue
+        occurrence_url = (
+            item.get("target_specimen_occurrence_id")
+            or item.get("source_specimen_occurrence_id")
+            or ""
+        )
+        stable = hashlib.sha256(
+            "|".join((source_name, interaction, target_name, occurrence_url,
+                      str(item.get("study_title") or ""))).encode()
+        ).hexdigest()[:18]
+        row = {
+            "id": f"globi:{stable}",
+            "source_taxon_name": source_name,
+            "source_taxon_external_id": item.get("source_taxon_external_id") or None,
+            "interaction_type": interaction,
+            "target_taxon_name": target_name,
+            "target_taxon_external_id": item.get("target_taxon_external_id") or None,
+            "source_occurrence_id": item.get("source_specimen_occurrence_id") or None,
+            "target_occurrence_id": item.get("target_specimen_occurrence_id") or None,
+            "basis_of_record": (
+                item.get("target_specimen_basis_of_record")
+                or item.get("source_specimen_basis_of_record")
+                or None
+            ),
+            "study_title": item.get("study_title") or None,
+            "source": "Global Biotic Interactions live index",
+            "source_record": occurrence_url or query_url,
+        }
+        try:
+            if item.get("latitude") and item.get("longitude"):
+                row["lat"] = float(item["latitude"])
+                row["lon"] = float(item["longitude"])
+        except (TypeError, ValueError):
+            pass
+        rows.append(row)
+        if len(rows) >= result_limit:
+            break
+    return {
+        "rows": rows,
+        "kind": "records",
+        "source": "Global Biotic Interactions (GloBI) live exploratory index",
+        "label": "reported interaction record",
+        "grain": "indexed source interaction",
+        "count_admissible": True,
+        "query": {
+            "source_entity": source,
+            "target_entity": target or None,
+            "interaction_type": relation or None,
+        },
+        "retrieved_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "versioned_dataset_doi": "10.5281/zenodo.3950589",
+        "note": (
+            "GloBI rows are exploratory, source-linked interaction leads. They do not establish "
+            "that the interaction occurs at the target site. Inspect the retained occurrence or "
+            "study source; use the versioned GloBI publication for research-grade reuse."
+            + (
+                " The live relation filter failed, so the same source/target result was retrieved "
+                "without that server filter and the requested relation was retained by local "
+                "filtering; no alternative evidence source was substituted."
+                if relation_fallback else ""
+            )
+        ),
+        "connector_events": [{
+            "tool": "globi.interaction.csv",
+            "implementation": "GloBI Web API",
+            "parameters": params,
+            "output_rows": len(rows),
+            "source_url": query_url,
+            "versioned_dataset_doi": "10.5281/zenodo.3950589",
+            "relation_filter_fallback": relation_fallback,
+        }],
+    }
+
+
 # ---------------------------------------------------------------- eBird recent observations
 def _ebird_key():
     if os.environ.get("EBIRD_API_KEY"):
@@ -1317,7 +1568,16 @@ def ee_fire_exposure(records, region, query_time=None, radius_km=5):
     end_year = int((end or "2025")[:4])
     if region is None:
         raise RuntimeError("fire exposure requires an explicit region for exact-AOI comparison")
-    return ORIGIN.fire_exposure(records, region, start_year, end_year, radius_km)
+    cache_key = "origin-fire-exposure-v1 " + hashlib.sha256(json.dumps({
+        "records": records, "region": region, "start_year": start_year,
+        "end_year": end_year, "radius_km": radius_km,
+    }, sort_keys=True, default=str).encode()).hexdigest()
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        return cached
+    out = ORIGIN.fire_exposure(records, region, start_year, end_year, radius_km)
+    _cache_put(cache_key, out)
+    return out
 
 
 def annotate_records(records, layer, query_time=None, region=None):
@@ -1332,11 +1592,27 @@ def annotate_records(records, layer, query_time=None, region=None):
         return ee_fire_exposure(records, region, query_time)
     if canonical == "landcover" and region and all(
             record.get("id") == "site:ebtl-center" for record in records):
-        return ORIGIN.landcover_summary(records, region)
+        cache_key = "origin-landcover-summary-v1 " + hashlib.sha256(json.dumps({
+            "records": records, "region": region,
+        }, sort_keys=True, default=str).encode()).hexdigest()
+        cached = _cache_get(cache_key)
+        if cached is not None:
+            return cached
+        out = ORIGIN.landcover_summary(records, region)
+        _cache_put(cache_key, out)
+        return out
     if canonical == "greenness_trend":
         start, end = _time_window(query_time)
-        return ORIGIN.greenness_trend(records, int((start or "2019")[:4]),
-                                      int((end or "2024")[:4]))
+        start_year, end_year = int((start or "2019")[:4]), int((end or "2024")[:4])
+        cache_key = "origin-greenness-trend-v1 " + hashlib.sha256(json.dumps({
+            "records": records, "start_year": start_year, "end_year": end_year,
+        }, sort_keys=True, default=str).encode()).hexdigest()
+        cached = _cache_get(cache_key)
+        if cached is not None:
+            return cached
+        out = ORIGIN.greenness_trend(records, start_year, end_year)
+        _cache_put(cache_key, out)
+        return out
     cache_key = "ee-annotate-v2 " + hashlib.sha256(json.dumps({"records": records, "layer": canonical,
                                                              "time": query_time}, sort_keys=True,
                                                             default=str).encode()).hexdigest()

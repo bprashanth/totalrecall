@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "skills": [
+    {
+      "id": "local-site-fauna-summary",
+      "description": "Published EBTL 2024 survey group summaries for butterflies, odonates, birds and herpetofauna, with older-property herpetofauna records kept separate.",
+      "use_for": ["what wildlife or animal groups were recorded locally", "local survey coverage"],
+      "exclude": ["complete non-bird species lists", "public occurrence points", "abundance", "proof of absence"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": false,
+      "binding": {"mode": "exact_select", "entity": "EBTL wildlife inventory", "region_place": "Elephants by the Lake"}
+    },
+    {
+      "id": "local-snake-inventory",
+      "description": "Complete documented EBTL snake inventory, separating snakes encountered in the September 2024 visual survey from older property records and retaining the declared dangerous subset.",
+      "use_for": ["snakes recorded at EBTL", "2024 snakes versus older records", "snakes dangerous to people"],
+      "exclude": ["regional occurrence search", "population", "proof of absence"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": false,
+      "binding": {"mode": "exact_select", "entity": "snakes", "region_place": "Elephants by the Lake"}
+    },
+    {
+      "id": "local-bird-inventory",
+      "description": "Complete local 2024 EBTL bird checklist with survey method.",
+      "use_for": ["birds recorded locally", "local bird list"],
+      "exclude": ["recent eBird feed", "abundance", "plant interaction"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": false,
+      "binding": {"mode": "exact_select", "entity": "EBTL bird inventory", "region_place": "Elephants by the Lake"}
+    },
+    {
+      "id": "merged-taxon-occurrence-search",
+      "description": "Resolve a named animal or plant and retrieve bounded georeferenced GBIF and iNaturalist occurrence records in the requested geometry.",
+      "use_for": ["species records", "sightings around a place", "where a named species was observed"],
+      "exclude": ["abundance", "complete site inventory", "predicted presence", "literature-only leads"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": true,
+      "aliases": {"king cobra": "Ophiophagus hannah", "indian cobra": "Naja naja"},
+      "binding": {"mode": "compiler_entity"}
+    },
+    {
+      "id": "gated-species-presence-transfer",
+      "description": "Estimate target species suitability from donor occurrence records only after environmental feature or climate-envelope gates.",
+      "use_for": ["could a species occur at a data-poor site", "careful regional-to-site estimate"],
+      "exclude": ["direct observation", "abundance", "ungated extrapolation", "transfer of a relationship"],
+      "supports_ops": ["ESTIMATE"], "returns": "Field", "georeferenced": false,
+      "aliases": {"king cobra": "Ophiophagus hannah", "indian cobra": "Naja naja"},
+      "binding": {"mode": "operator", "op": "ESTIMATE"}
+    },
+    {
+      "id": "semantic-literature-discovery",
+      "description": "BGE-small semantic search over admitted paper and dataset content cards, returning ranked DOI, title and column leads.",
+      "use_for": ["find studies or datasets by meaning", "Lantana and bird literature"],
+      "exclude": ["local observation", "causal finding", "automatically admitted extracted points"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": false,
+      "binding": {"mode": "exact_select", "entity": "EBTL Lantana literature"}
+    },
+    {
+      "id": "local-bird-lantana-overlap",
+      "description": "Join the EBTL bird checklist to an admitted regional Lantana feeding dataset and return overlap with an interpretation gate.",
+      "use_for": ["which regional Lantana-associated birds are also in the local bird list"],
+      "exclude": ["Lantana confirmed at EBTL", "local feeding", "local seed dispersal", "causality"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": false,
+      "binding": {"mode": "exact_select", "entity": "EBTL bird Lantana transfer evidence", "region_place": "Elephants by the Lake"}
+    },
+    {
+      "id": "declared-site-centre",
+      "description": "Declared EBTL centre point used only as input to a raster annotation; it is not the property polygon.",
+      "use_for": ["point input for satellite annotation"],
+      "exclude": ["whole-property measurement", "survey boundary"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": true,
+      "binding": {"mode": "exact_select", "entity": "EBTL restoration site", "region_place": "Elephants by the Lake"}
+    },
+    {
+      "id": "vegetation-greenness-trend",
+      "description": "MODIS annual NDVI trend at the declared EBTL centre for explicit years, at 250 metre pixel grain.",
+      "use_for": ["vegetation greenness change", "NDVI trend"],
+      "exclude": ["biomass", "whole-property trend", "restoration causality", "unknown restoration start date"],
+      "supports_ops": ["ANNOTATE"], "returns": "Records", "georeferenced": true,
+      "binding": {"mode": "annotate", "layer": "greenness trend", "source_entity": "EBTL restoration site"}
+    },
+    {
+      "id": "historical-fire-exposure",
+      "description": "MODIS active-fire locations in the analysis bbox and pixel-fire-days per square kilometre around the site point over one declared period.",
+      "use_for": ["historical fire exposure over a period"],
+      "exclude": ["burned area", "ignition count", "fire probability", "property-polygon burning", "up or down by year"],
+      "supports_ops": ["ANNOTATE"], "returns": "Records", "georeferenced": true,
+      "binding": {"mode": "annotate", "layer": "historical fire exposure", "source_entity": "EBTL restoration site"}
+    },
+    {
+      "id": "local-invasive-management-evidence",
+      "description": "Local documented non-native plant management, bounded public occurrence counts and regional literature leads, with missing local outcome measurements explicit.",
+      "use_for": ["what invasive management is documented locally", "known evidence and gaps"],
+      "exclude": ["before-after outcome", "Lantana confirmed locally", "satellite invasive extent", "causal effect"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": false,
+      "binding": {"mode": "exact_select", "entity": "EBTL invasive evidence", "region_place": "Elephants by the Lake"}
+    },
+    {
+      "id": "published-vegetation-survey-sites",
+      "description": "Twenty-six published Anamalai vegetation survey sites from Zenodo 10077040.",
+      "use_for": ["published vegetation survey locations around Valparai or Anamalai"],
+      "exclude": ["restoration projects", "invasive-removal interventions", "restoration outcomes"],
+      "supports_ops": ["SELECT"], "returns": "Records", "georeferenced": true,
+      "binding": {"mode": "exact_select", "entity": "vegetation survey sites"}
+    }
+  ]
+}

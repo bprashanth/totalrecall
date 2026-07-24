@@ -1,0 +1,478 @@
+{
+  "turns": [
+    {
+      "question": "Can you check 75 km around EBTL? Are any Indian cobra records within 10 km of elephant records?",
+      "mode": "execute",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 42.688,
+        "final": "{\"op\": \"AGGREGATE\", \"by\": \"space\", \"metric\": \"count\", \"source\": {\"op\": \"RELATE\", \"relation\": \"within\", \"threshold_km\": 10.0, \"left\": {\"op\": \"SELECT\", \"entity\": \"Indian cobra records\", \"region\": {\"op\": \"BUFFER\", \"source\": {\"op\": \"REGION\", \"place\": \"?place\"}, \"radius_km\": 75.0}, \"time\": null}, \"right\": {\"op\": \"SELECT\", \"entity\": \"elephant records\", \"region\": {\"op\": \"BUFFER\", \"source\": {\"op\": \"REGION\", \"place\": \"?place\"}, \"radius_km\": 75.0}, \"time\": null}}}\n",
+        "parsed": {
+          "op": "AGGREGATE",
+          "by": "space",
+          "metric": "count",
+          "source": {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 10.0,
+            "left": {
+              "op": "SELECT",
+              "entity": "Indian cobra records",
+              "region": {
+                "op": "BUFFER",
+                "source": {
+                  "op": "REGION",
+                  "place": "?place"
+                },
+                "radius_km": 75.0
+              },
+              "time": null
+            },
+            "right": {
+              "op": "SELECT",
+              "entity": "elephant records",
+              "region": {
+                "op": "BUFFER",
+                "source": {
+                  "op": "REGION",
+                  "place": "?place"
+                },
+                "radius_km": 75.0
+              },
+              "time": null
+            }
+          }
+        },
+        "raw": {
+          "choices": [
+            {
+              "message": {
+                "role": "assistant",
+                "content": "{\"op\": \"AGGREGATE\", \"by\": \"space\", \"metric\": \"count\", \"source\": {\"op\": \"RELATE\", \"relation\": \"within\", \"threshold_km\": 10.0, \"left\": {\"op\": \"SELECT\", \"entity\": \"Indian cobra records\", \"region\": {\"op\": \"BUFFER\", \"source\": {\"op\": \"REGION\", \"place\": \"?place\"}, \"radius_km\": 75.0}, \"time\": null}, \"right\": {\"op\": \"SELECT\", \"entity\": \"elephant records\", \"region\": {\"op\": \"BUFFER\", \"source\": {\"op\": \"REGION\", \"place\": \"?place\"}, \"radius_km\": 75.0}, \"time\": null}}}\n"
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {}
+        },
+        "error": null
+      },
+      "raw_ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 10.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "Indian cobra records",
+            "region": {
+              "op": "BUFFER",
+              "source": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "radius_km": 75.0
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "elephant records",
+            "region": {
+              "op": "BUFFER",
+              "source": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "radius_km": 75.0
+            },
+            "time": null
+          }
+        }
+      },
+      "raw_ir_sha256": "0e16d01dca6ae6a73b9939c21a3f467ec69a71143d655659efd053652a28fa0e",
+      "retrieval": [
+        {
+          "path": "root.source.left",
+          "op": "SELECT",
+          "query": "Algebra operation: SELECT\nRequested subject or layer: Indian cobra records\nParent operation: RELATE\nRequired output: georeferenced Records or declared operator result\nComplete algebra leaf: {\"op\": \"SELECT\", \"entity\": \"Indian cobra records\", \"region\": {\"op\": \"BUFFER\", \"source\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"radius_km\": 75.0}, \"time\": null}",
+          "candidates": [
+            {
+              "id": "merged-taxon-occurrence-search",
+              "score": 0.681,
+              "card": "Skill: merged-taxon-occurrence-search\nDescription: Resolve a named animal or plant and retrieve bounded georeferenced GBIF and iNaturalist occurrence records in the requested geometry.\nUse for: species records; sightings around a place; where a named species was observed\nDo not use for: abundance; complete site inventory; predicted presence; literature-only leads\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            },
+            {
+              "id": "declared-site-centre",
+              "score": 0.6416,
+              "card": "Skill: declared-site-centre\nDescription: Declared EBTL centre point used only as input to a raster annotation; it is not the property polygon.\nUse for: point input for satellite annotation\nDo not use for: whole-property measurement; survey boundary\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            },
+            {
+              "id": "published-vegetation-survey-sites",
+              "score": 0.5928,
+              "card": "Skill: published-vegetation-survey-sites\nDescription: Twenty-six published Anamalai vegetation survey sites from Zenodo 10077040.\nUse for: published vegetation survey locations around Valparai or Anamalai\nDo not use for: restoration projects; invasive-removal interventions; restoration outcomes\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            }
+          ]
+        },
+        {
+          "path": "root.source.right",
+          "op": "SELECT",
+          "query": "Algebra operation: SELECT\nRequested subject or layer: elephant records\nParent operation: RELATE\nRequired output: georeferenced Records or declared operator result\nComplete algebra leaf: {\"op\": \"SELECT\", \"entity\": \"elephant records\", \"region\": {\"op\": \"BUFFER\", \"source\": {\"op\": \"REGION\", \"place\": \"Elephants by the Lake\"}, \"radius_km\": 75.0}, \"time\": null}",
+          "candidates": [
+            {
+              "id": "merged-taxon-occurrence-search",
+              "score": 0.6892,
+              "card": "Skill: merged-taxon-occurrence-search\nDescription: Resolve a named animal or plant and retrieve bounded georeferenced GBIF and iNaturalist occurrence records in the requested geometry.\nUse for: species records; sightings around a place; where a named species was observed\nDo not use for: abundance; complete site inventory; predicted presence; literature-only leads\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            },
+            {
+              "id": "declared-site-centre",
+              "score": 0.6349,
+              "card": "Skill: declared-site-centre\nDescription: Declared EBTL centre point used only as input to a raster annotation; it is not the property polygon.\nUse for: point input for satellite annotation\nDo not use for: whole-property measurement; survey boundary\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            },
+            {
+              "id": "published-vegetation-survey-sites",
+              "score": 0.5868,
+              "card": "Skill: published-vegetation-survey-sites\nDescription: Twenty-six published Anamalai vegetation survey sites from Zenodo 10077040.\nUse for: published vegetation survey locations around Valparai or Anamalai\nDo not use for: restoration projects; invasive-removal interventions; restoration outcomes\nSupports: SELECT\nReturns: Records; georeferenced=True"
+            }
+          ]
+        }
+      ],
+      "linker": {
+        "stage": "link",
+        "exit_code": 0,
+        "latency_s": 17.136,
+        "final": "{\"bindings\": [{\"path\": \"root.source.left\", \"skill\": \"merged-taxon-occurrence-search\"}, {\"path\": \"root.source.right\", \"skill\": \"merged-taxon-occurrence-search\"}]}\n",
+        "parsed": {
+          "bindings": [
+            {
+              "path": "root.source.left",
+              "skill": "merged-taxon-occurrence-search"
+            },
+            {
+              "path": "root.source.right",
+              "skill": "merged-taxon-occurrence-search"
+            }
+          ]
+        },
+        "raw": {
+          "choices": [
+            {
+              "message": {
+                "role": "assistant",
+                "content": "{\"bindings\": [{\"path\": \"root.source.left\", \"skill\": \"merged-taxon-occurrence-search\"}, {\"path\": \"root.source.right\", \"skill\": \"merged-taxon-occurrence-search\"}]}\n"
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {}
+        },
+        "error": null
+      },
+      "bindings": [
+        {
+          "path": "root.source.left",
+          "skill": "merged-taxon-occurrence-search",
+          "accepted": true
+        },
+        {
+          "path": "root.source.right",
+          "skill": "merged-taxon-occurrence-search",
+          "accepted": true
+        }
+      ],
+      "ir": {
+        "op": "AGGREGATE",
+        "by": "space",
+        "metric": "count",
+        "source": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 10.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "Naja naja",
+            "region": {
+              "op": "BUFFER",
+              "source": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "radius_km": 75.0
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "elephant records",
+            "region": {
+              "op": "BUFFER",
+              "source": {
+                "op": "REGION",
+                "place": "Elephants by the Lake"
+              },
+              "radius_km": 75.0
+            },
+            "time": null
+          }
+        }
+      },
+      "schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "AGGREGATE",
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "execution": {
+        "status": "answer",
+        "value": {
+          "kind": "scalar",
+          "value": 176,
+          "note": "count=176",
+          "label": "proxy",
+          "entity": null,
+          "source": "deterministic occurrence-point relation"
+        },
+        "label": "proxy",
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 75.0,
+            "source_region": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+            "source_support": {
+              "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+              "bbox": [
+                12.721,
+                12.747,
+                78.17,
+                78.197
+              ],
+              "lat": 12.73394,
+              "lon": 78.18344,
+              "orig": "EBTL",
+              "source": "SITE_EBTL.json"
+            },
+            "result_bbox": [
+              12.047266618756737,
+              13.420733381243263,
+              77.47927754914409,
+              78.88772245085592
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "CONNECTOR",
+            "tool": "origin.points.get",
+            "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+            "parameters": {
+              "species": "Naja naja",
+              "bbox": [
+                77.47927754914409,
+                12.047266618756737,
+                78.88772245085592,
+                13.420733381243263
+              ],
+              "sources": [
+                "gbif",
+                "inat"
+              ],
+              "limit": 200
+            },
+            "output_rows": 218,
+            "cached": true
+          },
+          {
+            "op": "SELECT",
+            "route": "origin-points",
+            "resolved": "Naja naja",
+            "note": "218 coordinate-deduplicated occurrence points from the exact origin resolver using its bounded GBIF+iNaturalist sources; paper discovery/extraction is separate; the origin common CSV omits record URLs and licenses, an import incompatibility"
+          },
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 75.0,
+            "source_region": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+            "source_support": {
+              "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+              "bbox": [
+                12.721,
+                12.747,
+                78.17,
+                78.197
+              ],
+              "lat": 12.73394,
+              "lon": 78.18344,
+              "orig": "EBTL",
+              "source": "SITE_EBTL.json"
+            },
+            "result_bbox": [
+              12.047266618756737,
+              13.420733381243263,
+              77.47927754914409,
+              78.88772245085592
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "CONNECTOR",
+            "tool": "origin.points.get",
+            "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+            "parameters": {
+              "species": "Elephas maximus",
+              "bbox": [
+                77.47927754914409,
+                12.047266618756737,
+                78.88772245085592,
+                13.420733381243263
+              ],
+              "sources": [
+                "gbif",
+                "inat"
+              ],
+              "limit": 200
+            },
+            "output_rows": 110,
+            "cached": true
+          },
+          {
+            "op": "SELECT",
+            "route": "origin-points",
+            "resolved": "Elephas maximus",
+            "note": "110 coordinate-deduplicated occurrence points from the exact origin resolver using its bounded GBIF+iNaturalist sources; paper discovery/extraction is separate; the origin common CSV omits record URLs and licenses, an import incompatibility"
+          },
+          {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 10.0,
+            "note": "218 left x 110 right -> 176 matched left and 83 matched right; occurrence proximity is not interaction or simultaneous observation"
+          },
+          {
+            "op": "AGGREGATE",
+            "by": "space",
+            "metric": "count",
+            "note": "count=176"
+          }
+        ]
+      },
+      "answer": "",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 1,
+        "latency_s": 300.012,
+        "final": "",
+        "parsed": null,
+        "raw": {},
+        "error": "TimeoutError: timed out"
+      }
+    },
+    {
+      "question": "So does that mean cobras and elephants were in the same place at the same time?",
+      "mode": "execute",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 1,
+        "latency_s": 136.176,
+        "final": "",
+        "parsed": null,
+        "raw": {},
+        "error": "URLError: <urlopen error [Errno 110] Connection timed out>"
+      },
+      "raw_ir": null,
+      "raw_ir_sha256": null,
+      "retrieval": [],
+      "linker": null,
+      "bindings": [],
+      "ir": null,
+      "schema": {
+        "valid": false,
+        "errors": [
+          "no IR"
+        ]
+      },
+      "execution": {
+        "status": "data_request",
+        "reason": "no_ir",
+        "detail": {}
+      },
+      "answer": "",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 1,
+        "latency_s": 135.167,
+        "final": "",
+        "parsed": null,
+        "raw": {},
+        "error": "URLError: <urlopen error [Errno 110] Connection timed out>"
+      }
+    },
+    {
+      "question": "What information do we need to know that properly?",
+      "mode": "history",
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 87.584,
+        "final": "{\"mode\": \"history\", \"ir\": null}\n",
+        "parsed": {
+          "mode": "history",
+          "ir": null
+        },
+        "raw": {
+          "choices": [
+            {
+              "message": {
+                "role": "assistant",
+                "content": "{\"mode\": \"history\", \"ir\": null}\n"
+              },
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {}
+        },
+        "error": null
+      },
+      "raw_ir": null,
+      "raw_ir_sha256": null,
+      "retrieval": [],
+      "linker": null,
+      "bindings": [],
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "interpret_prior_audit",
+        "detail": {}
+      },
+      "answer": "",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 1,
+        "latency_s": 300.101,
+        "final": "",
+        "parsed": null,
+        "raw": {},
+        "error": "TimeoutError: timed out"
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "reviewer": "deepseek-v4 rubric draft; requires Codex evidence audit",
+  "draft": {
+    "scores": {
+      "estimand": 2,
+      "execution": 2,
+      "fit": 1,
+      "evidence_state": 2,
+      "decision_record": 2
+    },
+    "rationales": {
+      "estimand": "The answer identifies current fire risk at Elephants by the Lake (EBTL) in Tamil Nadu, using fuel, moisture, weather, ignition, and exposure factors, and specifies where risk is highest and where to place patrols/sensors.",
+      "execution": "The answer executed shell commands to retrieve FIRMS active fire data, Open-Meteo weather and soil moisture, and SRTM elevation data, and used the results to estimate risk.",
+      "fit": "The answer acknowledges limitations such as detection uncertainty and lack of full FWI, but does not test or adjust for biases like VIIRS detectability or model extrapolation.",
+      "evidence_state": "The answer distinguishes between observations (VIIRS detections), model outputs (Open-Meteo weather, soil moisture), and proxies (weather stress), and labels uncertainties.",
+      "decision_record": "The answer provides checkable basis (data sources, method), acknowledges uncertainty (boundary unknown, detection unconfirmed), and gives specific field actions (patrol locations, fuel breaks, community agreement)."
+    },
+    "critical_errors": [],
+    "tags": [
+      "executed_estimate",
+      "field_request"
+    ],
+    "evidence": [
+      "FIRMS VIIRS 7d CSV retrieved and parsed, showing a fire on 15 Jul 2026 at 12.716°N, 78.194°E (approx 3 km SE of CT Palli).",
+      "Open-Meteo forecast API called with latitude=12.727, longitude=78.174, requesting current temperature, humidity, wind, and daily precipitation sums.",
+      "SRTM30m elevation data retrieved for a grid around the village, showing elevations from ~560 m to ~840 m."
+    ]
+  }
+}

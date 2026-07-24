@@ -1,0 +1,2514 @@
+{
+  "turns": [
+    {
+      "question": "Can you check 75 km around EBTL? Are any Indian cobra records within 10 km of elephant records?",
+      "mode": "execute",
+      "selected_capabilities": [
+        {
+          "entity": "buffered search region",
+          "kind": "REGION operator",
+          "description": "expand a named search region by an explicit radius; this controls retrieval extent and is distinct from a RELATE distance threshold",
+          "grain": "derived search bbox",
+          "evidence": "declared geometry",
+          "binding": "operator",
+          "ops": [
+            "BUFFER"
+          ],
+          "scope_policy": "compiler_must_write_each_operand_support",
+          "selected": true
+        },
+        {
+          "entity": "taxon occurrence records",
+          "kind": "SELECT",
+          "description": "bounded GBIF + iNaturalist point merger for a named taxon and requested region; semantic paper discovery is a separate operation",
+          "grain": "public occurrence point",
+          "evidence": "observed record, not abundance",
+          "binding": "compiler_entity",
+          "scope": "requested region",
+          "selected": true
+        },
+        {
+          "entity": "spatial relation between occurrence records",
+          "kind": "RELATE operator",
+          "description": "derive nearest distance, within, beyond, or cooccurrence-proxy results from two georeferenced occurrence sets; proximity is not interaction or simultaneous observation",
+          "grain": "pairwise occurrence proximity",
+          "evidence": "derived proxy",
+          "binding": "operator",
+          "ops": [
+            "RELATE"
+          ],
+          "requires": [
+            "taxon occurrence records"
+          ],
+          "selected": true
+        }
+      ],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 143.397,
+        "session_id": "019f8605-9b47-7ac1-a9ad-bf9d3fe14f56",
+        "prompt_sha256": "4af41680e61258841252f18896d7ccd1f63a03d57ffd4b1db4bc5a2d6d17988d",
+        "final": "{\"mode\":\"execute\",\"entities\":[\"buffered search region\",\"taxon occurrence records\",\"spatial relation between occurrence records\"]}",
+        "parsed": {
+          "mode": "execute",
+          "entities": [
+            "buffered search region",
+            "taxon occurrence records",
+            "spatial relation between occurrence records"
+          ]
+        },
+        "usage": {
+          "input_tokens": 12652,
+          "cached_input_tokens": 8576,
+          "output_tokens": 547,
+          "reasoning_output_tokens": 516
+        }
+      },
+      "compiler": {
+        "stage": "compile",
+        "exit_code": 0,
+        "latency_s": 137.007,
+        "session_id": "019f8605-9b47-7ac1-a9ad-bf9d3fe14f56",
+        "prompt_sha256": "561fcfe83910006b762bc8caf8106d430b65b3d801017874950ad74af0a9c65c",
+        "final": "{\"op\":\"RELATE\",\"relation\":\"within\",\"threshold_km\":10.0,\"left\":{\"op\":\"SELECT\",\"entity\":\"Indian cobra\",\"region\":{\"op\":\"BUFFER\",\"source\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"radius_km\":75.0},\"time\":null},\"right\":{\"op\":\"SELECT\",\"entity\":\"elephant\",\"region\":{\"op\":\"BUFFER\",\"source\":{\"op\":\"REGION\",\"place\":\"EBTL\"},\"radius_km\":75.0},\"time\":null}}",
+        "parsed": {
+          "op": "RELATE",
+          "relation": "within",
+          "threshold_km": 10.0,
+          "left": {
+            "op": "SELECT",
+            "entity": "Indian cobra",
+            "region": {
+              "op": "BUFFER",
+              "source": {
+                "op": "REGION",
+                "place": "EBTL"
+              },
+              "radius_km": 75.0
+            },
+            "time": null
+          },
+          "right": {
+            "op": "SELECT",
+            "entity": "elephant",
+            "region": {
+              "op": "BUFFER",
+              "source": {
+                "op": "REGION",
+                "place": "EBTL"
+              },
+              "radius_km": 75.0
+            },
+            "time": null
+          }
+        },
+        "usage": {
+          "input_tokens": 28623,
+          "cached_input_tokens": 20736,
+          "output_tokens": 758,
+          "reasoning_output_tokens": 619
+        }
+      },
+      "ir": {
+        "op": "RELATE",
+        "relation": "within",
+        "threshold_km": 10.0,
+        "left": {
+          "op": "SELECT",
+          "entity": "Indian cobra",
+          "region": {
+            "op": "BUFFER",
+            "source": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "radius_km": 75.0
+          },
+          "time": null
+        },
+        "right": {
+          "op": "SELECT",
+          "entity": "elephant",
+          "region": {
+            "op": "BUFFER",
+            "source": {
+              "op": "REGION",
+              "place": "Elephants by the Lake"
+            },
+            "radius_km": 75.0
+          },
+          "time": null
+        }
+      },
+      "schema": {
+        "valid": true,
+        "errors": [],
+        "holes": [],
+        "ops": [
+          "RELATE",
+          "SELECT",
+          "BUFFER",
+          "REGION",
+          "SELECT",
+          "BUFFER",
+          "REGION"
+        ],
+        "has_estimate": false,
+        "unbound": false
+      },
+      "execution": {
+        "status": "answer",
+        "value": {
+          "kind": "records",
+          "rows": [
+            {
+              "id": "origin-points:0:6129946380",
+              "lat": 12.810318,
+              "lon": 77.575362,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 1.25
+            },
+            {
+              "id": "origin-points:1:6130154583",
+              "lat": 13.070583,
+              "lon": 77.579217,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.226
+            },
+            {
+              "id": "origin-points:2:6131357853",
+              "lat": 12.797467,
+              "lon": 77.578987,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 0.325
+            },
+            {
+              "id": "origin-points:3:6133287910",
+              "lat": 12.891503,
+              "lon": 77.592306,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.462
+            },
+            {
+              "id": "origin-points:4:6185932339",
+              "lat": 13.087307,
+              "lon": 77.597657,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.689
+            },
+            {
+              "id": "origin-points:5:6187975334",
+              "lat": 12.84645,
+              "lon": 77.774486,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.649
+            },
+            {
+              "id": "origin-points:7:6399994672",
+              "lat": 12.74015,
+              "lon": 77.7894,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 1.358
+            },
+            {
+              "id": "origin-points:8:6400893337",
+              "lat": 13.05973,
+              "lon": 77.639746,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.541
+            },
+            {
+              "id": "origin-points:9:6413895679",
+              "lat": 12.786717,
+              "lon": 77.65152,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.305
+            },
+            {
+              "id": "origin-points:10:6422460706",
+              "lat": 13.070401,
+              "lon": 77.577166,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.379
+            },
+            {
+              "id": "origin-points:11:6422489333",
+              "lat": 13.057953,
+              "lon": 77.639842,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.424
+            },
+            {
+              "id": "origin-points:14:6431073608",
+              "lat": 13.070086,
+              "lon": 77.580437,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.091
+            },
+            {
+              "id": "origin-points:15:5063481091",
+              "lat": 12.759125,
+              "lon": 78.207793,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 7.744
+            },
+            {
+              "id": "origin-points:16:5064044403",
+              "lat": 12.6195,
+              "lon": 78.0326,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 9.434
+            },
+            {
+              "id": "origin-points:17:5070110344",
+              "lat": 12.980147,
+              "lon": 77.595852,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.491
+            },
+            {
+              "id": "origin-points:18:5077117734",
+              "lat": 13.077642,
+              "lon": 77.580747,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.673
+            },
+            {
+              "id": "origin-points:19:5087650145",
+              "lat": 12.6202,
+              "lon": 78.0325,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 9.486
+            },
+            {
+              "id": "origin-points:20:5140788644",
+              "lat": 12.675913,
+              "lon": 77.767364,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.683
+            },
+            {
+              "id": "origin-points:21:6353350639",
+              "lat": 12.620045,
+              "lon": 78.033192,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 9.522
+            },
+            {
+              "id": "origin-points:22:5167579530",
+              "lat": 13.072978,
+              "lon": 77.577861,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.514
+            },
+            {
+              "id": "origin-points:23:5844289045",
+              "lat": 12.843592,
+              "lon": 77.498512,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.856
+            },
+            {
+              "id": "origin-points:24:5198690040",
+              "lat": 13.068314,
+              "lon": 77.577878,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.171
+            },
+            {
+              "id": "origin-points:25:5206612055",
+              "lat": 12.887179,
+              "lon": 77.589881,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.846
+            },
+            {
+              "id": "origin-points:26:5215851757",
+              "lat": 12.38544,
+              "lon": 77.717845,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.203
+            },
+            {
+              "id": "origin-points:27:5216464218",
+              "lat": 13.079533,
+              "lon": 77.578829,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.968
+            },
+            {
+              "id": "origin-points:28:5844280074",
+              "lat": 12.846246,
+              "lon": 77.499458,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.601
+            },
+            {
+              "id": "origin-points:29:5932604745",
+              "lat": 13.069342,
+              "lon": 77.578631,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.182
+            },
+            {
+              "id": "origin-points:30:5230476781",
+              "lat": 13.073,
+              "lon": 77.5783,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.482
+            },
+            {
+              "id": "origin-points:31:5840428977",
+              "lat": 12.725769,
+              "lon": 77.861247,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 1.04
+            },
+            {
+              "id": "origin-points:32:5760177846",
+              "lat": 13.071745,
+              "lon": 77.581146,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.163
+            },
+            {
+              "id": "origin-points:33:5760499198",
+              "lat": 13.071923,
+              "lon": 77.581455,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.154
+            },
+            {
+              "id": "origin-points:34:5868121402",
+              "lat": 12.914361,
+              "lon": 77.687164,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 9.475
+            },
+            {
+              "id": "origin-points:38:4525237372",
+              "lat": 13.017186,
+              "lon": 77.566952,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.736
+            },
+            {
+              "id": "origin-points:41:4901039986",
+              "lat": 12.923242,
+              "lon": 77.520823,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.088
+            },
+            {
+              "id": "origin-points:42:4901600788",
+              "lat": 13.068088,
+              "lon": 77.578636,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.092
+            },
+            {
+              "id": "origin-points:43:4952889978",
+              "lat": 12.887387,
+              "lon": 77.596886,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.801
+            },
+            {
+              "id": "origin-points:44:5216185474",
+              "lat": 13.092543,
+              "lon": 77.575935,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 7.301
+            },
+            {
+              "id": "origin-points:45:5216308460",
+              "lat": 13.073721,
+              "lon": 77.580031,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.404
+            },
+            {
+              "id": "origin-points:46:4926225603",
+              "lat": 13.071262,
+              "lon": 77.580136,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.204
+            },
+            {
+              "id": "origin-points:47:4935645816",
+              "lat": 13.055128,
+              "lon": 77.53587,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 8.751
+            },
+            {
+              "id": "origin-points:48:4935743593",
+              "lat": 12.81419,
+              "lon": 77.575715,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 1.676
+            },
+            {
+              "id": "origin-points:49:4950418433",
+              "lat": 13.092536,
+              "lon": 77.57615,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 7.287
+            },
+            {
+              "id": "origin-points:50:4953043872",
+              "lat": 13.067991,
+              "lon": 77.579149,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.042
+            },
+            {
+              "id": "origin-points:52:4980677555",
+              "lat": 12.894593,
+              "lon": 77.592454,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.135
+            },
+            {
+              "id": "origin-points:53:4034995504",
+              "lat": 12.891528,
+              "lon": 77.585957,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.646
+            },
+            {
+              "id": "origin-points:55:4075632047",
+              "lat": 12.773446,
+              "lon": 77.617975,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.172
+            },
+            {
+              "id": "origin-points:56:6131269177",
+              "lat": 12.962621,
+              "lon": 77.577509,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 0.204
+            },
+            {
+              "id": "origin-points:58:4102773336",
+              "lat": 12.67483,
+              "lon": 77.766033,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.772
+            },
+            {
+              "id": "origin-points:59:4103290330",
+              "lat": 12.675269,
+              "lon": 77.766559,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.736
+            },
+            {
+              "id": "origin-points:60:4103349771",
+              "lat": 13.055991,
+              "lon": 77.535821,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 8.776
+            },
+            {
+              "id": "origin-points:61:4103362111",
+              "lat": 12.675858,
+              "lon": 77.767402,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.677
+            },
+            {
+              "id": "origin-points:62:4130084706",
+              "lat": 12.681606,
+              "lon": 77.489198,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 0.287
+            },
+            {
+              "id": "origin-points:63:4177238006",
+              "lat": 13.068285,
+              "lon": 77.577038,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.24
+            },
+            {
+              "id": "origin-points:64:4414280878",
+              "lat": 12.675836,
+              "lon": 77.767268,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.689
+            },
+            {
+              "id": "origin-points:65:5206080368",
+              "lat": 13.07038,
+              "lon": 77.579147,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.216
+            },
+            {
+              "id": "origin-points:66:4165448705",
+              "lat": 12.844297,
+              "lon": 77.498041,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.851
+            },
+            {
+              "id": "origin-points:67:4165469683",
+              "lat": 12.843027,
+              "lon": 77.498618,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.884
+            },
+            {
+              "id": "origin-points:68:4165871031",
+              "lat": 12.857604,
+              "lon": 77.595165,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.112
+            },
+            {
+              "id": "origin-points:70:4431212717",
+              "lat": 12.894485,
+              "lon": 77.591223,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.199
+            },
+            {
+              "id": "origin-points:71:4866473891",
+              "lat": 12.739404,
+              "lon": 77.786698,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 1.571
+            },
+            {
+              "id": "origin-points:72:4172003435",
+              "lat": 12.675833,
+              "lon": 77.767361,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.68
+            },
+            {
+              "id": "origin-points:73:4414319698",
+              "lat": 12.675846,
+              "lon": 77.767072,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.709
+            },
+            {
+              "id": "origin-points:74:5215890418",
+              "lat": 13.091868,
+              "lon": 77.573475,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 7.398
+            },
+            {
+              "id": "origin-points:75:5216112428",
+              "lat": 13.071938,
+              "lon": 77.580847,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.201
+            },
+            {
+              "id": "origin-points:76:4454032260",
+              "lat": 12.675925,
+              "lon": 77.767367,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.683
+            },
+            {
+              "id": "origin-points:78:3456147784",
+              "lat": 12.893407,
+              "lon": 77.594524,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.189
+            },
+            {
+              "id": "origin-points:79:3764397312",
+              "lat": 13.055003,
+              "lon": 77.5367,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 8.66
+            },
+            {
+              "id": "origin-points:81:3860052841",
+              "lat": 12.776478,
+              "lon": 77.613098,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.109
+            },
+            {
+              "id": "origin-points:82:3898269015",
+              "lat": 13.066125,
+              "lon": 77.576449,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 5.146
+            },
+            {
+              "id": "origin-points:86:3873869322",
+              "lat": 13.082397,
+              "lon": 77.586636,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.717
+            },
+            {
+              "id": "origin-points:88:5828196152",
+              "lat": 13.045645,
+              "lon": 77.638752,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.684
+            },
+            {
+              "id": "origin-points:89:3909830277",
+              "lat": 13.113118,
+              "lon": 77.578873,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 9.121
+            },
+            {
+              "id": "origin-points:90:3961188467",
+              "lat": 13.055708,
+              "lon": 77.536515,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 8.696
+            },
+            {
+              "id": "origin-points:91:4034715833",
+              "lat": 12.675261,
+              "lon": 77.76705,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.686
+            },
+            {
+              "id": "origin-points:93:3302567539",
+              "lat": 12.899524,
+              "lon": 77.59231,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 1.646
+            },
+            {
+              "id": "origin-points:94:3915696337",
+              "lat": 13.069079,
+              "lon": 77.578098,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.207
+            },
+            {
+              "id": "origin-points:95:3302178119",
+              "lat": 12.8949,
+              "lon": 77.593626,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.058
+            },
+            {
+              "id": "origin-points:96:3307508376",
+              "lat": 12.83779,
+              "lon": 77.65171,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 8.897
+            },
+            {
+              "id": "origin-points:98:3327801315",
+              "lat": 12.907322,
+              "lon": 77.532539,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 1.519
+            },
+            {
+              "id": "origin-points:99:3330905320",
+              "lat": 13.067461,
+              "lon": 77.572439,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.587
+            },
+            {
+              "id": "origin-points:100:3705736988",
+              "lat": 13.056511,
+              "lon": 77.535425,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 8.831
+            },
+            {
+              "id": "origin-points:101:3747001517",
+              "lat": 12.888278,
+              "lon": 77.589081,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.803
+            },
+            {
+              "id": "origin-points:103:3355017882",
+              "lat": 12.84275,
+              "lon": 77.724463,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.477
+            },
+            {
+              "id": "origin-points:104:5206296365",
+              "lat": 12.716285,
+              "lon": 77.560166,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.972
+            },
+            {
+              "id": "origin-points:105:5206538322",
+              "lat": 13.093815,
+              "lon": 77.576606,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 7.375
+            },
+            {
+              "id": "origin-points:106:3455760746",
+              "lat": 12.930691,
+              "lon": 77.595774,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 1.671
+            },
+            {
+              "id": "origin-points:109:2850628271",
+              "lat": 13.066381,
+              "lon": 77.576599,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.15
+            },
+            {
+              "id": "origin-points:110:3034583169",
+              "lat": 13.067822,
+              "lon": 77.575017,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 5.383
+            },
+            {
+              "id": "origin-points:111:6129819813",
+              "lat": 13.028728,
+              "lon": 77.577054,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.26
+            },
+            {
+              "id": "origin-points:112:2814385321",
+              "lat": 13.077715,
+              "lon": 77.577167,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.939
+            },
+            {
+              "id": "origin-points:114:2862623467",
+              "lat": 13.067245,
+              "lon": 77.57233,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.583
+            },
+            {
+              "id": "origin-points:115:2873787653",
+              "lat": 13.06737,
+              "lon": 77.572326,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 5.591
+            },
+            {
+              "id": "origin-points:116:3415758993",
+              "lat": 13.080515,
+              "lon": 77.575158,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 6.315
+            },
+            {
+              "id": "origin-points:117:2992690887",
+              "lat": 13.072348,
+              "lon": 77.5947,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.308
+            },
+            {
+              "id": "origin-points:119:3090611823",
+              "lat": 12.904049,
+              "lon": 77.497754,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.283
+            },
+            {
+              "id": "origin-points:120:2251970956",
+              "lat": 13.068904,
+              "lon": 77.580655,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 4.985
+            },
+            {
+              "id": "origin-points:121:5205982354",
+              "lat": 13.055818,
+              "lon": 77.600998,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 2.404
+            },
+            {
+              "id": "origin-points:122:2598679860",
+              "lat": 13.067905,
+              "lon": 77.575073,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 5.383
+            },
+            {
+              "id": "origin-points:123:3302196926",
+              "lat": 12.675899,
+              "lon": 77.767606,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.658
+            },
+            {
+              "id": "origin-points:124:3391816365",
+              "lat": 12.675785,
+              "lon": 77.76952,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.464
+            },
+            {
+              "id": "origin-points:125:3902859538",
+              "lat": 13.074799,
+              "lon": 77.55294,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 7.807
+            },
+            {
+              "id": "origin-points:126:2447979471",
+              "lat": 13.078847,
+              "lon": 77.576303,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2018",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 6.095
+            },
+            {
+              "id": "origin-points:127:3090624851",
+              "lat": 13.093403,
+              "lon": 77.577632,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2018",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 7.275
+            },
+            {
+              "id": "origin-points:128:2598662728",
+              "lat": 13.070783,
+              "lon": 77.576736,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2017",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 5.442
+            },
+            {
+              "id": "origin-points:129:5206653346",
+              "lat": 12.923174,
+              "lon": 77.549224,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2017",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 1.89
+            },
+            {
+              "id": "origin-points:130:4846807539",
+              "lat": 13.084037,
+              "lon": 77.572677,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2017",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 6.785
+            },
+            {
+              "id": "origin-points:131:4846833874",
+              "lat": 13.081997,
+              "lon": 77.572321,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2017",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 6.646
+            },
+            {
+              "id": "origin-points:132:2598664965",
+              "lat": 13.070726,
+              "lon": 77.581306,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2017",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 5.072
+            },
+            {
+              "id": "origin-points:133:2429299385",
+              "lat": 13.079746,
+              "lon": 77.575495,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2016",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 6.228
+            },
+            {
+              "id": "origin-points:134:2598664571",
+              "lat": 12.882918,
+              "lon": 77.578552,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2016",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 1.537
+            },
+            {
+              "id": "origin-points:135:3947083430",
+              "lat": 12.515375,
+              "lon": 77.683551,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2016",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.666
+            },
+            {
+              "id": "origin-points:138:2598677538",
+              "lat": 12.971599,
+              "lon": 77.594566,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2015",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 1.54
+            },
+            {
+              "id": "origin-points:139:2598675257",
+              "lat": 13.064549,
+              "lon": 77.616989,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2014",
+              "source": "GBIF/paper-data",
+              "dataset": "origin points",
+              "dist_km": 2.85
+            },
+            {
+              "id": "origin-points:140:2988375198",
+              "lat": 12.381794,
+              "lon": 77.822774,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2012",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.703
+            },
+            {
+              "id": "origin-points:141:5154110070",
+              "lat": 12.854315,
+              "lon": 77.509945,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2011",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 3.157
+            },
+            {
+              "id": "origin-points:142:1883485017",
+              "lat": 12.92854,
+              "lon": 77.679429,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2010",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist research-grade observations",
+              "dist_km": 8.818
+            },
+            {
+              "id": "origin-points:145:1291994176",
+              "lat": 12.971599,
+              "lon": 77.594563,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "1928",
+              "source": "GBIF/paper-data",
+              "dataset": "Cowan Tetrapod Collection - Herpetology",
+              "dist_km": 1.54
+            },
+            {
+              "id": "origin-points:146:380020937",
+              "lat": 13.0719680556,
+              "lon": 77.5814208889,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.16
+            },
+            {
+              "id": "origin-points:149:375579821",
+              "lat": 12.9089833333,
+              "lon": 77.6682888889,
+              "name": "Naja naja",
+              "scientific_name": "Najas marina",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist",
+              "dist_km": 7.437
+            },
+            {
+              "id": "origin-points:150:372204062",
+              "lat": 13.067975,
+              "lon": 77.5773882997,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.189
+            },
+            {
+              "id": "origin-points:151:372194742",
+              "lat": 13.0680856667,
+              "lon": 77.57749175,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.188
+            },
+            {
+              "id": "origin-points:152:371923690",
+              "lat": 13.0743401707,
+              "lon": 77.5605848059,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 7.079
+            },
+            {
+              "id": "origin-points:154:370841938",
+              "lat": 13.0742235798,
+              "lon": 77.5598911196,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 7.134
+            },
+            {
+              "id": "origin-points:156:350254777",
+              "lat": 12.7644455735,
+              "lon": 77.603528577,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.418
+            },
+            {
+              "id": "origin-points:158:335699062",
+              "lat": 12.9739,
+              "lon": 77.5936,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.758
+            },
+            {
+              "id": "origin-points:161:334326864",
+              "lat": 12.8719129651,
+              "lon": 77.5840966913,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.269
+            },
+            {
+              "id": "origin-points:162:333826881",
+              "lat": 13.0704861111,
+              "lon": 77.5789555556,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2026",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.24
+            },
+            {
+              "id": "origin-points:165:329184990",
+              "lat": 12.9552334389,
+              "lon": 77.4834853783,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.097
+            },
+            {
+              "id": "origin-points:166:329557685",
+              "lat": 12.7424256248,
+              "lon": 77.789276652,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.138
+            },
+            {
+              "id": "origin-points:167:307675976",
+              "lat": 13.0719231041,
+              "lon": 77.581454739,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.154
+            },
+            {
+              "id": "origin-points:168:299587070",
+              "lat": 12.8146898547,
+              "lon": 77.5725853541,
+              "name": "Naja naja",
+              "scientific_name": "Najas",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist",
+              "dist_km": 1.734
+            },
+            {
+              "id": "origin-points:169:302064453",
+              "lat": 13.0731056997,
+              "lon": 77.5782901,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.49
+            },
+            {
+              "id": "origin-points:170:289865510",
+              "lat": 13.0863105247,
+              "lon": 77.5838760822,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist",
+              "dist_km": 6.245
+            },
+            {
+              "id": "origin-points:171:271926386",
+              "lat": 12.6200454,
+              "lon": 78.0331917,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2025",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 9.522
+            },
+            {
+              "id": "origin-points:173:255558702",
+              "lat": 12.740905964,
+              "lon": 77.8252920136,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 3.047
+            },
+            {
+              "id": "origin-points:174:253273428",
+              "lat": 13.0551760786,
+              "lon": 77.5355574489,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 8.785
+            },
+            {
+              "id": "origin-points:175:260608108",
+              "lat": 12.8968996044,
+              "lon": 77.5924517959,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.899
+            },
+            {
+              "id": "origin-points:176:237594652",
+              "lat": 12.8141902,
+              "lon": 77.5757145,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.676
+            },
+            {
+              "id": "origin-points:177:231221801",
+              "lat": 12.810224,
+              "lon": 77.5818535,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist",
+              "dist_km": 1.362
+            },
+            {
+              "id": "origin-points:178:218945847",
+              "lat": 12.8118716667,
+              "lon": 77.57457,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.432
+            },
+            {
+              "id": "origin-points:179:212254888",
+              "lat": 12.9223844851,
+              "lon": 77.4987538879,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.736
+            },
+            {
+              "id": "origin-points:180:198043047",
+              "lat": 12.7302265499,
+              "lon": 77.7910445631,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2024",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.374
+            },
+            {
+              "id": "origin-points:181:186974367",
+              "lat": 12.9504566111,
+              "lon": 77.584671,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.062
+            },
+            {
+              "id": "origin-points:182:186829997",
+              "lat": 13.0918683385,
+              "lon": 77.5734748319,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 7.398
+            },
+            {
+              "id": "origin-points:183:183839763",
+              "lat": 12.7985882,
+              "lon": 77.567835,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist",
+              "dist_km": 0.145
+            },
+            {
+              "id": "origin-points:184:187600363",
+              "lat": 12.8286041,
+              "lon": 77.5122213,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 4.236
+            },
+            {
+              "id": "origin-points:185:188504885",
+              "lat": 12.8944852789,
+              "lon": 77.5912225023,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.199
+            },
+            {
+              "id": "origin-points:186:173371909",
+              "lat": 12.7308325441,
+              "lon": 77.7859996632,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.456
+            },
+            {
+              "id": "origin-points:187:173372011",
+              "lat": 12.7309506033,
+              "lon": 77.7860036865,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.444
+            },
+            {
+              "id": "origin-points:188:172655195",
+              "lat": 12.7409638467,
+              "lon": 77.7917650715,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.188
+            },
+            {
+              "id": "origin-points:189:164939602",
+              "lat": 12.7328784589,
+              "lon": 77.7918099985,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.07
+            },
+            {
+              "id": "origin-points:190:159192291",
+              "lat": 13.0712464126,
+              "lon": 77.5796801224,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.239
+            },
+            {
+              "id": "origin-points:191:187456569",
+              "lat": 13.0721222222,
+              "lon": 77.5789416667,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.364
+            },
+            {
+              "id": "origin-points:192:187458415",
+              "lat": 13.0709227627,
+              "lon": 77.5801971182,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.174
+            },
+            {
+              "id": "origin-points:194:151100984",
+              "lat": 12.7404448644,
+              "lon": 77.7913459763,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.256
+            },
+            {
+              "id": "origin-points:195:149015049",
+              "lat": 13.086045022,
+              "lon": 77.5729390606,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 6.933
+            },
+            {
+              "id": "origin-points:196:146116474",
+              "lat": 12.9019939948,
+              "lon": 77.5957448781,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2023",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.238
+            },
+            {
+              "id": "origin-points:197:142594323",
+              "lat": 12.5096063497,
+              "lon": 77.6824796542,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 3.211
+            },
+            {
+              "id": "origin-points:198:142654904",
+              "lat": 12.5985210685,
+              "lon": 77.9471359406,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.645
+            },
+            {
+              "id": "origin-points:199:144224659",
+              "lat": 12.7402847333,
+              "lon": 77.7897906227,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.328
+            },
+            {
+              "id": "origin-points:200:127702497",
+              "lat": 12.898343,
+              "lon": 77.66095,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 6.814
+            },
+            {
+              "id": "origin-points:201:137704669",
+              "lat": 12.9982227437,
+              "lon": 77.5530444458,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 4.65
+            },
+            {
+              "id": "origin-points:202:123672748",
+              "lat": 12.9053694444,
+              "lon": 77.5664972222,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 0.836
+            },
+            {
+              "id": "origin-points:203:144321204",
+              "lat": 12.7688516139,
+              "lon": 77.579135634,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 0.479
+            },
+            {
+              "id": "origin-points:204:147112588",
+              "lat": 12.7394085317,
+              "lon": 77.5751958042,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.412
+            },
+            {
+              "id": "origin-points:205:140123123",
+              "lat": 12.7391949858,
+              "lon": 77.7915384248,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2022",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 1.385
+            },
+            {
+              "id": "origin-points:206:102360041",
+              "lat": 12.80155,
+              "lon": 77.57440833,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 0.353
+            },
+            {
+              "id": "origin-points:207:171720562",
+              "lat": 12.7162850126,
+              "lon": 77.5601663813,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.972
+            },
+            {
+              "id": "origin-points:208:89987080",
+              "lat": 12.9656147913,
+              "lon": 77.4975488707,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.111
+            },
+            {
+              "id": "origin-points:209:88694676",
+              "lat": 12.8670465769,
+              "lon": 77.5195071101,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist",
+              "dist_km": 1.649
+            },
+            {
+              "id": "origin-points:210:84299134",
+              "lat": 12.8938676935,
+              "lon": 77.5427544862,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 2.774
+            },
+            {
+              "id": "origin-points:212:259439113",
+              "lat": 13.0257049338,
+              "lon": 77.5631027296,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2021",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 5.806
+            },
+            {
+              "id": "origin-points:213:100834915",
+              "lat": 13.0805148216,
+              "lon": 77.5751584428,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 6.315
+            },
+            {
+              "id": "origin-points:214:49091515",
+              "lat": 12.9353144596,
+              "lon": 77.6244807243,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2020",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 3.695
+            },
+            {
+              "id": "origin-points:215:91498625",
+              "lat": 12.8516963455,
+              "lon": 77.4934314117,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist",
+              "dist_km": 4.876
+            },
+            {
+              "id": "origin-points:217:52765605",
+              "lat": 12.915126,
+              "lon": 77.66355,
+              "name": "Naja naja",
+              "scientific_name": "Naja naja",
+              "time": "2019",
+              "source": "iNaturalist",
+              "dataset": "iNaturalist/research",
+              "dist_km": 6.92
+            }
+          ],
+          "label": "proxy",
+          "source": "deterministic occurrence-point relation",
+          "grain": "occurrence-proximity-relation",
+          "relation": "within",
+          "threshold_km": 10.0,
+          "left_entity": "Indian cobra",
+          "right_entity": "elephant",
+          "left_record_count": 218,
+          "right_record_count": 110,
+          "matched_left_count": 176,
+          "matched_right_count": 83,
+          "matched_left_fraction": 0.8073,
+          "matched_right_fraction": 0.7545,
+          "matched_left_percent": 80.7,
+          "matched_right_percent": 75.5,
+          "left_region": {
+            "name": "75 km buffer around Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+            "bbox": [
+              12.047266618756737,
+              13.420733381243263,
+              77.47927754914409,
+              78.88772245085592
+            ],
+            "lat": 12.73394,
+            "lon": 78.18344,
+            "orig": "EBTL",
+            "source": "derived-latitude-adjusted-bbox-expansion",
+            "method": "bbox-approx",
+            "approximate": true,
+            "support_type": "analysis-search-bbox",
+            "parent_region": {
+              "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+              "bbox": [
+                12.721,
+                12.747,
+                78.17,
+                78.197
+              ],
+              "lat": 12.73394,
+              "lon": 78.18344,
+              "orig": "EBTL",
+              "source": "SITE_EBTL.json"
+            },
+            "buffer_km": 75.0
+          },
+          "right_region": {
+            "name": "75 km buffer around Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+            "bbox": [
+              12.047266618756737,
+              13.420733381243263,
+              77.47927754914409,
+              78.88772245085592
+            ],
+            "lat": 12.73394,
+            "lon": 78.18344,
+            "orig": "EBTL",
+            "source": "derived-latitude-adjusted-bbox-expansion",
+            "method": "bbox-approx",
+            "approximate": true,
+            "support_type": "analysis-search-bbox",
+            "parent_region": {
+              "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+              "bbox": [
+                12.721,
+                12.747,
+                78.17,
+                78.197
+              ],
+              "lat": 12.73394,
+              "lon": 78.18344,
+              "orig": "EBTL",
+              "source": "SITE_EBTL.json"
+            },
+            "buffer_km": 75.0
+          },
+          "temporal_alignment": "not established",
+          "note": "spatial proximity among occurrence records; not evidence of ecological interaction, same-time co-observation, abundance, or site presence"
+        },
+        "label": "proxy",
+        "provenance": [
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 75.0,
+            "source_region": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+            "source_support": {
+              "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+              "bbox": [
+                12.721,
+                12.747,
+                78.17,
+                78.197
+              ],
+              "lat": 12.73394,
+              "lon": 78.18344,
+              "orig": "EBTL",
+              "source": "SITE_EBTL.json"
+            },
+            "result_bbox": [
+              12.047266618756737,
+              13.420733381243263,
+              77.47927754914409,
+              78.88772245085592
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "CONNECTOR",
+            "tool": "origin.points.get",
+            "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+            "parameters": {
+              "species": "Naja naja",
+              "bbox": [
+                77.47927754914409,
+                12.047266618756737,
+                78.88772245085592,
+                13.420733381243263
+              ],
+              "sources": [
+                "gbif",
+                "inat"
+              ],
+              "limit": 200
+            },
+            "output_rows": 218,
+            "cached": false
+          },
+          {
+            "op": "SELECT",
+            "route": "origin-points",
+            "resolved": "Naja naja",
+            "note": "218 coordinate-deduplicated occurrence points from the exact origin resolver using its bounded GBIF+iNaturalist sources; paper discovery/extraction is separate; the origin common CSV omits record URLs and licenses, an import incompatibility"
+          },
+          {
+            "op": "BUFFER",
+            "method": "bbox-approx",
+            "approximate": true,
+            "radius_km": 75.0,
+            "source_region": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+            "source_support": {
+              "name": "Elephants by the Lake (EBTL), Chinnathamandrapalli, Krishnagiri, Tamil Nadu",
+              "bbox": [
+                12.721,
+                12.747,
+                78.17,
+                78.197
+              ],
+              "lat": 12.73394,
+              "lon": 78.18344,
+              "orig": "EBTL",
+              "source": "SITE_EBTL.json"
+            },
+            "result_bbox": [
+              12.047266618756737,
+              13.420733381243263,
+              77.47927754914409,
+              78.88772245085592
+            ],
+            "note": "approximate latitude-adjusted search bbox; not an exact geodesic polygon or surveyed boundary"
+          },
+          {
+            "op": "CONNECTOR",
+            "tool": "origin.points.get",
+            "implementation": "/home/beeps/src/github.com/bprashanth/totalrecall/ecology_memory/integration/origin/connectors/points.py",
+            "parameters": {
+              "species": "Elephas maximus",
+              "bbox": [
+                77.47927754914409,
+                12.047266618756737,
+                78.88772245085592,
+                13.420733381243263
+              ],
+              "sources": [
+                "gbif",
+                "inat"
+              ],
+              "limit": 200
+            },
+            "output_rows": 110,
+            "cached": false
+          },
+          {
+            "op": "SELECT",
+            "route": "origin-points",
+            "resolved": "Elephas maximus",
+            "note": "110 coordinate-deduplicated occurrence points from the exact origin resolver using its bounded GBIF+iNaturalist sources; paper discovery/extraction is separate; the origin common CSV omits record URLs and licenses, an import incompatibility"
+          },
+          {
+            "op": "RELATE",
+            "relation": "within",
+            "threshold_km": 10.0,
+            "note": "218 left x 110 right -> 176 matched left and 83 matched right; occurrence proximity is not interaction or simultaneous observation"
+          }
+        ]
+      },
+      "answer": "Yes. In the 75 km search area around EBTL, there are Indian cobra occurrence records within 10 km of elephant occurrence records.\n\nLocal proxy evidence:\n- 176 of 218 Indian cobra records matched at least one elephant record within 10 km.\n- 83 of 110 elephant records matched at least one Indian cobra record within 10 km.\n- The closest matched cobra records in the returned sample were about 0.3 km, 1.25 km, and 1.36 km from an elephant record.\n- This is spatial record proximity only. It does not show same-time presence, interaction, abundance, or confirmed presence at EBTL itself.\n\nLocal observed evidence:\n- None provided in the audited result.\n\nLocal reported evidence:\n- None provided in the audited result.\n\nLocal modelled evidence:\n- The 75 km search area is an approximate buffered bbox, not an exact surveyed boundary.\n\nRegional evidence:\n- None provided separately from the 75 km search result.\n\nWhat is missing:\n- Same-date or same-time cobra and elephant observations.\n- Field-verified records from EBTL itself.\n- Exact movement or interaction data.\n\nWhat the field team can collect:\n- GPS-tagged cobra and elephant sightings with date and time.\n- Track, dung, shed skin, or camera-trap records with coordinates.\n- Repeated surveys inside EBTL and along the 75 km area to confirm whether both species use the same places at the same time.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 123.922,
+        "session_id": "019f8605-9b47-7ac1-a9ad-bf9d3fe14f56",
+        "prompt_sha256": "ad4ada402508f7c7b93a8eeef4302937a46897f6ac1b5dd6253eac587678a578",
+        "final": "Yes. In the 75 km search area around EBTL, there are Indian cobra occurrence records within 10 km of elephant occurrence records.\n\nLocal proxy evidence:\n- 176 of 218 Indian cobra records matched at least one elephant record within 10 km.\n- 83 of 110 elephant records matched at least one Indian cobra record within 10 km.\n- The closest matched cobra records in the returned sample were about 0.3 km, 1.25 km, and 1.36 km from an elephant record.\n- This is spatial record proximity only. It does not show same-time presence, interaction, abundance, or confirmed presence at EBTL itself.\n\nLocal observed evidence:\n- None provided in the audited result.\n\nLocal reported evidence:\n- None provided in the audited result.\n\nLocal modelled evidence:\n- The 75 km search area is an approximate buffered bbox, not an exact surveyed boundary.\n\nRegional evidence:\n- None provided separately from the 75 km search result.\n\nWhat is missing:\n- Same-date or same-time cobra and elephant observations.\n- Field-verified records from EBTL itself.\n- Exact movement or interaction data.\n\nWhat the field team can collect:\n- GPS-tagged cobra and elephant sightings with date and time.\n- Track, dung, shed skin, or camera-trap records with coordinates.\n- Repeated surveys inside EBTL and along the 75 km area to confirm whether both species use the same places at the same time.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 48192,
+          "cached_input_tokens": 36480,
+          "output_tokens": 1268,
+          "reasoning_output_tokens": 825
+        }
+      }
+    },
+    {
+      "question": "So does that mean cobras and elephants were in the same place at the same time?",
+      "mode": "history",
+      "selected_capabilities": [
+        {
+          "entity": "spatial relation between occurrence records",
+          "kind": "RELATE operator",
+          "description": "derive nearest distance, within, beyond, or cooccurrence-proxy results from two georeferenced occurrence sets; proximity is not interaction or simultaneous observation",
+          "grain": "pairwise occurrence proximity",
+          "evidence": "derived proxy",
+          "binding": "operator",
+          "ops": [
+            "RELATE"
+          ],
+          "requires": [
+            "taxon occurrence records"
+          ],
+          "selected": true
+        },
+        {
+          "entity": "taxon occurrence records",
+          "kind": "SELECT",
+          "description": "bounded GBIF + iNaturalist point merger for a named taxon and requested region; semantic paper discovery is a separate operation",
+          "grain": "public occurrence point",
+          "evidence": "observed record, not abundance",
+          "binding": "compiler_entity",
+          "scope": "requested region",
+          "selected": true
+        },
+        {
+          "entity": "buffered search region",
+          "kind": "REGION operator",
+          "description": "expand a named search region by an explicit radius; this controls retrieval extent and is distinct from a RELATE distance threshold",
+          "grain": "derived search bbox",
+          "evidence": "declared geometry",
+          "binding": "operator",
+          "ops": [
+            "BUFFER"
+          ],
+          "scope_policy": "compiler_must_write_each_operand_support",
+          "selected": true
+        }
+      ],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 135.747,
+        "session_id": "019f8605-9b47-7ac1-a9ad-bf9d3fe14f56",
+        "prompt_sha256": "e10e5ef88dfda3a83fad6c42be2ba693d3d56a4f3dc5aed6877cb39f926bb609",
+        "final": "{\"mode\":\"history\",\"entities\":[\"spatial relation between occurrence records\",\"taxon occurrence records\",\"buffered search region\"]}",
+        "parsed": {
+          "mode": "history",
+          "entities": [
+            "spatial relation between occurrence records",
+            "taxon occurrence records",
+            "buffered search region"
+          ]
+        },
+        "usage": {
+          "input_tokens": 69871,
+          "cached_input_tokens": 55808,
+          "output_tokens": 1416,
+          "reasoning_output_tokens": 942
+        }
+      },
+      "compiler": null,
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "history",
+        "detail": {
+          "candidate_capabilities": [
+            "spatial relation between occurrence records",
+            "taxon occurrence records",
+            "buffered search region"
+          ]
+        }
+      },
+      "answer": "No. It does not mean cobras and elephants were in the same place at the same time.\n\nLocal proxy evidence:\n- The result only shows that some Indian cobra records were within 10 km of some elephant records inside the 75 km search area around EBTL.\n- It says temporal alignment was not established.\n- It also states this is not evidence of same-time co-observation or interaction.\n\nLocal observed evidence:\n- None provided for cobra and elephant being seen together at the same time.\n\nLocal reported evidence:\n- None provided for same-time presence.\n\nLocal modelled evidence:\n- The 75 km search area was an approximate buffered bbox, not an exact surveyed boundary.\n\nRegional evidence:\n- None provided separately.\n\nWhat is missing:\n- Matched cobra and elephant records from the same date and time.\n- Field observations showing both species at the same location together.\n- Direct movement or camera-trap evidence linking both species in the same place.\n\nWhat the field team can collect:\n- Camera-trap photos or videos with timestamps.\n- GPS-tagged sightings of both species with exact date, time, and location.\n- Fresh tracks, dung, or shed skin recorded with coordinates and time.\n- Repeated surveys at the same spots to check overlap in time as well as space.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 118.316,
+        "session_id": "019f8605-9b47-7ac1-a9ad-bf9d3fe14f56",
+        "prompt_sha256": "1c5d7ea48ebc85e0763ae393d43022e15781675e470bdd3322dae52bea1f76c5",
+        "final": "No. It does not mean cobras and elephants were in the same place at the same time.\n\nLocal proxy evidence:\n- The result only shows that some Indian cobra records were within 10 km of some elephant records inside the 75 km search area around EBTL.\n- It says temporal alignment was not established.\n- It also states this is not evidence of same-time co-observation or interaction.\n\nLocal observed evidence:\n- None provided for cobra and elephant being seen together at the same time.\n\nLocal reported evidence:\n- None provided for same-time presence.\n\nLocal modelled evidence:\n- The 75 km search area was an approximate buffered bbox, not an exact surveyed boundary.\n\nRegional evidence:\n- None provided separately.\n\nWhat is missing:\n- Matched cobra and elephant records from the same date and time.\n- Field observations showing both species at the same location together.\n- Direct movement or camera-trap evidence linking both species in the same place.\n\nWhat the field team can collect:\n- Camera-trap photos or videos with timestamps.\n- GPS-tagged sightings of both species with exact date, time, and location.\n- Fresh tracks, dung, or shed skin recorded with coordinates and time.\n- Repeated surveys at the same spots to check overlap in time as well as space.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 91763,
+          "cached_input_tokens": 64384,
+          "output_tokens": 1691,
+          "reasoning_output_tokens": 954
+        }
+      }
+    },
+    {
+      "question": "What information do we need to know that properly?",
+      "mode": "history",
+      "selected_capabilities": [
+        {
+          "entity": "spatial relation between occurrence records",
+          "kind": "RELATE operator",
+          "description": "derive nearest distance, within, beyond, or cooccurrence-proxy results from two georeferenced occurrence sets; proximity is not interaction or simultaneous observation",
+          "grain": "pairwise occurrence proximity",
+          "evidence": "derived proxy",
+          "binding": "operator",
+          "ops": [
+            "RELATE"
+          ],
+          "requires": [
+            "taxon occurrence records"
+          ],
+          "selected": true
+        },
+        {
+          "entity": "taxon occurrence records",
+          "kind": "SELECT",
+          "description": "bounded GBIF + iNaturalist point merger for a named taxon and requested region; semantic paper discovery is a separate operation",
+          "grain": "public occurrence point",
+          "evidence": "observed record, not abundance",
+          "binding": "compiler_entity",
+          "scope": "requested region",
+          "selected": true
+        },
+        {
+          "entity": "buffered search region",
+          "kind": "REGION operator",
+          "description": "expand a named search region by an explicit radius; this controls retrieval extent and is distinct from a RELATE distance threshold",
+          "grain": "derived search bbox",
+          "evidence": "declared geometry",
+          "binding": "operator",
+          "ops": [
+            "BUFFER"
+          ],
+          "scope_policy": "compiler_must_write_each_operand_support",
+          "selected": true
+        }
+      ],
+      "selector": {
+        "stage": "select",
+        "exit_code": 0,
+        "latency_s": 5.023,
+        "session_id": "019f8605-9b47-7ac1-a9ad-bf9d3fe14f56",
+        "prompt_sha256": "b8949c227c6d4b1f5d339c6517be34f5ef5e2ace0b555139d3156cdfe65324fa",
+        "final": "{\"mode\":\"history\",\"entities\":[\"spatial relation between occurrence records\",\"taxon occurrence records\",\"buffered search region\"]}",
+        "parsed": {
+          "mode": "history",
+          "entities": [
+            "spatial relation between occurrence records",
+            "taxon occurrence records",
+            "buffered search region"
+          ]
+        },
+        "usage": {
+          "input_tokens": 115716,
+          "cached_input_tokens": 85760,
+          "output_tokens": 1784,
+          "reasoning_output_tokens": 1016
+        }
+      },
+      "compiler": null,
+      "ir": null,
+      "schema": {
+        "valid": true,
+        "errors": []
+      },
+      "execution": {
+        "status": "history",
+        "reason": "history",
+        "detail": {
+          "candidate_capabilities": [
+            "spatial relation between occurrence records",
+            "taxon occurrence records",
+            "buffered search region"
+          ]
+        }
+      },
+      "answer": "To know that properly, we need same-time, same-place evidence for both cobras and elephants.\n\nLocal observed evidence:\n- We do not have direct observations showing both species together at the same place and time.\n\nLocal reported evidence:\n- We do not have field reports confirming joint presence at the same time.\n\nLocal proxy evidence:\n- We only have occurrence-record proximity within 10 km in the 75 km area around EBTL.\n- That proxy does not establish same-time presence.\n\nLocal modelled evidence:\n- The 75 km search area was an approximate buffered bbox, not an exact field boundary.\n\nRegional evidence:\n- None provided that answers same-time local overlap.\n\nWhat is missing:\n- Cobra and elephant records with exact date, time, and GPS location.\n- Records from the same survey period or same day.\n- Direct evidence from the same site, not just nearby points in the wider 75 km area.\n- Repeat observations to show whether overlap is regular or one-off.\n\nWhat the field team can collect:\n- Camera-trap images or videos with timestamps.\n- GPS-tagged sightings of cobras and elephants.\n- Fresh tracks, dung, or shed skins logged with time and coordinates.\n- Repeated surveys on the same routes and dates.\n- If possible, movement data from tagged elephants and verified cobra observations in the same period.",
+      "answer_call": {
+        "stage": "answer",
+        "exit_code": 0,
+        "latency_s": 8.518,
+        "session_id": "019f8605-9b47-7ac1-a9ad-bf9d3fe14f56",
+        "prompt_sha256": "bfe90f8c42d671035436eec4f9821d869e4e879a8884c12f0132db6c0de9ac99",
+        "final": "To know that properly, we need same-time, same-place evidence for both cobras and elephants.\n\nLocal observed evidence:\n- We do not have direct observations showing both species together at the same place and time.\n\nLocal reported evidence:\n- We do not have field reports confirming joint presence at the same time.\n\nLocal proxy evidence:\n- We only have occurrence-record proximity within 10 km in the 75 km area around EBTL.\n- That proxy does not establish same-time presence.\n\nLocal modelled evidence:\n- The 75 km search area was an approximate buffered bbox, not an exact field boundary.\n\nRegional evidence:\n- None provided that answers same-time local overlap.\n\nWhat is missing:\n- Cobra and elephant records with exact date, time, and GPS location.\n- Records from the same survey period or same day.\n- Direct evidence from the same site, not just nearby points in the wider 75 km area.\n- Repeat observations to show whether overlap is regular or one-off.\n\nWhat the field team can collect:\n- Camera-trap images or videos with timestamps.\n- GPS-tagged sightings of cobras and elephants.\n- Fresh tracks, dung, or shed skins logged with time and coordinates.\n- Repeated surveys on the same routes and dates.\n- If possible, movement data from tagged elephants and verified cobra observations in the same period.",
+        "parsed": null,
+        "usage": {
+          "input_tokens": 139874,
+          "cached_input_tokens": 109184,
+          "output_tokens": 2073,
+          "reasoning_output_tokens": 1030
+        }
+      }
+    }
+  ]
+}

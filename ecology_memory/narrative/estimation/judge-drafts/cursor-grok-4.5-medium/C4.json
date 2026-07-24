@@ -1,0 +1,28 @@
+{
+  "reviewer": "deepseek-v4 rubric draft; requires Codex evidence audit",
+  "draft": {
+    "scores": {
+      "estimand": 2,
+      "execution": 1,
+      "fit": 2,
+      "evidence_state": 2,
+      "decision_record": 2
+    },
+    "rationales": {
+      "estimand": "The answer correctly identifies the association between fire detections and human access routes (roads, settlements) at EBTL, specifies the time period (2022-2024) and location (Krishnagiri, Tamil Nadu), and addresses the patrol priority decision.",
+      "execution": "The trace shows data retrieval (FIRMS, OSM) and script writing, but no explicit command executing the spatial analysis; the claimed numerical results are not directly confirmed in the trace, so execution is partial.",
+      "fit": "The answer names biases (VIIRS resolution, OSM under-mapping, small sample) and reports sensitivity tests (different radii, confidence levels, MODIS), which constitutes executed validation.",
+      "evidence_state": "The answer clearly distinguishes satellite observations from ignition causes, avoids conflating correlation with causation, and labels transitions appropriately with caveats.",
+      "decision_record": "The answer provides checkable numerical results (median distances, enrichment, p-values), cites sources (FIRMS, OSM), acknowledges uncertainty, and gives a specific field action (keep mixed patrol coverage, do not reweight)."
+    },
+    "critical_errors": [],
+    "tags": [
+      "executed_estimate"
+    ],
+    "evidence": [
+      "FIRMS VIIRS SNPP India CSVs for 2022-2024 were successfully downloaded (trace shows curl commands with success).",
+      "OSM road and settlement data were retrieved via OSM API map tiles (trace shows tile downloads).",
+      "Analysis scripts (analyze_fires.py, sensitivity.py) were written and the answer reports specific numerical results (median distances, enrichment, p-values)."
+    ]
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "persona": {
+    "name": "Kavya",
+    "role": "restoration programme manager",
+    "language": "direct Indian English",
+    "style": "practical, warm, impatient with vague claims"
+  },
+  "conversations": [
+    {
+      "id": "eucalyptus-bird-evidence-chain",
+      "turns": [
+        {
+          "question": "What does the literature actually say about birds spreading Eucalyptus? Search the admitted sources; do not give me a species from memory as evidence.",
+          "requires": [
+            "query_bound_discovery",
+            "source_ids",
+            "knowledge_only_as_query_seed"
+          ],
+          "forbids": [
+            "hard_coded_lantana_query",
+            "unsupported_species_claim"
+          ]
+        },
+        {
+          "question": "If the returned literature names a relevant bird or bird group, find usable occurrence data for that and for Eucalyptus around the declared donor region. Tell me exactly which candidate came from which source.",
+          "requires": [
+            "evidence_derived_candidate",
+            "occurrence_connectors",
+            "result_handles"
+          ]
+        },
+        {
+          "question": "Estimate each distribution at EBTL only if its own sample and environmental gates pass. Do not transfer a bird-Eucalyptus relation.",
+          "requires": [
+            "independent_estimates",
+            "sample_gate",
+            "environment_gate"
+          ],
+          "allows": [
+            "data_request"
+          ]
+        },
+        {
+          "question": "Show me an overlap map and mark a small set of places where the field team should check both. Be clear that overlap is not proof of seed dispersal.",
+          "requires": [
+            "map_html",
+            "waypoints_geojson",
+            "waypoints_csv",
+            "overlap_not_interaction",
+            "stable_point_ids"
+          ],
+          "allows": [
+            "data_request"
+          ]
+        },
+        {
+          "question": "Turn the method in the most relevant returned dataset or paper into a short field protocol and a printable datasheet. Keep any adaptation from the source explicit.",
+          "requires": [
+            "source_backed_protocol",
+            "datasheet",
+            "adaptation_boundary"
+          ],
+          "allows": [
+            "data_request"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lantana-rebound-field-map",
+      "turns": [
+        {
+          "question": "Lantana is coming back after clearing. Use the local evidence and suitable donor data to estimate where we should inspect first, if the gates pass.",
+          "requires": [
+            "local_evidence",
+            "gated_distribution",
+            "observed_modelled_boundary"
+          ]
+        },
+        {
+          "question": "Give the team a map with well-spaced inspection points, point reasons and a simple field sheet. I need locations, not a vague request for more monitoring.",
+          "requires": [
+            "map_html",
+            "well_spaced_waypoints",
+            "point_reason",
+            "datasheet"
+          ]
+        },
+        {
+          "question": "If the current model cannot represent post-clearing rebound, submit a request to T4GC that includes the missing response, predictors, labels, spatial extent and validation target.",
+          "requires": [
+            "conditional_model_request",
+            "t4gc_payload"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "satellite-and-fire-discovery",
+      "turns": [
+        {
+          "question": "Find admitted satellite datasets that could help estimate current fire chance and fuel condition at EBTL. Separate datasets you discovered now from layers already wired into the system.",
+          "requires": [
+            "live_dataset_discovery",
+            "dataset_ids",
+            "wired_vs_discovered_boundary"
+          ]
+        },
+        {
+          "question": "Can you produce an actual current fire-risk estimate with them now? If not, show the exact missing model and let me request it from T4GC.",
+          "requires": [
+            "no_proxy_as_probability",
+            "specific_missing_model",
+            "t4gc_action"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "relation-and-sparse-taxa",
+      "turns": [
+        {
+          "question": "Search the donor belt for elephant and Little Cormorant records. Do they lie near each other within 5 km? Show both denominators.",
+          "requires": [
+            "relate",
+            "both_denominators",
+            "threshold"
+          ]
+        },
+        {
+          "question": "Does that prove shared habitat or that they were there together?",
+          "requires": [
+            "proximity_not_interaction"
+          ]
+        },
+        {
+          "question": "Now find snake or spider candidates from returned records or literature, not a model-made shortlist. Which ones have enough data for an estimate?",
+          "requires": [
+            "evidence_derived_candidate",
+            "per_taxon_sample_gate"
+          ]
+        },
+        {
+          "question": "For one candidate that passes, estimate its distribution and map priority confirmation points. For failures, mark the exact points or strata needed rather than saying only 'collect more data'.",
+          "requires": [
+            "gated_distribution",
+            "map_or_precise_data_request",
+            "collection_geometry"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anr-spatial-design",
+      "turns": [
+        {
+          "question": "We need to compare assisted natural regeneration with planting. Find a usable protocol or dataset, then propose matched plots at EBTL with a map and datasheet. Do not claim an effect before we collect outcomes.",
+          "requires": [
+            "source_backed_protocol",
+            "matched_plot_map",
+            "datasheet",
+            "no_effect_claim"
+          ]
+        },
+        {
+          "question": "If the system cannot optimise the plot design with our boundary and covariates, submit the missing model request with a concrete validation criterion.",
+          "requires": [
+            "conditional_model_request",
+            "validation_target"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -122,7 +122,7 @@ def _route_select(entity, region, time, prov):
                        "hint": "no data source maps this entity; add a connector or refine the term"})
 
 
-def _ev(node, prov, region_ctx):
+def _ev(node, prov, region_ctx, select_resolver=None):
     op = node["op"]
 
     if op == "REGION":
@@ -138,7 +138,16 @@ def _ev(node, prov, region_ctx):
         region_ctx["region"] = region
         ent = node["entity"]
         if isinstance(ent, list):  # v2.2 entity UNION: run each, merge rows, weakest label wins
-            parts = [_route_select(x, region, node.get("time"), prov) for x in ent]
+            parts = []
+            for item in ent:
+                resolved = (
+                    select_resolver(item, region, node.get("time"), prov)
+                    if select_resolver is not None else None
+                )
+                parts.append(
+                    resolved if resolved is not None
+                    else _route_select(item, region, node.get("time"), prov)
+                )
             if len({p["kind"] for p in parts}) != 1:
                 raise DataRequest("incompatible_union",
                                   {"entities": ent, "kinds": [p["kind"] for p in parts]})
@@ -157,7 +166,12 @@ def _ev(node, prov, region_ctx):
             prov.append({"op": "SELECT", "route": "union",
                          "note": f"union of {ent} -> {len(rows)} rows"})
         else:
-            val = _route_select(ent, region, node.get("time"), prov)
+            val = (
+                select_resolver(ent, region, node.get("time"), prov)
+                if select_resolver is not None else None
+            )
+            if val is None:
+                val = _route_select(ent, region, node.get("time"), prov)
         if not val["rows"]:
             raise DataRequest("empty_select",
                               {"entity": node["entity"], "region": region["name"],
@@ -167,7 +181,7 @@ def _ev(node, prov, region_ctx):
         return val
 
     if op == "ANNOTATE":
-        src = _ev(node["source"], prov, region_ctx)
+        src = _ev(node["source"], prov, region_ctx, select_resolver)
         if src.get("kind") != "records":
             raise DataRequest("incompatible_grain",
                               {"op": "ANNOTATE", "kind": src.get("kind"),
@@ -188,8 +202,8 @@ def _ev(node, prov, region_ctx):
                 "source": f"{src['source']} + {out['source']}"}
 
     if op == "RELATE":
-        left = _ev(node["left"], prov, region_ctx)
-        right = _ev(node["right"], prov, region_ctx)
+        left = _ev(node["left"], prov, region_ctx, select_resolver)
+        right = _ev(node["right"], prov, region_ctx, select_resolver)
         if left.get("kind") != "records" or right.get("kind") != "records":
             raise DataRequest("incompatible_grain", {
                 "op": "RELATE", "left_kind": left.get("kind"),
@@ -231,7 +245,7 @@ def _ev(node, prov, region_ctx):
                          "interaction, same-time co-observation, abundance, or site presence")}
 
     if op == "AGGREGATE":
-        src = _ev(node["source"], prov, region_ctx)
+        src = _ev(node["source"], prov, region_ctx, select_resolver)
         out = _aggregate(src, node["by"], node["metric"])
         prov.append({"op": "AGGREGATE", "by": node["by"], "metric": node["metric"],
                      "note": out["note"]})
@@ -239,8 +253,11 @@ def _ev(node, prov, region_ctx):
                 "entity": src.get("entity"), "source": src.get("source")}
 
     if op == "COMPARE":
-        left = _ev(node["left"], prov, region_ctx)
-        right = _ev(node["right"], prov, region_ctx) if "right" in node else None
+        left = _ev(node["left"], prov, region_ctx, select_resolver)
+        right = (
+            _ev(node["right"], prov, region_ctx, select_resolver)
+            if "right" in node else None
+        )
         out = _compare(left, right, node["how"])
         if right is not None:
             out["left_label"] = _item_label(node["left"])
@@ -262,7 +279,7 @@ def _ev(node, prov, region_ctx):
         items = node["items"]
         vals, labels = [], []
         for it in items:
-            v = _ev(it, prov, region_ctx)
+            v = _ev(it, prov, region_ctx, select_resolver)
             vals.append(v)
             labels.append(_item_label(it))
         # coerce each item to a scalar (same implicit coercion COMPARE uses)
@@ -285,7 +302,7 @@ def _ev(node, prov, region_ctx):
                 "label": _merge_label(*[v["label"] for v in vals]), "source": "rank"}
 
     if op == "ESTIMATE":
-        src = _ev(node["source"], prov, region_ctx)
+        src = _ev(node["source"], prov, region_ctx, select_resolver)
         if src.get("grain") == "occurrence-proximity-relation":
             raise DataRequest("unsupported_relational_transfer", {
                 "method": node["method"],
@@ -520,7 +537,7 @@ def _gate(src, target, method):
 
 
 # ---- top level ---------------------------------------------------------------
-def execute(ir):
+def execute(ir, select_resolver=None):
     ir = canonicalize(ir)
     rep = validate(ir)
     if not rep["valid"]:
@@ -533,7 +550,7 @@ def execute(ir):
                 "provenance": []}
     prov, region_ctx = [], {}
     try:
-        val = _ev(ir, prov, region_ctx)
+        val = _ev(ir, prov, region_ctx, select_resolver)
     except DataRequest as dr:
         return {"status": "data_request", "reason": dr.reason, "detail": dr.detail,
                 "provenance": prov}

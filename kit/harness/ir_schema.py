@@ -12,6 +12,7 @@ import json
 import math
 
 KERNEL_OPS = {"SELECT", "ANNOTATE", "RELATE", "AGGREGATE", "COMPARE", "ESTIMATE", "RANK"}
+DRAFT_KERNEL_OPS = {"FILTER"}
 RELEASED_SUPPORT_OPS = {"REGION"}
 DRAFT_SUPPORT_OPS = {"BUFFER"}
 RELEASED_ALGEBRA_VERSION = "v2.3.0"
@@ -24,7 +25,8 @@ def buffer_enabled(algebra_version=None):
 
 def allowed_ops(algebra_version=None):
     support = RELEASED_SUPPORT_OPS | (DRAFT_SUPPORT_OPS if buffer_enabled(algebra_version) else set())
-    return KERNEL_OPS | support
+    kernel = KERNEL_OPS | (DRAFT_KERNEL_OPS if buffer_enabled(algebra_version) else set())
+    return kernel | support
 
 # op -> (required scalar/leaf fields, required child-node fields)
 REQUIRED = {
@@ -35,6 +37,7 @@ REQUIRED = {
     "COMPARE":   (["how"], ["left"]),  # 'right' required unless how==trend_direction (checked below)
     "ESTIMATE":  (["target", "method"], ["source"]),
     "RANK":      (["order"], []),  # items (a LIST of >=2 nodes) checked specially below
+    "FILTER":    (["where"], ["source"]),
     "REGION":    (["place"], []),
     "BUFFER":    (["radius_km"], ["source"]),
 }
@@ -49,6 +52,7 @@ ALLOWED_FIELDS = {
     "COMPARE": {"op", "left", "right", "how"},
     "ESTIMATE": {"op", "source", "target", "method"},
     "RANK": {"op", "items", "order", "k"},
+    "FILTER": {"op", "source", "where"},
     "REGION": {"op", "place"},
     "BUFFER": {"op", "source", "radius_km"},
 }
@@ -80,6 +84,7 @@ VOCAB = {
     "metric": {"count", "density", "mean", "presence"},
     "how": {"difference", "ratio", "trend_direction"},
     "method": {"interpolate", "feature", "envelope"},
+    "cmp": {"eq", "ne", "lt", "le", "gt", "ge", "contains"},
 }
 
 
@@ -99,8 +104,8 @@ def _walk(node, path, errs, holes, ops, depth, active_ops):
         errs.append(f"{path}: missing 'op'")
         return
     if op not in active_ops:
-        if op == "BUFFER":
-            errs.append(f"{path}: BUFFER requires algebra profile v2.4.0-draft or v2.4.0")
+        if op in {"BUFFER", "FILTER"}:
+            errs.append(f"{path}: {op} requires algebra profile v2.4.0-draft or v2.4.0")
             return
         errs.append(f"{path}: unknown op {op!r}")
         return
@@ -157,6 +162,41 @@ def _walk(node, path, errs, holes, ops, depth, active_ops):
         source = node.get("source")
         if isinstance(source, dict) and source.get("op") not in {"REGION", "BUFFER"}:
             errs.append(f"{path}: BUFFER.source must produce REGION support")
+    if op == "FILTER":
+        source = node.get("source")
+        if isinstance(source, dict) and source.get("op") not in {
+                "SELECT", "ANNOTATE", "RELATE", "FILTER"}:
+            errs.append(f"{path}: FILTER.source must produce Records")
+        where = node.get("where")
+        if not isinstance(where, list) or not where:
+            errs.append(f"{path}: FILTER.where must be a non-empty list")
+        else:
+            for index, predicate in enumerate(where):
+                pred_path = f"{path}.where[{index}]"
+                if not isinstance(predicate, dict):
+                    errs.append(f"{pred_path}: predicate must be an object")
+                    continue
+                unknown_pred = set(predicate) - {"field", "cmp", "value"}
+                if unknown_pred:
+                    errs.append(f"{pred_path}: unknown predicate field(s) {sorted(unknown_pred)}")
+                missing = {"field", "cmp", "value"} - set(predicate)
+                if missing:
+                    errs.append(f"{pred_path}: missing predicate field(s) {sorted(missing)}")
+                    continue
+                field, comparator, value = (predicate["field"], predicate["cmp"],
+                                             predicate["value"])
+                if is_hole(field):
+                    holes.append({"path": f"{pred_path}.field", "op": op,
+                                  "field": "where.field", "name": field})
+                elif not isinstance(field, str) or not field:
+                    errs.append(f"{pred_path}.field: must be a declared field name or typed hole")
+                if not isinstance(comparator, str) or comparator not in VOCAB["cmp"]:
+                    errs.append(f"{pred_path}.cmp: must be one of {sorted(VOCAB['cmp'])}")
+                if isinstance(value, (dict, list)):
+                    errs.append(f"{pred_path}.value: must be a literal or typed hole, never a subtree")
+                elif is_hole(value):
+                    holes.append({"path": f"{pred_path}.value", "op": op,
+                                  "field": "where.value", "name": value})
     # RANK takes a LIST of >=2 item nodes (the n-ary op the binary COMPARE cannot express;
     # tick-008: both models degraded 3-way rankings by dropping cities or nesting COMPAREs).
     if op == "RANK":
@@ -202,9 +242,9 @@ def _walk(node, path, errs, holes, ops, depth, active_ops):
 def canonicalize(ir, algebra_version=None):
     """Canonicalize IR without changing released-v2.3 behavior.
 
-    Under the v2.4 draft, concrete nested BUFFER radii add and identical REGION/BUFFER values are
-    interned. This deduplicates supports that are already written; it never supplies a missing
-    operand support.
+    Under the v2.4 draft, concrete nested BUFFER radii add, identical REGION/BUFFER values are
+    interned, and nested FILTER predicates merge conjunctively in written order. These identities
+    never invent support or predicates.
     """
     if not buffer_enabled(algebra_version):
         return ir
@@ -226,6 +266,14 @@ def canonicalize(ir, algebra_version=None):
                     not isinstance(inner, bool) and math.isfinite(inner)):
                 out = {"op": "BUFFER", "source": source["source"],
                        "radius_km": inner + outer}
+        if out.get("op") == "FILTER":
+            source = out.get("source")
+            if isinstance(source, dict) and source.get("op") == "FILTER":
+                out = {"op": "FILTER", "source": source.get("source"),
+                       "where": list(source.get("where") or []) + list(out.get("where") or [])}
+            out["where"] = sorted(out.get("where") or [],
+                                  key=lambda item: json.dumps(item, sort_keys=True,
+                                                              separators=(",", ":")))
         if out.get("op") in {"REGION", "BUFFER"}:
             key = json.dumps(out, sort_keys=True, separators=(",", ":"))
             if key in interned:

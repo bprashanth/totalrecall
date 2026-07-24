@@ -40,6 +40,9 @@ MODELS = {
     "glm":        (OPENROUTER_BASE, "z-ai/glm-5.2", True),
     "loravb":     (LOCAL_BASE, "qwen3.5-2b-lora", False),     # placeholder; wired when LoRA lands
     "lora9b":     (LORA9B_BASE, "lora9b", False),             # merged-9b-002 comparison arm
+    "lora9b004b": ("http://172.17.0.1:8010/v1", "lora9b", False),  # v2.4 candidate b (gate FAIL 12/15)
+    "lora9b004c": ("http://172.17.0.1:8011/v1", "lora9b", False),  # v2.4 candidate c (gate FAIL 12/15)
+    "lora9b004d": ("http://172.17.0.1:8012/v1", "lora9b", False),  # v2.4 CANDIDATE d (unpromoted)
 }
 
 

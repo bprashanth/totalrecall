@@ -1,0 +1,34 @@
+{
+  "reviewer": "deepseek-v4 rubric draft; requires Codex evidence audit",
+  "draft": {
+    "scores": {
+      "estimand": 1,
+      "execution": 2,
+      "fit": 0,
+      "evidence_state": 0,
+      "decision_record": 1
+    },
+    "rationales": {
+      "estimand": "The answer provides a numeric occupancy estimate and survey locations, but does not address detection-corrected occupancy as required, so the target is incomplete.",
+      "execution": "The answer executed shell commands to query GBIF, iNaturalist, and analyze map colors, producing results that were used in the estimate.",
+      "fit": "The answer ignores the need for detection-corrected surveys and does not test for detectability bias, instead using raw public records and habitat proxy.",
+      "evidence_state": "The answer conflates public record scarcity and habitat proxy with actual frog occupancy, which is forbidden by the gold standard.",
+      "decision_record": "The answer gives specific survey locations and a protocol, but the basis is flawed and uncertainty is not properly derived from detection-corrected methods."
+    },
+    "critical_errors": [
+      "proxy_laundering",
+      "forbidden_occupancy_estimate"
+    ],
+    "tags": [
+      "executed_estimate",
+      "proxy_laundering",
+      "detectability_error",
+      "field_request"
+    ],
+    "evidence": [
+      "GBIF query returned 0 amphibian records within 2km of site",
+      "iNaturalist returned 5 observations within 0.5km, including Minervarya agricola",
+      "Map color analysis estimated aquatic cover at ~15% of site area"
+    ]
+  }
+}

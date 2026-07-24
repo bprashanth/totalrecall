@@ -172,6 +172,14 @@ OSM_TAGS = {
     "community_centre": '["amenity"="community_centre"]',
 }
 
+# Connector-owned row schemas are executable contracts, not documentation. FILTER resolves only
+# against these declarations and never guesses from whichever keys happen to occur in one payload.
+# Nullable fields retain their base type before ``|null`` so comparison compatibility stays total.
+OSM_FIELDS = {
+    "id": "identifier", "lat": "number", "lon": "number",
+    "name": "string|null", "time": "period|null",
+}
+
 
 def _tokens(s):
     """lowercase word-tokens, underscore/space-insensitive, naive singular."""
@@ -237,8 +245,7 @@ def osm_select(entity, region, limit=200):
             "measure": f"osm:{canon}:occurrence_record", "unit": "record",
             "grain": "georeferenced-point-in-request-bbox",
             "lineage": [{"source": "OpenStreetMap/Overpass", "entity": canon}],
-            "fields": {"id": "identifier", "lat": "number", "lon": "number",
-                       "name": "string|null", "time": "period|null"},
+            "fields": dict(OSM_FIELDS),
             "note": f"{len(rows)} {canon} in bbox" + (f"; AMBIGUOUS among {ambig}" if ambig else "")}
 
 
@@ -338,6 +345,16 @@ WB_UNITS = {
     "NY.GDP.MKTP.KD.ZG": "percent/year",
 }
 
+WB_FIELDS = {"t": "annual_period", "value": "number"}
+
+# Reference declarations consumed by conformance and downstream connector adapters. A sector may
+# add schemas for its own connectors, but a returned value must still carry the exact declaration
+# in ``fields`` so FILTER can validate the routed source at execution time.
+CONNECTOR_FIELD_SCHEMAS = {
+    "osm-overpass": OSM_FIELDS,
+    "worldbank": WB_FIELDS,
+}
+
 
 def wb_series(entity, region, time=None):
     code, canon, ambig = wb_resolve_indicator(entity)
@@ -380,7 +397,7 @@ def wb_series(entity, region, time=None):
             "grain": "country", "frequency": "annual", "vintage": vintage,
             "lineage": [{"source": "World Bank API", "indicator": code, "country": iso,
                          "vintage": vintage}],
-            "fields": {"t": "annual_period", "value": "number"},
+            "fields": dict(WB_FIELDS),
             "note": f"{len(rows)} yearly points of {canon} for {iso}{note_extra}"
                     + (" (upstream ILO/WB modeled estimate)" if lbl == "modelled" else "")}
 

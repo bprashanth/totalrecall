@@ -15,7 +15,7 @@ import time
 import parser as P
 import scorer as S
 from executor import execute
-from ir_schema import validate
+from ir_schema import RELEASED_ALGEBRA_VERSION, validate
 
 
 def trim_exec(res):
@@ -34,6 +34,7 @@ def run(model, questions_path, out_dir, fewshot_path=None, judge=None, limit=Non
     os.makedirs(out_dir, exist_ok=True)
     with open(questions_path) as f:
         bank = json.load(f)
+    algebra_version = bank.get("algebra_version", RELEASED_ALGEBRA_VERSION)
     qs = bank["questions"][:limit] if limit else bank["questions"]
     fewshot = None
     if fewshot_path and os.path.exists(fewshot_path):
@@ -45,15 +46,17 @@ def run(model, questions_path, out_dir, fewshot_path=None, judge=None, limit=Non
     with open(trace_path, "w") as tf:
         for q in qs:
             t0 = time.time()
-            pr = P.parse(q["q"], role=model, fewshot=fewshot)
+            pr = P.parse(q["q"], role=model, fewshot=fewshot,
+                         algebra_version=algebra_version)
             ir = pr["ir"]
-            rep = validate(ir) if ir else None
+            rep = validate(ir, algebra_version) if ir else None
             try:
-                exec_res = execute(ir) if ir else {"status": "error", "reason": "no_ir"}
+                exec_res = execute(ir, algebra_version=algebra_version) if ir else {
+                    "status": "error", "reason": "no_ir"}
             except Exception as e:  # executor must never crash the loop
                 exec_res = {"status": "error", "reason": "executor_crash",
                             "detail": {"msg": str(e)[:200]}}
-            sc = S.score(q, ir, exec_res)
+            sc = S.score(q, ir, exec_res, algebra_version=algebra_version)
             syn, syn_scores = None, None
             if synth:
                 import synthesize as SYN
@@ -62,6 +65,7 @@ def run(model, questions_path, out_dir, fewshot_path=None, judge=None, limit=Non
             rec = {
                 "id": q["id"], "sector": q["sector"], "type": q["type"],
                 "question": q["q"], "model": model,
+                "algebra_version": algebra_version,
                 "expect": q.get("expect"), "must_hole": q.get("must_hole", False),
                 "repair_events": pr.get("events", []),
                 "synthesis": syn, "synthesis_scores": syn_scores,
@@ -81,7 +85,8 @@ def run(model, questions_path, out_dir, fewshot_path=None, judge=None, limit=Non
                   f"exec={exec_res.get('status'):12} {q['q'][:44]}")
 
     agg = S.aggregate(scored)
-    summary = {"model": model, "questions": questions_path, "n": agg.get("n"),
+    summary = {"model": model, "questions": questions_path,
+               "algebra_version": algebra_version, "n": agg.get("n"),
                "aggregate": agg, "ts": time.time(), "fewshot": fewshot_path}
     with open(os.path.join(out_dir, "summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
