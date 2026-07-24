@@ -102,7 +102,8 @@ One entry per immutable source version:
 
 ### Adapter kinds the builder ingests
 
-Adapters map your CSV columns onto the generic planes. Dispatch is literal:
+Adapters map your delimited-text columns onto the generic planes. CSV is the default; set
+`delimiter: "\\t"` for Darwin Core and other tab-delimited archives. Dispatch is literal:
 `_ingest_<kind>` in `build.py`, so only these kinds exist in v0.1:
 
 **`location`** — named places (facilities, villages, estates, plots):
@@ -115,12 +116,18 @@ migration event, a case, an enrolment):
 `entity_alias`, `event_type`,
 optional `count` (the magnitude column), coordinates either inline (`latitude`/`longitude`,
 optional `uncertainty_m`) **or** via `location_lookup` (`path`, `event_key`, `lookup_key`,
-`latitude`, `longitude`), plus `properties`.
+`latitude`, `longitude`), plus `properties`. Use `entity_hierarchy: [kingdom, phylum, class,
+order, family, genus, species]` when source columns use those canonical names, or an object
+mapping canonical levels to source columns. This enriches a canonical entity across sources and
+enables broad-group questions without a site-specific group list.
 
 **`effort`** — where/how much you looked; the denominator plane that makes rate and absence
 claims legal: `path`, `record_id`, `date`, `method_value`, `effort_value` (column),
 `effort_unit`, coordinates via `location_lookup`, `properties` (put population/eligibility
-denominators here). v0.1 does not read inline effort coordinates or effort `date_parts`.
+denominators here). Set `distinct_record_id: true` when a source repeats one explicit sampling
+event and denominator across multiple observation rows; the first source row is retained and
+duplicates of the declared `record_id` are not multiplied. v0.1 does not read inline effort
+coordinates or effort `date_parts`.
 
 **`measurement`** — tidy metric series: `path`, `record_id` (col or list of cols),
 `date`, `date_value`, or `date_parts: ["year","month"]`; `metrics: {canonical_metric: "unit",

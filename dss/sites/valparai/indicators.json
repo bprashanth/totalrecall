@@ -1,0 +1,169 @@
+{
+  "schema_version": "visual-indicator-registry/0.1",
+  "site_id": "valparai",
+  "indicators": [
+    {
+      "indicator_id": "record-coverage",
+      "label": "Where source-linked records exist",
+      "readiness": "ready",
+      "inputs": ["events", "source_versions", "cells"],
+      "formula": "count(distinct source-linked event rows) by cell and source",
+      "denominator": null,
+      "first_visual": "observed_points_or_record_density_map",
+      "allowed_claim": "coverage of indexed records",
+      "forbidden_claim": "abundance, absence or population trend"
+    },
+    {
+      "indicator_id": "effort-normalised-detection",
+      "label": "Detections relative to documented effort",
+      "readiness": "partial",
+      "inputs": ["events", "effort", "method", "time_bucket", "cell"],
+      "formula": "detections / compatible effort within the same method, scope and time bucket",
+      "denominator": "source-reported effort in its declared unit",
+      "first_visual": "detection_with_effort_and_coverage",
+      "allowed_claim": "reporting or detection rate under the documented protocol",
+      "forbidden_claim": "population trend without a fitted observation model"
+    },
+    {
+      "indicator_id": "habitat-structure-profile",
+      "label": "Habitat structure by measured plot or site",
+      "readiness": "ready",
+      "inputs": ["measurements", "locations", "units", "source_protocol"],
+      "formula": "source-compatible summaries of canopy cover, height, vertical strata, litter and stem counts",
+      "denominator": "number of measured plots or points",
+      "first_visual": "map_with_small_multiple_distributions",
+      "allowed_claim": "differences in measured habitat variables",
+      "forbidden_claim": "recovery or causal treatment effect without a valid comparison design"
+    },
+    {
+      "indicator_id": "regeneration-structure",
+      "label": "Woody regeneration composition and stem-size structure",
+      "readiness": "partial",
+      "inputs": ["regeneration_events", "entity_hierarchy", "plot_area", "effective_dbh"],
+      "formula": "individuals or basal-area proxy by species, plot and declared size class",
+      "denominator": "sampled regeneration-plot area",
+      "first_visual": "plot_map_with_size_distribution",
+      "allowed_claim": "composition and structure of sampled plots",
+      "forbidden_claim": "landscape-wide recruitment until plot area and design are applied"
+    },
+    {
+      "indicator_id": "restoration-comparison",
+      "label": "Restored, naturally regenerating and benchmark comparison",
+      "readiness": "blocked",
+      "inputs": ["treatment_assignment", "repeated_effort", "outcomes", "habitat", "comparison_design"],
+      "formula": "predeclared contrast with uncertainty, respecting paired or blocked design",
+      "denominator": "survey visits and sampled plots per treatment",
+      "first_visual": "treatment_map_and_interval_comparison",
+      "allowed_claim": "association or effect supported by the admitted design",
+      "forbidden_claim": "restoration effect from unmatched occurrence totals",
+      "blocked_by": ["dryad-rjdfn2zc3-restoration-birds"]
+    },
+    {
+      "indicator_id": "coevent-association-network",
+      "label": "Entities reported in the same source event",
+      "readiness": "partial",
+      "inputs": ["events", "source_event_id", "protocol", "behaviour_annotation"],
+      "formula": "count distinct source events containing entity A and entity B",
+      "denominator": "source events in which both entities could have been detected",
+      "first_visual": "linked_map_and_bipartite_network",
+      "allowed_claim": "co-reporting or explicitly annotated behaviour",
+      "forbidden_claim": "dispersal, predation, facilitation or causality from proximity alone"
+    },
+    {
+      "indicator_id": "soundscape-activity",
+      "label": "Acoustic space use and verified vocal detections",
+      "readiness": "blocked",
+      "inputs": ["recording_manifest", "recorder_effort", "frequency_time_bins", "verified_labels"],
+      "formula": "short-time Fourier transform summaries by frequency and time plus separately validated species detections",
+      "denominator": "recording duration and recorder availability",
+      "first_visual": "soundscape_heatmap_with_detection_timeline",
+      "allowed_claim": "recorded acoustic activity or verified vocal detections",
+      "forbidden_claim": "species absence or abundance from an uncalibrated classifier",
+      "blocked_by": ["zenodo-7036137-acoustic-restoration"]
+    },
+    {
+      "indicator_id": "phenology-profile",
+      "label": "Seasonal vegetation profile",
+      "readiness": "blocked",
+      "inputs": ["cloud-screened_sentinel2", "aoi_or_plot_geometry", "field_phenophase_observations"],
+      "formula": "versioned seasonal reflectance/index curve with start, peak and end estimates and uncertainty",
+      "denominator": "valid observations per time window",
+      "first_visual": "map_linked_phenology_curve",
+      "allowed_claim": "remote-sensed seasonal surface pattern",
+      "forbidden_claim": "flowering, fruiting or species-level phenophase without field calibration",
+      "blocked_by": ["earth-engine-feature-cube"]
+    },
+    {
+      "indicator_id": "gated-donor-transfer",
+      "label": "Where wider data can responsibly inform the target",
+      "readiness": "blocked",
+      "inputs": ["donor_events", "target_aoi", "feature_cube", "spatial_folds", "gate_results"],
+      "formula": "fit on donor data; evaluate with spatially separated folds; expose environmental support, calibration and uncertainty in target cells",
+      "denominator": "independent or spatially blocked evaluation records",
+      "first_visual": "donor_points_support_and_prediction_map",
+      "allowed_claim": "modelled relative suitability within supported target conditions",
+      "forbidden_claim": "presence, probability of occurrence or transfer where gates fail",
+      "blocked_by": ["earth-engine-feature-cube"]
+    },
+    {
+      "indicator_id": "value-of-information",
+      "label": "Where one more survey could change a decision most",
+      "readiness": "blocked",
+      "inputs": ["versioned_model", "uncertainty", "candidate_actions", "cost_or_risk", "decision"],
+      "formula": "expected improvement in decision value from a candidate observation, net of declared cost or risk",
+      "denominator": "candidate survey effort and cost",
+      "first_visual": "priority_cells_with_reason_and_protocol",
+      "allowed_claim": "model-based priority for additional information",
+      "forbidden_claim": "generic field request or unsafe access recommendation"
+    },
+    {
+      "indicator_id": "soil-context-with-uncertainty",
+      "label": "Modelled soil context and where field sampling matters",
+      "readiness": "blocked",
+      "inputs": ["soilgrids_quantiles", "target_aoi", "field_soil_samples"],
+      "formula": "median and 90% prediction interval by property, depth and cell",
+      "denominator": "model support plus number of local validation samples",
+      "first_visual": "soil_median_and_uncertainty_map",
+      "allowed_claim": "global-model soil context with quantified uncertainty",
+      "forbidden_claim": "measured local soil condition without field samples",
+      "blocked_by": ["soilgrids-2"]
+    }
+  ],
+  "method_references": [
+    {
+      "method_id": "soib-semi-structured-range-and-trend",
+      "doi": "10.1002/ecs2.70290",
+      "use": "range/trend workflow for complete eBird checklists, spatial-bias reduction and uncertainty; not an estate-scale shortcut"
+    },
+    {
+      "method_id": "spatial-cross-validation",
+      "doi": "10.1890/11-0826.1",
+      "use": "detect spatial sorting bias in distribution-model evaluation"
+    },
+    {
+      "method_id": "target-group-background",
+      "doi": "10.1890/07-2153.1",
+      "use": "handle sampling bias when fitting presence-only models"
+    },
+    {
+      "method_id": "block-cv",
+      "doi": "10.1111/2041-210X.13107",
+      "use": "construct spatially or environmentally separated validation folds"
+    },
+    {
+      "method_id": "survey-value-of-information",
+      "doi": "10.1111/1365-2664.14309",
+      "use": "optimise survey locations against an explicit conservation decision and uncertainty"
+    },
+    {
+      "method_id": "soilgrids-2",
+      "doi": "10.5194/soil-7-217-2021",
+      "use": "quantile predictions and uncertainty for global soil context"
+    },
+    {
+      "method_id": "alphaearth-foundations",
+      "doi": "10.48550/arXiv.2507.22291",
+      "use": "annual 10 m, 64-dimensional unit-length embeddings for classification, similarity and change features; axes are not independently interpretable"
+    }
+  ]
+}

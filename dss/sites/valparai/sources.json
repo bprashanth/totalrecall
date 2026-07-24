@@ -91,7 +91,7 @@
       "url": "https://zenodo.org/records/10077040",
       "publisher": "Nature Conservation Foundation",
       "license": "CC-BY-4.0",
-      "capabilities": ["inspectable", "mappable", "has_events", "has_locations", "has_measurements", "candidate_model_input"],
+      "capabilities": ["inspectable", "mappable", "has_events", "has_locations", "has_measurements", "has_entity_hierarchy", "candidate_model_input"],
       "local_metadata": "raw/zenodo-10077040/README.txt",
       "adapters": [
         {
@@ -109,6 +109,7 @@
           "record_id": ["pointID", "Tree_no"],
           "date": "Year",
           "entity": "scientificName",
+          "entity_hierarchy": ["kingdom", "phylum", "class", "order", "family", "genus"],
           "event_type_value": "tree_measurement",
           "location_lookup": {
             "path": "raw/zenodo-10077040/point_locations.csv",
@@ -368,6 +369,247 @@
             "daily_mean_radiance": "radiance",
             "daily_daylight": "daylight"
           }
+        }
+      ]
+    },
+    {
+      "source_id": "gbif-v6ku49-butterflies",
+      "title": "Butterfly point-count occurrences in Valparai rainforest fragments",
+      "doi": "10.15468/v6ku49",
+      "url": "https://www.gbif.org/dataset/3a749bef-bb6e-467f-a353-244b43c7c323",
+      "publisher": "Nature Conservation Foundation",
+      "license": "CC-BY-4.0",
+      "capabilities": ["inspectable", "mappable", "has_events", "has_effort", "has_entity_hierarchy", "candidate_model_input"],
+      "local_metadata": "raw/gbif-v6ku49-butterflies/README.txt",
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/gbif-v6ku49-butterflies/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "occurrenceID",
+          "latitude": "decimalLatitude",
+          "longitude": "decimalLongitude",
+          "date": "eventDate",
+          "entity": "scientificName",
+          "entity_hierarchy": ["kingdom", "phylum", "class", "order", "family", "genus"],
+          "entity_alias": "vernacularName",
+          "event_type": "samplingProtocol",
+          "event_type_value": "butterfly_occurrence",
+          "status": "occurrenceStatus",
+          "uncertainty_m": "coordinateUncertaintyInMeters",
+          "count": "individualCount",
+          "properties": [
+            "eventID", "basisOfRecord", "samplingProtocol", "sampleSizeValue",
+            "sampleSizeUnit", "samplingEffort", "habitat", "locality",
+            "verbatimLocality", "class", "order", "family", "genus"
+          ]
+        },
+        {
+          "kind": "effort",
+          "path": "raw/gbif-v6ku49-butterflies/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "eventID",
+          "distinct_record_id": true,
+          "date": "eventDate",
+          "method_value": "5_minute_butterfly_point_count",
+          "effort_value": "samplingEffort",
+          "effort_unit": "point-counts",
+          "location_lookup": {
+            "path": "raw/gbif-v6ku49-butterflies/occurrence.txt",
+            "delimiter": "\t",
+            "event_key": "eventID",
+            "lookup_key": "eventID",
+            "latitude": "decimalLatitude",
+            "longitude": "decimalLongitude",
+            "uncertainty_m": "coordinateUncertaintyInMeters"
+          },
+          "properties": ["eventID", "sampleSizeValue", "sampleSizeUnit", "habitat", "verbatimLocality"]
+        }
+      ]
+    },
+    {
+      "source_id": "gbif-ysrzbw-frogs",
+      "title": "Frog belt-transect occurrences in Valparai rainforest fragments",
+      "doi": "10.15468/ysrzbw",
+      "url": "https://www.gbif.org/dataset/e248a74b-a4dd-49af-a025-3968fec8eba1",
+      "publisher": "Nature Conservation Foundation",
+      "license": "CC-BY-4.0",
+      "capabilities": ["inspectable", "mappable", "has_events", "has_effort", "has_entity_hierarchy", "candidate_model_input"],
+      "local_metadata": "raw/gbif-ysrzbw-frogs/README.txt",
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/gbif-ysrzbw-frogs/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "occurrenceID",
+          "latitude": "decimalLatitude",
+          "longitude": "decimalLongitude",
+          "date": "eventDate",
+          "entity": "scientificName",
+          "entity_hierarchy": ["kingdom", "phylum", "class", "order", "family", "genus"],
+          "event_type_value": "frog_belt_transect_occurrence",
+          "status": "occurrenceStatus",
+          "count": "individualCount",
+          "properties": [
+            "eventID", "basisOfRecord", "sampleSizeValue", "sampleSizeUnit",
+            "samplingEffort", "habitat", "occurrenceRemarks", "locality",
+            "verbatimElevation", "locationRemarks", "class", "order", "family", "genus"
+          ]
+        },
+        {
+          "kind": "effort",
+          "path": "raw/gbif-ysrzbw-frogs/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "eventID",
+          "distinct_record_id": true,
+          "date": "eventDate",
+          "method_value": "frog_belt_transect",
+          "effort_value": "sampleSizeValue",
+          "effort_unit": "minutes",
+          "location_lookup": {
+            "path": "raw/gbif-ysrzbw-frogs/occurrence.txt",
+            "delimiter": "\t",
+            "event_key": "eventID",
+            "lookup_key": "eventID",
+            "latitude": "decimalLatitude",
+            "longitude": "decimalLongitude"
+          },
+          "properties": ["eventID", "samplingEffort", "habitat", "locality", "locationRemarks"]
+        }
+      ]
+    },
+    {
+      "source_id": "gbif-d96cu4-herpetofauna",
+      "title": "Time-constrained herpetofauna occurrences in Valparai rainforest remnants",
+      "doi": "10.15468/d96cu4",
+      "url": "https://www.gbif.org/dataset/87083cf0-d854-4592-bea3-08ed8c01d09d",
+      "publisher": "Nature Conservation Foundation",
+      "license": "CC-BY-4.0",
+      "capabilities": ["inspectable", "mappable", "has_events", "has_entity_hierarchy", "candidate_model_input"],
+      "local_metadata": "raw/gbif-d96cu4-herpetofauna/README.txt",
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/gbif-d96cu4-herpetofauna/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "occurrenceID",
+          "latitude": "decimalLatitude",
+          "longitude": "decimalLongitude",
+          "date": "eventDate",
+          "entity": "scientificName",
+          "entity_alias": "vernacularName",
+          "entity_hierarchy": ["kingdom", "phylum", "class", "order", "family", "genus"],
+          "event_type": "samplingProtocol",
+          "event_type_value": "herpetofauna_occurrence",
+          "status": "occurrenceStatus",
+          "uncertainty_m": "coordinateUncertaintyInMeters",
+          "count": "individualCount",
+          "properties": [
+            "eventID", "basisOfRecord", "samplingProtocol", "samplingEffort",
+            "habitat", "occurrenceRemarks", "organismRemarks", "eventTime",
+            "locality", "verbatimLocality", "verbatimElevation", "class",
+            "order", "family", "genus"
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "gbif-4e53vk-threatened-trees",
+      "title": "Threatened-tree and trail-inventory occurrences in Valparai and ATR",
+      "doi": "10.15468/4e53vk",
+      "url": "https://www.gbif.org/dataset/eb88b65e-8ce5-4ea4-84cc-234df5e4763e",
+      "publisher": "Nature Conservation Foundation",
+      "license": "CC-BY-4.0",
+      "capabilities": ["inspectable", "mappable", "has_events", "has_entity_hierarchy", "candidate_model_input"],
+      "local_metadata": "raw/gbif-4e53vk-threatened-trees/README.txt",
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/gbif-4e53vk-threatened-trees/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "occurrenceID",
+          "latitude": "decimalLatitude",
+          "longitude": "decimalLongitude",
+          "date": "eventDate",
+          "entity": "scientificName",
+          "entity_hierarchy": ["kingdom", "phylum", "class", "order", "family", "genus"],
+          "event_type": "samplingProtocol",
+          "event_type_value": "plant_occurrence",
+          "status": "occurrenceStatus",
+          "uncertainty_m": "coordinateUncertaintyInMeters",
+          "count": "individualCount",
+          "properties": [
+            "eventID", "parentEventID", "basisOfRecord", "samplingProtocol",
+            "samplingEffort", "eventRemarks", "locality", "verbatimLocality",
+            "class", "order", "family", "genus"
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "gbif-2bqrzp-frugivory",
+      "title": "Fruiting trees and bird and mammal visitor occurrences in the Anamalai Hills",
+      "doi": "10.15468/2bqrzp",
+      "url": "https://www.gbif.org/dataset/cf973c89-6819-4fc5-be56-c23f0119ff69",
+      "publisher": "Nature Conservation Foundation",
+      "license": "CC-BY-4.0",
+      "capabilities": ["inspectable", "mappable", "has_events", "has_coevents", "has_entity_hierarchy", "candidate_model_input"],
+      "local_metadata": "raw/gbif-2bqrzp-frugivory/README.txt",
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/gbif-2bqrzp-frugivory/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "occurrenceID",
+          "latitude": "decimalLatitude",
+          "longitude": "decimalLongitude",
+          "date": "eventDate",
+          "entity": "scientificName",
+          "entity_alias": "vernacularName",
+          "entity_hierarchy": ["kingdom", "phylum", "class", "order", "family", "genus"],
+          "event_type": "samplingProtocol",
+          "event_type_value": "frugivory_study_occurrence",
+          "status": "occurrenceStatus",
+          "uncertainty_m": "coordinateUncertaintyInMeters",
+          "count": "individualCount",
+          "properties": [
+            "eventID", "basisOfRecord", "samplingProtocol", "eventTime",
+            "locality", "class", "order", "family", "genus",
+            "verbatimIdentification", "identificationRemarks"
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "gbif-utzvkm-seed-predation",
+      "title": "Rainforest trees and animal detections from a seed-predation experiment",
+      "doi": "10.15468/utzvkm",
+      "url": "https://www.gbif.org/dataset/a013718d-4d97-4fea-85d4-7f976c6cbb35",
+      "publisher": "Nature Conservation Foundation",
+      "license": "CC-BY-4.0",
+      "capabilities": ["inspectable", "mappable", "has_events", "has_coevents", "has_entity_hierarchy", "candidate_model_input"],
+      "local_metadata": "raw/gbif-utzvkm-seed-predation/README.txt",
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/gbif-utzvkm-seed-predation/occurrence.txt",
+          "delimiter": "\t",
+          "record_id": "occurrenceID",
+          "latitude": "decimalLatitude",
+          "longitude": "decimalLongitude",
+          "date": "eventDate",
+          "entity": "scientificName",
+          "entity_alias": "vernacularName",
+          "entity_hierarchy": ["kingdom", "phylum", "class", "order", "family", "genus"],
+          "event_type": "samplingProtocol",
+          "event_type_value": "seed_predation_study_occurrence",
+          "status": "occurrenceStatus",
+          "uncertainty_m": "coordinateUncertaintyInMeters",
+          "properties": [
+            "eventID", "basisOfRecord", "samplingProtocol", "habitat",
+            "occurrenceRemarks", "locality", "verbatimLocality", "class",
+            "order", "family", "genus", "verbatimIdentification"
+          ]
         }
       ]
     }

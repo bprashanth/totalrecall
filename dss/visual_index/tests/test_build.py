@@ -33,11 +33,13 @@ class ValparaiVisualIndexTest(unittest.TestCase):
     def test_build_is_complete_and_fast(self):
         report = json.loads((self.output / "build_report.json").read_text())
         self.assertEqual(report["integrity"], "ok")
-        self.assertEqual(report["sources"], 7)
-        self.assertEqual(report["events"], 15_159)
-        self.assertEqual(report["georeferenced_events"], 15_144)
-        self.assertEqual(report["effort_rows"], 229)
+        self.assertEqual(report["sources"], 13)
+        self.assertEqual(report["events"], 27_784)
+        self.assertEqual(report["georeferenced_events"], 27_769)
+        self.assertEqual(report["effort_rows"], 250)
         self.assertEqual(report["measurements"], 56_326)
+        self.assertEqual(report["entities"], 942)
+        self.assertEqual(report["cells"], 302)
         self.assertGreaterEqual(report["ready_views"], 8)
         self.assertLess(self.elapsed, 3.0)
 
@@ -49,6 +51,12 @@ class ValparaiVisualIndexTest(unittest.TestCase):
             "zenodo-10077040": 3684,
             "zenodo-7060430": 2473,
             "zenodo-7457732": 3744,
+            "gbif-v6ku49-butterflies": 231,
+            "gbif-ysrzbw-frogs": 143,
+            "gbif-d96cu4-herpetofauna": 435,
+            "gbif-4e53vk-threatened-trees": 8397,
+            "gbif-2bqrzp-frugivory": 2640,
+            "gbif-utzvkm-seed-predation": 779,
         }
         actual = dict(
             self.db.execute(
@@ -82,7 +90,14 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         sources = self.db.execute(
             "SELECT DISTINCT source_id FROM effort ORDER BY source_id"
         ).fetchall()
-        self.assertEqual(sources, [("zenodo-7060430",)])
+        self.assertEqual(
+            sources,
+            [
+                ("gbif-v6ku49-butterflies",),
+                ("gbif-ysrzbw-frogs",),
+                ("zenodo-7060430",),
+            ],
+        )
         georeferenced = self.db.execute(
             "SELECT COUNT(*) FROM effort WHERE cell_id IS NOT NULL"
         ).fetchone()[0]
@@ -128,6 +143,35 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         self.assertEqual(event_types["adult_tree_measurement"], 2177)
         self.assertEqual(event_types["woody_regeneration_measurement"], 1567)
         self.assertNotIn("TRUE", event_types)
+
+    def test_darwin_core_sources_keep_methods_hierarchy_and_effort_denominators(self):
+        hierarchy = json.loads(
+            self.db.execute(
+                """SELECT hierarchy_json FROM entities
+                   WHERE canonical_name='Papilio polymnestor'"""
+            ).fetchone()[0]
+        )
+        self.assertEqual(hierarchy["class"], "Insecta")
+        self.assertEqual(hierarchy["order"], "Lepidoptera")
+        butterfly_effort = self.db.execute(
+            """SELECT COUNT(*),SUM(effort_value),MIN(effort_unit)
+               FROM effort WHERE source_id='gbif-v6ku49-butterflies'"""
+        ).fetchone()
+        self.assertEqual(butterfly_effort, (8, 278.0, "point-counts"))
+        frog_effort = self.db.execute(
+            """SELECT COUNT(*),SUM(effort_value),MIN(effort_unit)
+               FROM effort WHERE source_id='gbif-ysrzbw-frogs'"""
+        ).fetchone()
+        self.assertEqual(frog_effort, (13, 567.5, "minutes"))
+        methods = dict(
+            self.db.execute(
+                """SELECT event_type,COUNT(*) FROM events
+                   WHERE source_id='gbif-d96cu4-herpetofauna'
+                   GROUP BY event_type"""
+            ).fetchall()
+        )
+        self.assertEqual(methods["time-constrained visual encounter survey"], 410)
+        self.assertEqual(methods["ad-hoc observation"], 25)
 
     def test_evidence_classes_and_source_capabilities_are_explicit(self):
         classes = self.db.execute(

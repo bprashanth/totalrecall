@@ -96,9 +96,13 @@ def _json(path: pathlib.Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _rows(path: pathlib.Path) -> list[dict[str, str]]:
+def _rows(path: pathlib.Path, delimiter: str = ",") -> list[dict[str, str]]:
+    if delimiter == "\\t":
+        delimiter = "\t"
+    if len(delimiter) != 1:
+        raise ValueError(f"CSV delimiter must be one character: {delimiter!r}")
     with path.open(encoding="utf-8-sig", errors="replace", newline="") as handle:
-        return list(csv.DictReader(handle))
+        return list(csv.DictReader(handle, delimiter=delimiter))
 
 
 def _sha256_files(paths: Iterable[pathlib.Path]) -> str:
@@ -311,7 +315,7 @@ class Builder:
         for source in self.registry["sources"]:
             source_id = source["source_id"]
             for spec in source.get("crosswalks", []):
-                for row in _rows(self.path(spec["path"])):
+                for row in _rows(self.path(spec["path"]), spec.get("delimiter", ",")):
                     canonical = row.get(spec["canonical"]) or ""
                     label = row.get(spec.get("label", "")) or canonical
                     entity_id = self._ensure_entity(canonical, label, source_id)
@@ -324,7 +328,7 @@ class Builder:
             if not spec:
                 continue
             source_id = source["source_id"]
-            for row in _rows(self.path(spec["path"])):
+            for row in _rows(self.path(spec["path"]), spec.get("delimiter", ",")):
                 hierarchy = {
                     name: row.get(name) for name in spec.get("levels", [])
                     if row.get(name) not in (None, "", "NA")
@@ -352,7 +356,7 @@ class Builder:
         if not spec:
             return {}
         groups: dict[str, list[dict[str, str]]] = defaultdict(list)
-        for row in _rows(self.path(spec["path"])):
+        for row in _rows(self.path(spec["path"]), spec.get("delimiter", ",")):
             groups[_key(row.get(spec["lookup_key"]))].append(row)
         result: dict[str, dict[str, Any]] = {}
         for key, rows in groups.items():
@@ -382,7 +386,9 @@ class Builder:
         return result
 
     def _ingest_location(self, source: dict, spec: dict) -> None:
-        for row_number, row in enumerate(_rows(self.path(spec["path"])), 1):
+        for row_number, row in enumerate(
+            _rows(self.path(spec["path"]), spec.get("delimiter", ",")), 1
+        ):
             lat = _coord(row.get(spec["latitude"]), latitude=True)
             lon = _coord(row.get(spec["longitude"]), latitude=False)
             location_id = str(row.get(spec["location_id"]) or row_number)
@@ -400,7 +406,9 @@ class Builder:
         location_lookup = self._lookup(spec.get("location_lookup"))
         entity_lookup = self._lookup(spec.get("entity_lookup"))
         source_id = source["source_id"]
-        for row_number, row in enumerate(_rows(self.path(spec["path"])), 1):
+        for row_number, row in enumerate(
+            _rows(self.path(spec["path"]), spec.get("delimiter", ",")), 1
+        ):
             location = location_lookup.get(
                 _key(row.get((spec.get("location_lookup") or {}).get("event_key", ""))), {}
             )
@@ -417,9 +425,19 @@ class Builder:
             )
             canonical = entity_match.get("canonical") or entity_raw
             label = entity_match.get("label") or _configured(row, spec, "entity_alias") or canonical
+            hierarchy_spec = spec.get("entity_hierarchy") or {}
+            if isinstance(hierarchy_spec, list):
+                hierarchy_spec = {name: name for name in hierarchy_spec}
+            hierarchy = {
+                level: row.get(column)
+                for level, column in hierarchy_spec.items()
+                if row.get(column) not in (None, "", "NA")
+            }
             entity_id = self.aliases.get(_key(canonical)) or self.aliases.get(_key(entity_raw))
             if not entity_id:
-                entity_id = self._ensure_entity(canonical, label, source_id)
+                entity_id = self._ensure_entity(canonical, label, source_id, hierarchy)
+            elif hierarchy:
+                self._ensure_entity(canonical, label, source_id, hierarchy)
             elif label:
                 self._alias(label, entity_id, source_id)
             date_value = _configured(row, spec, "date") or spec.get("date_value")
@@ -451,13 +469,19 @@ class Builder:
 
     def _ingest_effort(self, source: dict, spec: dict) -> None:
         location_lookup = self._lookup(spec.get("location_lookup"))
-        for row_number, row in enumerate(_rows(self.path(spec["path"])), 1):
+        seen: set[str] = set()
+        for row_number, row in enumerate(
+            _rows(self.path(spec["path"]), spec.get("delimiter", ",")), 1
+        ):
             location = location_lookup.get(
                 _key(row.get((spec.get("location_lookup") or {}).get("event_key", ""))), {}
             )
             lat, lon = location.get("latitude"), location.get("longitude")
             event_date, year, month = _date_parts(row.get(spec.get("date", "")))
             original_id = _row_id(row, spec.get("record_id"), row_number)
+            if spec.get("distinct_record_id") and original_id in seen:
+                continue
+            seen.add(original_id)
             self.sql.execute(
                 "INSERT OR REPLACE INTO effort VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
@@ -475,7 +499,9 @@ class Builder:
 
     def _ingest_measurement(self, source: dict, spec: dict) -> None:
         location_lookup = self._lookup(spec.get("location_lookup"))
-        for row_number, row in enumerate(_rows(self.path(spec["path"])), 1):
+        for row_number, row in enumerate(
+            _rows(self.path(spec["path"]), spec.get("delimiter", ",")), 1
+        ):
             if spec.get("date_parts"):
                 year = int(row.get(spec["date_parts"][0]) or 0) or None
                 month = int(row.get(spec["date_parts"][1]) or 1) if year else None

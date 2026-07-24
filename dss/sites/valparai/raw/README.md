@@ -13,11 +13,20 @@ immutable bronze inputs.
 | `zenodo-7060430` | `10.5281/zenodo.7060430` | CC BY 4.0 | sampling effort, events, route habitat, KML and README |
 | `zenodo-7457732` | `10.5281/zenodo.7457732` | CC BY 4.0 | sites, adult/regeneration/canopy tables, entity hierarchy and README |
 | `zenodo-18646715` | `10.5281/zenodo.18646715` | CC BY 4.0 | daily/monthly summaries and README; high-frequency raw logger file omitted |
+| `gbif-v6ku49-butterflies` | `10.15468/v6ku49` | CC BY 4.0 | butterfly point counts, Darwin Core metadata and immutable archive |
+| `gbif-ysrzbw-frogs` | `10.15468/ysrzbw` | CC BY 4.0 | frog belt-transect occurrences and effort, Darwin Core metadata and archive |
+| `gbif-d96cu4-herpetofauna` | `10.15468/d96cu4` | CC BY 4.0 | systematic and incidental herpetofauna records, methods and archive |
+| `gbif-4e53vk-threatened-trees` | `10.15468/4e53vk` | CC BY 4.0 | threatened trees, PCQ samples and 65-trail inventory |
+| `gbif-2bqrzp-frugivory` | `10.15468/2bqrzp` | CC BY 4.0 | fruiting trees and animal-visitor study occurrences |
+| `gbif-utzvkm-seed-predation` | `10.15468/utzvkm` | CC BY 4.0 | focal trees and camera detections from a seed-predation experiment |
 
-Licence identifiers were verified against the Zenodo record API on 2026-07-24. Use the citation
-given in each source README. The source registry records the stable record URL and computes a
-content hash across every admitted local file at build time.
+Zenodo licences were verified against its record API on 2026-07-24. The six GBIF Darwin Core
+archives were retrieved and verified against their GBIF dataset metadata on 2026-07-25; each
+source README records the archive SHA-256 and exact modified timestamp. Use the citation given in
+each source README. The source registry records the stable record URL and computes a content hash
+across every admitted local file at build time.
 
-Photos, PDFs, raw high-frequency logger data and files unused by the first feasibility adapters
-were not duplicated. Retrieve them from the source record if a later question needs them, then add
-them as a new declared site-pack source version.
+Photos, PDFs, audio and raw high-frequency logger data were not duplicated. Retrieve them from
+the source record if a later question needs them, then add them as a new declared site-pack source
+version. The GBIF source directories retain both the original archive and its unpacked files;
+`occurrence.txt`, `eml.xml` and `meta.xml` are byte-for-byte archive members.
