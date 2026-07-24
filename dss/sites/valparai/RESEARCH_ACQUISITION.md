@@ -24,6 +24,9 @@ The first two admitted tranches now cover:
   traits;
 - shade-plantation bird guild and scientific-name crosswalks; and
 - source-linked camera detections at focal seed experiments.
+- verified companion analysis code and method cards for plot-area normalisation,
+  trait-qualified richness, reference-community similarity, canopy-response curves and an
+  exploratory enrichment simulation.
 
 This supports immediate maps of records, coverage, effort and measured habitat. It does not yet
 support a claim of local absence, causal restoration effect, population trend, dispersal from
@@ -33,7 +36,9 @@ unjoined visitor occurrences, phenophase, corridor use or transferable suitabili
 
 1. Build the treatment/effort-aware comparison operations over the newly admitted restoration
    point counts, habitat plots and tree quadrats. Keep site category, survey effort and uncertainty
-   visible; do not compare raw record totals as recovery.
+   visible; do not compare raw record totals as recovery. The admitted Zenodo companion code is
+   represented as gated method cards in `methods/method_cards.json`, rather than executed as an
+   opaque site-specific script.
 2. Extend the admitted 2024 Earth-observation feature cube to a multi-year series where the
    question needs it. The first cube contains harmonised Sentinel-2 indices and monthly NDVI,
    Dynamic World probabilities, terrain, ERA5-Land, CHIRPS and all 64 annual AlphaEarth axes.

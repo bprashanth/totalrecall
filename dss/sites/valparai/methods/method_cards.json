@@ -1,0 +1,257 @@
+{
+  "schema_version": "visual-method-catalog/0.1",
+  "site_id": "valparai",
+  "purpose": "Source-linked analysis recipes that a generic capability may bind to compatible site-pack planes. Inclusion is not permission to run a method when its assumptions or gates fail.",
+  "sources": [
+    {
+      "source_id": "dryad-8kprr4xvb-restoration-opportunities",
+      "doi": "10.5061/dryad.8kprr4xvb",
+      "role": "immutable observations and plot metadata"
+    },
+    {
+      "source_id": "zenodo-10692141-restoration-opportunities-methods",
+      "doi": "10.5281/zenodo.10692141",
+      "role": "MIT-licensed analysis and figure code",
+      "integrity_manifest": "zenodo-10692141-restoration-opportunities/ACQUISITION.json"
+    }
+  ],
+  "method_cards": [
+    {
+      "method_id": "plot-area-normalised-adult-tree-stocks",
+      "label": "Adult-tree density, basal area and carbon per hectare",
+      "implementation_state": "specified",
+      "applies_to": ["adult_tree_plot"],
+      "required_inputs": [
+        "plot_id",
+        "sampled_area_hectares",
+        "individual_tree_rows",
+        "source_reported_basal_area",
+        "source_reported_carbon"
+      ],
+      "formulae": {
+        "stem_density_per_hectare": "count(eligible adult-tree rows) / sampled_area_hectares",
+        "basal_area_per_hectare": "sum(source_reported_basal_area) / sampled_area_hectares",
+        "aboveground_carbon_per_hectare": "sum(source_reported_carbon) / sampled_area_hectares"
+      },
+      "source_instantiation": {
+        "plot_dimensions_metres": [20, 20],
+        "sampled_area_hectares": 0.04,
+        "scale_factor_to_per_hectare": 25
+      },
+      "denominator": "source-declared sampled plot area",
+      "first_visual": "plot_map_linked_to_distribution_and_benchmark_interval",
+      "evidence_class": "derived",
+      "allowed_claim": "area-normalised stock or stem density in sampled plots",
+      "forbidden_claim": "estate-wide stock without a design-based or model-based expansion",
+      "source_code": [
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_tree_script.R",
+          "lines": "12-21"
+        }
+      ]
+    },
+    {
+      "method_id": "trait-qualified-plot-diversity",
+      "label": "Plot diversity by habitat, origin, conservation and dispersal traits",
+      "implementation_state": "specified",
+      "applies_to": ["adult_tree_plot", "regeneration_plot"],
+      "required_inputs": [
+        "plot_id",
+        "accepted_taxon_name",
+        "habit",
+        "habitat_affinity",
+        "origin",
+        "distribution",
+        "assessment_status",
+        "disperser_class",
+        "seed_size"
+      ],
+      "formulae": {
+        "species_richness": "count(distinct accepted_taxon_name among eligible tree rows)",
+        "old_growth_species_richness": "count(distinct accepted_taxon_name where habitat_affinity is mature forest)",
+        "introduced_species_richness": "count(distinct accepted_taxon_name where origin is introduced)",
+        "threatened_or_endemic_richness": "count(distinct accepted_taxon_name where distribution is endemic or assessment_status is CR, EN or VU)",
+        "medium_large_animal_dispersed_richness": "count(distinct accepted_taxon_name where origin is not introduced, disperser_class includes bird or mammal, and seed_size is medium or large)"
+      },
+      "denominator": "sampled plot and life-stage protocol; richness is not divided by record count",
+      "first_visual": "plot_map_linked_to_trait_composition_bars",
+      "evidence_class": "derived",
+      "allowed_claim": "trait-qualified richness in the sampled adult-tree or regeneration assemblage",
+      "forbidden_claim": "a species interaction, dispersal event, local absence or landscape-wide richness",
+      "source_code": [
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_tree_script.R",
+          "lines": "12-54"
+        },
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_regen_script.R",
+          "lines": "12-52"
+        }
+      ]
+    },
+    {
+      "method_id": "reference-community-chao-similarity",
+      "label": "Similarity of a sampled community to reference plots",
+      "implementation_state": "specified_requires_parity_test",
+      "applies_to": ["adult_tree_plot", "regeneration_plot"],
+      "required_inputs": [
+        "plot_id",
+        "comparison_class",
+        "accepted_taxon_name",
+        "abundance",
+        "declared_reference_class"
+      ],
+      "formulae": {
+        "pairwise_similarity": "1 - abundance_based_chao_dissimilarity(plot, reference_plot)",
+        "plot_reference_similarity": "mean(pairwise_similarity across declared reference plots)"
+      },
+      "denominator": "all eligible declared reference plots with compatible sampling protocols",
+      "first_visual": "plot_similarity_map_with_reference_distribution",
+      "evidence_class": "derived",
+      "allowed_claim": "compositional similarity to the declared reference plots under the stated metric",
+      "forbidden_claim": "complete recovery, causal restoration effect or similarity to an unsampled historical condition",
+      "gates": [
+        "reference class is declared before inspecting outcomes",
+        "sampling protocols and life stages are compatible",
+        "abundance matrix and zero handling are preserved",
+        "implementation matches vegan::vegdist(method='chao') on a parity fixture"
+      ],
+      "source_code": [
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_tree_script.R",
+          "lines": "67-98"
+        },
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_regen_script.R",
+          "lines": "62-94"
+        }
+      ]
+    },
+    {
+      "method_id": "canopy-response-with-reference",
+      "label": "Observed response along a canopy-cover gradient",
+      "implementation_state": "specified_requires_model_review",
+      "applies_to": ["plot_indicator"],
+      "required_inputs": [
+        "plot_id",
+        "comparison_class",
+        "canopy_cover_percent",
+        "response_value",
+        "response_measurement_scale",
+        "declared_reference_class"
+      ],
+      "model_binding": {
+        "nonnegative_overdispersed_count": "negative_binomial_glm",
+        "bounded_zero_one_similarity": "beta_regression_after_explicit_boundary_policy",
+        "continuous_response": "linear_model_or_predeclared_robust_alternative"
+      },
+      "source_instantiation": {
+        "prediction_grid_percent": "0 to 100 in steps of 5",
+        "open_canopy_summary_percent": 30,
+        "closed_canopy_summary_percent": 75,
+        "reference_line": "mean response among declared benchmark plots"
+      },
+      "uncertainty": "show fitted interval, raw plot points, reference distribution or line, sample size and model diagnostics",
+      "first_visual": "raw_points_fitted_curve_interval_and_reference",
+      "evidence_class": "modelled",
+      "allowed_claim": "modelled association between measured canopy cover and the response within the fitted support",
+      "forbidden_claim": "causal canopy effect, extrapolation beyond supported canopy values, or recovery inferred from a fitted mean alone",
+      "gates": [
+        "retain raw points and treatment labels",
+        "report the observed canopy support",
+        "check residual fit and influential plots",
+        "use site or block structure when plots are not independent",
+        "do not encode a p-value threshold as proof of presence or absence of an effect"
+      ],
+      "review_notes": [
+        "The source scripts use response-scale normal approximations for some GLM intervals; a production implementation should use an appropriate link-scale or simulation interval.",
+        "The source scripts add a small constant to similarity before beta regression; a production implementation must predeclare and expose its boundary-value policy."
+      ],
+      "source_code": [
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_tree_script.R",
+          "lines": "100-301"
+        },
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_regen_script.R",
+          "lines": "96-291"
+        }
+      ]
+    },
+    {
+      "method_id": "benchmark-normalised-canopy-profile",
+      "label": "Open- and closed-canopy predictions relative to reference plots",
+      "implementation_state": "specified_requires_model_review",
+      "applies_to": ["fitted_canopy_response"],
+      "required_inputs": [
+        "fitted_canopy_response",
+        "prediction_at_open_canopy",
+        "prediction_at_closed_canopy",
+        "declared_reference_mean"
+      ],
+      "formulae": {
+        "percent_of_reference": "100 * fitted_response_at_declared_canopy / mean(reference_plot_response)"
+      },
+      "denominator": "mean response among compatible declared reference plots",
+      "first_visual": "paired_open_closed_interval_bars_with_100_percent_reference",
+      "evidence_class": "modelled",
+      "allowed_claim": "fitted response as a percentage of the sampled reference mean",
+      "forbidden_claim": "percentage ecosystem recovery or causal effect without a defensible recovery construct and design",
+      "gates": [
+        "reference mean is nonzero and based on compatible plots",
+        "prediction locations fall within observed support",
+        "model and reference uncertainty are propagated"
+      ],
+      "source_code": [
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_tree_script.R",
+          "lines": "124-301"
+        },
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_regen_script.R",
+          "lines": "120-291"
+        }
+      ]
+    },
+    {
+      "method_id": "closed-canopy-enrichment-counterfactual",
+      "label": "Exploratory enrichment simulation for closed-canopy plots",
+      "implementation_state": "research_reference_not_operational",
+      "applies_to": ["regeneration_plot", "adult_tree_donor_pool"],
+      "required_inputs": [
+        "closed_canopy_plot_ids",
+        "plot_regeneration_assemblage",
+        "reference_adult_tree_pool",
+        "fragment_adult_tree_pool",
+        "trait_fields",
+        "declared_draw_count",
+        "random_seed"
+      ],
+      "source_instantiation": {
+        "closed_canopy_threshold_percent": 50,
+        "iterations": 1000,
+        "added_individuals_per_iteration": 20,
+        "enrichment_donor_pool": "non-introduced benchmark adult trees",
+        "control_donor_pool": "adult trees from the selected fragment",
+        "sampling": "with replacement"
+      },
+      "uncertainty": "retain the full simulated distributions and show benchmark and current-condition references",
+      "first_visual": "paired_simulated_violin_distributions_with_reference_lines",
+      "evidence_class": "modelled",
+      "allowed_claim": "outcomes under the explicitly declared sampling simulation",
+      "forbidden_claim": "realised establishment, intervention effect, feasibility, cost or restoration recommendation",
+      "gates": [
+        "label as a simulation rather than an intervention forecast",
+        "expose donor-pool eligibility and draw assumptions",
+        "test sensitivity to draw count, replacement and canopy threshold",
+        "include establishment, survival and operational constraints before decision use"
+      ],
+      "source_code": [
+        {
+          "path": "zenodo-10692141-restoration-opportunities/Osuri_simulation_script.R",
+          "lines": "7-145"
+        }
+      ]
+    }
+  ]
+}
