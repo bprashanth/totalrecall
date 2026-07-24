@@ -33,16 +33,43 @@ class ValparaiVisualIndexTest(unittest.TestCase):
     def test_build_is_complete_and_fast(self):
         report = json.loads((self.output / "build_report.json").read_text())
         self.assertEqual(report["integrity"], "ok")
-        self.assertEqual(report["sources"], 17)
+        self.assertEqual(report["sources"], 18)
         self.assertEqual(report["events"], 41_501)
         self.assertEqual(report["georeferenced_events"], 38_521)
         self.assertEqual(report["effort_rows"], 710)
         self.assertEqual(report["measurements"], 56_955)
         self.assertEqual(report["interactions"], 5_622)
+        self.assertEqual(report["cell_features"], 28_764)
         self.assertEqual(report["entities"], 1_121)
         self.assertEqual(report["cells"], 302)
         self.assertGreaterEqual(report["ready_views"], 8)
         self.assertLess(self.elapsed, 3.0)
+
+    def test_feature_cube_retains_units_support_and_evidence_class(self):
+        count, features, cells = self.db.execute(
+            """SELECT COUNT(*),COUNT(DISTINCT feature_id),COUNT(DISTINCT cell_id)
+               FROM cell_features
+               WHERE source_id='earth-engine-feature-cube-2024'"""
+        ).fetchone()
+        self.assertEqual(count, 28_764)
+        self.assertEqual(features, 97)
+        self.assertEqual(cells, 302)
+        tree_score = self.db.execute(
+            """SELECT MIN(value),MAX(value),MIN(unit),MIN(evidence_class),
+                      MIN(source_asset),MIN(scale_m)
+               FROM cell_features WHERE feature_id='dw_trees_probability'"""
+        ).fetchone()
+        self.assertGreaterEqual(tree_score[0], 0)
+        self.assertLessEqual(tree_score[1], 1)
+        self.assertEqual(tree_score[2], "probability-score")
+        self.assertEqual(tree_score[3], "modelled")
+        self.assertEqual(tree_score[4], "GOOGLE/DYNAMICWORLD/V1")
+        self.assertEqual(tree_score[5], 100)
+        july = self.db.execute(
+            """SELECT COUNT(*) FROM cell_features
+               WHERE feature_id='s2_ndvi_m07_median'"""
+        ).fetchone()[0]
+        self.assertEqual(july, 0)
 
     def test_duplicate_upstream_keys_do_not_drop_source_rows(self):
         expected = {

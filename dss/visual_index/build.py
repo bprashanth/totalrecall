@@ -78,6 +78,15 @@ CREATE TABLE cells (
   east REAL NOT NULL, north REAL NOT NULL, center_lat REAL NOT NULL,
   center_lon REAL NOT NULL, target_role TEXT NOT NULL
 );
+CREATE TABLE cell_features (
+  cell_id TEXT NOT NULL, source_id TEXT NOT NULL, source_row INTEGER NOT NULL,
+  year INTEGER, feature_id TEXT NOT NULL, value REAL NOT NULL, unit TEXT NOT NULL,
+  evidence_class TEXT NOT NULL, source_asset TEXT, aggregation TEXT, scale_m REAL,
+  properties_json TEXT NOT NULL,
+  PRIMARY KEY(cell_id, source_id, year, feature_id),
+  FOREIGN KEY(cell_id) REFERENCES cells(cell_id),
+  FOREIGN KEY(source_id) REFERENCES sources(source_id)
+);
 CREATE TABLE event_cell (
   cell_id TEXT NOT NULL, entity_id TEXT, source_id TEXT NOT NULL,
   event_count INTEGER NOT NULL, first_date TEXT, last_date TEXT,
@@ -103,6 +112,7 @@ CREATE INDEX measurements_metric_idx ON measurements(metric, year, month);
 CREATE INDEX interactions_subject_idx ON interactions(subject_entity_id, interaction_type);
 CREATE INDEX interactions_object_idx ON interactions(object_entity_id, interaction_type);
 CREATE INDEX interactions_cell_idx ON interactions(cell_id, interaction_type);
+CREATE INDEX cell_features_feature_idx ON cell_features(feature_id, year, cell_id);
 """
 
 
@@ -663,6 +673,62 @@ class Builder:
                 )
                 self.stats["measurements"] += 1
 
+    def _ingest_cell_feature(self, source: dict, spec: dict) -> None:
+        """Ingest a long-form, cell-aligned predictor or context surface.
+
+        Feature values retain their own evidence class, unit, source asset and
+        aggregation. They do not become observations merely because they are
+        spatially aligned with occurrence or outcome records.
+        """
+        source_id = source["source_id"]
+        for row_number, row in enumerate(
+            _rows(self.path(spec["path"]), spec.get("delimiter", ",")), 1
+        ):
+            cell_id = str(row.get(spec["cell_id"]) or "").strip()
+            feature_id = str(row.get(spec["feature_id"]) or "").strip()
+            value = _float(row.get(spec["value"]))
+            unit = str(row.get(spec["unit"]) or "").strip()
+            evidence_class = str(
+                row.get(spec["evidence_class"]) or "derived"
+            ).strip()
+            if not cell_id or not feature_id or value is None or not unit:
+                continue
+            west = _coord(row.get(spec["west"]), latitude=False)
+            south = _coord(row.get(spec["south"]), latitude=True)
+            east = _coord(row.get(spec["east"]), latitude=False)
+            north = _coord(row.get(spec["north"]), latitude=True)
+            center_lat = _coord(row.get(spec["center_lat"]), latitude=True)
+            center_lon = _coord(row.get(spec["center_lon"]), latitude=False)
+            if None in (west, south, east, north, center_lat, center_lon):
+                raise ValueError(
+                    f"cell feature row lacks valid geometry: {source_id}:{row_number}"
+                )
+            self.sql.execute(
+                """INSERT OR IGNORE INTO cells
+                   (cell_id,west,south,east,north,center_lat,center_lon,target_role)
+                   VALUES(?,?,?,?,?,?,?,?)""",
+                (
+                    cell_id, west, south, east, north, center_lat, center_lon,
+                    row.get(spec["target_role"]) or "context_or_donor",
+                ),
+            )
+            year_value = _float(row.get(spec["year"]))
+            year = int(year_value) if year_value is not None else None
+            self.sql.execute(
+                """INSERT OR REPLACE INTO cell_features
+                   (cell_id,source_id,source_row,year,feature_id,value,unit,
+                    evidence_class,source_asset,aggregation,scale_m,properties_json)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    cell_id, source_id, row_number, year, feature_id, value, unit,
+                    evidence_class, row.get(spec.get("source_asset", "")),
+                    row.get(spec.get("aggregation", "")),
+                    _float(row.get(spec.get("scale_m", ""))),
+                    _properties(row, spec.get("properties")),
+                ),
+            )
+            self.stats["cell_features"] += 1
+
     def _inside_target(self, lat: float, lon: float) -> bool:
         polygon = self.site["target_aoi"]["geometry"]["coordinates"][0]
         west = min(point[0] for point in polygon)
@@ -686,7 +752,7 @@ class Builder:
             resolution = 0.01
             center_lat, center_lon = south + resolution / 2, west + resolution / 2
             self.sql.execute(
-                "INSERT INTO cells VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT OR IGNORE INTO cells VALUES (?,?,?,?,?,?,?,?)",
                 (
                     cell_id, west, south, west + resolution, south + resolution,
                     center_lat, center_lon,
@@ -726,6 +792,10 @@ class Builder:
             (
                 "stratified_survey_comparison", "dashboard",
                 "Survey locations and effort-aware category comparison", "ready", None,
+            ),
+            (
+                "cell_feature_map", "map",
+                "Cell-aligned context or predictor surface", "ready", None,
             ),
             ("hierarchy_sunburst", "hierarchy", "Entity hierarchy", "ready", None),
             (
@@ -847,6 +917,9 @@ class Builder:
                 "effort_rows": self.sql.execute("SELECT COUNT(*) FROM effort").fetchone()[0],
                 "measurements": self.sql.execute("SELECT COUNT(*) FROM measurements").fetchone()[0],
                 "interactions": self.sql.execute("SELECT COUNT(*) FROM interactions").fetchone()[0],
+                "cell_features": self.sql.execute(
+                    "SELECT COUNT(*) FROM cell_features"
+                ).fetchone()[0],
                 "cells": self.sql.execute("SELECT COUNT(*) FROM cells").fetchone()[0],
                 "ready_views": self.sql.execute(
                     "SELECT COUNT(*) FROM visual_views WHERE availability='ready'"
