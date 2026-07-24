@@ -51,6 +51,26 @@
       "availability": "ready"
     },
     {
+      "capability_id": "group-record-map",
+      "version": "1.0.0",
+      "label": "Map source-linked records for a canonical hierarchy group",
+      "input_schema": {
+        "type": "object",
+        "required": ["rank", "group"],
+        "properties": {
+          "rank": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$"},
+          "group": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      },
+      "output_views": ["group-observed-points"],
+      "required_planes": ["entity_hierarchy", "events", "cells"],
+      "optional_planes": ["effort"],
+      "latency_class": "interactive",
+      "evidence_classes": ["observed", "missing"],
+      "availability": "ready"
+    },
+    {
       "capability_id": "metric-time-series",
       "version": "1.0.0",
       "label": "Plot a unit-compatible metric with coverage",

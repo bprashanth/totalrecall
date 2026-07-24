@@ -276,6 +276,7 @@ class ResultService:
         dispatch = {
             "site-orientation": self._site_orientation,
             "entity-record-map": self._entity_records,
+            "group-record-map": self._group_records,
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
         }
@@ -590,6 +591,173 @@ class ResultService:
             "source-rows": ("application/json", source_rows),
         }
         return self._write_result(result, payloads)
+
+    def _group_records(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if set(arguments) != {"rank", "group"}:
+            raise ValueError("group-record-map requires only rank and group")
+        rank = str(arguments.get("rank") or "").strip().casefold()
+        group = str(arguments.get("group") or "").strip()
+        if not re.fullmatch(r"[a-z][a-z0-9_]{0,63}", rank) or not group:
+            raise ValueError("rank must be a safe non-empty hierarchy level and group is required")
+        path = f"$.{rank}"
+        with self.connect() as connection:
+            rows = connection.execute(
+                """SELECT v.event_id,v.source_id,v.source_row,v.event_date,v.latitude,
+                          v.longitude,v.uncertainty_m,v.count_value,v.evidence_class,
+                          e.entity_id,e.canonical_name,e.display_name,
+                          COALESCE(c.target_role,'unlocated') AS target_role
+                   FROM events v JOIN entities e ON e.entity_id=v.entity_id
+                   LEFT JOIN cells c ON c.cell_id=v.cell_id
+                   WHERE lower(json_extract(e.hierarchy_json,?))=lower(?)
+                     AND v.latitude IS NOT NULL AND v.longitude IS NOT NULL
+                   ORDER BY v.event_date,v.source_id,v.source_row""",
+                (path, group),
+            ).fetchall()
+            if not rows:
+                available = [
+                    row[0] for row in connection.execute(
+                        """SELECT DISTINCT json_extract(hierarchy_json,?)
+                           FROM entities
+                           WHERE json_extract(hierarchy_json,?) IS NOT NULL
+                           ORDER BY 1 LIMIT 100""",
+                        (path, path),
+                    )
+                ]
+                sources = self._source_versions(connection)
+                result = self._base_result(
+                    request_id, "group-record-map", original,
+                    "Resolve a hierarchy value, then map source-linked records for its members.",
+                    {"rank": rank, "group": group},
+                    f"No indexed {rank} matched “{group}”.",
+                    ["missing"], "blocked", sources,
+                )
+                result["limitations"].append(self._limitation(
+                    "unresolved-group",
+                    "The requested hierarchy value is not present in this pack.",
+                    severity="error", affects=["answer"],
+                ))
+                result["actions"] = [self._action(
+                    "choose-group", "filter", f"Choose an indexed {rank}",
+                    "group-record-map", {"rank": rank, "available_groups": available},
+                )]
+                return self._write_result(result, {})
+            source_ids = {row["source_id"] for row in rows}
+            sources = self._source_versions(connection, source_ids)
+        target_count = sum(row["target_role"] == "target" for row in rows)
+        context_count = len(rows) - target_count
+        entities = {}
+        for row in rows:
+            item = entities.setdefault(
+                row["entity_id"],
+                {
+                    "entity_id": row["entity_id"],
+                    "canonical_name": row["canonical_name"],
+                    "display_name": row["display_name"],
+                    "records": 0,
+                    "target_records": 0,
+                },
+            )
+            item["records"] += 1
+            item["target_records"] += int(row["target_role"] == "target")
+        entity_summary = sorted(
+            entities.values(), key=lambda item: (-item["records"], item["display_name"])
+        )
+        points = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": row["event_id"],
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [row["longitude"], row["latitude"]],
+                },
+                "properties": {
+                    "entity_id": row["entity_id"],
+                    "entity": row["display_name"],
+                    "canonical_name": row["canonical_name"],
+                    "source_id": row["source_id"],
+                    "source_row": row["source_row"],
+                    "event_date": row["event_date"],
+                    "coordinate_uncertainty_m": row["uncertainty_m"],
+                    "count": row["count_value"],
+                    "scope_role": row["target_role"],
+                },
+            } for row in rows],
+        }
+        limitations = [self._limitation(
+            "mixed-observation-processes",
+            "These records may come from different protocols and effort; compare coverage before comparing counts.",
+            affects=["group-records", "answer"],
+        )]
+        if not target_count:
+            limitations.append(self._limitation(
+                "no-target-records",
+                "No admitted group records fall inside target cells; this is not evidence of absence.",
+                affects=["group-records", "answer"],
+            ))
+        headline = (
+            f"{len(rows):,} source-linked records for {len(entities):,} members of "
+            f"{group} are mapped; {target_count:,} fall in target cells."
+        )
+        result = self._base_result(
+            request_id, "group-record-map", original,
+            f"Map records whose canonical hierarchy has {rank}={group}.",
+            {"rank": rank, "group": group, "aoi_ids": ["target", "context"]},
+            headline, ["observed", "missing"], "partial", sources,
+        )
+        result["answer"]["detail"] = (
+            "The map is an inventory of indexed records, not a complete checklist or an "
+            "effort-normalised comparison."
+        )
+        result["limitations"].extend(limitations)
+        points_ref = self._data_ref("group-observations", "application/geo+json", points)
+        entities_ref = self._data_ref("group-entities", "application/json", entity_summary)
+        result["visuals"] = [{
+            "visual_id": "group-records",
+            "visual_type": "map",
+            "view": "group-observed-points",
+            "title": f"Where {group} members have source-linked records",
+            "priority": "primary",
+            "status": "partial",
+            "scope": {"aoi_ids": ["target", "context"], "time": {"start": None, "end": None}},
+            "layers": [{
+                "layer_id": "group-observations",
+                "evidence_class": "observed",
+                "geometry_type": "point",
+                "data_ref": points_ref,
+                "legend": {"label": f"Observed {group} records"},
+                "style_hint": {"palette_role": "observed", "category_field": "entity"},
+            }],
+            "summary": {
+                "headline": headline,
+                "denominators": {
+                    "records": len(rows),
+                    "entities": len(entities),
+                    "target_records": target_count,
+                    "context_records": context_count,
+                    "sources": len(sources),
+                },
+            },
+            "drilldowns": [{
+                "action_id": "inspect-group-entities",
+                "label": "Inspect members and record counts",
+                "data_ref": entities_ref,
+            }],
+            "limitations": limitations,
+        }]
+        result["actions"] = [self._action(
+            "compare-group-effort", "run_capability",
+            "Compare all records with documented effort", "coverage-versus-effort", {},
+        )]
+        return self._write_result(
+            result,
+            {
+                "group-observations": ("application/geo+json", points),
+                "group-entities": ("application/json", entity_summary),
+            },
+        )
 
     def _coverage_effort(
         self, request_id: str, arguments: dict[str, Any], original: str

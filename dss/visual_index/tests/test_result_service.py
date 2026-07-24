@@ -120,6 +120,28 @@ class ValparaiResultServiceTest(unittest.TestCase):
             self.service.load_data(result["result_id"], "coverage-strip")
         )
 
+    def test_real_hierarchy_group_query_maps_members_without_flattening_them(self):
+        result = self.service.query(
+            "amphibian-group-1",
+            "group-record-map",
+            {"rank": "class", "group": "Amphibia"},
+            "Show me where amphibians have been recorded. I want the species separately.",
+        )
+        self.assert_contract(result)
+        visual = result["visuals"][0]
+        self.assertEqual(visual["view"], "group-observed-points")
+        counts = visual["summary"]["denominators"]
+        self.assertGreater(counts["records"], 1)
+        self.assertGreater(counts["entities"], 1)
+        members = json.loads(
+            self.service.load_data(result["result_id"], "group-entities")[1]
+        )
+        self.assertTrue(all(item["canonical_name"] for item in members))
+        self.assertIn(
+            "mixed-observation-processes",
+            {item["code"] for item in result["limitations"]},
+        )
+
     def test_unavailable_model_capability_is_explicitly_blocked(self):
         result = self.service.query(
             "transfer-1",
@@ -266,7 +288,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            self.assertEqual(len(typed), 5)
+            self.assertEqual(len(typed), 6)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):
                     result = self.services[pack_name].query(
@@ -294,6 +316,10 @@ class PackSwapContractTest(unittest.TestCase):
                 {"entity": "Karumalai Estate"},
             ),
             "coverage-versus-effort": ({}, {}),
+            "group-record-map": (
+                {"rank": "class", "group": "Amphibia"},
+                {"rank": "sector", "group": "plantation_labour"},
+            ),
             "metric-time-series": (
                 {"metric": "rainfall"},
                 {"metric": "daily_wage"},

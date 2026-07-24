@@ -45,6 +45,10 @@ The current build indexes:
 - 56,326 typed weather, canopy and habitat measurement rows (51,963 with usable values); and
 - 302 spatial cells.
 
+The typed result service can map a single resolved entity or a broad canonical hierarchy value.
+For example, `{"rank":"class","group":"Amphibia"}` maps each amphibian record with its member
+entity retained. It does not collapse mixed protocols into a comparative abundance claim.
+
 Eight of the ten probed visual contracts are immediately renderable. Transfer is partial because
 the pack does not yet include a versioned feature cube and gate result. Expected-value collection
 mapping is blocked because there is no versioned uncertainty surface or action-cost layer.
