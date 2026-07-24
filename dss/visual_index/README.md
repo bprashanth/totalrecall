@@ -1,9 +1,11 @@
 # Visual-ready AOI index prototype
 
-This directory is the dependency-light feasibility implementation for
-[`../../docs/VISUAL_FIRST_AOI_DATA_DESIGN.md`](../../docs/VISUAL_FIRST_AOI_DATA_DESIGN.md).
-It proves the logical tables and visual-view contracts against a maintained site pack. It is not
-wired to the live Idlisseus chat path.
+This directory is the dependency-light feasibility implementation for the companion Idlisseus
+design,
+[`VISUAL_FIRST_AOI_DATA_DESIGN.md`](../../../idlisseus/docs/VISUAL_FIRST_AOI_DATA_DESIGN.md).
+It proves the logical tables and visual-view contracts against a maintained site pack. The
+deployment-pinned bridge integration is documented in
+[`../SITE_PACK_DEPLOYMENT.md`](../SITE_PACK_DEPLOYMENT.md).
 
 Build:
 
