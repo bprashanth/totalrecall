@@ -215,7 +215,11 @@ class ValparaiResultServiceTest(unittest.TestCase):
         result = self.service.query(
             "tree-score-1",
             "cell-feature-map",
-            {"feature_id": "dw_trees_probability", "year": 2024},
+            {
+                "feature_id": "dw_trees_probability",
+                "year": 2024,
+                "scope": "context",
+            },
             "Show me where the 2024 tree-cover score is high or low.",
         )
         self.assert_contract(result)
@@ -227,7 +231,10 @@ class ValparaiResultServiceTest(unittest.TestCase):
             result["visuals"][0]["layers"][0]["evidence_class"], "modelled"
         )
         self.assertEqual(
-            result["visuals"][0]["summary"]["denominators"]["cells_with_values"], 302
+            result["visuals"][0]["layers"][1]["geometry_type"], "line"
+        )
+        self.assertEqual(
+            result["visuals"][0]["summary"]["denominators"]["cells_with_values"], 255
         )
         self.assertIn("Dynamic World trees class score", result["answer"]["headline"])
         self.assertIn(
@@ -237,7 +244,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
         cells = json.loads(
             self.service.load_data(result["result_id"], "cell-feature-values")[1]
         )
-        self.assertEqual(len(cells["features"]), 302)
+        self.assertEqual(len(cells["features"]), 255)
         self.assertTrue(all(
             0 <= feature["properties"]["value"] <= 1
             for feature in cells["features"]

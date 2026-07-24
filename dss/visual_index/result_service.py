@@ -1215,40 +1215,63 @@ class ResultService:
     def _cell_feature_map(
         self, request_id: str, arguments: dict[str, Any], original: str
     ) -> dict[str, Any]:
-        if set(arguments) != {"feature_id", "year"}:
-            raise ValueError("cell-feature-map requires only feature_id and year")
+        if (
+            not {"feature_id", "year"}.issubset(arguments)
+            or not set(arguments).issubset({"feature_id", "year", "scope"})
+        ):
+            raise ValueError(
+                "cell-feature-map requires feature_id and year, with optional scope"
+            )
         feature_id = str(arguments.get("feature_id") or "").strip()
         year = arguments.get("year")
+        scope_name = str(arguments.get("scope") or "context")
         if (
             not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,127}", feature_id)
             or not isinstance(year, int)
             or isinstance(year, bool)
             or not 1900 <= year <= 2200
+            or scope_name not in {"target", "context", "all_indexed"}
         ):
-            raise ValueError("a safe feature_id and integer year are required")
+            raise ValueError(
+                "a safe feature_id, integer year and declared scope are required"
+            )
+        if scope_name == "target":
+            scope_sql = "c.target_role='target'"
+            scope_parameters: tuple[Any, ...] = ()
+        elif scope_name == "context":
+            west, south, east, north = self.site["context_aoi"]["bbox"]
+            scope_sql = (
+                "c.center_lon BETWEEN ? AND ? AND c.center_lat BETWEEN ? AND ?"
+            )
+            scope_parameters = (west, east, south, north)
+        else:
+            scope_sql = "1=1"
+            scope_parameters = ()
         with self.connect() as connection:
             rows = [
                 dict(row) for row in connection.execute(
-                    """SELECT f.cell_id,c.west,c.south,c.east,c.north,c.target_role,
-                              f.value,f.unit,f.evidence_class,f.feature_label,
-                              f.feature_description,f.source_asset,
-                              f.aggregation,f.scale_m,f.source_id
-                       FROM cell_features f JOIN cells c USING(cell_id)
-                       WHERE f.feature_id=? AND f.year=? ORDER BY f.cell_id""",
-                    (feature_id, year),
+                    f"""SELECT f.cell_id,c.west,c.south,c.east,c.north,c.target_role,
+                               f.value,f.unit,f.evidence_class,f.feature_label,
+                               f.feature_description,f.source_asset,
+                               f.aggregation,f.scale_m,f.source_id
+                        FROM cell_features f JOIN cells c USING(cell_id)
+                        WHERE f.feature_id=? AND f.year=? AND {scope_sql}
+                        ORDER BY f.cell_id""",
+                    (feature_id, year, *scope_parameters),
                 )
             ]
             total_cells = connection.execute(
-                "SELECT COUNT(*) FROM cells"
+                f"SELECT COUNT(*) FROM cells c WHERE {scope_sql}",
+                scope_parameters,
             ).fetchone()[0]
             source_ids = {row["source_id"] for row in rows}
             sources = self._source_versions(connection, source_ids)
         if not rows:
             result = self._base_result(
                 request_id, "cell-feature-map", original,
-                f"Map cell feature {feature_id} for {year}.",
-                {"feature_id": feature_id, "year": year},
-                f"No finite {feature_id} values are indexed for {year}.",
+                f"Map cell feature {feature_id} for {year} in the {scope_name} scope.",
+                {"feature_id": feature_id, "year": year, "scope": scope_name},
+                f"No finite {feature_id} values are indexed for {year} in the {scope_name} scope.",
                 ["missing"], "blocked", sources,
             )
             result["limitations"].append(self._limitation(
@@ -1279,7 +1302,8 @@ class ResultService:
         description = next(iter(descriptions), "")
         headline = (
             f"{label} is mapped for {len(rows):,} of {total_cells:,} indexed cells "
-            f"in {year}; range {min(values):.3g}–{max(values):.3g} {unit}."
+            f"in the {scope_name} scope for {year}; "
+            f"range {min(values):.3g}–{max(values):.3g} {unit}."
         )
         cells = {
             "type": "FeatureCollection",
@@ -1307,11 +1331,27 @@ class ResultService:
                 },
             } for row in rows],
         }
+        target_boundary = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": "target-aoi-boundary",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": self.site["target_aoi"]["geometry"]["coordinates"][0],
+                },
+                "properties": {
+                    "label": self.site["label"],
+                    "role": self.site["target_aoi"]["geometry_role"],
+                },
+            }],
+        }
         metadata = [{
             "feature_id": feature_id,
             "feature_label": label,
             "feature_description": description,
             "year": year,
+            "scope": scope_name,
             "cells_with_values": len(rows),
             "cells_without_values": missing,
             "minimum": min(values),
@@ -1369,9 +1409,9 @@ class ResultService:
             ))
         result = self._base_result(
             request_id, "cell-feature-map", original,
-            f"Map {feature_id} for {year} without treating it as occurrence evidence.",
-            {"feature_id": feature_id, "year": year},
-            headline, [evidence_class], status, sources,
+            f"Map {feature_id} for {year} in the {scope_name} scope without treating it as occurrence evidence.",
+            {"feature_id": feature_id, "year": year, "scope": scope_name},
+            headline, ["reported", evidence_class], status, sources,
         )
         result["answer"]["detail"] = (
             "The colour ramp shows the indexed cell value. Open a cell or the metadata table "
@@ -1379,17 +1419,21 @@ class ResultService:
         )
         result["limitations"].extend(limitations)
         cells_ref = self._data_ref("cell-feature-values", "application/geo+json", cells)
+        boundary_ref = self._data_ref(
+            "target-aoi-boundary", "application/geo+json", target_boundary
+        )
         metadata_ref = self._data_ref(
             "cell-feature-metadata", "application/json", metadata
         )
         scope = {
-            "aoi_ids": ["target", "context"],
+            "aoi_ids": [scope_name],
             "time": {"start": f"{year}-01-01", "end": f"{year}-12-31"},
         }
         denominators = {
             "cells_with_values": len(rows),
             "cells_without_values": missing,
             "year": year,
+            "scope": scope_name,
             "unit": unit,
         }
         result["visuals"] = [
@@ -1411,6 +1455,13 @@ class ResultService:
                         "palette_role": evidence_class,
                         "value_field": "value",
                     },
+                }, {
+                    "layer_id": "target-aoi-boundary",
+                    "evidence_class": "reported",
+                    "geometry_type": "line",
+                    "data_ref": boundary_ref,
+                    "legend": {"label": "Declared study envelope"},
+                    "style_hint": {"palette_role": "reported"},
                 }],
                 "summary": {"headline": headline, "denominators": denominators},
                 "drilldowns": [{
@@ -1445,6 +1496,7 @@ class ResultService:
             result,
             {
                 "cell-feature-values": ("application/geo+json", cells),
+                "target-aoi-boundary": ("application/geo+json", target_boundary),
                 "cell-feature-metadata": ("application/json", metadata),
             },
         )
