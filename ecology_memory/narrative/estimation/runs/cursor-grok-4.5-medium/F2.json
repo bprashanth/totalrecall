@@ -4174,7 +4174,7 @@
       "tool_call": {
         "shellToolCall": {
           "args": {
-            "command": "# List Google Drive folder via public API / export\ncurl -sL \"https://drive.google.com/drive/folders/1elq027Kx8gO7KEtrHac30TpGvNOAU6Wz\" -o /tmp/ebtl/drive.html\nrg -o 'data-id=\"[^\"]+\"|aria-label=\"[^\"]+\"|/file/d/[^/\"]+' /tmp/ebtl/drive.html | head -60\n# Try drive API list\ncurl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=***REMOVED***\" | head -c 500\n# Search rainmatter grove for EBTL topics\ncurl -sL \"https://grove.rainmatter.org/search?q=EBTL\" | rg -i 'ebtl|elephant|topic|title' | head -40\ncurl -sL \"https://grove.rainmatter.org/search.json?q=EBTL\" | python3 -m json.tool 2>/dev/null | head -80\ncurl -sL \"https://grove.rainmatter.org/c/rewilding/7.json\" | python3 -c \"import sys,json; d=json.load(sys.stdin); topics=d.get('topic_list',{}).get('topics',[]);\n[print(t.get('id'), t.get('title'), t.get('slug')) for t in topics[:30]]\" 2>/dev/null\n",
+            "command": "# List Google Drive folder via public API / export\ncurl -sL \"https://drive.google.com/drive/folders/1elq027Kx8gO7KEtrHac30TpGvNOAU6Wz\" -o /tmp/ebtl/drive.html\nrg -o 'data-id=\"[^\"]+\"|aria-label=\"[^\"]+\"|/file/d/[^/\"]+' /tmp/ebtl/drive.html | head -60\n# Try drive API list\ncurl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=[REDACTED_GOOGLE_API_KEY]\" | head -c 500\n# Search rainmatter grove for EBTL topics\ncurl -sL \"https://grove.rainmatter.org/search?q=EBTL\" | rg -i 'ebtl|elephant|topic|title' | head -40\ncurl -sL \"https://grove.rainmatter.org/search.json?q=EBTL\" | python3 -m json.tool 2>/dev/null | head -80\ncurl -sL \"https://grove.rainmatter.org/c/rewilding/7.json\" | python3 -c \"import sys,json; d=json.load(sys.stdin); topics=d.get('topic_list',{}).get('topics',[]);\n[print(t.get('id'), t.get('title'), t.get('slug')) for t in topics[:30]]\" 2>/dev/null\n",
             "workingDirectory": "",
             "timeout": 30000,
             "toolCallId": "call-bd9dd7cd-de40-4f44-91cd-904fcb0fc071-22\nfc_c572a59f-ba0b-9216-97af-58aade404289_0",
@@ -4257,10 +4257,10 @@
                     },
                     {
                       "type": "string",
-                      "value": "\"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=***REMOVED***\""
+                      "value": "\"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=[REDACTED_GOOGLE_API_KEY]\""
                     }
                   ],
-                  "fullText": "curl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=***REMOVED***\""
+                  "fullText": "curl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=[REDACTED_GOOGLE_API_KEY]\""
                 },
                 {
                   "name": "head",
@@ -4525,7 +4525,7 @@
       "tool_call": {
         "shellToolCall": {
           "args": {
-            "command": "# List Google Drive folder via public API / export\ncurl -sL \"https://drive.google.com/drive/folders/1elq027Kx8gO7KEtrHac30TpGvNOAU6Wz\" -o /tmp/ebtl/drive.html\nrg -o 'data-id=\"[^\"]+\"|aria-label=\"[^\"]+\"|/file/d/[^/\"]+' /tmp/ebtl/drive.html | head -60\n# Try drive API list\ncurl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=***REMOVED***\" | head -c 500\n# Search rainmatter grove for EBTL topics\ncurl -sL \"https://grove.rainmatter.org/search?q=EBTL\" | rg -i 'ebtl|elephant|topic|title' | head -40\ncurl -sL \"https://grove.rainmatter.org/search.json?q=EBTL\" | python3 -m json.tool 2>/dev/null | head -80\ncurl -sL \"https://grove.rainmatter.org/c/rewilding/7.json\" | python3 -c \"import sys,json; d=json.load(sys.stdin); topics=d.get('topic_list',{}).get('topics',[]);\n[print(t.get('id'), t.get('title'), t.get('slug')) for t in topics[:30]]\" 2>/dev/null\n",
+            "command": "# List Google Drive folder via public API / export\ncurl -sL \"https://drive.google.com/drive/folders/1elq027Kx8gO7KEtrHac30TpGvNOAU6Wz\" -o /tmp/ebtl/drive.html\nrg -o 'data-id=\"[^\"]+\"|aria-label=\"[^\"]+\"|/file/d/[^/\"]+' /tmp/ebtl/drive.html | head -60\n# Try drive API list\ncurl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=[REDACTED_GOOGLE_API_KEY]\" | head -c 500\n# Search rainmatter grove for EBTL topics\ncurl -sL \"https://grove.rainmatter.org/search?q=EBTL\" | rg -i 'ebtl|elephant|topic|title' | head -40\ncurl -sL \"https://grove.rainmatter.org/search.json?q=EBTL\" | python3 -m json.tool 2>/dev/null | head -80\ncurl -sL \"https://grove.rainmatter.org/c/rewilding/7.json\" | python3 -c \"import sys,json; d=json.load(sys.stdin); topics=d.get('topic_list',{}).get('topics',[]);\n[print(t.get('id'), t.get('title'), t.get('slug')) for t in topics[:30]]\" 2>/dev/null\n",
             "workingDirectory": "",
             "timeout": 30000,
             "toolCallId": "call-bd9dd7cd-de40-4f44-91cd-904fcb0fc071-22\nfc_c572a59f-ba0b-9216-97af-58aade404289_0",
@@ -4608,10 +4608,10 @@
                     },
                     {
                       "type": "string",
-                      "value": "\"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=***REMOVED***\""
+                      "value": "\"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=[REDACTED_GOOGLE_API_KEY]\""
                     }
                   ],
-                  "fullText": "curl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=***REMOVED***\""
+                  "fullText": "curl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=[REDACTED_GOOGLE_API_KEY]\""
                 },
                 {
                   "name": "head",
@@ -4765,7 +4765,7 @@
           },
           "result": {
             "success": {
-              "command": "# List Google Drive folder via public API / export\ncurl -sL \"https://drive.google.com/drive/folders/1elq027Kx8gO7KEtrHac30TpGvNOAU6Wz\" -o /tmp/ebtl/drive.html\nrg -o 'data-id=\"[^\"]+\"|aria-label=\"[^\"]+\"|/file/d/[^/\"]+' /tmp/ebtl/drive.html | head -60\n# Try drive API list\ncurl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=***REMOVED***\" | head -c 500\n# Search rainmatter grove for EBTL topics\ncurl -sL \"https://grove.rainmatter.org/search?q=EBTL\" | rg -i 'ebtl|elephant|topic|title' | head -40\ncurl -sL \"https://grove.rainmatter.org/search.json?q=EBTL\" | python3 -m json.tool 2>/dev/null | head -80\ncurl -sL \"https://grove.rainmatter.org/c/rewilding/7.json\" | python3 -c \"import sys,json; d=json.load(sys.stdin); topics=d.get('topic_list',{}).get('topics',[]);\n[print(t.get('id'), t.get('title'), t.get('slug')) for t in topics[:30]]\" 2>/dev/null\n",
+              "command": "# List Google Drive folder via public API / export\ncurl -sL \"https://drive.google.com/drive/folders/1elq027Kx8gO7KEtrHac30TpGvNOAU6Wz\" -o /tmp/ebtl/drive.html\nrg -o 'data-id=\"[^\"]+\"|aria-label=\"[^\"]+\"|/file/d/[^/\"]+' /tmp/ebtl/drive.html | head -60\n# Try drive API list\ncurl -sL \"https://www.googleapis.com/drive/v3/files?q=%271elq027Kx8gO7KEtrHac30TpGvNOAU6Wz%27+in+parents&key=[REDACTED_GOOGLE_API_KEY]\" | head -c 500\n# Search rainmatter grove for EBTL topics\ncurl -sL \"https://grove.rainmatter.org/search?q=EBTL\" | rg -i 'ebtl|elephant|topic|title' | head -40\ncurl -sL \"https://grove.rainmatter.org/search.json?q=EBTL\" | python3 -m json.tool 2>/dev/null | head -80\ncurl -sL \"https://grove.rainmatter.org/c/rewilding/7.json\" | python3 -c \"import sys,json; d=json.load(sys.stdin); topics=d.get('topic_list',{}).get('topics',[]);\n[print(t.get('id'), t.get('title'), t.get('slug')) for t in topics[:30]]\" 2>/dev/null\n",
               "workingDirectory": "",
               "exitCode": 0,
               "signal": "",
