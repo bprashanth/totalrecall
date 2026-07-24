@@ -159,6 +159,29 @@
       "latency_class": "interactive",
       "evidence_classes": ["observed", "derived", "missing"],
       "availability": "ready"
+    },
+    {
+      "capability_id": "cell-feature-map",
+      "version": "1.0.0",
+      "label": "Map a cell-aligned context or predictor feature with lineage",
+      "input_schema": {
+        "type": "object",
+        "required": ["feature_id", "year"],
+        "properties": {
+          "feature_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_.-]{0,127}$"
+          },
+          "year": {"type": "integer", "minimum": 1900, "maximum": 2200}
+        },
+        "additionalProperties": false
+      },
+      "output_views": ["cell-feature-map", "cell-feature-metadata"],
+      "required_planes": ["cell_features", "cells", "source_coverage"],
+      "optional_planes": ["events", "measurements"],
+      "latency_class": "interactive",
+      "evidence_classes": ["derived", "modelled", "missing"],
+      "availability": "ready"
     }
   ]
 }

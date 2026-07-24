@@ -62,7 +62,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
         self.assertEqual(
             result["visuals"][0]["summary"]["denominators"]["records"], 38_521
         )
-        self.assertEqual(len(result["audit"]["source_versions"]), 17)
+        self.assertEqual(len(result["audit"]["source_versions"]), 18)
         for layer in result["visuals"][0]["layers"]:
             resolved = self.service.load_data(result["result_id"], layer["data_ref"]["handle"])
             self.assertIsNotNone(resolved)
@@ -208,6 +208,56 @@ class ValparaiResultServiceTest(unittest.TestCase):
         )
         self.assertIn(
             "descriptive-not-causal",
+            {item["code"] for item in result["limitations"]},
+        )
+
+    def test_real_cell_feature_map_retains_lineage_and_semantics(self):
+        result = self.service.query(
+            "tree-score-1",
+            "cell-feature-map",
+            {"feature_id": "dw_trees_probability", "year": 2024},
+            "Show me where the 2024 tree-cover score is high or low.",
+        )
+        self.assert_contract(result)
+        self.assertEqual(result["status"], "complete")
+        self.assertEqual(
+            [item["visual_type"] for item in result["visuals"]], ["map", "table"]
+        )
+        self.assertEqual(
+            result["visuals"][0]["layers"][0]["evidence_class"], "modelled"
+        )
+        self.assertEqual(
+            result["visuals"][0]["summary"]["denominators"]["cells_with_values"], 302
+        )
+        self.assertIn(
+            "class-score-not-cover",
+            {item["code"] for item in result["limitations"]},
+        )
+        cells = json.loads(
+            self.service.load_data(result["result_id"], "cell-feature-values")[1]
+        )
+        self.assertEqual(len(cells["features"]), 302)
+        self.assertTrue(all(
+            0 <= feature["properties"]["value"] <= 1
+            for feature in cells["features"]
+        ))
+        self.assertTrue(all(
+            feature["properties"]["source_asset"] == "GOOGLE/DYNAMICWORLD/V1"
+            for feature in cells["features"]
+        ))
+
+    def test_feature_with_no_finite_support_is_blocked_not_zero_filled(self):
+        result = self.service.query(
+            "cloudy-july-1",
+            "cell-feature-map",
+            {"feature_id": "s2_ndvi_m07_median", "year": 2024},
+            "Show me the July NDVI.",
+        )
+        self.assert_contract(result)
+        self.assertEqual(result["status"], "blocked")
+        self.assertFalse(result["visuals"])
+        self.assertIn(
+            "feature-not-indexed",
             {item["code"] for item in result["limitations"]},
         )
 
@@ -357,7 +407,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            expected_typed = 8 if pack_name == "real" else 7
+            expected_typed = 9 if pack_name == "real" else 7
             self.assertEqual(len(typed), expected_typed)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):

@@ -48,7 +48,7 @@ class BridgeSitePackTest(unittest.TestCase):
         self.assertEqual(result["status"], "answer")
         rows = result["value"]["rows"]
         sources = next(row for row in rows if row["id"] == "site-profile:source-registry")
-        self.assertEqual(len(sources["sources"]), 17)
+        self.assertEqual(len(sources["sources"]), 18)
         self.assertTrue(any(row["id"] == "site-profile:poc-capability-gap" for row in rows))
 
     def test_local_alias_search_returns_source_linked_points(self):

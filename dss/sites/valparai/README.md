@@ -37,6 +37,7 @@ python3 -m unittest dss.visual_index.tests.test_build -v
 
 The current build indexes:
 
+- 18 source records, including one reproducible multi-asset derived feature cube;
 - 41,501 source-linked events, including 1,567 regeneration records and 10,752
   restoration-study bird/tree records;
 - 38,521 georeferenced events;
@@ -45,6 +46,8 @@ The current build indexes:
 - 710 explicit effort rows, including 460 fifteen-minute bird point counts;
 - 56,955 typed weather, canopy, seed-fate and habitat measurement rows;
 - 5,622 explicit visitor–focal-tree or animal–seed-experiment association rows; and
+- 28,764 finite 2024 Earth-observation feature values across 97 available features, with
+  832 cloudy-season gaps retained as missing; and
 - 302 spatial cells.
 
 The typed result service can map a single resolved entity or a broad canonical hierarchy value.
@@ -56,10 +59,13 @@ detection predation or infer an interaction from two nearby points.
 The stratified survey capability maps source-declared sites and compares categories while keeping
 site replication and survey effort visible. Its summaries are descriptive observation-process
 results; they are not silently promoted to treatment effects or population estimates.
+The cell-feature capability maps any indexed feature-year through the same typed operation and
+keeps unit, evidence class, source asset, scale and missing support in the result. Environmental
+surfaces remain context or model inputs; they never become presence records.
 
-Eight typed probes are immediately executable, alongside five visual-contract probes awaiting
+Nine typed probes are immediately executable, alongside five visual-contract probes awaiting
 their next producer operation. Transfer is partial because the pack does not yet include a
-versioned feature cube and gate result. Expected-value collection
+versioned fitted model and gate result. Expected-value collection
 mapping is blocked because there is no versioned uncertainty surface or action-cost layer.
 
 ## Important data findings

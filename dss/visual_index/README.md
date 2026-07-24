@@ -39,12 +39,15 @@ does not interpret free text: a conversation layer selects a declared capability
 arguments. The current producer supports site orientation, entity and canonical hierarchy-group
 record maps, explicit subject-object association maps and networks, coverage versus effort and
 metric time series. It can also compare source-declared survey categories while mapping every
-site and retaining explicit effort denominators. The group operation takes a hierarchy rank and
-value rather than a site-specific list, so the same result grammar can map a taxonomic class, an
-occupation sector or another pack-defined hierarchy. Interaction adapters are equally generic
-but stricter: a source must expose the relation or an explicit join; proximity never creates an
-edge. Stratified summaries are descriptive unless a separate inferential design is declared. A
-declared but incomplete transfer capability returns a structured blocked result.
+site and retaining explicit effort denominators, and map any cell-aligned feature-year while
+retaining its unit, evidence class, source asset, scale and missing support. The group operation
+takes a hierarchy rank and value rather than a site-specific list, so the same result grammar can
+map a taxonomic class, an occupation sector or another pack-defined hierarchy. Interaction
+adapters are equally generic but stricter: a source must expose the relation or an explicit join;
+proximity never creates an edge. Stratified summaries are descriptive unless a separate
+inferential design is declared. Environmental features remain context or predictor inputs rather
+than occurrence evidence. A declared but incomplete transfer capability returns a structured
+blocked result.
 
 One-shot query:
 

@@ -84,26 +84,26 @@
     {
       "indicator_id": "phenology-profile",
       "label": "Seasonal vegetation profile",
-      "readiness": "blocked",
+      "readiness": "partial",
       "inputs": ["cloud-screened_sentinel2", "aoi_or_plot_geometry", "field_phenophase_observations"],
       "formula": "versioned seasonal reflectance/index curve with start, peak and end estimates and uncertainty",
       "denominator": "valid observations per time window",
       "first_visual": "map_linked_phenology_curve",
       "allowed_claim": "remote-sensed seasonal surface pattern",
       "forbidden_claim": "flowering, fruiting or species-level phenophase without field calibration",
-      "blocked_by": ["earth-engine-feature-cube"]
+      "next_step": "Add multi-year cloud-screened curves and field phenophase calibration; the 2024 cube exposes missing cloudy-season support."
     },
     {
       "indicator_id": "gated-donor-transfer",
       "label": "Where wider data can responsibly inform the target",
-      "readiness": "blocked",
+      "readiness": "partial",
       "inputs": ["donor_events", "target_aoi", "feature_cube", "spatial_folds", "gate_results"],
       "formula": "fit on donor data; evaluate with spatially separated folds; expose environmental support, calibration and uncertainty in target cells",
       "denominator": "independent or spatially blocked evaluation records",
       "first_visual": "donor_points_support_and_prediction_map",
       "allowed_claim": "modelled relative suitability within supported target conditions",
       "forbidden_claim": "presence, probability of occurrence or transfer where gates fail",
-      "blocked_by": ["earth-engine-feature-cube"]
+      "next_step": "Fit and persist versioned baseline and candidate models with spatial folds, environmental support, calibration and uncertainty gates."
     },
     {
       "indicator_id": "value-of-information",

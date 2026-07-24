@@ -31,10 +31,11 @@ unjoined visitor occurrences, phenophase, corridor use or transferable suitabili
 1. Build the treatment/effort-aware comparison operations over the newly admitted restoration
    point counts, habitat plots and tree quadrats. Keep site category, survey effort and uncertainty
    visible; do not compare raw record totals as recovery.
-2. Build a versioned Earth-observation feature cube for the declared target and wider context.
-   Start with harmonised Sentinel-2 surface reflectance, Dynamic World probabilities,
-   terrain, ERA5-Land and annual AlphaEarth embeddings. Every export needs its asset IDs,
-   dates, projection, scale, cloud/composite rules, licences and digest.
+2. Extend the admitted 2024 Earth-observation feature cube to a multi-year series where the
+   question needs it. The first cube contains harmonised Sentinel-2 indices and monthly NDVI,
+   Dynamic World probabilities, terrain, ERA5-Land, CHIRPS and all 64 annual AlphaEarth axes.
+   Its manifest records asset IDs, dates, scale, cloud/composite rules, rights and digest, and
+   retains cloudy-season missingness.
 3. Add the Western Ghats bird occupancy and State of India’s Birds methods as reproducible
    model cards. Their wider-scale outputs are context and donor evidence, not local presence.
 4. Resolve acoustic-source rights, then index recording stations, schedules, outages,

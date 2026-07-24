@@ -18,6 +18,7 @@ import os
 import pathlib
 import re
 import sqlite3
+import statistics
 import sys
 import urllib.parse
 from typing import Any
@@ -279,6 +280,7 @@ class ResultService:
             "group-record-map": self._group_records,
             "interaction-map": self._interaction_map,
             "stratified-survey-summary": self._stratified_survey_summary,
+            "cell-feature-map": self._cell_feature_map,
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
         }
@@ -1207,6 +1209,233 @@ class ResultService:
             {
                 "stratified-survey-sites": ("application/geo+json", points),
                 "stratified-category-summary": ("application/json", category_rows),
+            },
+        )
+
+    def _cell_feature_map(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if set(arguments) != {"feature_id", "year"}:
+            raise ValueError("cell-feature-map requires only feature_id and year")
+        feature_id = str(arguments.get("feature_id") or "").strip()
+        year = arguments.get("year")
+        if (
+            not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,127}", feature_id)
+            or not isinstance(year, int)
+            or isinstance(year, bool)
+            or not 1900 <= year <= 2200
+        ):
+            raise ValueError("a safe feature_id and integer year are required")
+        with self.connect() as connection:
+            rows = [
+                dict(row) for row in connection.execute(
+                    """SELECT f.cell_id,c.west,c.south,c.east,c.north,c.target_role,
+                              f.value,f.unit,f.evidence_class,f.source_asset,
+                              f.aggregation,f.scale_m,f.source_id
+                       FROM cell_features f JOIN cells c USING(cell_id)
+                       WHERE f.feature_id=? AND f.year=? ORDER BY f.cell_id""",
+                    (feature_id, year),
+                )
+            ]
+            total_cells = connection.execute(
+                "SELECT COUNT(*) FROM cells"
+            ).fetchone()[0]
+            source_ids = {row["source_id"] for row in rows}
+            sources = self._source_versions(connection, source_ids)
+        if not rows:
+            result = self._base_result(
+                request_id, "cell-feature-map", original,
+                f"Map cell feature {feature_id} for {year}.",
+                {"feature_id": feature_id, "year": year},
+                f"No finite {feature_id} values are indexed for {year}.",
+                ["missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "feature-not-indexed",
+                "The requested feature-year has no finite values in this pinned pack.",
+                severity="error", affects=["answer"],
+            ))
+            return self._write_result(result, {})
+        units = {row["unit"] for row in rows}
+        classes = {row["evidence_class"] for row in rows}
+        if len(units) != 1 or len(classes) != 1:
+            raise RuntimeError(
+                f"feature has incompatible units or evidence classes: {feature_id}:{year}"
+            )
+        unit = next(iter(units))
+        evidence_class = next(iter(classes))
+        values = [row["value"] for row in rows]
+        missing = max(total_cells - len(rows), 0)
+        status = "partial" if missing else "complete"
+        visual_status = "partial" if missing else "ready"
+        label = feature_id.replace("_", " ")
+        headline = (
+            f"{label} is mapped for {len(rows):,} of {total_cells:,} indexed cells "
+            f"in {year}; range {min(values):.3g}–{max(values):.3g} {unit}."
+        )
+        cells = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": row["cell_id"],
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [row["west"], row["south"]],
+                        [row["east"], row["south"]],
+                        [row["east"], row["north"]],
+                        [row["west"], row["north"]],
+                        [row["west"], row["south"]],
+                    ]],
+                },
+                "properties": {
+                    "label": row["cell_id"],
+                    "value": row["value"],
+                    "unit": row["unit"],
+                    "scope_role": row["target_role"],
+                    "source_asset": row["source_asset"],
+                    "aggregation": row["aggregation"],
+                    "scale_m": row["scale_m"],
+                },
+            } for row in rows],
+        }
+        metadata = [{
+            "feature_id": feature_id,
+            "year": year,
+            "cells_with_values": len(rows),
+            "cells_without_values": missing,
+            "minimum": min(values),
+            "median": statistics.median(values),
+            "maximum": max(values),
+            "unit": unit,
+            "evidence_class": evidence_class,
+            "source_assets": ", ".join(sorted({
+                row["source_asset"] for row in rows if row["source_asset"]
+            })),
+            "aggregation": ", ".join(sorted({
+                row["aggregation"] for row in rows if row["aggregation"]
+            })),
+            "requested_scales_m": ", ".join(
+                f"{value:g}" for value in sorted({
+                    row["scale_m"] for row in rows if row["scale_m"] is not None
+                })
+            ),
+        }]
+        limitations = [
+            self._limitation(
+                "context-not-occurrence",
+                "This cell-aligned surface is environmental context or a model input; it is not evidence that an entity occurs.",
+                affects=["feature-map", "answer"],
+            ),
+            self._limitation(
+                "cell-aggregation",
+                "Cell aggregation smooths within-cell variation and is not a field measurement.",
+                affects=["feature-map", "answer"],
+            ),
+        ]
+        if feature_id.startswith("alphaearth_"):
+            limitations.append(self._limitation(
+                "embedding-axis-not-independent",
+                "One AlphaEarth axis is not independently interpretable; modelling must use all 64 axes and normalise cell means when required.",
+                affects=["feature-map", "answer"],
+            ))
+        if feature_id.startswith("dw_"):
+            limitations.append(self._limitation(
+                "class-score-not-cover",
+                "Dynamic World values are model class scores, not measured land-cover proportions.",
+                affects=["feature-map", "answer"],
+            ))
+        if feature_id.startswith(("era5_", "chirps_")):
+            limitations.append(self._limitation(
+                "coarse-source-grid",
+                "The upstream climate grid is coarser than the serving cells; neighbouring values are not independent local measurements.",
+                affects=["feature-map", "answer"],
+            ))
+        if missing:
+            limitations.append(self._limitation(
+                "incomplete-cell-support",
+                f"{missing:,} indexed cells have no finite value for this feature-year.",
+                affects=["feature-map", "answer"],
+            ))
+        result = self._base_result(
+            request_id, "cell-feature-map", original,
+            f"Map {feature_id} for {year} without treating it as occurrence evidence.",
+            {"feature_id": feature_id, "year": year},
+            headline, [evidence_class], status, sources,
+        )
+        result["answer"]["detail"] = (
+            "The colour ramp shows the indexed cell value. Open a cell or the metadata table "
+            "to inspect its source asset, aggregation, scale and support."
+        )
+        result["limitations"].extend(limitations)
+        cells_ref = self._data_ref("cell-feature-values", "application/geo+json", cells)
+        metadata_ref = self._data_ref(
+            "cell-feature-metadata", "application/json", metadata
+        )
+        scope = {
+            "aoi_ids": ["target", "context"],
+            "time": {"start": f"{year}-01-01", "end": f"{year}-12-31"},
+        }
+        denominators = {
+            "cells_with_values": len(rows),
+            "cells_without_values": missing,
+            "year": year,
+            "unit": unit,
+        }
+        result["visuals"] = [
+            {
+                "visual_id": "cell-feature-map",
+                "visual_type": "map",
+                "view": "cell-feature-map",
+                "title": f"{label} · {year}",
+                "priority": "primary",
+                "status": visual_status,
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "cell-feature-values",
+                    "evidence_class": evidence_class,
+                    "geometry_type": "cell",
+                    "data_ref": cells_ref,
+                    "legend": {"label": f"{label} ({unit})"},
+                    "style_hint": {
+                        "palette_role": evidence_class,
+                        "value_field": "value",
+                    },
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-feature-metadata",
+                    "label": "Inspect feature lineage and support",
+                    "data_ref": metadata_ref,
+                }],
+                "limitations": limitations,
+            },
+            {
+                "visual_id": "cell-feature-metadata",
+                "visual_type": "table",
+                "view": "cell-feature-metadata",
+                "title": "Feature lineage and support",
+                "priority": "supporting",
+                "status": visual_status,
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "cell-feature-metadata",
+                    "evidence_class": evidence_class,
+                    "geometry_type": "table",
+                    "data_ref": metadata_ref,
+                    "legend": {"label": "Lineage and support"},
+                    "style_hint": {"palette_role": evidence_class},
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [],
+                "limitations": limitations,
+            },
+        ]
+        return self._write_result(
+            result,
+            {
+                "cell-feature-values": ("application/geo+json", cells),
+                "cell-feature-metadata": ("application/json", metadata),
             },
         )
 
