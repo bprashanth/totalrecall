@@ -1,5 +1,9 @@
 # Valparai visual site pack
 
+[`capabilities.json`](capabilities.json) declares the site-agnostic typed operations currently
+supported by the real index. `dss/visual_index/result_service.py` binds those operations to this
+pack and emits `idli-result/1`; Idlisseus does not consume `visual_bundle.json` directly.
+
 Status: first feasibility implementation of `visual-site-pack/0.1`.
 
 This site pack consolidates the source files, AOI roles, aliases, source adapters and question

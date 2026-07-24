@@ -31,3 +31,37 @@ python3 -m unittest dss.visual_index.tests.test_build -v
 The code intentionally uses the Python standard library and Pillow already present on this host.
 It is a proof of the logical contract, not a recommendation to use SQLite as the production
 warehouse.
+
+## Typed result service
+
+`result_service.py` translates the pinned index into browser-neutral `idli-result/1` objects. It
+does not interpret free text: a conversation layer selects a declared capability and binds typed
+arguments. The current real Valparai producer supports site orientation, observed presence,
+coverage versus effort and metric time series. A declared but incomplete transfer capability
+returns a structured blocked result.
+
+One-shot query:
+
+```bash
+python3 dss/visual_index/result_service.py \
+  --site-pack dss/sites/valparai \
+  --index /tmp/valparai-visual-index/site_index.sqlite \
+  --state /tmp/valparai-result-state \
+  --query '{"request_id":"demo-1","capability_id":"observed-presence-map","arguments":{"entity":"lion-tailed macaque"},"question":"Where have lion-tailed macaques been recorded?"}'
+```
+
+Internal HTTP service:
+
+```bash
+python3 dss/visual_index/result_service.py \
+  --site-pack dss/sites/valparai \
+  --index /tmp/valparai-visual-index/site_index.sqlite \
+  --state /tmp/valparai-result-state \
+  --api-token-file /path/to/site-result-service.token \
+  --host 127.0.0.1 \
+  --port 7120
+```
+
+It exposes `POST /v1/results/query`, `GET /v1/results/{result_id}` and
+`GET /v1/results/{result_id}/data/{handle}`. These are bridge/server endpoints, not public browser
+URLs. Idlisseus should proxy authorised handles through its own same-origin API.

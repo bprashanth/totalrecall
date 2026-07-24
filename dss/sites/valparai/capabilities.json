@@ -1,0 +1,95 @@
+{
+  "schema_version": "visual-capability-registry/0.1",
+  "capabilities": [
+    {
+      "capability_id": "site-orientation",
+      "version": "1.0.0",
+      "label": "Orient to the site and indexed evidence",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "output_views": ["site-orientation"],
+      "required_planes": ["aoi", "events", "cells", "source_coverage"],
+      "optional_planes": ["locations", "effort", "measurements"],
+      "latency_class": "interactive",
+      "evidence_classes": ["reported", "derived"],
+      "availability": "ready"
+    },
+    {
+      "capability_id": "observed-presence-map",
+      "version": "1.0.0",
+      "label": "Map source-linked records for a resolved entity",
+      "input_schema": {
+        "type": "object",
+        "required": ["entity"],
+        "properties": {
+          "entity": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      },
+      "output_views": ["observed-points", "surrounding-data"],
+      "required_planes": ["entity_aliases", "events", "cells"],
+      "optional_planes": ["effort"],
+      "latency_class": "interactive",
+      "evidence_classes": ["observed", "missing"],
+      "availability": "ready"
+    },
+    {
+      "capability_id": "coverage-versus-effort",
+      "version": "1.0.0",
+      "label": "Compare record coverage with explicit survey effort",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "output_views": ["coverage-and-effort"],
+      "required_planes": ["events", "effort", "cells"],
+      "optional_planes": [],
+      "latency_class": "interactive",
+      "evidence_classes": ["observed", "derived"],
+      "availability": "ready"
+    },
+    {
+      "capability_id": "metric-time-series",
+      "version": "1.0.0",
+      "label": "Plot a unit-compatible metric with coverage",
+      "input_schema": {
+        "type": "object",
+        "required": ["metric"],
+        "properties": {
+          "metric": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      },
+      "output_views": ["metric-time-series"],
+      "required_planes": ["measurements", "metric_units", "time_buckets"],
+      "optional_planes": [],
+      "latency_class": "interactive",
+      "evidence_classes": ["observed", "derived"],
+      "availability": "ready"
+    },
+    {
+      "capability_id": "gated-transfer",
+      "version": "0.1.0",
+      "label": "Test transfer from admitted donor data into the target",
+      "input_schema": {
+        "type": "object",
+        "required": ["entity", "donor_scope", "target_scope"],
+        "properties": {
+          "entity": {"type": "string", "minLength": 1},
+          "donor_scope": {"type": "string", "minLength": 1},
+          "target_scope": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      },
+      "output_views": ["donor-target-gates"],
+      "required_planes": ["events", "feature_cube", "model_runs", "gate_results"],
+      "optional_planes": ["effort", "action_costs"],
+      "latency_class": "model",
+      "evidence_classes": ["observed", "modelled", "missing"],
+      "availability": "partial",
+      "reason": "The feature cube and versioned gate/model run are not yet onboarded."
+    }
+  ]
+}
