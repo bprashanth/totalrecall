@@ -425,6 +425,24 @@ class ValparaiResultServiceTest(unittest.TestCase):
             {item["code"] for item in result["limitations"]},
         )
 
+    def test_method_catalog_exposes_effort_adjusted_trend_claim_limits(self):
+        result = self.service.query(
+            "bird-trend-method-1",
+            "method-catalog",
+            {"method_id": "effort-adjusted-reporting-rate-trend"},
+            "Can these bird records tell us whether a species is declining?",
+        )
+        self.assert_contract(result)
+        details = json.loads(
+            self.service.load_data(result["result_id"], "method-card-details")[1]
+        )
+        self.assertEqual(len(details), 1)
+        self.assertIn("complete_checklist_detection_history", details[0]["required_inputs"])
+        self.assertIn("population abundance", details[0]["forbidden_claim"])
+        self.assertTrue(
+            any("spatial coverage" in gate for gate in details[0]["gates"])
+        )
+
     def test_feature_with_no_finite_support_is_blocked_not_zero_filled(self):
         result = self.service.query(
             "cloudy-july-1",
@@ -607,7 +625,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            expected_typed = 16 if pack_name == "real" else 7
+            expected_typed = 17 if pack_name == "real" else 7
             self.assertEqual(len(typed), expected_typed)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):

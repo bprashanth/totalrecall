@@ -18,3 +18,9 @@ modelled.
 single-season occupancy modelling. It includes only code and published aggregate/model summaries.
 Underlying checklist rows, coordinates, rasters and fitted objects are not admitted; their
 separate data terms still apply.
+
+`github-soib-2023-v2023` is a selected MIT-licensed snapshot of the State of India's Birds 2023
+range, reporting-rate trend, uncertainty and plotting pipeline. It contains no eBird checklist
+rows, observer data, sensitive locations, spatial inputs or fitted outputs. Its thresholds and
+grid scales document a national/state implementation and require explicit redesign and validation
+before any site-scale use.

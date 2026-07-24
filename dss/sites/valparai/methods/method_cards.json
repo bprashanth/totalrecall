@@ -19,6 +19,12 @@
       "doi": "10.5281/zenodo.6501805",
       "role": "GPL-3.0 detection-aware occupancy code and published model summaries",
       "integrity_manifest": "github-ebird-occupancy-v3.3/ACQUISITION.json"
+    },
+    {
+      "source_id": "github-soib-2023-v2023",
+      "doi": "10.5281/zenodo.12698375",
+      "role": "MIT-licensed range, trend, uncertainty and visualisation reference code",
+      "integrity_manifest": "github-soib-2023-v2023/ACQUISITION.json"
     }
   ],
   "method_cards": [
@@ -325,6 +331,132 @@
         {
           "path": "github-ebird-occupancy-v3.3/11_predict-probOfOccupancy.Rmd",
           "lines": "source workflow"
+        }
+      ]
+    },
+    {
+      "method_id": "effort-visible-range-support-map",
+      "label": "Observed records, sampled grid support and detection-adjusted range surface",
+      "implementation_state": "research_reference_requires_authorised_inputs_and_scale_review",
+      "applies_to": [
+        "complete_checklist",
+        "sampling_event",
+        "presence_record",
+        "spatial_grid"
+      ],
+      "required_inputs": [
+        "resolved_species",
+        "complete_checklist_detection_history",
+        "checklist_id",
+        "observer_effort",
+        "date_or_season",
+        "spatial_grid_id",
+        "grid_geometry",
+        "sensitive_record_policy"
+      ],
+      "source_instantiation": {
+        "occurrence_support": "observed records and sampled grid cells remain separate layers",
+        "detection_covariates": "log checklist species count and season for resident species",
+        "occupancy_covariate": "proportion of neighbouring cells with a report",
+        "model_family": "single-season occupancy using unmarked::occu",
+        "high-effort_cell_cap": "randomised checklists truncated at the 95th percentile of checklists per grid",
+        "range_summary": "cell occupancy multiplied by cell area, with propagated standard error",
+        "season_classes": "winter, summer, monsoon and autumn; migrant windows are source-defined"
+      },
+      "uncertainty": "show observed points, checklist-support cells, detection probability, modelled occupancy, interval or standard error, and excluded or unsupported cells as separate layers",
+      "first_visual": "observed_points_sampled_grid_support_modelled_surface_and_uncertainty",
+      "evidence_class": "modelled",
+      "allowed_claim": "estimated occupied range within the declared grid, season, observation process and validated support",
+      "forbidden_claim": "confirmed presence in a model-only cell, absence in an unsampled cell, abundance, or a site-scale range inferred directly from the source national grid",
+      "gates": [
+        "use authorised complete checklists or another defensible detection-nondetection design",
+        "resolve names and migratory or seasonal windows before fitting",
+        "show checklist coverage and observed records before the modelled surface",
+        "predeclare grid scale and test sensitivity to it",
+        "test whether neighbour-context terms leak the response or inflate spatial confidence",
+        "use spatially separated validation and expose unsupported cells",
+        "apply sensitive-species suppression before serving point payloads",
+        "do not reuse national thresholds or seasons as site defaults"
+      ],
+      "source_code": [
+        {
+          "path": "github-soib-2023-v2023/00_scripts/00_functions.R",
+          "lines": "1201-1367"
+        },
+        {
+          "path": "github-soib-2023-v2023/00_scripts/resolve_trends_and_occupancy.R",
+          "lines": "895-1035"
+        },
+        {
+          "path": "github-soib-2023-v2023/00_scripts/02_generate_checklists_points_map.R",
+          "lines": "1-41"
+        },
+        {
+          "path": "github-soib-2023-v2023/00_scripts/02_generate_grids_checklists_map.R",
+          "lines": "1-44"
+        }
+      ]
+    },
+    {
+      "method_id": "effort-adjusted-reporting-rate-trend",
+      "label": "Reporting-rate trend with checklist and spatial support controls",
+      "implementation_state": "research_reference_requires_authorised_inputs_and_temporal_review",
+      "applies_to": [
+        "complete_checklist",
+        "sampling_event",
+        "time_bucket",
+        "spatial_grid"
+      ],
+      "required_inputs": [
+        "resolved_species",
+        "complete_checklist_detection_history",
+        "checklist_id",
+        "checklist_species_count_or_declared_effort_proxy",
+        "month",
+        "year",
+        "fine_grid_id",
+        "coarse_grid_id",
+        "temporal_bin_definition"
+      ],
+      "source_instantiation": {
+        "response": "species reported or not reported on a complete checklist",
+        "model_family": "binomial complementary-log-log GLM or mixed model",
+        "fixed_effects": "season, season by log checklist species count, and temporal bin",
+        "spatial_structure": "nested coarse and fine grid random intercepts when supported",
+        "recent_period": "2015 onward in the source implementation",
+        "source_eligibility": "coverage thresholds by locations, grids, checklists and temporal bins",
+        "uncertainty": "simulation summaries and 2.5th to 97.5th percentile intervals"
+      },
+      "uncertainty": "show fitted reporting rate and interval together with raw checklist coverage, spatial support, eligible years and sensitivity exclusions",
+      "first_visual": "reporting_rate_interval_with_checklist_and_spatial_coverage",
+      "evidence_class": "modelled",
+      "allowed_claim": "an effort-adjusted association between time and checklist reporting rate within the supported observation process",
+      "forbidden_claim": "population abundance, causal change, a trend from raw record counts, or a site trend when temporal and spatial support gates fail",
+      "gates": [
+        "use complete checklists and preserve non-detections",
+        "make the effort proxy and its limitations visible",
+        "require adequate locations, grid cells, checklists and temporal bins for the requested scale",
+        "compare spatial coverage through time and reject unstable support",
+        "inspect model fit, residual spatial structure and sensitivity specifications",
+        "report excluded years and species rather than filling or extrapolating them",
+        "do not copy the source location, grid or checklist thresholds without scale-specific calibration"
+      ],
+      "source_code": [
+        {
+          "path": "github-soib-2023-v2023/00_scripts/filter_data_for_species.R",
+          "lines": "45-96"
+        },
+        {
+          "path": "github-soib-2023-v2023/00_scripts/00_functions.R",
+          "lines": "432-720"
+        },
+        {
+          "path": "github-soib-2023-v2023/00_scripts/00_functions.R",
+          "lines": "1054-1193"
+        },
+        {
+          "path": "github-soib-2023-v2023/00_scripts/resolve_trends_and_occupancy.R",
+          "lines": "269-335, 373-825"
         }
       ]
     }

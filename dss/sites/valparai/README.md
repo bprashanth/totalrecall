@@ -89,13 +89,14 @@ activity and bird detections remain explicit limitations.
 The method-catalog capability exposes source-linked inputs, implementation state, uncertainty,
 gates and claim limits. It is an analysis-design lookup, not a model run, and lets the dialogue
 layer explain what can be executed, what needs a wider data search and what still needs a model
-request.
+request. It now includes pinned State of India's Birds references for effort-visible range maps
+and reporting-rate trends, while keeping their national/state thresholds out of site defaults.
 The seasonal-surface capability binds an ordered feature series declared by the pack to a
 peak-step map and a coverage-aware median and 10th–90th percentile profile. The first admitted
 series uses the twelve cloud-masked 2024 Sentinel-2 NDVI composites. It explicitly does not turn
 remote-sensing context into a field observation, biological event date or multi-year trend.
 
-Sixteen typed probes are immediately executable, alongside five visual-contract probes awaiting
+Seventeen typed probes are immediately executable, alongside five visual-contract probes awaiting
 their next producer operation. Transfer now produces a versioned all-axis AlphaEarth
 environmental-analogue screen, spatial support gates, observed donor points and unsupported
 target cells. It remains partial because similarity has not passed an effort-aware predictive
