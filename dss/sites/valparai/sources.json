@@ -373,6 +373,266 @@
       ]
     },
     {
+      "source_id": "dryad-5x69p8d0r-frugivory",
+      "title": "Focal-tree frugivore visitation and scan observations",
+      "doi": "10.5061/dryad.5x69p8d0r",
+      "url": "https://datadryad.org/dataset/doi:10.5061/dryad.5x69p8d0r",
+      "publisher": "Dryad / Nature Conservation Foundation",
+      "license": "CC0-1.0",
+      "capabilities": ["inspectable", "mappable", "has_interactions", "has_entity_crosswalk", "candidate_model_input"],
+      "local_metadata": "raw/dryad-5x69p8d0r-frugivory/SOURCE.md",
+      "crosswalks": [
+        {
+          "path": "raw/dryad-5x69p8d0r-frugivory/5_Species_code.csv",
+          "alias": "Code",
+          "canonical": "Scientific name",
+          "label": "Common name"
+        }
+      ],
+      "adapters": [
+        {
+          "kind": "interaction",
+          "adapter_id": "focal-tree-visitation",
+          "path": "raw/dryad-5x69p8d0r-frugivory/1_Vis_rate.csv",
+          "record_id": ["date", "tree_code", "arr_time", "species"],
+          "latitude": "lat",
+          "longitude": "long",
+          "date": "date",
+          "date_format": "%d-%m-%y",
+          "subject": "species",
+          "object": "tree_sp",
+          "interaction_type_value": "observed_visiting_focal_tree",
+          "count": "num",
+          "properties": [
+            "tree_code", "forest_500", "altitude", "fruitcrop", "height",
+            "gbh", "start_time", "end_time", "arr_time", "dep_time"
+          ]
+        },
+        {
+          "kind": "interaction",
+          "adapter_id": "focal-tree-behaviour-scan",
+          "path": "raw/dryad-5x69p8d0r-frugivory/2_Focal_scans.csv",
+          "record_id": ["date", "tree_code", "st_time", "species", "sample_type"],
+          "date": "date",
+          "date_format": "%d-%m-%y",
+          "subject": "species",
+          "object": "tree_sp",
+          "interaction_type_value": "focal_scan_on_fruiting_tree",
+          "location_lookup": {
+            "path": "raw/dryad-5x69p8d0r-frugivory/1_Vis_rate.csv",
+            "event_key": "tree_code",
+            "lookup_key": "tree_code",
+            "latitude": "lat",
+            "longitude": "long",
+            "aggregate": "mean"
+          },
+          "properties": [
+            "tree_code", "sample_type", "st_time", "end_time",
+            "State", "S", "P", "D", "Prd", "Reg"
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "dryad-qv9s4mwd5-seed-fate",
+      "title": "Focal-tree seed-predator visits and seed fates",
+      "doi": "10.5061/dryad.qv9s4mwd5",
+      "url": "https://datadryad.org/dataset/doi:10.5061/dryad.qv9s4mwd5",
+      "publisher": "Dryad / Nature Conservation Foundation",
+      "license": "CC0-1.0",
+      "capabilities": ["inspectable", "mappable", "has_interactions", "has_measurements", "candidate_model_input"],
+      "local_metadata": "raw/dryad-qv9s4mwd5-seed-fate/SOURCE.md",
+      "adapters": [
+        {
+          "kind": "interaction",
+          "adapter_id": "camera-visits-at-focal-seed-tree",
+          "path": "raw/dryad-qv9s4mwd5-seed-fate/1_Visits_seedpredators_CT.csv",
+          "record_id": ["Tree_id", "Visitor_sp_scientific_name"],
+          "subject": "Visitor_sp_scientific_name",
+          "subject_alias": "Visitor_sp_common_name",
+          "object": "Tree_sp",
+          "interaction_type_value": "camera_detected_at_focal_seed_tree",
+          "count": "Num_visits",
+          "location_lookup": {
+            "path": "raw/dryad-qv9s4mwd5-seed-fate/2_Seed_fate.csv",
+            "event_key": "Tree_id",
+            "lookup_key": "Tree_id",
+            "latitude": "Latitude",
+            "longitude": "Longitude"
+          },
+          "properties": ["Tree_id", "Forest_type", "CT_trap_nights", "Body_size"]
+        },
+        {
+          "kind": "measurement",
+          "adapter_id": "seed-fate-outcomes",
+          "path": "raw/dryad-qv9s4mwd5-seed-fate/2_Seed_fate.csv",
+          "record_id": "Tree_id",
+          "date": "End_date",
+          "date_format": "%d-%m-%y",
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "location_id": "Tree_id",
+          "metrics": {
+            "seed_intact": "seeds/tree-experiment",
+            "seed_vertebrate_predated": "seeds/tree-experiment",
+            "seed_invertebrate_predated": "seeds/tree-experiment",
+            "seed_removed": "seeds/tree-experiment"
+          },
+          "metric_columns": {
+            "seed_intact": "Intact",
+            "seed_vertebrate_predated": "Vertebrate_pred",
+            "seed_invertebrate_predated": "Invertebrate_pred",
+            "seed_removed": "Removed"
+          },
+          "properties": ["Tree_sp", "Seed_size", "Tree_id", "Forest_type", "Start_date", "Num_days"]
+        },
+        {
+          "kind": "measurement",
+          "adapter_id": "seed-movement-distance",
+          "path": "raw/dryad-qv9s4mwd5-seed-fate/3_Distance_moved.csv",
+          "location_lookup": {
+            "path": "raw/dryad-qv9s4mwd5-seed-fate/2_Seed_fate.csv",
+            "event_key": "Tree_id",
+            "lookup_key": "Tree_id",
+            "location_id": "Tree_id",
+            "latitude": "Latitude",
+            "longitude": "Longitude"
+          },
+          "metrics": {"seed_distance_moved": "m"},
+          "metric_columns": {"seed_distance_moved": "Distance_moved_m"},
+          "properties": ["Tree_sp", "Tree_id", "Forest_type"]
+        }
+      ]
+    },
+    {
+      "source_id": "dryad-rjdfn2zc3-restoration-birds",
+      "title": "Bird recovery in restored, naturally regenerating and benchmark plots",
+      "doi": "10.5061/dryad.rjdfn2zc3",
+      "url": "https://datadryad.org/dataset/doi:10.5061/dryad.rjdfn2zc3",
+      "publisher": "Dryad / Nature Conservation Foundation",
+      "license": "CC0-1.0",
+      "capabilities": ["inspectable", "mappable", "has_events", "has_effort", "has_measurements", "candidate_model_input"],
+      "local_metadata": "raw/dryad-rjdfn2zc3-restoration-birds/SOURCE.md",
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/dryad-rjdfn2zc3-restoration-birds/data.csv",
+          "record_id": ["Date", "Site_ID", "StartTime", "TimeSeg", "Species"],
+          "date": "Date",
+          "date_format": "%Y-%b-%d",
+          "entity": "Species",
+          "event_type_value": "15_minute_point_count_detection",
+          "count": "Number",
+          "location_lookup": {
+            "path": "raw/dryad-rjdfn2zc3-restoration-birds/latlong.csv",
+            "event_key": "Site_ID",
+            "lookup_key": "Site_ID",
+            "latitude": "lat",
+            "longitude": "long"
+          },
+          "properties": ["Site_ID", "Site_type", "StartTime", "TimeSeg", "BirdMamm", "Distance", "HSF", "Remarks"]
+        },
+        {
+          "kind": "effort",
+          "adapter_id": "restoration-bird-point-count",
+          "path": "raw/dryad-rjdfn2zc3-restoration-birds/data.csv",
+          "record_id": ["Date", "Site_ID"],
+          "distinct_record_id": true,
+          "date": "Date",
+          "date_format": "%Y-%b-%d",
+          "method_value": "15_minute_point_count",
+          "effort_value_value": 15,
+          "effort_unit": "minutes",
+          "location_lookup": {
+            "path": "raw/dryad-rjdfn2zc3-restoration-birds/latlong.csv",
+            "event_key": "Site_ID",
+            "lookup_key": "Site_ID",
+            "latitude": "lat",
+            "longitude": "long"
+          },
+          "properties": ["Site_ID", "Site_type", "StartTime"]
+        },
+        {
+          "kind": "measurement",
+          "adapter_id": "restoration-habitat-structure",
+          "path": "raw/dryad-rjdfn2zc3-restoration-birds/habitat_data.csv",
+          "record_id": "Site_ID",
+          "date": "Year",
+          "location_lookup": {
+            "path": "raw/dryad-rjdfn2zc3-restoration-birds/latlong.csv",
+            "event_key": "Site_ID",
+            "lookup_key": "Site_ID",
+            "location_id": "Site_ID",
+            "latitude": "lat",
+            "longitude": "long"
+          },
+          "metrics": {
+            "restoration_leaf_litter": "cm",
+            "restoration_canopy_overlap": "count",
+            "restoration_foliage_score": "score",
+            "restoration_canopy_cover": "percent"
+          },
+          "metric_columns": {
+            "restoration_leaf_litter": "LeafLitter",
+            "restoration_canopy_overlap": "CanopyOverlap",
+            "restoration_foliage_score": "FoliageScore",
+            "restoration_canopy_cover": "CanCov"
+          },
+          "properties": ["Site_ID", "Site_type", "Cane", "Bamboo"]
+        },
+        {
+          "kind": "event",
+          "adapter_id": "restoration-tree-quadrat",
+          "path": "raw/dryad-rjdfn2zc3-restoration-birds/twentyplot.csv",
+          "record_id": ["PlotID", "Site_ID", "treespecies"],
+          "date": "Plant.year",
+          "entity": "treespecies",
+          "event_type_value": "restoration_tree_quadrat",
+          "location_lookup": {
+            "path": "raw/dryad-rjdfn2zc3-restoration-birds/latlong.csv",
+            "event_key": "Site_ID",
+            "lookup_key": "Site_ID",
+            "latitude": "lat",
+            "longitude": "long"
+          },
+          "properties": [
+            "WeirdSiteID", "PlotID", "Site_ID", "Site_type", "height",
+            "gbh1", "gbh2", "gbh3", "gbh4", "gbh5"
+          ]
+        }
+      ]
+    },
+    {
+      "source_id": "dryad-b2rbnzsff-shade-birds",
+      "title": "Native shade trees and bird point counts in tea plantations",
+      "doi": "10.5061/dryad.b2rbnzsff",
+      "url": "https://datadryad.org/dataset/doi:10.5061/dryad.b2rbnzsff",
+      "publisher": "Dryad / Nature Conservation Foundation",
+      "license": "CC0-1.0",
+      "capabilities": ["inspectable", "has_events", "has_entity_crosswalk", "candidate_model_input"],
+      "local_metadata": "raw/dryad-b2rbnzsff-shade-birds/SOURCE.md",
+      "crosswalks": [
+        {
+          "path": "raw/dryad-b2rbnzsff-shade-birds/dat_with_guilds.csv",
+          "alias": "Species",
+          "canonical": "Scientific",
+          "label": "Species"
+        }
+      ],
+      "adapters": [
+        {
+          "kind": "event",
+          "path": "raw/dryad-b2rbnzsff-shade-birds/dat_with_guilds.csv",
+          "record_id": ["Stratum", "Replicate", "SurveyID", "Point", "Time", "Species"],
+          "entity": "Scientific",
+          "entity_alias": "Species",
+          "event_type_value": "tea_bird_point_count_detection",
+          "count": "Number",
+          "properties": ["Diet.5Cat", "Stratum", "Replicate", "SurveyID", "Point", "Time", "Distance", "HSF", "Remarks"]
+        }
+      ]
+    },
+    {
       "source_id": "gbif-v6ku49-butterflies",
       "title": "Butterfly point-count occurrences in Valparai rainforest fragments",
       "doi": "10.15468/v6ku49",

@@ -37,13 +37,14 @@ python3 -m unittest dss.visual_index.tests.test_build -v
 
 The current build indexes:
 
-- 27,784 source-linked events, including 1,567 regeneration records;
-- 27,769 georeferenced events;
-- 942 resolved or retained broad entities and 1,574 aliases;
+- 41,501 source-linked events, including 1,567 regeneration records and 10,752
+  restoration-study bird/tree records;
+- 38,521 georeferenced events;
+- 1,121 resolved or retained broad entities and 1,859 aliases;
 - 29 named/source locations;
-- 250 explicit effort rows;
-- 56,326 typed weather, canopy and habitat measurement rows (51,963 with usable values);
-- 745 explicit animal–focal-seed-experiment association rows; and
+- 710 explicit effort rows, including 460 fifteen-minute bird point counts;
+- 56,955 typed weather, canopy, seed-fate and habitat measurement rows;
+- 5,622 explicit visitor–focal-tree or animal–seed-experiment association rows; and
 - 302 spatial cells.
 
 The typed result service can map a single resolved entity or a broad canonical hierarchy value.

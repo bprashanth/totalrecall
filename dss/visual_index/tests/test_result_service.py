@@ -60,9 +60,9 @@ class ValparaiResultServiceTest(unittest.TestCase):
         self.assertEqual(result["status"], "complete")
         self.assertEqual(result["visuals"][0]["visual_type"], "map")
         self.assertEqual(
-            result["visuals"][0]["summary"]["denominators"]["records"], 27_769
+            result["visuals"][0]["summary"]["denominators"]["records"], 38_521
         )
-        self.assertEqual(len(result["audit"]["source_versions"]), 13)
+        self.assertEqual(len(result["audit"]["source_versions"]), 17)
         for layer in result["visuals"][0]["layers"]:
             resolved = self.service.load_data(result["result_id"], layer["data_ref"]["handle"])
             self.assertIsNotNone(resolved)
@@ -147,20 +147,20 @@ class ValparaiResultServiceTest(unittest.TestCase):
             "interaction-1",
             "interaction-map",
             {
-                "interaction_type": "detected_at_seed_experiment",
-                "entity": "Cullenia exarillata",
+                "interaction_type": "observed_visiting_focal_tree",
+                "entity": "Canarium strictum",
             },
-            "Which animals were detected at Cullenia exarillata seed experiments, and where?",
+            "Which animals were observed visiting Canarium strictum fruiting trees, and where?",
         )
         self.assert_contract(result)
         self.assertEqual([item["visual_type"] for item in result["visuals"]], ["map", "network"])
         self.assertGreater(
-            result["visuals"][0]["summary"]["denominators"]["records"], 100
+            result["visuals"][0]["summary"]["denominators"]["records"], 20
         )
         edges = json.loads(
             self.service.load_data(result["result_id"], "interaction-edges")[1]
         )
-        self.assertGreater(len(edges), 5)
+        self.assertGreaterEqual(len(edges), 4)
         self.assertIn(
             "association-not-causation",
             {item["code"] for item in result["limitations"]},
@@ -350,8 +350,8 @@ class PackSwapContractTest(unittest.TestCase):
             ),
             "interaction-map": (
                 {
-                    "interaction_type": "detected_at_seed_experiment",
-                    "entity": "Cullenia exarillata",
+                    "interaction_type": "observed_visiting_focal_tree",
+                    "entity": "Canarium strictum",
                 },
                 {
                     "interaction_type": "reported_migration_destination",

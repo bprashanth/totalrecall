@@ -20,6 +20,7 @@ import sqlite3
 import statistics
 import time
 from collections import Counter, defaultdict
+from datetime import datetime
 from typing import Any, Iterable
 
 
@@ -156,10 +157,18 @@ def _coord(value: Any, *, latitude: bool) -> float | None:
     return number if -limit <= number <= limit else None
 
 
-def _date_parts(raw: Any) -> tuple[str | None, int | None, int | None]:
+def _date_parts(
+    raw: Any, date_format: str | None = None
+) -> tuple[str | None, int | None, int | None]:
     text = str(raw or "").strip()
     if not text or text.lower() == "na":
         return None, None, None
+    if date_format:
+        try:
+            parsed = datetime.strptime(text, date_format)
+        except ValueError:
+            return text, None, None
+        return parsed.date().isoformat(), parsed.year, parsed.month
     match = re.match(r"^(\d{4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?", text)
     if not match:
         return text, None, None
@@ -454,7 +463,7 @@ class Builder:
             elif label:
                 self._alias(label, entity_id, source_id)
             date_value = _configured(row, spec, "date") or spec.get("date_value")
-            event_date, year, month = _date_parts(date_value)
+            event_date, year, month = _date_parts(date_value, spec.get("date_format"))
             original_id = _row_id(row, spec.get("record_id"), row_number)
             # Upstream "unique" keys are not always unique. Retain the immutable source-row
             # locator so duplicate natural keys never silently replace evidence.
@@ -490,7 +499,9 @@ class Builder:
                 _key(row.get((spec.get("location_lookup") or {}).get("event_key", ""))), {}
             )
             lat, lon = location.get("latitude"), location.get("longitude")
-            event_date, year, month = _date_parts(row.get(spec.get("date", "")))
+            event_date, year, month = _date_parts(
+                row.get(spec.get("date", "")), spec.get("date_format")
+            )
             original_id = _row_id(row, spec.get("record_id"), row_number)
             if spec.get("distinct_record_id") and original_id in seen:
                 continue
@@ -504,7 +515,12 @@ class Builder:
                     ),
                     source["source_id"], row_number,
                     spec.get("method_value", "survey"), event_date, year, month, lat, lon,
-                    _float(row.get(spec.get("effort_value", ""))), spec.get("effort_unit"),
+                    (
+                        _float(spec.get("effort_value_value"))
+                        if spec.get("effort_value_value") is not None
+                        else _float(row.get(spec.get("effort_value", "")))
+                    ),
+                    spec.get("effort_unit"),
                     _cell(lat, lon), _properties(row, spec.get("properties")),
                 ),
             )
@@ -550,12 +566,20 @@ class Builder:
                 "", "na", "unknown"
             }:
                 continue
-            subject_id = self._ensure_entity(
-                subject, _configured(row, spec, "subject_alias") or subject, source_id
-            )
-            object_id = self._ensure_entity(
-                object_, _configured(row, spec, "object_alias") or object_, source_id
-            )
+            subject_id = self.aliases.get(_key(subject))
+            if subject_id:
+                self._alias(_configured(row, spec, "subject_alias") or "", subject_id, source_id)
+            else:
+                subject_id = self._ensure_entity(
+                    subject, _configured(row, spec, "subject_alias") or subject, source_id
+                )
+            object_id = self.aliases.get(_key(object_))
+            if object_id:
+                self._alias(_configured(row, spec, "object_alias") or "", object_id, source_id)
+            else:
+                object_id = self._ensure_entity(
+                    object_, _configured(row, spec, "object_alias") or object_, source_id
+                )
             if not subject_id or not object_id:
                 continue
             location = location_lookup.get(
@@ -569,7 +593,8 @@ class Builder:
             if uncertainty is None:
                 uncertainty = location.get("uncertainty_m")
             event_date, year, month = _date_parts(
-                _configured(row, spec, "date") or spec.get("date_value")
+                _configured(row, spec, "date") or spec.get("date_value"),
+                spec.get("date_format"),
             )
             original_id = _row_id(row, spec.get("record_id"), row_number)
             adapter_id = spec.get("adapter_id") or spec["path"]
@@ -601,12 +626,18 @@ class Builder:
                 event_date = f"{year:04d}-{month:02d}" if year and month else None
             else:
                 date_value = row.get(spec.get("date", "")) or spec.get("date_value")
-                event_date, year, month = _date_parts(date_value)
+                event_date, year, month = _date_parts(
+                    date_value, spec.get("date_format")
+                )
             location = location_lookup.get(
                 _key(row.get((spec.get("location_lookup") or {}).get("event_key", ""))), {}
             )
-            lat = _coord(spec.get("latitude_value"), latitude=True)
-            lon = _coord(spec.get("longitude_value"), latitude=False)
+            lat = _coord(_configured(row, spec, "latitude"), latitude=True)
+            lon = _coord(_configured(row, spec, "longitude"), latitude=False)
+            if lat is None:
+                lat = _coord(spec.get("latitude_value"), latitude=True)
+            if lon is None:
+                lon = _coord(spec.get("longitude_value"), latitude=False)
             lat = lat if lat is not None else location.get("latitude")
             lon = lon if lon is not None else location.get("longitude")
             location_id = (

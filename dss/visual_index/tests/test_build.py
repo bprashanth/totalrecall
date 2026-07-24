@@ -33,13 +33,13 @@ class ValparaiVisualIndexTest(unittest.TestCase):
     def test_build_is_complete_and_fast(self):
         report = json.loads((self.output / "build_report.json").read_text())
         self.assertEqual(report["integrity"], "ok")
-        self.assertEqual(report["sources"], 13)
-        self.assertEqual(report["events"], 27_784)
-        self.assertEqual(report["georeferenced_events"], 27_769)
-        self.assertEqual(report["effort_rows"], 250)
-        self.assertEqual(report["measurements"], 56_326)
-        self.assertEqual(report["interactions"], 745)
-        self.assertEqual(report["entities"], 942)
+        self.assertEqual(report["sources"], 17)
+        self.assertEqual(report["events"], 41_501)
+        self.assertEqual(report["georeferenced_events"], 38_521)
+        self.assertEqual(report["effort_rows"], 710)
+        self.assertEqual(report["measurements"], 56_955)
+        self.assertEqual(report["interactions"], 5_622)
+        self.assertEqual(report["entities"], 1_121)
         self.assertEqual(report["cells"], 302)
         self.assertGreaterEqual(report["ready_views"], 8)
         self.assertLess(self.elapsed, 3.0)
@@ -52,6 +52,8 @@ class ValparaiVisualIndexTest(unittest.TestCase):
             "zenodo-10077040": 3684,
             "zenodo-7060430": 2473,
             "zenodo-7457732": 3744,
+            "dryad-rjdfn2zc3-restoration-birds": 10752,
+            "dryad-b2rbnzsff-shade-birds": 2965,
             "gbif-v6ku49-butterflies": 231,
             "gbif-ysrzbw-frogs": 143,
             "gbif-d96cu4-herpetofauna": 435,
@@ -94,6 +96,7 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         self.assertEqual(
             sources,
             [
+                ("dryad-rjdfn2zc3-restoration-birds",),
                 ("gbif-v6ku49-butterflies",),
                 ("gbif-ysrzbw-frogs",),
                 ("zenodo-7060430",),
@@ -179,9 +182,9 @@ class ValparaiVisualIndexTest(unittest.TestCase):
             """SELECT COUNT(*),MIN(interaction_type),COUNT(DISTINCT source_id)
                FROM interactions"""
         ).fetchone()
-        self.assertEqual(count, 745)
-        self.assertEqual(relation, "detected_at_seed_experiment")
-        self.assertEqual(sources, 1)
+        self.assertEqual(count, 5_622)
+        self.assertEqual(relation, "camera_detected_at_focal_seed_tree")
+        self.assertEqual(sources, 3)
         cullenia = self.db.execute(
             """SELECT COUNT(DISTINCT i.subject_entity_id)
                FROM interactions i JOIN entities e ON e.entity_id=i.object_entity_id
