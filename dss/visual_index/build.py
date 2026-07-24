@@ -81,8 +81,8 @@ CREATE TABLE cells (
 CREATE TABLE cell_features (
   cell_id TEXT NOT NULL, source_id TEXT NOT NULL, source_row INTEGER NOT NULL,
   year INTEGER, feature_id TEXT NOT NULL, value REAL NOT NULL, unit TEXT NOT NULL,
-  evidence_class TEXT NOT NULL, source_asset TEXT, aggregation TEXT, scale_m REAL,
-  properties_json TEXT NOT NULL,
+  evidence_class TEXT NOT NULL, feature_label TEXT, feature_description TEXT,
+  source_asset TEXT, aggregation TEXT, scale_m REAL, properties_json TEXT NOT NULL,
   PRIMARY KEY(cell_id, source_id, year, feature_id),
   FOREIGN KEY(cell_id) REFERENCES cells(cell_id),
   FOREIGN KEY(source_id) REFERENCES sources(source_id)
@@ -717,11 +717,15 @@ class Builder:
             self.sql.execute(
                 """INSERT OR REPLACE INTO cell_features
                    (cell_id,source_id,source_row,year,feature_id,value,unit,
-                    evidence_class,source_asset,aggregation,scale_m,properties_json)
-                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    evidence_class,feature_label,feature_description,source_asset,
+                    aggregation,scale_m,properties_json)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (
                     cell_id, source_id, row_number, year, feature_id, value, unit,
-                    evidence_class, row.get(spec.get("source_asset", "")),
+                    evidence_class,
+                    row.get(spec.get("feature_label", "")),
+                    row.get(spec.get("feature_description", "")),
+                    row.get(spec.get("source_asset", "")),
                     row.get(spec.get("aggregation", "")),
                     _float(row.get(spec.get("scale_m", ""))),
                     _properties(row, spec.get("properties")),

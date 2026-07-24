@@ -229,6 +229,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
         self.assertEqual(
             result["visuals"][0]["summary"]["denominators"]["cells_with_values"], 302
         )
+        self.assertIn("Dynamic World trees class score", result["answer"]["headline"])
         self.assertIn(
             "class-score-not-cover",
             {item["code"] for item in result["limitations"]},

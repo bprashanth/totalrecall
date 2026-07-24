@@ -65,6 +65,12 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         self.assertEqual(tree_score[3], "modelled")
         self.assertEqual(tree_score[4], "GOOGLE/DYNAMICWORLD/V1")
         self.assertEqual(tree_score[5], 100)
+        label = self.db.execute(
+            """SELECT MIN(feature_label),MIN(feature_description)
+               FROM cell_features WHERE feature_id='dw_trees_probability'"""
+        ).fetchone()
+        self.assertEqual(label[0], "Dynamic World trees class score")
+        self.assertIn("model outputs", label[1])
         july = self.db.execute(
             """SELECT COUNT(*) FROM cell_features
                WHERE feature_id='s2_ndvi_m07_median'"""

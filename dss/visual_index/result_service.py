@@ -1230,7 +1230,8 @@ class ResultService:
             rows = [
                 dict(row) for row in connection.execute(
                     """SELECT f.cell_id,c.west,c.south,c.east,c.north,c.target_role,
-                              f.value,f.unit,f.evidence_class,f.source_asset,
+                              f.value,f.unit,f.evidence_class,f.feature_label,
+                              f.feature_description,f.source_asset,
                               f.aggregation,f.scale_m,f.source_id
                        FROM cell_features f JOIN cells c USING(cell_id)
                        WHERE f.feature_id=? AND f.year=? ORDER BY f.cell_id""",
@@ -1264,11 +1265,18 @@ class ResultService:
             )
         unit = next(iter(units))
         evidence_class = next(iter(classes))
+        labels = {row["feature_label"] for row in rows if row["feature_label"]}
+        descriptions = {
+            row["feature_description"] for row in rows if row["feature_description"]
+        }
+        if len(labels) > 1 or len(descriptions) > 1:
+            raise RuntimeError(f"feature has inconsistent metadata: {feature_id}:{year}")
         values = [row["value"] for row in rows]
         missing = max(total_cells - len(rows), 0)
         status = "partial" if missing else "complete"
         visual_status = "partial" if missing else "ready"
-        label = feature_id.replace("_", " ")
+        label = next(iter(labels), feature_id.replace("_", " "))
+        description = next(iter(descriptions), "")
         headline = (
             f"{label} is mapped for {len(rows):,} of {total_cells:,} indexed cells "
             f"in {year}; range {min(values):.3g}–{max(values):.3g} {unit}."
@@ -1301,6 +1309,8 @@ class ResultService:
         }
         metadata = [{
             "feature_id": feature_id,
+            "feature_label": label,
+            "feature_description": description,
             "year": year,
             "cells_with_values": len(rows),
             "cells_without_values": missing,

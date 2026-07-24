@@ -345,6 +345,28 @@ def _number(value: Any) -> float | None:
     return float(value)
 
 
+def _feature_label(feature_id: str) -> str:
+    if feature_id.startswith("alphaearth_"):
+        return f"AlphaEarth embedding axis {feature_id.removeprefix('alphaearth_')}"
+    if feature_id.startswith("dw_") and feature_id.endswith("_probability"):
+        category = feature_id.removeprefix("dw_").removesuffix("_probability")
+        return f"Dynamic World {category.replace('_', ' ')} class score"
+    replacements = {
+        "s2": "Sentinel-2",
+        "ndvi": "NDVI",
+        "evi": "EVI",
+        "ndmi": "NDMI",
+        "nbr": "NBR",
+        "era5": "ERA5-Land",
+        "chirps": "CHIRPS",
+    }
+    words = [
+        replacements.get(word, word)
+        for word in feature_id.split("_")
+    ]
+    return " ".join(words).replace(" m3/m3", " (m³/m³)")
+
+
 def acquire(
     index_path: pathlib.Path,
     output_dir: pathlib.Path,
@@ -355,6 +377,8 @@ def acquire(
     cells = _cells(index_path)
     collection = _feature_collection(cells)
     image, feature_catalog = _composite(year, collection.geometry())
+    for item in feature_catalog:
+        item["label"] = _feature_label(item["feature_id"])
     reduced = image.reduceRegions(
         collection=collection,
         reducer=ee.Reducer.mean(),
@@ -383,6 +407,8 @@ def acquire(
             "description": "Number of months with a finite monthly median NDVI.",
         },
     ]
+    for item in derived_catalog:
+        item["label"] = _feature_label(item["feature_id"])
     feature_catalog.extend(derived_catalog)
     metadata.update({item["feature_id"]: item for item in derived_catalog})
 
@@ -391,7 +417,7 @@ def acquire(
     fields = [
         "cell_id", "west", "south", "east", "north", "center_lat", "center_lon",
         "target_role", "year", "feature_id", "value", "unit", "evidence_class",
-        "source_asset", "aggregation", "scale_m",
+        "feature_label", "feature_description", "source_asset", "aggregation", "scale_m",
     ]
     rows_written = 0
     missing_values = 0
@@ -423,6 +449,8 @@ def acquire(
                     "value": format(value, ".12g"),
                     "unit": item["unit"],
                     "evidence_class": item["evidence_class"],
+                    "feature_label": item["label"],
+                    "feature_description": item["description"],
                     "source_asset": asset["asset_id"],
                     "aggregation": "cell-mean" if feature_id != "s2_ndvi_valid_months" else "count",
                     "scale_m": scale_m,
