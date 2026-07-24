@@ -76,7 +76,9 @@ def _csv(waypoints: list[dict]) -> str:
 def write_field_map(output_dir: pathlib.Path, title: str, bbox_wsen: list[float],
                     layers: list[dict], waypoints: list[dict], notes: list[str],
                     audit_id: str, map_mode: str, base_image: pathlib.Path | None = None,
-                    base_bbox_wsen: list[float] | None = None) -> dict[str, Any]:
+                    base_bbox_wsen: list[float] | None = None,
+                    region_boxes: list[dict] | None = None,
+                    show_waypoints_on_map: bool = True) -> dict[str, Any]:
     """Write matching HTML, CSV and GeoJSON and return their paths and metadata."""
     output_dir.mkdir(parents=True, exist_ok=True)
     observed_only = str(map_mode).casefold().startswith("observed")
@@ -103,6 +105,7 @@ def write_field_map(output_dir: pathlib.Path, title: str, bbox_wsen: list[float]
         layer_id = f"layer-{index}"
         controls.append(
             f'<label><input type="checkbox" data-layer="{layer_id}" checked> '
+            f'<span class="swatch" style="background:{colour}"></span> '
             f'{html.escape(str(layer.get("name") or f"Layer {index + 1}"))}</label>')
         marks = []
         for row in layer.get("rows") or []:
@@ -117,15 +120,32 @@ def write_field_map(output_dir: pathlib.Path, title: str, bbox_wsen: list[float]
                 f'<title>{tip}</title></circle>')
         layer_svg.append(f'<g id="{layer_id}">{"".join(marks)}</g>')
 
+    for index, box in enumerate(region_boxes or []):
+        bounds = box.get("bbox_wsen")
+        if not isinstance(bounds, list) or len(bounds) != 4:
+            continue
+        bw, bs, be, bn = [float(value) for value in bounds]
+        colour = str(box.get("colour") or "#f8fafc")
+        label = html.escape(str(box.get("name") or "Target AOI"))
+        layer_id = f"region-{index}"
+        controls.append(
+            f'<label><input type="checkbox" data-layer="{layer_id}" checked> {label}</label>')
+        layer_svg.append(
+            f'<g id="{layer_id}"><rect x="{x(bw):.1f}" y="{y(bn):.1f}" '
+            f'width="{max(1, x(be)-x(bw)):.1f}" height="{max(1, y(bs)-y(bn)):.1f}" '
+            f'fill="{colour}" fill-opacity="0.08" stroke="{colour}" stroke-width="2.2" '
+            f'stroke-dasharray="7 5"><title>{label}</title></rect></g>')
+
     waypoint_svg = []
     rows_html = []
     for row in waypoints:
         point_id = html.escape(str(row["point_id"]))
-        waypoint_svg.append(
-            f'<g><circle cx="{x(row["lon"]):.1f}" cy="{y(row["lat"]):.1f}" r="11" '
-            'fill="#ef4444" stroke="#fff" stroke-width="2"/>'
-            f'<text x="{x(row["lon"]):.1f}" y="{y(row["lat"])+4:.1f}" text-anchor="middle" '
-            f'fill="#fff" font-size="9" font-weight="700">{point_id[-2:]}</text></g>')
+        if show_waypoints_on_map:
+            waypoint_svg.append(
+                f'<g><circle cx="{x(row["lon"]):.1f}" cy="{y(row["lat"]):.1f}" r="11" '
+                'fill="#ef4444" stroke="#fff" stroke-width="2"/>'
+                f'<text x="{x(row["lon"]):.1f}" y="{y(row["lat"])+4:.1f}" text-anchor="middle" '
+                f'fill="#fff" font-size="9" font-weight="700">{point_id[-2:]}</text></g>')
         maps_url = f'https://www.google.com/maps/search/?api=1&query={row["lat"]:.6f},{row["lon"]:.6f}'
         rows_html.append(
             f'<tr><td data-label="ID">{point_id}</td>'
@@ -170,7 +190,8 @@ def write_field_map(output_dir: pathlib.Path, title: str, bbox_wsen: list[float]
 :root{{--bg:#081018;--panel:#111c28;--ink:#e6edf3;--muted:#9fb0c3;--line:#2a3a4d}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,sans-serif}}
 header,.body{{max-width:1120px;margin:auto;padding:18px}}h1{{font-size:22px;margin:0 0 5px}}.sub{{color:var(--muted)}}
-.controls{{display:flex;gap:15px;flex-wrap:wrap;margin:12px 0}}.map{{background:#0c1622;border:1px solid var(--line);border-radius:14px;overflow:hidden}}
+.controls{{display:flex;gap:15px;flex-wrap:wrap;margin:12px 0}}.swatch{{display:inline-block;width:.72rem;height:.72rem;border-radius:50%;vertical-align:-.05rem;margin:0 .15rem}}
+.map{{background:#0c1622;border:1px solid var(--line);border-radius:14px;overflow:hidden}}
 svg{{display:block;width:100%;height:auto}}svg text{{fill:#8ea2b7;font-size:11px}}.notes,.sheet{{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}}
 table{{width:100%;border-collapse:collapse;font-size:12px}}th,td{{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}}th{{color:#9fb0c3}}
 a{{color:#7dd3fc}}button{{background:#173047;color:#fff;border:1px solid #31516c;border-radius:8px;padding:8px 11px;cursor:pointer}}.actions{{display:flex;gap:8px;flex-wrap:wrap}}summary{{cursor:pointer}}

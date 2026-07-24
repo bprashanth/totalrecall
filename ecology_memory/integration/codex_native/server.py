@@ -185,15 +185,41 @@ OPERATIONAL_SKILLS = [{
     "binding": {"mode": "scientific_algebra"},
     "instructions": (
         "Use only after local/public discovery or the user has established the scientific "
-        "entities and scope. Pass one short `scientific_question`; do not pass skills, connector "
-        "arguments, coordinates, paths or a hand-written IR. The server supplies the original "
-        "question, admitted resource symbols, connector capabilities and the frozen Algebra "
-        "grammar. Algebra 9B emits the IR; the controller validates, binds and executes it. "
+        "entities and scope. Pass one short `scientific_question` and the `evidence_result_ids` "
+        "that should be treated as immutable scientific inputs. Do not pass skills, connector "
+        "arguments, coordinates, paths or a hand-written IR. The runtime supplies the original "
+        "question, admitted evidence symbols, connector capabilities and frozen Algebra grammar. "
+        "Algebra 9B emits the IR; the runtime validates it and executes matching SELECT leaves "
+        "from the named snapshots. Codex, not the runtime, decides whether to widen, retry or map. "
         "If the returned tree contains a hole, ask that clarification instead of repairing the "
         "tree yourself.\n\n"
         "```bash\npython3 {skill_call} compile-scientific-algebra-9b "
         "'{\"scientific_question\":\"Estimate where source-backed Hanuman langur records from "
-        "the approved donor region indicate useful survey locations inside EBTL\"}'\n```"
+        "the approved donor region indicate useful survey locations inside EBTL\","
+        "\"evidence_result_ids\":[\"merged-taxon-occurrence-search-...\"]}'\n```"
+    ),
+}, {
+    "id": "map-evidence-coverage",
+    "description": (
+        "Map georeferenced rows from audited result handles exactly as returned, alongside the "
+        "target AOI, so users can see where trusted data exists before any transfer."
+    ),
+    "use_for": ["show where occurrence or survey data exists",
+                "map several taxa or sources without rerunning a connector",
+                "retain an observed-data visual when a model gate fails"],
+    "exclude": ["predicted presence", "safe or unsafe zones", "invented field points",
+                "using another session's result handle"],
+    "supports_ops": ["MAP"], "returns": "Observed-data coverage map",
+    "georeferenced": True, "binding": {"mode": "evidence_coverage_map"},
+    "instructions": (
+        "Pass one or more `result_ids` returned by georeferenced evidence skills in this "
+        "conversation. The map reads those immutable snapshots and never reruns their connectors. "
+        "Use `target_region` to show the AOI in context. This is the default visual after a wider "
+        "occurrence search and remains useful even when a transfer gate fails. Include the "
+        "returned `[Open data coverage map](#map-...)` link.\n\n"
+        "```bash\npython3 {skill_call} map-evidence-coverage "
+        "'{\"result_ids\":[\"merged-taxon-occurrence-search-...\"],"
+        "\"target_region\":\"EBTL\",\"title\":\"Where snake records exist\"}'\n```"
     ),
 }, {
     "id": "site-overview",
@@ -410,6 +436,34 @@ def _load_skills() -> list[dict]:
             skill["use_for"] = ["the fixed EBTL Lantana literature benchmark question"]
             skill["exclude"] = ["Eucalyptus", "arbitrary taxa", "live repository discovery",
                                 "queries whose entity is not Lantana camara"]
+        if skill.get("id") == "merged-taxon-occurrence-search":
+            skill["description"] = (
+                "Resolve a named animal or plant and retrieve bounded, georeferenced GBIF and "
+                "iNaturalist occurrence records at the site or within a requested radius."
+            )
+            skill["instructions"] = (
+                "Pass one named `entity` and a declared `region`. Add `radius_km` to expand a "
+                "site-centred search. Start with the site when local presence is the question. "
+                "After an empty exact-site result, a wider search is appropriate when the user "
+                "asks where data exists, asks for a map/model, or cannot safely collect locally; "
+                "state the radius and do not treat a non-match as absence. The returned "
+                "`result_id` is an immutable evidence snapshot that can be passed to "
+                "`map-evidence-coverage` and `compile-scientific-algebra-9b`.\n\n"
+                "```bash\npython3 {skill_call} merged-taxon-occurrence-search "
+                "'{\"entity\":\"Daboia russelii\",\"region\":\"EBTL\",\"radius_km\":200}'\n```"
+            )
+        if skill.get("id") == "gated-species-presence-transfer":
+            skill["description"] = (
+                "Legacy frozen transfer binding retained for benchmark reproducibility; "
+                "interactive scientific transfers must use compile-scientific-algebra-9b with "
+                "named occurrence result handles."
+            )
+            skill["instructions"] = (
+                "Do not invoke this legacy binding in interactive chat. Retrieve occurrence "
+                "evidence, then invoke `compile-scientific-algebra-9b` with one precise transfer "
+                "question and the matching `evidence_result_ids`. This prevents a second hidden "
+                "donor retrieval from diverging from the mapped evidence."
+            )
     return frozen + OPERATIONAL_SKILLS
 
 
@@ -427,7 +481,8 @@ PLANNER_SKILL_ARGUMENTS = {
     "local-bird-inventory": {"region": "declared site"},
     "local-invasive-management-evidence": {"region": "declared site"},
     "merged-taxon-occurrence-search": {
-        "entity": "named taxon", "region": "site or declared donor region"},
+        "entity": "named taxon", "region": "site or declared donor region",
+        "radius_km": "optional bounded site-centred expansion in kilometres"},
     "discover-ecology-evidence": {
         "query": "complete query-bound search",
         "query_variants": (
@@ -450,6 +505,9 @@ PLANNER_SKILL_ARGUMENTS = {
         "entities": "one or two source-backed named taxa", "region": "declared target site",
         "source_region": "region holding observed points",
         "map_mode": "observed or modelled"},
+    "map-evidence-coverage": {
+        "result_ids": "one or more audited georeferenced result handles",
+        "target_region": "declared target AOI", "title": "short map title"},
     "vegetation-greenness-trend": {"region": "declared site"},
     "historical-fire-exposure": {"region": "declared site"},
     "published-vegetation-survey-sites": {"region": "declared site or context region"},
@@ -603,8 +661,9 @@ def _site_overview(args: dict, session: "Session | None") -> dict:
     capability_ids = [
         skill_id for skill_id in (
             "vegetation-greenness-trend", "historical-fire-exposure",
-            "merged-taxon-occurrence-search", "gated-species-presence-transfer",
-            "build-ecology-field-map", "discover-ecology-evidence")
+            "merged-taxon-occurrence-search", "map-evidence-coverage",
+            "compile-scientific-algebra-9b", "build-ecology-field-map",
+            "discover-ecology-evidence")
         if skill_id in SKILLS_BY_ID
     ]
     rows.append({
@@ -1115,7 +1174,106 @@ def _manifest_entity_candidates(value: Any) -> list[tuple[str, str]]:
     return found
 
 
-def _scientific_resource_manifest(session: "Session") -> dict:
+def _load_result_snapshots(session: "Session", result_ids: list[str]) -> list[dict]:
+    snapshots = []
+    for result_id in result_ids:
+        stored = session.load_result(result_id)
+        if stored is None:
+            raise ValueError(f"unknown result handle in this conversation: {result_id}")
+        payload = stored.get("payload") if isinstance(stored.get("payload"), dict) else {}
+        snapshots.append({
+            "result_id": result_id,
+            "kind": stored.get("kind"),
+            "created_at": stored.get("created_at"),
+            "payload": payload,
+            "sha256": _sha256(payload),
+        })
+    return snapshots
+
+
+def _snapshot_select_resolver(snapshots: list[dict]) -> Callable | None:
+    """Resolve matching SELECT leaves from immutable, already-audited occurrence snapshots."""
+    candidates = []
+    for snapshot in snapshots:
+        payload = snapshot["payload"]
+        rows = payload.get("rows") if isinstance(payload.get("rows"), list) else []
+        region = payload.get("region") if isinstance(payload.get("region"), dict) else {}
+        bbox = region.get("bbox")
+        if (
+            str(payload.get("grain") or "").casefold() != "occurrence"
+            or not rows or not isinstance(bbox, list) or len(bbox) != 4
+        ):
+            continue
+        resolution = (
+            payload.get("resolution") if isinstance(payload.get("resolution"), dict) else {}
+        )
+        names = {
+            _normalise_match_text(value) for value in (
+                payload.get("entity"), payload.get("input_entity"),
+                resolution.get("canonical"), resolution.get("input"), resolution.get("common"),
+            ) if value
+        }
+        candidates.append({**snapshot, "names": names, "bbox": [float(x) for x in bbox]})
+    if not candidates:
+        return None
+
+    def resolve(entity: str, region: dict, query_time: object, provenance: list[dict]):
+        key = _normalise_match_text(entity)
+        matches = [item for item in candidates if key in item["names"]]
+        if not matches:
+            return None
+        requested_bbox = region.get("bbox") if isinstance(region, dict) else None
+        if not isinstance(requested_bbox, list) or len(requested_bbox) != 4:
+            raise X.DataRequest("snapshot_extent_unavailable", {
+                "entity": entity,
+                "ask": "use a bounded region compatible with the selected evidence snapshot",
+            })
+        rs, rn, rw, re_ = [float(x) for x in requested_bbox]
+        compatible = []
+        for item in matches:
+            ss, sn, sw, se = item["bbox"]
+            if all(abs(left - right) <= 1e-6 for left, right in (
+                (rs, ss), (rn, sn), (rw, sw), (re_, se),
+            )):
+                compatible.append(item)
+        if not compatible:
+            raise X.DataRequest("snapshot_extent_mismatch", {
+                "entity": entity,
+                "requested_region": region.get("name"),
+                "available_result_ids": [item["result_id"] for item in matches],
+                "ask": "retrieve an occurrence snapshot covering the requested donor extent",
+            })
+        chosen = compatible[0]
+        rows = [
+            row for row in chosen["payload"].get("rows") or []
+            if isinstance(row, dict)
+            and isinstance(row.get("lat"), (int, float))
+            and isinstance(row.get("lon"), (int, float))
+            and rs <= float(row["lat"]) <= rn and rw <= float(row["lon"]) <= re_
+        ]
+        provenance.append({
+            "op": "SELECT", "route": "immutable-evidence-snapshot",
+            "result_id": chosen["result_id"], "snapshot_sha256": chosen["sha256"],
+            "requested_region": region.get("name"), "returned_rows": len(rows),
+            "note": "filtered an audited result snapshot; no source connector was rerun",
+        })
+        return {
+            "kind": "records", "rows": rows, "entity": entity,
+            "input_entity": chosen["payload"].get("input_entity") or entity,
+            "label": chosen["payload"].get("label") or "observed",
+            "source": f"immutable result snapshot {chosen['result_id']}",
+            "grain": "occurrence",
+            "count_admissible": bool(chosen["payload"].get("count_admissible")),
+            "region": region, "query_time": query_time,
+            "result_id": chosen["result_id"], "snapshot_sha256": chosen["sha256"],
+        }
+
+    return resolve
+
+
+def _scientific_resource_manifest(
+        session: "Session", selected_result_ids: list[str] | None = None
+) -> dict:
     """Build the code-owned symbol table supplied to Algebra 9B and its binder."""
     profile = _load_site_profile()
     regions: dict[str, dict] = {}
@@ -1173,9 +1331,15 @@ def _scientific_resource_manifest(session: "Session") -> dict:
         }
 
     result_summaries = []
+    selected = set(selected_result_ids or [])
     result_paths = sorted(
         session.results.glob("*.json"), key=lambda path: path.stat().st_mtime, reverse=True
-    )[:24]
+    )
+    if selected:
+        result_paths = [
+            path for path in result_paths if path.stem in selected
+        ]
+    result_paths = result_paths[:24]
     for path in result_paths:
         try:
             stored = json.loads(path.read_text(encoding="utf-8"))
@@ -1190,9 +1354,16 @@ def _scientific_resource_manifest(session: "Session") -> dict:
         result_summaries.append({
             "result_id": stored.get("result_id"), "kind": stored.get("kind"),
             "label": payload.get("label"), "source": payload.get("source"),
+            "immutable_sha256": _sha256(payload),
             "row_count": len(rows), "region": (
                 (payload.get("region") or {}).get("name")
                 if isinstance(payload.get("region"), dict) else payload.get("region")),
+            "region_support": payload.get("region") if isinstance(
+                payload.get("region"), dict) else None,
+            "entity": payload.get("entity") or (
+                (payload.get("resolution") or {}).get("canonical")
+                if isinstance(payload.get("resolution"), dict) else None),
+            "grain": payload.get("grain"),
         })
     for call in session.turn_skill_calls[-20:]:
         result = call.get("result") if isinstance(call.get("result"), dict) else {}
@@ -1317,6 +1488,72 @@ def _bind_scientific_symbols(ir: dict, manifest: dict) -> tuple[dict, list[dict]
     return bound, bindings
 
 
+def _snapshot_region_ir(payload: dict) -> dict | None:
+    region = payload.get("region") if isinstance(payload.get("region"), dict) else {}
+    radius = region.get("buffer_km")
+    parent = region.get("parent_region") if isinstance(region.get("parent_region"), dict) else {}
+    parent_place = parent.get("orig") or parent.get("name")
+    if isinstance(radius, (int, float)) and parent_place:
+        return {
+            "op": "BUFFER", "radius_km": float(radius),
+            "source": {"op": "REGION", "place": _normalise_region_name(parent_place)},
+        }
+    place = region.get("orig") or region.get("name")
+    if place:
+        with contextlib.suppress(Exception):
+            C.resolve_region(_normalise_region_name(place))
+            return {"op": "REGION", "place": _normalise_region_name(place)}
+    return None
+
+
+def _bind_snapshot_extents(
+        ir: dict, snapshots: list[dict]
+) -> tuple[dict, list[dict]]:
+    """Bind ESTIMATE donor extent to the exact occurrence handle chosen by outer Codex."""
+    bound = json.loads(json.dumps(ir))
+    bindings = []
+    occurrence_snapshots = []
+    for snapshot in snapshots:
+        payload = snapshot["payload"]
+        if str(payload.get("grain") or "").casefold() != "occurrence":
+            continue
+        resolution = (
+            payload.get("resolution") if isinstance(payload.get("resolution"), dict) else {}
+        )
+        names = {
+            _normalise_match_text(value) for value in (
+                payload.get("entity"), payload.get("input_entity"),
+                resolution.get("canonical"), resolution.get("input"), resolution.get("common"),
+            ) if value
+        }
+        region_ir = _snapshot_region_ir(payload)
+        if names and region_ir:
+            occurrence_snapshots.append((snapshot, names, region_ir))
+    for node in _iter_ir_nodes(bound):
+        if node.get("op") != "ESTIMATE":
+            continue
+        source = node.get("source") if isinstance(node.get("source"), dict) else {}
+        if source.get("op") != "SELECT" or not isinstance(source.get("entity"), str):
+            continue
+        key = _normalise_match_text(source["entity"])
+        matches = [item for item in occurrence_snapshots if key in item[1]]
+        if len(matches) != 1:
+            continue
+        snapshot, _names, region_ir = matches[0]
+        if _stable_json(source.get("region")) == _stable_json(region_ir):
+            continue
+        bindings.append({
+            "kind": "evidence_extent",
+            "model_text": _format_ir_human(source.get("region") or {}),
+            "bound_symbol": _format_ir_human(region_ir),
+            "result_id": snapshot["result_id"],
+            "snapshot_sha256": snapshot["sha256"],
+            "rule": "exact extent of the explicitly selected immutable occurrence snapshot",
+        })
+        source["region"] = region_ir
+    return bound, bindings
+
+
 def _validate_scientific_symbols(ir: dict, manifest: dict,
                                  original_question: str) -> list[str]:
     """Reject model-authored scientific symbols not admitted by resources or the user."""
@@ -1370,6 +1607,11 @@ def _format_ir_human(ir: dict) -> str:
     op = str(ir.get("op") or "unknown")
     if op == "REGION":
         return str(ir.get("place") or "unspecified region")
+    if op == "BUFFER":
+        return (
+            f"{ir.get('radius_km')} km around "
+            f"{_format_ir_human(ir.get('source') or {})}"
+        )
     if op == "SELECT":
         entity = ir.get("entity")
         region = ir.get("region")
@@ -1415,7 +1657,31 @@ def _compile_scientific_algebra(args: dict, session: "Session") -> dict:
             "detail": {"ask": "state the one scientific measurement or estimate to compile"},
             "provenance": [],
         }
-    manifest = _scientific_resource_manifest(session)
+    requested_ids = args.get("evidence_result_ids")
+    if requested_ids is None:
+        evidence_result_ids: list[str] = []
+    elif not isinstance(requested_ids, list) or any(
+            not isinstance(item, str) for item in requested_ids):
+        return {
+            "status": "data_request", "reason": "invalid_evidence_result_ids",
+            "detail": {"ask": "pass evidence_result_ids as a list of result handles"},
+            "provenance": [],
+        }
+    else:
+        evidence_result_ids = list(dict.fromkeys(
+            item.strip() for item in requested_ids if item.strip()
+        ))[:12]
+    try:
+        snapshots = _load_result_snapshots(session, evidence_result_ids)
+    except ValueError as exc:
+        return {
+            "status": "data_request", "reason": "unknown_result_id",
+            "detail": {"error": str(exc),
+                       "ask": "use evidence result handles from this conversation"},
+            "provenance": [],
+        }
+    manifest = _scientific_resource_manifest(
+        session, evidence_result_ids if evidence_result_ids else None)
     messages = E.P.build_messages(
         scientific_question, fewshot=E.GENERIC_FEWSHOT,
         capabilities=C.capability_catalog(),
@@ -1426,6 +1692,11 @@ def _compile_scientific_algebra(args: dict, session: "Session") -> dict:
         "intent context. Emit the frozen Algebra tree only. Use a concrete SELECT entity only "
         "when it appears in the original user question, the admitted entity symbols, or the "
         "declared connector capability entities. Use only admitted REGION and ANNOTATE symbols. "
+        "When AUDITED RESULTS are listed, express the SELECT extent recorded in that snapshot "
+        "(including its exact BUFFER when present) so execution can use the immutable rows; do "
+        "not narrow a selected snapshot to the target AOI. ESTIMATE method `interpolate` requires "
+        "georeferenced numeric measurements. Occurrence-grain presence transfer uses the "
+        "`feature` environmental-transfer gate, not interpolation. "
         "A candidate from model memory is not an admitted symbol. If a required entity, region, "
         "measurement, donor or threshold is missing, emit an appropriate ?hole. Do not emit "
         "skill names, plans, prose, result ids, paths, coordinates, sources or evidence claims.\n\n"
@@ -1443,6 +1714,8 @@ def _compile_scientific_algebra(args: dict, session: "Session") -> dict:
         }
     ir = _bind_context(response["ir"])
     ir, symbol_bindings = _bind_scientific_symbols(ir, manifest)
+    ir, extent_bindings = _bind_snapshot_extents(ir, snapshots)
+    symbol_bindings.extend(extent_bindings)
     schema = IR.validate(ir)
     symbol_errors = _validate_scientific_symbols(
         ir, manifest, session.current_data_question)
@@ -1454,13 +1727,18 @@ def _compile_scientific_algebra(args: dict, session: "Session") -> dict:
             "provenance": [],
         }
     else:
-        execution = X.execute(ir)
+        execution = X.execute(ir, select_resolver=_snapshot_select_resolver(snapshots))
     value = {
         "kind": "scientific_algebra", "scientific_question": scientific_question,
         "ir": ir, "human_reading": _format_ir_human(ir),
         "schema": schema, "execution": execution,
         "compiler": "Algebra 9B-004d", "usage": response.get("usage") or {},
         "symbol_bindings": symbol_bindings,
+        "evidence_result_ids": evidence_result_ids,
+        "evidence_snapshots": [{
+            "result_id": item["result_id"], "kind": item["kind"],
+            "sha256": item["sha256"],
+        } for item in snapshots],
         "resource_manifest": {
             "regions": manifest.get("regions") or [],
             "entities": manifest.get("entities") or [],
@@ -1474,6 +1752,10 @@ def _compile_scientific_algebra(args: dict, session: "Session") -> dict:
         "type": "scientific_algebra", "scientific_question": scientific_question,
         "compiler": "Algebra 9B-004d", "ir": ir, "schema": schema,
         "symbol_bindings": symbol_bindings, "binding_errors": symbol_errors,
+        "evidence_result_ids": evidence_result_ids,
+        "evidence_snapshot_sha256": {
+            item["result_id"]: item["sha256"] for item in snapshots
+        },
         "execution_status": execution.get("status"),
         "execution_reason": execution.get("reason"), "result_id": result_id,
     })
@@ -1486,6 +1768,7 @@ def _compile_scientific_algebra(args: dict, session: "Session") -> dict:
         "provenance": [{
             "op": "COMPILE_ALGEBRA", "compiler": "Algebra 9B-004d",
             "result_id": result_id, "ir_ops": schema.get("ops") or [],
+            "evidence_result_ids": evidence_result_ids,
         }] + list(execution.get("provenance") or []),
     }
 
@@ -1819,6 +2102,170 @@ def _taxon_execution(entity: str, region: str, estimate: bool, method: str = "fe
         ir = {"op": "SELECT", "entity": entity,
               "region": {"op": "REGION", "place": region}, "time": None}
     return X.execute(_bind_context(ir))
+
+
+def _map_evidence_coverage(args: dict, session: "Session") -> dict:
+    """Render immutable georeferenced result snapshots without connector or model execution."""
+    raw_ids = args.get("result_ids")
+    if not isinstance(raw_ids, list) or not raw_ids:
+        return {
+            "status": "data_request", "reason": "missing_result_ids",
+            "detail": {"ask": "pass one or more georeferenced result handles"},
+            "provenance": [],
+        }
+    result_ids = list(dict.fromkeys(
+        str(item).strip() for item in raw_ids
+        if isinstance(item, str) and item.strip()
+    ))[:12]
+    try:
+        snapshots = _load_result_snapshots(session, result_ids)
+    except ValueError as exc:
+        return {
+            "status": "data_request", "reason": "unknown_result_id",
+            "detail": {"error": str(exc),
+                       "ask": "use result handles from this conversation"},
+            "provenance": [],
+        }
+
+    layers, waypoints, omitted, source_counts = [], [], [], {}
+    for snapshot in snapshots:
+        payload = snapshot["payload"]
+        rows = payload.get("rows") if isinstance(payload.get("rows"), list) else []
+        georeferenced = [
+            row for row in rows if isinstance(row, dict)
+            and isinstance(row.get("lat"), (int, float))
+            and isinstance(row.get("lon"), (int, float))
+        ]
+        if not georeferenced:
+            omitted.append(snapshot["result_id"])
+            continue
+        resolution = (
+            payload.get("resolution") if isinstance(payload.get("resolution"), dict) else {}
+        )
+        entity = str(
+            payload.get("entity") or resolution.get("canonical") or
+            georeferenced[0].get("scientific_name") or
+            georeferenced[0].get("name") or snapshot["kind"] or "evidence"
+        )
+        source = str(payload.get("source") or "source retained in audit")
+        layer_rows = []
+        for row in georeferenced[:1000]:
+            row_source = str(row.get("source") or source)
+            source_counts[row_source] = source_counts.get(row_source, 0) + 1
+            layer_rows.append({
+                "lat": float(row["lat"]), "lon": float(row["lon"]), "score": 0.12,
+                "tooltip": (
+                    f"{entity} · {row_source} · "
+                    f"{row.get('time') or row.get('date') or 'date not returned'}"
+                ),
+            })
+            waypoints.append({
+                "lat": float(row["lat"]), "lon": float(row["lon"]), "score": 1,
+                "evidence_label": f"observed {entity}",
+                "reason": (
+                    f"{row_source}; immutable result "
+                    f"{snapshot['result_id']}"
+                )[:500],
+            })
+            if len(waypoints) >= 1000:
+                break
+        layers.append({
+            "name": f"{entity} · {len(layer_rows)} records",
+            "rows": layer_rows,
+        })
+        if len(waypoints) >= 1000:
+            break
+    if not waypoints:
+        return {
+            "status": "data_request", "reason": "no_georeferenced_rows",
+            "detail": {
+                "result_ids": result_ids, "omitted_result_ids": omitted,
+                "ask": "retrieve a georeferenced occurrence or survey result first",
+            },
+            "provenance": [],
+        }
+    for index, row in enumerate(waypoints, 1):
+        row["point_id"] = f"OBS-{index:04d}"
+
+    target_name = _normalise_region_name(args.get("target_region") or "EBTL")
+    target = C.resolve_region(target_name)
+    ts, tn, tw, te = [float(value) for value in target["bbox"]]
+    layers.append({
+        "name": f"Target AOI centre · {target_name}",
+        "colour": "#f8fafc",
+        "rows": [{
+            "lat": float(target.get("lat") or (ts + tn) / 2),
+            "lon": float(target.get("lon") or (tw + te) / 2),
+            "score": 1,
+            "tooltip": (
+                f"Target AOI centre for context · {target.get('name') or target_name}; "
+                "not a species record"
+            ),
+        }],
+    })
+    lats = [row["lat"] for row in waypoints] + [ts, tn]
+    lons = [row["lon"] for row in waypoints] + [tw, te]
+    lat_pad = max(0.01, (max(lats) - min(lats)) * 0.05)
+    lon_pad = max(0.01, (max(lons) - min(lons)) * 0.05)
+    map_bbox = [
+        min(lons) - lon_pad, min(lats) - lat_pad,
+        max(lons) + lon_pad, max(lats) + lat_pad,
+    ]
+    title = str(args.get("title") or "Where audited ecology data exists")[:180]
+    audit_id = f"{session.id}/{session.turn}"
+    notes = [
+        "Every plotted point comes from the named immutable result handles; no connector was rerun.",
+        f"The dashed box is {target.get('name') or target_name}, shown as the target AOI.",
+        "Data coverage is not abundance, complete sampling, predicted presence, risk, or a safe/unsafe zone.",
+    ]
+    if omitted:
+        notes.append(
+            f"{len(omitted)} supplied result handle(s) had no georeferenced rows and were omitted.")
+    artifact_dir = (
+        session.output / "artifacts" / f"turn-{session.turn:04d}-evidence-coverage")
+    artifact = ARTIFACTS.write_field_map(
+        artifact_dir, title, map_bbox, layers, waypoints, notes, audit_id,
+        "observed data coverage",
+        region_boxes=[{
+            "name": f"Target AOI · {target_name}",
+            "bbox_wsen": [tw, ts, te, tn],
+            "colour": "#f8fafc",
+        }],
+        show_waypoints_on_map=False,
+    )
+    published = _publish_html_document(
+        session, title, artifact.pop("html_content"),
+        link_kind="map", label="Open data coverage map")
+    value = {
+        "kind": "records", "rows": waypoints, "source": "immutable audited result snapshots",
+        "label": "observed", "input_result_ids": result_ids,
+        "source_counts": source_counts,
+        "omitted_result_ids": omitted, "target_region": target,
+        "artifact": {
+            **{key: artifact[key] for key in ("waypoint_count", "point_ids", "map_mode")
+               if key in artifact},
+            "downloads": ["GeoJSON", "CSV observed records"],
+            **published,
+        },
+        "note": (
+            f"Mapped {len(waypoints)} returned records from {len(layers) - 1} evidence layer(s) "
+            f"across {', '.join(sorted(source_counts))}. "
+            "This shows where data exists; it is not a distribution estimate."
+        ),
+    }
+    result_id = session.store_result("evidence_coverage_map", value)
+    value["result_id"] = result_id
+    return {
+        "status": "answer", "label": "observed", "value": value,
+        "provenance": [{
+            "op": "MAP", "mode": "observed-data-coverage", "result_id": result_id,
+            "input_result_ids": result_ids,
+            "input_snapshot_sha256": {
+                item["result_id"]: item["sha256"] for item in snapshots
+            },
+            "audit_id": audit_id, "document_id": published["document_id"],
+        }],
+    }
 
 
 def _build_field_map(args: dict, session: "Session") -> dict:
@@ -2156,7 +2603,7 @@ def _publish_evidence_dashboard(args: dict, session: "Session") -> dict:
             if actual.get("status") == "answer" and any(
                     node.get("op") == "ESTIMATE" for node in _iter_ir_nodes(ir)):
                 return "Modelled"
-        if kind == "map":
+        if kind in {"map", "evidence_coverage_map"}:
             return {"modelled": "Modelled", "designed": "Designed"}.get(
                 label, "Public data")
         if kind in {"evidence_discovery", "inspected_dataset", "occurrence"}:
@@ -2364,7 +2811,7 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         }
     if mode in {
         "evidence_discovery", "dataset_inspect", "field_protocol", "field_map",
-        "evidence_dashboard", "biotic_interaction_discovery",
+        "evidence_coverage_map", "evidence_dashboard", "biotic_interaction_discovery",
     }:
         if session is None:
             raise ValueError(f"{skill_id} requires a session")
@@ -2383,6 +2830,9 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         elif mode == "evidence_dashboard":
             execution = _publish_evidence_dashboard(args, session)
             op = "DASHBOARD"
+        elif mode == "evidence_coverage_map":
+            execution = _map_evidence_coverage(args, session)
+            op = "MAP"
         else:
             execution = _build_field_map(args, session)
             op = "MAP"
@@ -2432,10 +2882,10 @@ GUIDED_OPERATION_SKILLS = {
     "explore_site_fire": {"historical-fire-exposure"},
     "search_wider_occurrences": {"merged-taxon-occurrence-search"},
     "search_wider_evidence": {"discover-ecology-evidence"},
+    "show_data_coverage": {"map-evidence-coverage"},
     "show_observed_map": {"build-ecology-field-map"},
     "test_transfer": {
-        "merged-taxon-occurrence-search", "compile-scientific-algebra-9b",
-        "gated-species-presence-transfer"},
+        "merged-taxon-occurrence-search", "compile-scientific-algebra-9b"},
     "build_model_map": {
         "merged-taxon-occurrence-search", "compile-scientific-algebra-9b",
         "build-ecology-field-map"},
@@ -2447,7 +2897,6 @@ GUIDED_OPERATION_SEQUENCE = {
     "test_transfer": [
         "merged-taxon-occurrence-search",
         "compile-scientific-algebra-9b",
-        "gated-species-presence-transfer",
     ],
     "build_model_map": [
         "merged-taxon-occurrence-search",
@@ -2538,6 +2987,28 @@ def _normalise_match_text(value: object) -> str:
     return " ".join(str(value or "").translate(str.maketrans({
         "\u2018": "'", "\u2019": "'", "\u02bc": "'", "\uff07": "'",
     })).casefold().split())
+
+
+def _clean_user_message(value: object) -> str:
+    """Remove Idlisseus transport context before ecology routing or evidence queries."""
+    text = str(value or "").strip()
+    text = re.sub(
+        r"(?s)\n*\[Context — current date/time, refreshed each turn; "
+        r"not part of your instructions\].*?"
+        r"convert the user's stated local time using the UTC offset above\.\s*",
+        "\n\n", text,
+    )
+    text = re.sub(
+        r"(?s)UNTRUSTED SOURCE DATA.*?<<<END_UNTRUSTED_SOURCE_DATA>>>\s*",
+        "", text,
+    ).strip()
+    blocks = [block.strip() for block in re.split(r"\n{2,}", text) if block.strip()]
+    if len(blocks) >= 2 and _normalise_match_text(blocks[-1]) == _normalise_match_text(
+            "\n\n".join(blocks[:-1])):
+        return blocks[-1]
+    if len(blocks) == 2 and _normalise_match_text(blocks[0]) == _normalise_match_text(blocks[1]):
+        return blocks[-1]
+    return "\n\n".join(blocks).strip()
 
 
 def _matched_local_taxon(query: str, rows: list[dict]) -> str:
@@ -2664,10 +3135,24 @@ def _derive_guidance(session: "Session") -> dict | None:
                     query=entity, target_region=region, region="dry-Deccan donor belt"))
     elif skill == "merged-taxon-occurrence-search":
         if status != "answer" or not returned_rows:
-            # A failed/empty retrieval cannot authorize mapping or transfer. The concise answer
-            # carries the connector's requested clarification or data gap.
-            actions = []
-        elif region.casefold() in {"ebtl", "elephants by the lake"}:
+            if reason not in {
+                "no_connector", "unresolved_taxon", "ambiguous_taxon", "missing_entity",
+            } and entity and region.casefold() in {
+                "ebtl", "elephants by the lake", "the site",
+            }:
+                current_radius = float(args.get("radius_km") or 0)
+                next_radius = min(500, max(50, current_radius * 4))
+                if next_radius > current_radius:
+                    question = "No points here. Search farther for usable donor data?"
+                    actions.append(_guided_action(
+                        f"Search within {next_radius:g} km", "search_wider_occurrences",
+                        "Expand the same audited occurrence search around the target site.",
+                        entity=entity, target_region=args.get("target_region") or region,
+                        region=region, radius_km=next_radius))
+        elif (
+            region.casefold() in {"ebtl", "elephants by the lake"}
+            and not args.get("radius_km")
+        ):
             question = "Continue beyond the site?"
             actions.append(_guided_action(
                 "Search a wider region", "search_wider_occurrences",
@@ -2675,11 +3160,20 @@ def _derive_guidance(session: "Session") -> dict | None:
                 entity=entity, target_region=region, region="dry-Deccan donor belt"))
         else:
             question = "How should I use these records?"
-            actions.extend([
+            result_id = str(value.get("result_id") or "")
+            actions.append(
+                _guided_action(
+                    "Show where data exists", "show_data_coverage",
+                    "Map these exact returned observations and the target AOI.",
+                    result_ids=[result_id] if result_id else [],
+                    target_region=args.get("target_region") or "EBTL")
+                if result_id else
                 _guided_action(
                     "Show the raw points", "show_observed_map",
                     "Map returned observations only; do not run a prediction.",
-                    entity=entity, region=region, source_region=region, map_mode="observed"),
+                    entity=entity, region=region, source_region=region, map_mode="observed")
+            )
+            actions.extend([
                 _guided_action(
                     "Test transfer to the site", "test_transfer",
                     "Check whether donor records can support an environmental estimate at the site.",
@@ -2769,6 +3263,7 @@ def _derive_guidance(session: "Session") -> dict | None:
             and reason not in {
                 "no_connector", "unresolved_taxon", "ambiguous_taxon", "missing_entity",
             }
+            and not actions
             and not any(action["operation"] == "build_model_map" for action in actions)):
         question = "Where would new field data be most useful?"
         actions.append(_guided_action(
@@ -2990,7 +3485,8 @@ class Session:
     def begin_turn(self, display_message: str) -> tuple[str, dict | None]:
         """Resolve an exact button/label choice and invalidate stale unselected actions."""
         selected = None
-        normal = " ".join(str(display_message or "").casefold().split())
+        user_message = _clean_user_message(display_message)
+        normal = " ".join(user_message.casefold().split())
         pending = self.pending_guidance if isinstance(self.pending_guidance, dict) else None
         if pending:
             for option in pending.get("options") or []:
@@ -3021,9 +3517,9 @@ class Session:
             })
             message = _guided_directive(selected)
         else:
-            message = display_message
+            message = user_message
         self.current_data_question = str(message or "")[:8000]
-        self.required_first_skill = _required_first_skill(display_message, selected)
+        self.required_first_skill = _required_first_skill(user_message, selected)
         self.algebra_planner_calls = 0
         self.algebra_plans = []
         self.active_algebra_plan = None
@@ -3065,11 +3561,20 @@ class Session:
     def bind_scientific_skill_args(self, skill_id: str, supplied: dict) -> dict:
         """Keep outer evidence calls direct; constrain the one model-authored scientific input."""
         if skill_id == "compile-scientific-algebra-9b":
-            return {
+            raw_ids = supplied.get("evidence_result_ids")
+            result_ids = (
+                [str(item).strip() for item in raw_ids[:12]
+                 if isinstance(item, str) and item.strip()]
+                if isinstance(raw_ids, list) else []
+            )
+            bound = {
                 "scientific_question": " ".join(str(
                     supplied.get("scientific_question") or supplied.get("question") or ""
                 ).split())[:1600],
             }
+            if result_ids:
+                bound["evidence_result_ids"] = result_ids
+            return bound
         return _clean_plan_args(supplied)
 
     def complete_algebra_step(self, skill_id: str, result: dict,
@@ -3133,11 +3638,20 @@ class Session:
             if skill_id == "merged-taxon-occurrence-search":
                 return {"entity": entity, "region": donor, "target_region": target}
             if skill_id == "compile-scientific-algebra-9b":
+                evidence_result_ids = []
+                for call in reversed(self.turn_skill_calls):
+                    if call.get("skill") != "merged-taxon-occurrence-search":
+                        continue
+                    result_id = _execution_value(call).get("result_id")
+                    if result_id:
+                        evidence_result_ids.append(str(result_id))
+                        break
                 return {
                     "scientific_question": (
                         f"Estimate {entity} suitability at {target} from occurrence records "
                         f"in {donor} using the admitted environmental transfer gate"
                     )[:1600],
+                    "evidence_result_ids": evidence_result_ids,
                 }
         if operation == "search_wider_evidence":
             return {
@@ -3147,7 +3661,19 @@ class Session:
                 "limit": 8,
             }
         if operation == "search_wider_occurrences":
-            return {"entity": entity, "region": bound.get("region") or "dry-Deccan donor belt"}
+            result = {
+                "entity": entity, "region": bound.get("region") or "dry-Deccan donor belt",
+            }
+            if bound.get("radius_km"):
+                result["radius_km"] = bound["radius_km"]
+            if bound.get("target_region"):
+                result["target_region"] = bound["target_region"]
+            return result
+        if operation == "show_data_coverage":
+            return {
+                "result_ids": bound.get("result_ids") or [],
+                "target_region": bound.get("target_region") or "EBTL",
+            }
         if operation in {"show_observed_map", "build_model_map"}:
             entities = bound.get("entities") or ([entity] if entity else [])
             return {
@@ -3411,7 +3937,9 @@ def _native_prompt(message: str, session: Session) -> str:
     if requested_map_mode and not getattr(session, "guided_action", None):
         routing_note = (
             "\n\nROUTING REQUIREMENT: The user explicitly requested a map. Discover or retrieve "
-            "the relevant admitted evidence first. If a scientific estimate is required, state "
+            "the relevant admitted evidence first. Use `map-evidence-coverage` with returned "
+            "result handles for raw points; it must not rerun a connector. If a scientific "
+            "estimate is required, state "
             "one precise scientific question and invoke `compile-scientific-algebra-9b`. Then use "
             f"`build-ecology-field-map` in `{requested_map_mode}` mode with the returned evidence. "
             "If a fine-scale model gate fails, return the labelled observation or field-check "
@@ -3442,7 +3970,10 @@ def _native_prompt(message: str, session: Session) -> str:
         routing_note = (
             "\n\nROUTING REQUIREMENT: The user explicitly requested wider occurrence evidence. "
             "Resolve the taxon from audited local or prior-turn results, then invoke "
-            "`merged-taxon-occurrence-search`. Do not cite occurrence portals, record URLs, "
+            "`merged-taxon-occurrence-search` with a bounded wider region or `radius_km`; do not "
+            "repeat the exact-site footprint under a different name. When coordinates return, "
+            "offer or create `map-evidence-coverage` from its result handle. Do not cite "
+            "occurrence portals, record URLs, "
             "counts or distributions from model memory. If the admitted occurrence connector "
             "fails, expose that exact source failure and retain the same ecological question."
         )
@@ -3471,7 +4002,8 @@ def _native_prompt(message: str, session: Session) -> str:
     compiler_skill_path = invocation_root / "skills" / compiler["id"] / "SKILL.md"
     compiler_command = (
         f"python3 {invocation_root / 'skill_call.py'} {compiler['id']} "
-        '--pairs scientific_question="State one precise evidence-bound scientific question here"'
+        '--pairs scientific_question="State one precise evidence-bound scientific question here" '
+        'evidence_result_ids=\'["result-handle-from-this-conversation"]\''
     )
     return (
         "You are helping staff at a conservation NGO. Use short, direct Indian English. This is "
@@ -3498,13 +4030,31 @@ def _native_prompt(message: str, session: Session) -> str:
         "or public evidence to establish the entity, region, layer or comparison when needed. "
         "Then, for an explicit state, relationship, trend, comparison, ranking or transfer "
         "calculation, formulate one short scientific question and invoke "
-        "`compile-scientific-algebra-9b`. Pass only `scientific_question`. The server gives 9B the "
-        "frozen Algebra grammar and admitted resource symbols; 9B emits the Algebra, while the "
-        "controller validates, binds and executes it. Never author, rewrite, repair or silently "
-        "replace the Algebra yourself. If the compiled result exposes a hole or data request, ask "
-        "the corresponding short clarification. You may invoke the compiler again after new "
-        "evidence or clarification, up to three times. Do not invoke it for a broad site overview, "
-        "a literature-only question, or simple source inspection.\n\n"
+        "`compile-scientific-algebra-9b`. Pass `scientific_question` plus the result handles that "
+        "contain its evidence as `evidence_result_ids`. The Algebra runtime gives 9B the frozen "
+        "grammar and admitted symbols; 9B emits the Algebra, while the runtime validates it and "
+        "executes matching SELECT leaves from those immutable snapshots. The runtime does not "
+        "choose the scientific question, search radius, retry, map or next conversational step; "
+        "you do. Never author, rewrite, repair or silently replace the Algebra yourself. If a "
+        "compiled result exposes a hole, ask the corresponding short clarification. If a gate "
+        "fails, retain and show the observed evidence, explain the exact failure, then decide "
+        "whether a different admitted extent or method is scientifically justified. You may "
+        "invoke the compiler again after new evidence or clarification, up to six times. Never "
+        "invoke the legacy `gated-species-presence-transfer` skill in interactive chat; that path "
+        "can re-fetch a different donor set. Do not "
+        "invoke it for a broad site overview, literature-only question, or source inspection.\n\n"
+        "SPARSE DATA AND MAPS. An empty exact-site occurrence search is a coverage gap, not the "
+        "end of the investigation. When the user asks where data exists, requests modelling or "
+        "field guidance, or local collection is unsafe or impractical, offer one short choice to "
+        "search farther; if the user already asked to widen, use a bounded `radius_km` immediately. "
+        "Resolve each locally named species separately and retrieve each separately. After any "
+        "wider search returns coordinates, use `map-evidence-coverage` with those exact result "
+        "handles so the user can see donor data and the target AOI before transfer. This observed "
+        "map remains useful when every model gate fails. For transfer, compile and execute each "
+        "species independently; never combine separate species into a presence claim. A combined "
+        "staff-safety display may be called model-informed caution only, never a safe-zone map. "
+        "Do not default only to collecting local data when trusted donor evidence can be searched. "
+        "Do not hide returned points merely because a prediction is unavailable.\n\n"
         "FINAL FORMAT. Use short descriptive headings only where helpful. Say `From the onboarded "
         "site records, ...`, `From public occurrence data, ...`, `The modelled estimate suggests "
         "...`, or `The remaining data gap is ...`; never prefix claims with bracketed provenance "
@@ -3722,7 +4272,7 @@ def _insight_evidence(session: Session, raw_answer: str) -> dict:
     public_skills = {
         "merged-taxon-occurrence-search", "discover-ecology-evidence",
         "discover-biotic-interactions", "inspect-evidence-dataset",
-        "gated-species-presence-transfer",
+        "gated-species-presence-transfer", "map-evidence-coverage",
     }
     for call in session.turn_skill_calls:
         skill = str(call.get("skill") or "")
@@ -3749,7 +4299,7 @@ def _insight_evidence(session: Session, raw_answer: str) -> dict:
                     node.get("op") == "ESTIMATE" for node in _iter_ir_nodes(ir)):
                 add("modelled", "Modelled",
                     "An estimate passed the registered scientific execution gate.", skill)
-        elif skill == "build-ecology-field-map" and status == "answer":
+        elif skill in {"build-ecology-field-map", "map-evidence-coverage"} and status == "answer":
             label = str(value.get("label") or execution.get("label") or "").casefold()
             if label == "modelled":
                 add("modelled", "Modelled",
@@ -3882,12 +4432,23 @@ def _latest_mappable_entity(session: Session) -> tuple[str, str]:
     return "", ""
 
 
+def _latest_occurrence_result_id(session: Session) -> str:
+    for call in reversed(session.turn_skill_calls):
+        if call.get("skill") != "merged-taxon-occurrence-search":
+            continue
+        value = _execution_value(call)
+        rows = value.get("rows") if isinstance(value.get("rows"), list) else []
+        if rows and value.get("result_id"):
+            return str(value["result_id"])
+    return ""
+
+
 def _complete_requested_map(session: Session, display_message: str,
                             emit: Callable[[dict], None]) -> dict | None:
     """Finish an explicit visual request when Codex completed the science but omitted rendering."""
     map_mode = _map_intent(display_message)
     if not map_mode or any(
-            call.get("skill") == "build-ecology-field-map"
+            call.get("skill") in {"build-ecology-field-map", "map-evidence-coverage"}
             for call in session.turn_skill_calls):
         return None
     entity, source_region = _latest_mappable_entity(session)
@@ -3896,12 +4457,20 @@ def _complete_requested_map(session: Session, display_message: str,
     if map_mode == "modelled" and not session.has_result_kind(
             {"scientific_algebra"}, require_estimate_ir=True):
         return None
-    skill_id = "build-ecology-field-map"
-    args = {
-        "entities": [entity], "region": "EBTL", "source_region": source_region,
-        "map_mode": map_mode, "points": 9,
-        "title": f"Field checks for {entity} at EBTL",
-    }
+    occurrence_result_id = _latest_occurrence_result_id(session)
+    if map_mode == "observed" and occurrence_result_id:
+        skill_id = "map-evidence-coverage"
+        args = {
+            "result_ids": [occurrence_result_id], "target_region": "EBTL",
+            "title": f"Where {entity} data exists",
+        }
+    else:
+        skill_id = "build-ecology-field-map"
+        args = {
+            "entities": [entity], "region": "EBTL", "source_region": source_region,
+            "map_mode": map_mode, "points": 9,
+            "title": f"Field checks for {entity} at EBTL",
+        }
     started = {
         "type": "tool_start", "kind": "skill", "tool": skill_id,
         "controller_completion": True,
@@ -4071,7 +4640,7 @@ def run_turn(session: Session, message: str, emit: Callable[[dict], None]) -> di
                 final = (
                     final.rstrip()
                     + "\n\n### Field map\n\n"
-                    + "The controller completed the requested visual after the dialogue draft; "
+                    + "The audited map renderer completed the requested visual after the dialogue draft; "
                       "this audited renderer result supersedes any earlier statement that no map "
                       "link was available.\n\n"
                     + f"[Open the {label} field map]({link})\n\n"
@@ -4435,6 +5004,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     raise PermissionError(
                         f"this request requires {session.required_first_skill} before {skill_id}; "
                         "do not substitute a public source for onboarded evidence")
+                if skill_id == "gated-species-presence-transfer":
+                    raise PermissionError(
+                        "interactive transfer requires compile-scientific-algebra-9b with the "
+                        "matching occurrence evidence_result_ids; the legacy frozen transfer "
+                        "binding is retained only for benchmark reproducibility")
                 if skill_id == "compile-scientific-algebra-9b":
                     scientific_question = _normalise_match_text(
                         args.get("scientific_question") or args.get("question"))

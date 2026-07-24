@@ -138,7 +138,9 @@ def _badge_kinds(audit: list[dict]) -> set[str]:
 
 
 def _has_map(calls: list[dict], answer: str) -> bool:
-    return "build-ecology-field-map" in [call.get("skill") for call in calls] and (
+    return any(call.get("skill") in {
+        "build-ecology-field-map", "map-evidence-coverage",
+    } for call in calls) and (
         "#map-" in answer or any((_value(call).get("artifact") or {}).get("url")
                                 for call in calls))
 
@@ -154,7 +156,9 @@ def score_turn(turn: dict, audit: list[dict], answer: str, live: dict) -> dict:
     blob = _result_blob(calls)
     lower = re.sub(r"\s+", " ", re.sub(r"[`*_~]", "", answer.casefold()))
     badges = _badge_kinds(audit)
-    map_calls = [call for call in calls if call.get("skill") == "build-ecology-field-map"]
+    map_calls = [call for call in calls if call.get("skill") in {
+        "build-ecology-field-map", "map-evidence-coverage",
+    }]
     map_values = [_value(call) for call in map_calls]
     map_labels = {str(value.get("label") or "") for value in map_values}
     result_ids = [str(_value(call).get("result_id") or "") for call in calls]
@@ -171,6 +175,13 @@ def score_turn(turn: dict, audit: list[dict], answer: str, live: dict) -> dict:
                    "merged-taxon-occurrence-search", "discover-ecology-evidence",
                    "local-site-evidence-search"))
     )
+    compiler_calls = [
+        call for call in calls if call.get("skill") == "compile-scientific-algebra-9b"
+    ]
+    independent_compiler_inputs = [
+        tuple((call.get("args") or {}).get("evidence_result_ids") or [])
+        for call in compiler_calls
+    ]
     signals = {
         "site_inventory": "site-overview" in skills,
         "site_name_taxon_search": (
@@ -194,7 +205,14 @@ def score_turn(turn: dict, audit: list[dict], answer: str, live: dict) -> dict:
         "concise": len(answer.split()) <= 220,
         "clarify_entity": "?" in answer and not any(
             node in blob for node in ('"op":"estimate"', '"op": "estimate"')),
-        "no_bulk_ungated_model": skills.count("compile-scientific-algebra-9b") <= 1,
+        "no_bulk_ungated_model": (
+            len(compiler_calls) <= 1
+            or (
+                len(compiler_calls) <= 6
+                and all(independent_compiler_inputs)
+                and len(set(independent_compiler_inputs)) == len(compiler_calls)
+            )
+        ),
         "entity_resolution": "resolution" in blob or "scientific_name" in blob,
         "no_local_absence_claim": not any(
             phrase in lower for phrase in ("is not at the site", "does not occur at the site",
@@ -208,9 +226,15 @@ def score_turn(turn: dict, audit: list[dict], answer: str, live: dict) -> dict:
             r"10\.\d{4,9}/|gbif|inaturalist|openalex|zenodo|dryad", answer, re.I)) or
             "source_connector" in blob,
         "raw_map_choice": any(
-            option.get("operation") == "show_observed_map"
+            option.get("operation") in {"show_observed_map", "show_data_coverage"}
             for event in audit if event.get("type") == "insight_actions"
             for option in event.get("options") or []),
+        "data_coverage_map": "map-evidence-coverage" in skills,
+        "snapshot_lineage": (
+            "immutable-evidence-snapshot" in blob
+            or "input_snapshot_sha256" in blob
+            or "evidence_snapshot_sha256" in blob
+        ),
         "evidence_before_9b": evidence_before_9b,
         "algebra9b": "compile-scientific-algebra-9b" in skills,
         "gate": "gate" in blob,
