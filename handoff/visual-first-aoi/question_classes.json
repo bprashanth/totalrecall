@@ -1,0 +1,215 @@
+{
+  "version": 1,
+  "purpose": "sector-neutral multi-turn probes for a visual-first AOI data service",
+  "conversations": [
+    {
+      "id": "orientation-to-drilldown",
+      "turns": [
+        {
+          "question": "Tell me about this place.",
+          "first_visual": "site_overview_map",
+          "requires": ["aoi", "named_places", "source_coverage", "event_density"]
+        },
+        {
+          "question": "Show me the busiest area and what the records there represent.",
+          "first_visual": "named_area_drilldown",
+          "requires": ["spatial_cells", "events", "entity_aliases", "source_rows"]
+        }
+      ]
+    },
+    {
+      "id": "named-place-resolution",
+      "turns": [
+        {
+          "question": "Tell me about site A.",
+          "first_visual": "named_location_map",
+          "requires": ["location_aliases", "location_geometry", "nearby_events"]
+        }
+      ]
+    },
+    {
+      "id": "presence-to-wider-coverage",
+      "turns": [
+        {
+          "question": "Where has entity X been recorded in the target area?",
+          "first_visual": "observed_points_map",
+          "requires": ["entity_aliases", "events", "target_aoi"]
+        },
+        {
+          "question": "There is not enough here. Show me where trusted data do exist nearby.",
+          "first_visual": "source_coverage_map",
+          "requires": ["context_aoi", "source_versions", "events", "spatial_cells"]
+        }
+      ]
+    },
+    {
+      "id": "broad-group-clarification",
+      "turns": [
+        {
+          "question": "What services are present here?",
+          "first_visual": "group_inventory_map",
+          "requires": ["entity_hierarchy", "events", "named_places"]
+        },
+        {
+          "question": "Can you model them?",
+          "first_visual": "clarification_card",
+          "requires": ["entity_hierarchy", "model_registry"]
+        }
+      ]
+    },
+    {
+      "id": "presence-versus-effort",
+      "turns": [
+        {
+          "question": "Where do we have records and where did people actually look?",
+          "first_visual": "coverage_and_effort_map",
+          "requires": ["events", "effort", "spatial_cells"]
+        },
+        {
+          "question": "Does no record mean it was absent?",
+          "first_visual": "effort_and_detection_panel",
+          "requires": ["events", "effort", "method_registry"]
+        }
+      ]
+    },
+    {
+      "id": "time-pattern-with-coverage",
+      "turns": [
+        {
+          "question": "Is this getting better over time?",
+          "first_visual": "metric_time_series",
+          "requires": ["measurements", "metric_registry", "time_buckets", "coverage"]
+        },
+        {
+          "question": "Could the pattern only reflect how much data was collected?",
+          "first_visual": "trend_with_coverage_strip",
+          "requires": ["measurements", "effort", "source_versions"]
+        }
+      ]
+    },
+    {
+      "id": "comparison-with-denominators",
+      "turns": [
+        {
+          "question": "Which of these two interventions worked better?",
+          "first_visual": "comparison_design",
+          "requires": ["interventions", "outcome_definition", "groups", "denominators"]
+        },
+        {
+          "question": "Use the 12-month outcome and show uncertainty.",
+          "first_visual": "interval_comparison",
+          "requires": ["measurements", "group_assignment", "uncertainty"]
+        }
+      ]
+    },
+    {
+      "id": "relationship-not-causality",
+      "turns": [
+        {
+          "question": "Do X and Y occur near each other?",
+          "first_visual": "two_layer_proximity_map",
+          "requires": ["events_x", "events_y", "join_distance", "both_denominators"]
+        },
+        {
+          "question": "Does that prove X causes Y?",
+          "first_visual": "evidence_chain",
+          "requires": ["join_rule", "source_lineage", "method_gap"]
+        }
+      ]
+    },
+    {
+      "id": "hierarchy",
+      "turns": [
+        {
+          "question": "How are the things measured here related?",
+          "first_visual": "hierarchy_sunburst",
+          "requires": ["entities", "entity_hierarchy", "event_counts"]
+        }
+      ]
+    },
+    {
+      "id": "donor-to-target-transfer",
+      "turns": [
+        {
+          "question": "Can data from nearby areas help us understand the target?",
+          "first_visual": "donor_coverage_map",
+          "requires": ["target_aoi", "donor_aoi", "events", "source_versions"]
+        },
+        {
+          "question": "Run the transfer where it is valid.",
+          "first_visual": "donor_target_gate_map",
+          "requires": ["feature_cube", "model_registry", "gate_results", "model_run"]
+        }
+      ]
+    },
+    {
+      "id": "value-of-information",
+      "turns": [
+        {
+          "question": "Where would one more measurement help most?",
+          "first_visual": "value_of_information_map",
+          "requires": ["model_run", "uncertainty_surface", "candidate_actions", "action_cost"]
+        }
+      ]
+    },
+    {
+      "id": "source-backed-method",
+      "turns": [
+        {
+          "question": "Find a usable method and turn it into a field sheet.",
+          "first_visual": "method_flow",
+          "requires": ["documents", "methods", "source_columns", "source_locators"]
+        },
+        {
+          "question": "Show which fields you added.",
+          "first_visual": "source_adaptation_diff",
+          "requires": ["source_columns", "programme_columns", "adaptation_lineage"]
+        }
+      ]
+    },
+    {
+      "id": "accumulated-dashboard",
+      "turns": [
+        {
+          "question": "Summarise what we have learned in this conversation.",
+          "first_visual": "evidence_dashboard",
+          "requires": ["session_result_handles", "visual_bundles", "gaps", "audit_lineage"]
+        }
+      ]
+    },
+    {
+      "id": "source-outage-invariance",
+      "faults": ["disable_primary_source"],
+      "turns": [
+        {
+          "question": "Repeat the same data retrieval.",
+          "first_visual": "last_known_coverage_or_outage",
+          "requires": ["source_health", "cache_lineage", "question_identity"]
+        }
+      ]
+    },
+    {
+      "id": "adjacent-message-isolation",
+      "faults": ["transport_contains_previous_and_current_message"],
+      "turns": [
+        {
+          "previous_message": "Show me topic A.",
+          "current_message": "Show me topic B.",
+          "first_visual": "topic_b_visual",
+          "requires": ["current_message_boundary", "intent_isolation"],
+          "forbids": ["combined_topic_a_topic_b_query"]
+        }
+      ]
+    },
+    {
+      "id": "restricted-location",
+      "turns": [
+        {
+          "question": "Show me all exact locations.",
+          "first_visual": "policy_filtered_coverage_map",
+          "requires": ["access_policy", "coordinate_sensitivity", "serving_redaction"]
+        }
+      ]
+    }
+  ]
+}
