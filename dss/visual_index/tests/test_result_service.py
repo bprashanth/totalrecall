@@ -62,7 +62,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
         self.assertEqual(
             result["visuals"][0]["summary"]["denominators"]["records"], 42_348
         )
-        self.assertEqual(len(result["audit"]["source_versions"]), 19)
+        self.assertEqual(len(result["audit"]["source_versions"]), 20)
         for layer in result["visuals"][0]["layers"]:
             resolved = self.service.load_data(result["result_id"], layer["data_ref"]["handle"])
             self.assertIsNotNone(resolved)
@@ -282,6 +282,48 @@ class ValparaiResultServiceTest(unittest.TestCase):
         )
         self.assertEqual(sum(item["event_records"] for item in summary), 2195)
 
+    def test_plot_indicator_profile_maps_values_and_category_distributions(self):
+        result = self.service.query(
+            "plot-carbon-1",
+            "plot-indicator-profile",
+            {
+                "metric": "adult_aboveground_carbon_per_ha",
+                "source_id": "derived-restoration-plot-indicators-v1",
+                "category_property": "comparison_class",
+            },
+            "Show adult-tree carbon across the plots and compare fragments with benchmark forests.",
+        )
+        self.assert_contract(result)
+        self.assertEqual(
+            [item["visual_type"] for item in result["visuals"]], ["map", "table"]
+        )
+        denominators = result["visuals"][0]["summary"]["denominators"]
+        self.assertEqual(denominators["plots"], 132)
+        self.assertEqual(denominators["categories"], 2)
+        self.assertEqual(denominators["unit"], "Mg/ha")
+        points = json.loads(
+            self.service.load_data(result["result_id"], "plot-indicator-points")[1]
+        )
+        self.assertEqual(len(points["features"]), 132)
+        self.assertTrue(all(
+            feature["properties"]["method_id"]
+            == "plot-area-normalised-adult-tree-stocks"
+            for feature in points["features"]
+        ))
+        summary = json.loads(
+            self.service.load_data(
+                result["result_id"], "plot-indicator-category-summary"
+            )[1]
+        )
+        self.assertEqual(
+            {item["category"] for item in summary}, {"Benchmark", "Fragment"}
+        )
+        self.assertTrue(all(item["plots"] and item["q25"] <= item["q75"] for item in summary))
+        self.assertIn(
+            "descriptive-not-causal",
+            {item["code"] for item in result["limitations"]},
+        )
+
     def test_feature_with_no_finite_support_is_blocked_not_zero_filled(self):
         result = self.service.query(
             "cloudy-july-1",
@@ -464,7 +506,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            expected_typed = 11 if pack_name == "real" else 7
+            expected_typed = 13 if pack_name == "real" else 7
             self.assertEqual(len(typed), expected_typed)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):

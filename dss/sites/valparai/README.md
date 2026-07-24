@@ -18,6 +18,8 @@ site.json       AOI roles, aliases and named points
 sources.json    source registry, rights and schema-driven adapters
 questions.json  representative question-to-first-visual probes
 raw/            immutable attributed source subsets used by the prototype
+derived/        reproducible, source-digested feature and indicator planes
+methods/        verified external method code and auditable method cards
 ```
 
 The target geometry is the published Valparai Plateau study envelope, not a parcel or ownership
@@ -32,12 +34,22 @@ python3 dss/visual_index/build.py \
   --site-pack dss/sites/valparai \
   --output /tmp/valparai-visual-index
 
-python3 -m unittest dss.visual_index.tests.test_build -v
+python3 dss/visual_index/derive_grouped_indicators.py \
+  --site-pack dss/sites/valparai \
+  --recipe dss/sites/valparai/derived/restoration_plot_indicators_v1/recipe.json \
+  --output-csv dss/sites/valparai/derived/restoration_plot_indicators_v1/plot_indicators.csv \
+  --manifest dss/sites/valparai/derived/restoration_plot_indicators_v1/manifest.json
+
+python3 -m unittest \
+  dss.visual_index.tests.test_derive_grouped_indicators \
+  dss.visual_index.tests.test_build \
+  dss.visual_index.tests.test_result_service -v
 ```
 
 The current build indexes:
 
-- 19 source records, including one reproducible multi-asset derived feature cube;
+- 20 source records, including a reproducible multi-asset feature cube and a derived
+  plot-indicator source;
 - 45,328 source-linked events, including 3,199 regeneration rows and 10,752
   restoration-study bird/tree records;
 - 42,348 georeferenced events;
@@ -45,7 +57,8 @@ The current build indexes:
 - 161 named/source locations;
 - 974 explicit effort rows, including 460 fifteen-minute bird point counts and 264
   declared 0.04-hectare adult-tree or regeneration plots;
-- 68,194 typed weather, canopy, carbon, tree-structure, seed-fate and habitat measurement rows;
+- 70,438 typed weather, canopy, carbon, tree-structure, seed-fate and habitat measurement rows,
+  including 17 method-linked indicators for each of 132 restoration/reference plots;
 - 5,622 explicit visitor–focal-tree or animal–seed-experiment association rows; and
 - 28,764 finite 2024 Earth-observation feature values across 97 available features, with
   832 cloudy-season gaps retained as missing; and
@@ -63,8 +76,12 @@ results; they are not silently promoted to treatment effects or population estim
 The cell-feature capability maps any indexed feature-year through the same typed operation and
 keeps unit, evidence class, source asset, scale and missing support in the result. Environmental
 surfaces remain context or model inputs; they never become presence records.
+The plot-indicator capability maps a unit-compatible derived or observed measurement and returns
+category distributions with the map. Its generic binding is metric, source and category-property;
+the operation itself contains no Valparai treatment names or indicator formulas. Formulae,
+denominators and gates remain in the source-linked recipe and method cards.
 
-Eleven typed probes are immediately executable, alongside five visual-contract probes awaiting
+Thirteen typed probes are immediately executable, alongside five visual-contract probes awaiting
 their next producer operation. Transfer now produces a versioned all-axis AlphaEarth
 environmental-analogue screen, spatial support gates, observed donor points and unsupported
 target cells. It remains partial because similarity has not passed an effort-aware predictive

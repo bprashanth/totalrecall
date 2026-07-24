@@ -188,6 +188,34 @@
       "latency_class": "interactive",
       "evidence_classes": ["derived", "modelled", "missing"],
       "availability": "ready"
+    },
+    {
+      "capability_id": "plot-indicator-profile",
+      "version": "1.0.0",
+      "label": "Map a source-linked plot indicator and compare declared categories",
+      "input_schema": {
+        "type": "object",
+        "required": ["metric"],
+        "properties": {
+          "metric": {"type": "string", "minLength": 1},
+          "source_id": {"type": "string", "minLength": 1},
+          "category_property": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,63}$",
+            "default": "comparison_class"
+          }
+        },
+        "additionalProperties": false
+      },
+      "output_views": [
+        "plot-indicator-map",
+        "plot-indicator-category-summary"
+      ],
+      "required_planes": ["measurements", "metric_definitions", "locations"],
+      "optional_planes": ["effort", "entity_hierarchy"],
+      "latency_class": "interactive",
+      "evidence_classes": ["observed", "derived", "missing"],
+      "availability": "ready"
     }
   ]
 }

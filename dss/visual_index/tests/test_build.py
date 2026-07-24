@@ -33,11 +33,11 @@ class ValparaiVisualIndexTest(unittest.TestCase):
     def test_build_is_complete_and_fast(self):
         report = json.loads((self.output / "build_report.json").read_text())
         self.assertEqual(report["integrity"], "ok")
-        self.assertEqual(report["sources"], 19)
+        self.assertEqual(report["sources"], 20)
         self.assertEqual(report["events"], 45_328)
         self.assertEqual(report["georeferenced_events"], 42_348)
         self.assertEqual(report["effort_rows"], 974)
-        self.assertEqual(report["measurements"], 68_194)
+        self.assertEqual(report["measurements"], 70_438)
         self.assertEqual(report["interactions"], 5_622)
         self.assertEqual(report["cell_features"], 28_764)
         self.assertEqual(report["entities"], 1_145)
@@ -113,6 +113,36 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         )
         self.assertIn("Distribution", trait)
         self.assertIn("disperser", trait)
+
+    def test_derived_plot_indicators_retain_units_methods_and_plot_denominators(self):
+        count, plots, metrics = self.db.execute(
+            """SELECT COUNT(*),COUNT(DISTINCT location_id),COUNT(DISTINCT metric)
+               FROM measurements
+               WHERE source_id='derived-restoration-plot-indicators-v1'"""
+        ).fetchone()
+        self.assertEqual((count, plots, metrics), (132 * 17, 132, 17))
+        definition = self.db.execute(
+            """SELECT label,unit,evidence_class,method_id
+               FROM metric_definitions
+               WHERE source_id='derived-restoration-plot-indicators-v1'
+                 AND metric='adult_aboveground_carbon_per_ha'"""
+        ).fetchone()
+        self.assertEqual(
+            definition,
+            (
+                "Adult-tree aboveground carbon per hectare",
+                "Mg/ha",
+                "derived",
+                "plot-area-normalised-adult-tree-stocks",
+            ),
+        )
+        minimum, maximum = self.db.execute(
+            """SELECT MIN(value),MAX(value) FROM measurements
+               WHERE source_id='derived-restoration-plot-indicators-v1'
+                 AND metric='adult_tree_count_per_0.04ha_plot'"""
+        ).fetchone()
+        self.assertEqual(minimum, 0)
+        self.assertGreater(maximum, 40)
 
     def test_duplicate_upstream_keys_do_not_drop_source_rows(self):
         expected = {

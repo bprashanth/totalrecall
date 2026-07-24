@@ -63,6 +63,11 @@ CREATE TABLE measurements (
   event_date TEXT, year INTEGER, month INTEGER, latitude REAL, longitude REAL,
   cell_id TEXT, properties_json TEXT NOT NULL
 );
+CREATE TABLE metric_definitions (
+  source_id TEXT NOT NULL, metric TEXT NOT NULL, label TEXT NOT NULL,
+  description TEXT, unit TEXT NOT NULL, evidence_class TEXT NOT NULL,
+  method_id TEXT, PRIMARY KEY(source_id, metric)
+);
 CREATE TABLE interactions (
   interaction_id TEXT PRIMARY KEY, source_id TEXT NOT NULL, source_row INTEGER NOT NULL,
   subject_entity_id TEXT NOT NULL, object_entity_id TEXT NOT NULL,
@@ -659,6 +664,22 @@ class Builder:
             for metric, unit in spec.get("metrics", {}).items():
                 source_column = spec.get("metric_columns", {}).get(metric, metric)
                 self.sql.execute(
+                    """INSERT OR REPLACE INTO metric_definitions
+                       (source_id,metric,label,description,unit,evidence_class,method_id)
+                       VALUES(?,?,?,?,?,?,?)""",
+                    (
+                        source["source_id"],
+                        metric,
+                        spec.get("metric_labels", {}).get(
+                            metric, metric.replace("_", " ").strip().capitalize()
+                        ),
+                        spec.get("metric_descriptions", {}).get(metric),
+                        unit,
+                        spec.get("evidence_class", "observed"),
+                        spec.get("metric_methods", {}).get(metric),
+                    ),
+                )
+                self.sql.execute(
                     "INSERT OR REPLACE INTO measurements VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (
                         _stable(
@@ -800,6 +821,10 @@ class Builder:
             (
                 "cell_feature_map", "map",
                 "Cell-aligned context or predictor surface", "ready", None,
+            ),
+            (
+                "plot_indicator_map", "map",
+                "Source-linked plot indicator and category distributions", "ready", None,
             ),
             ("hierarchy_sunburst", "hierarchy", "Entity hierarchy", "ready", None),
             (

@@ -52,6 +52,17 @@ def _key(value: Any) -> str:
     ).strip()
 
 
+def _percentile(values: list[float], fraction: float) -> float:
+    ordered = sorted(values)
+    if not ordered:
+        raise ValueError("cannot calculate a percentile of no values")
+    position = (len(ordered) - 1) * fraction
+    lower = int(position)
+    upper = min(lower + 1, len(ordered) - 1)
+    weight = position - lower
+    return ordered[lower] * (1 - weight) + ordered[upper] * weight
+
+
 def _load_json(path: pathlib.Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -289,6 +300,7 @@ class ResultService:
             "gated-transfer": self._gated_transfer,
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
+            "plot-indicator-profile": self._plot_indicator_profile,
         }
         implementation = dispatch.get(capability_id)
         if not implementation:
@@ -2269,6 +2281,295 @@ class ResultService:
             {
                 "metric-series": ("application/json", rows),
                 "coverage-strip": ("application/json", coverage),
+            },
+        )
+
+    def _plot_indicator_profile(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if (
+            "metric" not in arguments
+            or not set(arguments).issubset({"metric", "source_id", "category_property"})
+        ):
+            raise ValueError(
+                "plot-indicator-profile requires metric and accepts optional "
+                "source_id and category_property"
+            )
+        metric = str(arguments.get("metric") or "").strip()
+        source_id = str(arguments.get("source_id") or "").strip()
+        category_property = str(
+            arguments.get("category_property") or "comparison_class"
+        ).strip()
+        if (
+            not metric
+            or len(metric) > 200
+            or len(source_id) > 200
+            or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", category_property)
+        ):
+            raise ValueError("metric, source_id or category_property is invalid")
+        source_filter = " AND m.source_id=?" if source_id else ""
+        parameters: list[Any] = [metric]
+        if source_id:
+            parameters.append(source_id)
+        with self.connect() as connection:
+            rows = [
+                dict(row) for row in connection.execute(
+                    f"""SELECT m.measurement_id,m.source_id,m.source_row,m.location_id,
+                               m.metric,m.value,m.unit,m.latitude,m.longitude,
+                               m.properties_json,d.label,d.description,
+                               d.evidence_class,d.method_id
+                        FROM measurements m
+                        LEFT JOIN metric_definitions d
+                          ON d.source_id=m.source_id AND d.metric=m.metric
+                        WHERE lower(m.metric)=lower(?) {source_filter}
+                          AND m.value IS NOT NULL
+                          AND m.latitude IS NOT NULL AND m.longitude IS NOT NULL
+                        ORDER BY m.source_id,m.location_id,m.source_row""",
+                    parameters,
+                )
+            ]
+            if not rows:
+                available = [
+                    {
+                        "source_id": row["source_id"],
+                        "metric": row["metric"],
+                        "label": row["label"],
+                    }
+                    for row in connection.execute(
+                        """SELECT source_id,metric,label FROM metric_definitions
+                           ORDER BY source_id,metric LIMIT 100"""
+                    )
+                ]
+                sources = self._source_versions(
+                    connection, {source_id} if source_id else None
+                )
+                result = self._base_result(
+                    request_id, "plot-indicator-profile", original,
+                    "Resolve a plot-level metric, then map its values and compare declared categories.",
+                    {
+                        "metric": metric,
+                        **({"source_id": source_id} if source_id else {}),
+                        "category_property": category_property,
+                    },
+                    f"No georeferenced plot values matched “{metric}”.",
+                    ["missing"], "blocked", sources,
+                )
+                result["limitations"].append(self._limitation(
+                    "unresolved-plot-indicator",
+                    "No indexed georeferenced measurements match this metric and source.",
+                    severity="error", affects=["answer"],
+                ))
+                result["actions"] = [self._action(
+                    "choose-plot-indicator", "filter", "Choose an indexed plot indicator",
+                    "plot-indicator-profile", {"available_metrics": available},
+                )]
+                return self._write_result(result, {})
+            source_ids = {row["source_id"] for row in rows}
+            sources = self._source_versions(connection, source_ids)
+        units = sorted({row["unit"] for row in rows})
+        if len(units) != 1:
+            result = self._base_result(
+                request_id, "plot-indicator-profile", original,
+                "Map one unit-compatible plot metric and compare declared categories.",
+                {
+                    "metric": rows[0]["metric"],
+                    **({"source_id": source_id} if source_id else {}),
+                    "category_property": category_property,
+                },
+                "The selected plot indicator has incompatible units.",
+                ["missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "mixed-metric-units",
+                "Select a source-specific metric before comparing or mapping these values.",
+                severity="error", affects=["answer"],
+            ))
+            return self._write_result(result, {})
+        for row in rows:
+            properties = json.loads(row.pop("properties_json") or "{}")
+            row["category"] = str(
+                properties.get(category_property) or "Unspecified"
+            )
+            row["label"] = row["label"] or row["metric"].replace("_", " ").title()
+            row["plot_label"] = str(
+                properties.get("plot_label") or row["location_id"] or "Plot"
+            )
+            row["properties"] = properties
+        metric_id = rows[0]["metric"]
+        metric_label = rows[0]["label"]
+        evidence_classes = sorted({
+            row["evidence_class"] or "observed" for row in rows
+        })
+        categories = sorted({row["category"] for row in rows})
+        summaries = []
+        for category in categories:
+            members = [row for row in rows if row["category"] == category]
+            values = [float(row["value"]) for row in members]
+            summaries.append({
+                "category": category,
+                "plots": len(values),
+                "mean": statistics.fmean(values),
+                "minimum": min(values),
+                "q25": _percentile(values, 0.25),
+                "median": statistics.median(values),
+                "q75": _percentile(values, 0.75),
+                "maximum": max(values),
+                "unit": units[0],
+            })
+        points = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": row["measurement_id"],
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [row["longitude"], row["latitude"]],
+                },
+                "properties": {
+                    "label": (
+                        f"{row['plot_label']} · {row['category']} · "
+                        f"{row['value']:.3g} {row['unit']}"
+                    ),
+                    "plot_id": row["location_id"],
+                    "plot_label": row["plot_label"],
+                    "category": row["category"],
+                    "value": row["value"],
+                    "unit": row["unit"],
+                    "source_id": row["source_id"],
+                    "source_row": row["source_row"],
+                    "method_id": row["method_id"],
+                },
+            } for row in rows],
+        }
+        target_boundary = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": "declared-target-aoi",
+                "geometry": self.site["target_aoi"]["geometry"],
+                "properties": {
+                    "label": self.site["label"],
+                    "geometry_role": self.site["target_aoi"]["geometry_role"],
+                },
+            }],
+        }
+        limitations = [self._limitation(
+            "descriptive-not-causal",
+            "The mapped and grouped plot values are descriptive; category differences are not a causal treatment effect.",
+            affects=["plot-indicator-map", "plot-indicator-summary", "answer"],
+        )]
+        headline = (
+            f"{metric_label} is mapped for {len(rows):,} plots across "
+            f"{len(categories):,} {category_property.replace('_', ' ')} categories."
+        )
+        result = self._base_result(
+            request_id, "plot-indicator-profile", original,
+            (
+                f"Map {metric_id} and summarise it by the source-reported "
+                f"{category_property}."
+            ),
+            {
+                "metric": metric_id,
+                **({"source_id": source_id} if source_id else {}),
+                "category_property": category_property,
+            },
+            headline, evidence_classes, "partial", sources,
+        )
+        result["answer"]["detail"] = (
+            "Each point retains its source row, method reference and unit. The supporting "
+            "table shows distributions by category, not only totals or fitted means."
+        )
+        result["limitations"].extend(limitations)
+        points_ref = self._data_ref("plot-indicator-points", "application/geo+json", points)
+        boundary_ref = self._data_ref(
+            "plot-indicator-target-boundary", "application/geo+json", target_boundary
+        )
+        summary_ref = self._data_ref(
+            "plot-indicator-category-summary", "application/json", summaries
+        )
+        rows_ref = self._data_ref("plot-indicator-source-rows", "application/json", rows)
+        scope = {"aoi_ids": ["target", "context"], "time": {"start": None, "end": None}}
+        denominators = {
+            "plots": len(rows),
+            "categories": len(categories),
+            "sources": len(source_ids),
+            "unit": units[0],
+        }
+        result["visuals"] = [
+            {
+                "visual_id": "plot-indicator-map",
+                "visual_type": "map",
+                "view": "plot-indicator-map",
+                "title": metric_label,
+                "priority": "primary",
+                "status": "partial",
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "plot-indicator-points",
+                    "evidence_class": evidence_classes[0],
+                    "geometry_type": "point",
+                    "data_ref": points_ref,
+                    "legend": {"label": f"{metric_label} ({units[0]})"},
+                    "style_hint": {
+                        "palette_role": evidence_classes[0],
+                        "category_field": "category",
+                        "size_field": "value",
+                        "value_field": "value",
+                    },
+                }, {
+                    "layer_id": "plot-indicator-target-boundary",
+                    "evidence_class": "reported",
+                    "geometry_type": "line",
+                    "data_ref": boundary_ref,
+                    "legend": {"label": "Declared analysis area"},
+                    "style_hint": {"palette_role": "reported"},
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-plot-values",
+                    "label": "Inspect plot values and method references",
+                    "data_ref": rows_ref,
+                }],
+                "limitations": limitations,
+            },
+            {
+                "visual_id": "plot-indicator-summary",
+                "visual_type": "table",
+                "view": "plot-indicator-category-summary",
+                "title": f"{metric_label} by {category_property.replace('_', ' ')}",
+                "priority": "supporting",
+                "status": "partial",
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "plot-indicator-category-summary",
+                    "evidence_class": "derived",
+                    "geometry_type": "table",
+                    "data_ref": summary_ref,
+                    "legend": {"label": "Plot distribution by category"},
+                    "style_hint": {
+                        "palette_role": "derived",
+                        "category_field": "category",
+                        "value_fields": ["median", "q25", "q75", "plots"],
+                    },
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-category-distributions",
+                    "label": "Inspect category distributions",
+                    "data_ref": summary_ref,
+                }],
+                "limitations": limitations,
+            },
+        ]
+        return self._write_result(
+            result,
+            {
+                "plot-indicator-points": ("application/geo+json", points),
+                "plot-indicator-target-boundary": (
+                    "application/geo+json", target_boundary
+                ),
+                "plot-indicator-category-summary": ("application/json", summaries),
+                "plot-indicator-source-rows": ("application/json", rows),
             },
         )
 

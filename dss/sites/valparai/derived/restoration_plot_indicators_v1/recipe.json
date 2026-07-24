@@ -1,0 +1,269 @@
+{
+  "schema_version": "grouped-indicator-recipe/0.1",
+  "recipe_id": "restoration-plot-indicators",
+  "version": "1.0.0",
+  "method_references": [
+    "methods/method_cards.json#plot-area-normalised-adult-tree-stocks",
+    "methods/method_cards.json#trait-qualified-plot-diversity"
+  ],
+  "dimensions": {
+    "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+    "key": "Site_ID",
+    "fields": [
+      {"column": "Site_ID", "output": "plot_id"},
+      {"column": "Site_name", "output": "plot_label"},
+      {"column": "Treatment", "output": "comparison_class"},
+      {"column": "Lat_final", "output": "latitude"},
+      {"column": "Long_final", "output": "longitude"},
+      {"column": "CanCover", "output": "canopy_cover_percent"},
+      {"column": "dist_PA", "output": "distance_to_protected_area_m"}
+    ]
+  },
+  "inputs": {
+    "adult": {
+      "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_tree_data.csv",
+      "group_by": "Site_ID"
+    },
+    "regeneration": {
+      "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_regen_data.csv",
+      "group_by": "Site_ID"
+    }
+  },
+  "rollups": [
+    {
+      "metric_id": "adult_tree_count_per_0.04ha_plot",
+      "label": "Adult-tree count in sampled 0.04 ha plot",
+      "unit": "count/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "plot-area-normalised-adult-tree-stocks",
+      "input": "adult",
+      "operation": "row_count",
+      "filter": {"field": "Habit", "eq": "Tree"}
+    },
+    {
+      "metric_id": "adult_tree_species_richness",
+      "label": "Adult-tree species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "adult",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {"field": "Habit", "eq": "Tree"}
+    },
+    {
+      "metric_id": "adult_old_growth_species_richness",
+      "label": "Adult old-growth tree species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "adult",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {
+        "all": [
+          {"field": "Habit", "eq": "Tree"},
+          {"field": "habt_new", "eq": "Mature"}
+        ]
+      }
+    },
+    {
+      "metric_id": "adult_introduced_species_richness",
+      "label": "Adult introduced species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "adult",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {"field": "habt_new", "eq": "Int"}
+    },
+    {
+      "metric_id": "adult_threatened_or_endemic_species_richness",
+      "label": "Adult threatened or endemic tree species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "adult",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {
+        "all": [
+          {"field": "Habit", "eq": "Tree"},
+          {
+            "any": [
+              {"field": "Distribution", "eq": "Endemic"},
+              {"field": "IUCN_status", "in": ["CR", "EN", "VU"]}
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "metric_id": "adult_medium_large_animal_dispersed_species_richness",
+      "label": "Adult medium- or large-seeded animal-dispersed species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "adult",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {
+        "all": [
+          {"field": "Habit", "eq": "Tree"},
+          {"field": "Distribution", "not_eq": "Introduced"},
+          {"field": "disperser", "in": ["Bird", "Mammal", "Mammal_bird"]},
+          {"field": "seed_size", "in": ["M", "L"]}
+        ]
+      }
+    },
+    {
+      "metric_id": "adult_basal_area_per_ha",
+      "label": "Adult-tree basal area per hectare",
+      "unit": "m2/ha",
+      "evidence_class": "derived",
+      "method_id": "plot-area-normalised-adult-tree-stocks",
+      "input": "adult",
+      "operation": "sum",
+      "field": "Basal",
+      "scale": 25,
+      "empty_value": 0,
+      "filter": {"field": "Habit", "eq": "Tree"}
+    },
+    {
+      "metric_id": "adult_aboveground_carbon_per_ha",
+      "label": "Adult-tree aboveground carbon per hectare",
+      "unit": "Mg/ha",
+      "evidence_class": "derived",
+      "method_id": "plot-area-normalised-adult-tree-stocks",
+      "input": "adult",
+      "operation": "sum",
+      "field": "Carbon",
+      "scale": 25,
+      "empty_value": 0,
+      "filter": {"field": "Habit", "eq": "Tree"}
+    },
+    {
+      "metric_id": "adult_mean_wood_density",
+      "label": "Mean adult-tree wood density",
+      "unit": "g/cm3",
+      "evidence_class": "derived",
+      "method_id": "plot-area-normalised-adult-tree-stocks",
+      "input": "adult",
+      "operation": "mean",
+      "field": "Wden_final",
+      "filter": {"field": "Habit", "eq": "Tree"}
+    },
+    {
+      "metric_id": "adult_mean_height",
+      "label": "Mean adult-tree height",
+      "unit": "m",
+      "evidence_class": "derived",
+      "method_id": "plot-area-normalised-adult-tree-stocks",
+      "input": "adult",
+      "operation": "mean",
+      "field": "ad_ht",
+      "filter": {"field": "Habit", "eq": "Tree"}
+    },
+    {
+      "metric_id": "regeneration_individual_count_per_0.04ha_plot",
+      "label": "Regenerating-tree individual count in sampled 0.04 ha plot",
+      "unit": "count/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "regeneration",
+      "operation": "sum",
+      "field": "Abun",
+      "empty_value": 0,
+      "filter": {"field": "Habit", "eq": "Tree"}
+    },
+    {
+      "metric_id": "regeneration_tree_species_richness",
+      "label": "Regenerating-tree species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "regeneration",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {"field": "Habit", "eq": "Tree"}
+    },
+    {
+      "metric_id": "regeneration_old_growth_species_richness",
+      "label": "Regenerating old-growth tree species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "regeneration",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {
+        "all": [
+          {"field": "Habit", "eq": "Tree"},
+          {"field": "habt_new", "eq": "Mature"}
+        ]
+      }
+    },
+    {
+      "metric_id": "regeneration_introduced_species_richness",
+      "label": "Regenerating introduced species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "regeneration",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {"field": "habt_new", "eq": "Int"}
+    },
+    {
+      "metric_id": "regeneration_threatened_or_endemic_species_richness",
+      "label": "Regenerating threatened or endemic tree species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "regeneration",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {
+        "all": [
+          {"field": "Habit", "eq": "Tree"},
+          {
+            "any": [
+              {"field": "Distribution", "eq": "Endemic"},
+              {"field": "IUCN_status", "in": ["CR", "EN", "VU"]}
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "metric_id": "regeneration_medium_large_animal_dispersed_species_richness",
+      "label": "Regenerating medium- or large-seeded animal-dispersed species richness",
+      "unit": "species/0.04-ha-plot",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "regeneration",
+      "operation": "n_distinct",
+      "field": "Accept_name_WFO",
+      "filter": {
+        "all": [
+          {"field": "Habit", "eq": "Tree"},
+          {"field": "Distribution", "not_eq": "Introduced"},
+          {"field": "disperser", "in": ["Bird", "Mammal", "Mammal_bird"]},
+          {"field": "seed_size", "in": ["M", "L"]}
+        ]
+      }
+    },
+    {
+      "metric_id": "regeneration_mean_wood_density",
+      "label": "Mean regenerating-tree wood density",
+      "unit": "g/cm3",
+      "evidence_class": "derived",
+      "method_id": "trait-qualified-plot-diversity",
+      "input": "regeneration",
+      "operation": "mean",
+      "field": "Wden_final",
+      "filter": {"field": "Habit", "eq": "Tree"}
+    }
+  ]
+}
