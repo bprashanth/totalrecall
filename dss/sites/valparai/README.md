@@ -86,8 +86,12 @@ The matrix capability groups any compatible source-linked x/y matrix by a declar
 keeps contributing sites on a supporting map. For the acoustic source it exposes frequency-time
 patterns and recorder coverage; within-site scaling and the distinction between soundscape
 activity and bird detections remain explicit limitations.
+The method-catalog capability exposes source-linked inputs, implementation state, uncertainty,
+gates and claim limits. It is an analysis-design lookup, not a model run, and lets the dialogue
+layer explain what can be executed, what needs a wider data search and what still needs a model
+request.
 
-Fourteen typed probes are immediately executable, alongside five visual-contract probes awaiting
+Fifteen typed probes are immediately executable, alongside five visual-contract probes awaiting
 their next producer operation. Transfer now produces a versioned all-axis AlphaEarth
 environmental-analogue screen, spatial support gates, observed donor points and unsupported
 target cells. It remains partial because similarity has not passed an effort-aware predictive

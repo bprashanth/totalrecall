@@ -889,6 +889,10 @@ class Builder:
                 "matrix_profile", "matrix",
                 "Grouped matrix with source coverage and site map", "ready", None,
             ),
+            (
+                "method_catalog", "table",
+                "Source-linked method readiness, inputs and gates", "ready", None,
+            ),
             ("hierarchy_sunburst", "hierarchy", "Entity hierarchy", "ready", None),
             (
                 "donor_coverage_and_gate_map", "map", "Donor coverage, target and gate result",

@@ -241,6 +241,25 @@
       "latency_class": "interactive",
       "evidence_classes": ["derived", "missing"],
       "availability": "ready"
+    },
+    {
+      "capability_id": "method-catalog",
+      "version": "1.0.0",
+      "label": "Inspect source-linked analysis methods, gates and claim limits",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "method_id": {"type": "string", "minLength": 1},
+          "applies_to": {"type": "string", "minLength": 1}
+        },
+        "additionalProperties": false
+      },
+      "output_views": ["method-catalog"],
+      "required_planes": ["method_cards"],
+      "optional_planes": ["measurements", "events", "effort", "cell_features"],
+      "latency_class": "interactive",
+      "evidence_classes": ["reported", "missing"],
+      "availability": "ready"
     }
   ]
 }

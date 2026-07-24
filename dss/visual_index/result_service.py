@@ -97,6 +97,13 @@ class ResultService:
             item["capability_id"]: item
             for item in self.capability_registry.get("capabilities", [])
         }
+        method_catalog_path = self.site_pack / "methods" / "method_cards.json"
+        self.method_catalog_path = (
+            method_catalog_path if method_catalog_path.is_file() else None
+        )
+        self.method_catalog = (
+            _load_json(method_catalog_path) if self.method_catalog_path else None
+        )
         if not self.index_path.is_file():
             raise FileNotFoundError(self.index_path)
         if not self.capabilities:
@@ -302,6 +309,7 @@ class ResultService:
             "metric-time-series": self._metric_time_series,
             "plot-indicator-profile": self._plot_indicator_profile,
             "matrix-profile": self._matrix_profile,
+            "method-catalog": self._method_catalog,
         }
         implementation = dispatch.get(capability_id)
         if not implementation:
@@ -2838,6 +2846,161 @@ class ResultService:
                 "grouped-matrix-values": ("application/json", matrix_rows),
                 "matrix-series-sites": ("application/geo+json", points),
                 "matrix-series-summary": ("application/json", site_rows),
+            },
+        )
+
+    def _method_catalog(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if not set(arguments).issubset({"method_id", "applies_to"}):
+            raise ValueError("method-catalog accepts only method_id and applies_to")
+        method_id = str(arguments.get("method_id") or "").strip()
+        applies_to = str(arguments.get("applies_to") or "").strip()
+        if len(method_id) > 200 or len(applies_to) > 200:
+            raise ValueError("method-catalog filters are too long")
+        catalog_source = [{
+            "source_id": "site-method-catalog",
+            "version": (
+                self.method_catalog.get("schema_version")
+                if self.method_catalog else None
+            ),
+            "digest": (
+                _digest(self.method_catalog_path.read_bytes())
+                if self.method_catalog_path else _digest(b"")
+            ),
+            "synthetic": self.synthetic,
+        }]
+        if not self.method_catalog:
+            result = self._base_result(
+                request_id, "method-catalog", original,
+                "Filter source-linked method cards by identifier or compatible input plane.",
+                arguments,
+                "This site pack has no admitted method catalog.",
+                ["missing"], "blocked", catalog_source,
+            )
+            result["limitations"].append(self._limitation(
+                "method-catalog-not-onboarded",
+                "Add source-linked method cards before suggesting a pack-admitted analysis.",
+                severity="error", affects=["answer"],
+            ))
+            return self._write_result(result, {})
+        cards = []
+        for card in self.method_catalog.get("method_cards", []):
+            if method_id and _key(card.get("method_id")) != _key(method_id):
+                continue
+            if applies_to and _key(applies_to) not in {
+                _key(value) for value in card.get("applies_to", [])
+            }:
+                continue
+            cards.append({
+                key: card.get(key)
+                for key in (
+                    "method_id", "label", "implementation_state", "applies_to",
+                    "required_inputs", "first_visual", "evidence_class",
+                    "allowed_claim", "forbidden_claim", "gates",
+                    "uncertainty", "source_instantiation", "source_code",
+                )
+            })
+        if not cards:
+            result = self._base_result(
+                request_id, "method-catalog", original,
+                "Filter source-linked method cards by identifier or compatible input plane.",
+                arguments,
+                "No admitted method card matches these filters.",
+                ["missing"], "blocked", catalog_source,
+            )
+            result["limitations"].append(self._limitation(
+                "no-compatible-method-card",
+                "The method catalog has no card for this identifier or input plane.",
+                severity="error", affects=["answer"],
+            ))
+            available = [
+                card.get("method_id")
+                for card in self.method_catalog.get("method_cards", [])
+            ]
+            result["actions"] = [self._action(
+                "choose-method-card", "filter", "Choose an admitted method card",
+                "method-catalog", {"available_method_ids": available},
+            )]
+            return self._write_result(result, {})
+        summary_rows = [{
+            "method_id": card["method_id"],
+            "label": card["label"],
+            "implementation_state": card["implementation_state"],
+            "applies_to": card["applies_to"],
+            "evidence_class": card["evidence_class"],
+            "first_visual": card["first_visual"],
+            "required_input_count": len(card.get("required_inputs") or []),
+            "gate_count": len(card.get("gates") or []),
+        } for card in cards]
+        ready = sum(
+            card["implementation_state"] in {"specified", "ready"}
+            for card in cards
+        )
+        headline = (
+            f"{len(cards):,} source-linked method card"
+            f"{'s' if len(cards) != 1 else ''} match; {ready:,} are specified without "
+            "an additional implementation-review state."
+        )
+        result = self._base_result(
+            request_id, "method-catalog", original,
+            "Inspect admitted method assumptions, inputs, gates, visuals and claim limits.",
+            arguments, headline, ["reported"], "partial", catalog_source,
+        )
+        result["answer"]["detail"] = (
+            "A matching method is not automatically runnable. Its required inputs, "
+            "implementation state and gates determine whether the dialogue layer should "
+            "execute it, broaden the data search, or request a model."
+        )
+        result["limitations"].append(self._limitation(
+            "method-card-not-model-run",
+            "These cards document source-linked analysis designs; they are not fitted model results.",
+            affects=["method-catalog", "answer"],
+        ))
+        summary_ref = self._data_ref(
+            "method-card-summary", "application/json", summary_rows
+        )
+        detail_ref = self._data_ref("method-card-details", "application/json", cards)
+        result["visuals"] = [{
+            "visual_id": "method-catalog",
+            "visual_type": "table",
+            "view": "method-catalog",
+            "title": "Admitted analysis methods and readiness",
+            "priority": "primary",
+            "status": "partial",
+            "scope": {"aoi_ids": [], "time": {"start": None, "end": None}},
+            "layers": [{
+                "layer_id": "method-card-summary",
+                "evidence_class": "reported",
+                "geometry_type": "table",
+                "data_ref": summary_ref,
+                "legend": {"label": "Source-linked method cards"},
+                "style_hint": {
+                    "palette_role": "reported",
+                    "category_field": "implementation_state",
+                    "value_fields": ["required_input_count", "gate_count"],
+                },
+            }],
+            "summary": {
+                "headline": headline,
+                "denominators": {
+                    "methods": len(cards),
+                    "specified": ready,
+                    "catalog_version": self.method_catalog["schema_version"],
+                },
+            },
+            "drilldowns": [{
+                "action_id": "inspect-method-card-details",
+                "label": "Inspect inputs, gates and claim limits",
+                "data_ref": detail_ref,
+            }],
+            "limitations": result["limitations"],
+        }]
+        return self._write_result(
+            result,
+            {
+                "method-card-summary": ("application/json", summary_rows),
+                "method-card-details": ("application/json", cards),
             },
         )
 

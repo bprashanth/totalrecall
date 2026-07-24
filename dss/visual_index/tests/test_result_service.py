@@ -359,6 +359,32 @@ class ValparaiResultServiceTest(unittest.TestCase):
             {item["code"] for item in result["limitations"]},
         )
 
+    def test_method_catalog_exposes_occupancy_inputs_gates_and_claim_limits(self):
+        result = self.service.query(
+            "occupancy-method-1",
+            "method-catalog",
+            {"method_id": "detection-aware-single-season-occupancy"},
+            "How can we model bird presence when survey effort is uneven?",
+        )
+        self.assert_contract(result)
+        self.assertEqual(result["visuals"][0]["visual_type"], "table")
+        self.assertEqual(
+            result["visuals"][0]["summary"]["denominators"]["methods"], 1
+        )
+        details = json.loads(
+            self.service.load_data(result["result_id"], "method-card-details")[1]
+        )
+        self.assertEqual(
+            details[0]["method_id"], "detection-aware-single-season-occupancy"
+        )
+        self.assertIn("repeat_visit_id", details[0]["required_inputs"])
+        self.assertGreaterEqual(len(details[0]["gates"]), 6)
+        self.assertIn("confirmed local presence", details[0]["forbidden_claim"])
+        self.assertIn(
+            "method-card-not-model-run",
+            {item["code"] for item in result["limitations"]},
+        )
+
     def test_feature_with_no_finite_support_is_blocked_not_zero_filled(self):
         result = self.service.query(
             "cloudy-july-1",
@@ -541,7 +567,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            expected_typed = 14 if pack_name == "real" else 7
+            expected_typed = 15 if pack_name == "real" else 7
             self.assertEqual(len(typed), expected_typed)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):
