@@ -32,6 +32,9 @@ Wording alone cannot satisfy a data, model or visual requirement.
 14. Interaction: answer is concise, one useful next choice is offered, and live activity identifies
     the current stage without leaking raw comments.
 15. Latency: record time to first progress, first completed skill, answer, visual and dashboard.
+16. Sparse-data expansion: an exact-site non-match can widen to a declared radius, show the
+    returned donor points and target AOI, then bind scientific execution to those exact result
+    snapshots without a source lottery.
 
 ## Critical failures
 
@@ -44,6 +47,9 @@ Wording alone cannot satisfy a data, model or visual requirement.
 - Connector failure silently changes the estimand or source family.
 - A dashboard contains a metric absent from audited results.
 - The UI says Modelled when no validated `ESTIMATE` answered.
+- A snapshot-backed scientific pass silently reruns or substitutes the occurrence source.
+- A dangerous-taxa display labels an unvalidated area safe or merges species-specific transfer
+  results into a presence claim.
 
 ## Visual checks
 

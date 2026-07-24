@@ -22,7 +22,7 @@ class CodexNativeBridgeTests(unittest.TestCase):
             "late-bound-skills" / "skills.json"
         ).read_text())
         self.assertEqual(len(benchmark["skills"]), 12)
-        self.assertEqual(len(SERVER.SKILLS), 23)
+        self.assertEqual(len(SERVER.SKILLS), 24)
         self.assertIn("vegetation-greenness-trend", SERVER.SKILLS_BY_ID)
         self.assertIn("gated-species-presence-transfer", SERVER.SKILLS_BY_ID)
         self.assertIn("request-model-from-t4gc", SERVER.SKILLS_BY_ID)
@@ -37,6 +37,7 @@ class CodexNativeBridgeTests(unittest.TestCase):
         self.assertIn("publish-evidence-dashboard", SERVER.SKILLS_BY_ID)
         self.assertIn("site-overview", SERVER.SKILLS_BY_ID)
         self.assertIn("compile-scientific-algebra-9b", SERVER.SKILLS_BY_ID)
+        self.assertIn("map-evidence-coverage", SERVER.SKILLS_BY_ID)
         self.assertNotIn("plan-data-with-algebra-9b", SERVER.SKILLS_BY_ID)
         self.assertIn("Lantana-only", SERVER.SKILLS_BY_ID[
             "semantic-literature-discovery"]["description"])
@@ -45,6 +46,100 @@ class CodexNativeBridgeTests(unittest.TestCase):
         skill = SERVER.SKILLS_BY_ID["merged-taxon-occurrence-search"]
         ir = SERVER._skill_ir(skill, {"entity": "Elephas maximus", "region": "donor belt"})
         self.assertEqual(ir["region"]["place"], "dry-Deccan donor belt")
+
+    def test_radius_builds_a_generic_buffer_without_changing_the_frozen_ir(self):
+        skill = SERVER.SKILLS_BY_ID["merged-taxon-occurrence-search"]
+        ir = SERVER._skill_ir(skill, {
+            "entity": "Daboia russelii", "region": "EBTL", "radius_km": 200,
+        })
+        self.assertEqual(ir["region"]["op"], "BUFFER")
+        self.assertEqual(ir["region"]["radius_km"], 200.0)
+        self.assertEqual(ir["region"]["source"]["place"], "EBTL")
+
+    def test_transport_date_context_is_removed_before_ecology_routing(self):
+        message = """Tell me about the site
+
+[Context — current date/time, refreshed each turn; not part of your instructions]
+## Current date and time
+Today is Friday, July 24, 2026.
+When scheduling calendar events with manage_calendar, pass local ISO datetimes.
+When scheduling a task with manage_tasks, scheduled_time is in UTC: convert the user's stated local time using the UTC offset above.
+
+Tell me about the site"""
+        self.assertEqual(SERVER._clean_user_message(message), "Tell me about the site")
+        self.assertEqual(
+            SERVER._required_first_skill(SERVER._clean_user_message(message)),
+            "site-overview",
+        )
+
+    def test_scientific_select_can_use_an_immutable_occurrence_snapshot(self):
+        snapshot_region = SERVER.C.buffer_region(
+            SERVER.C.resolve_region("EBTL"), 50)
+        snapshot = {
+            "result_id": "occurrence-1", "kind": "merged-taxon-occurrence-search",
+            "sha256": "abc", "payload": {
+                "kind": "records", "grain": "occurrence", "label": "observed",
+                "entity": "Daboia russelii", "source": "test connector",
+                "region": snapshot_region,
+                "rows": [
+                    {"id": "inside", "lat": 12.733, "lon": 78.183},
+                    {"id": "outside", "lat": 13.0, "lon": 78.5},
+                ],
+            },
+        }
+        result = SERVER.X.execute({
+            "op": "SELECT", "entity": "Daboia russelii",
+            "region": {
+                "op": "BUFFER", "radius_km": 50,
+                "source": {"op": "REGION", "place": "EBTL"},
+            },
+            "time": None,
+        }, select_resolver=SERVER._snapshot_select_resolver([snapshot]))
+        self.assertEqual(result["status"], "answer")
+        self.assertEqual(
+            [row["id"] for row in result["value"]["rows"]], ["inside", "outside"])
+        self.assertTrue(any(
+            row.get("route") == "immutable-evidence-snapshot"
+            for row in result["provenance"]))
+
+    def test_scientific_snapshot_rejects_a_silently_narrowed_select(self):
+        snapshot_region = SERVER.C.buffer_region(
+            SERVER.C.resolve_region("EBTL"), 50)
+        snapshot = {
+            "result_id": "occurrence-1", "kind": "merged-taxon-occurrence-search",
+            "sha256": "abc", "payload": {
+                "kind": "records", "grain": "occurrence", "label": "observed",
+                "entity": "Daboia russelii", "region": snapshot_region,
+                "rows": [{"id": "one", "lat": 12.8, "lon": 78.2}],
+            },
+        }
+        result = SERVER.X.execute({
+            "op": "SELECT", "entity": "Daboia russelii",
+            "region": {"op": "REGION", "place": "EBTL"}, "time": None,
+        }, select_resolver=SERVER._snapshot_select_resolver([snapshot]))
+        self.assertEqual(result["status"], "data_request")
+        self.assertEqual(result["reason"], "snapshot_extent_mismatch")
+
+    def test_estimate_binds_donor_extent_from_the_selected_snapshot(self):
+        region = SERVER.C.buffer_region(SERVER.C.resolve_region("EBTL"), 200)
+        ir = {
+            "op": "ESTIMATE", "method": "feature",
+            "source": {
+                "op": "SELECT", "entity": "Naja naja",
+                "region": {"op": "REGION", "place": "EBTL"}, "time": None,
+            },
+            "target": {"op": "REGION", "place": "EBTL"},
+        }
+        bound, events = SERVER._bind_snapshot_extents(ir, [{
+            "result_id": "occurrence-1", "sha256": "abc",
+            "payload": {
+                "grain": "occurrence", "entity": "Naja naja", "region": region,
+            },
+        }])
+        self.assertEqual(bound["source"]["region"]["op"], "BUFFER")
+        self.assertEqual(bound["source"]["region"]["radius_km"], 200.0)
+        self.assertEqual(events[0]["kind"], "evidence_extent")
+        self.assertEqual(events[0]["result_id"], "occurrence-1")
 
     def test_taxon_language_boundary_normalises_curly_apostrophes(self):
         _raw, core = SERVER.C._clean_entity("Russell’s viper")
@@ -214,7 +309,10 @@ class CodexNativeBridgeTests(unittest.TestCase):
         prompt = SERVER._native_prompt("Where is Russell's viper at EBTL?", session)
         self.assertIn("You own the conversation", prompt)
         self.assertIn("The local 9B model is a scientific compiler, not a skill planner", prompt)
-        self.assertIn("Pass only `scientific_question`", prompt)
+        self.assertIn(
+            "Pass `scientific_question` plus the result handles", prompt)
+        self.assertIn("immutable snapshots", prompt)
+        self.assertIn("map-evidence-coverage", prompt)
         self.assertIn("compile-scientific-algebra-9b", prompt)
         self.assertIn("--pairs scientific_question=", prompt)
         self.assertNotIn("plan-data-with-algebra-9b", prompt)
@@ -592,7 +690,7 @@ class CodexNativeBridgeTests(unittest.TestCase):
         self.assertIn("returned no records", rendered)
         self.assertIn("not evidence of absence", rendered)
 
-    def test_outer_skills_are_direct_but_compiler_accepts_only_the_scientific_question(self):
+    def test_outer_skills_are_direct_and_compiler_accepts_question_plus_evidence_handles(self):
         session = SERVER.Session.__new__(SERVER.Session)
         self.assertEqual(session.bind_scientific_skill_args(
             "local-site-evidence-search",
@@ -601,8 +699,10 @@ class CodexNativeBridgeTests(unittest.TestCase):
         self.assertEqual(session.bind_scientific_skill_args(
             "compile-scientific-algebra-9b",
             {"scientific_question": "  Estimate   viper suitability  ",
-             "skills": ["made-up"], "region": "wrong"},
-        ), {"scientific_question": "Estimate viper suitability"})
+             "evidence_result_ids": ["occurrence-1"], "skills": ["made-up"],
+             "region": "wrong"},
+        ), {"scientific_question": "Estimate viper suitability",
+            "evidence_result_ids": ["occurrence-1"]})
 
     def test_site_overview_inventories_profile_partitions_without_taxon_search(self):
         stored = {}
@@ -769,6 +869,44 @@ class CodexNativeBridgeTests(unittest.TestCase):
             }, FakeSession())
         self.assertEqual(result["status"], "answer")
         self.assertEqual(result["value"]["result_id"], "dataset-1")
+
+    def test_evidence_coverage_map_uses_result_rows_without_rerunning_connector(self):
+        payload = {
+            "kind": "records", "grain": "occurrence", "label": "observed",
+            "entity": "Daboia russelii", "source": "GBIF + iNaturalist",
+            "region": {"name": "50 km around EBTL",
+                       "bbox": [12.2, 13.2, 77.6, 78.8]},
+            "rows": [
+                {"id": "one", "lat": 12.8, "lon": 78.2, "source": "GBIF"},
+                {"id": "two", "lat": 13.0, "lon": 78.4, "source": "iNaturalist"},
+            ],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            stored = {
+                "schema": 1, "result_id": "occurrence-1",
+                "kind": "merged-taxon-occurrence-search",
+                "session_id": "coverage-chat", "payload": payload,
+            }
+            session = SimpleNamespace(
+                id="coverage-chat", turn=3, output=pathlib.Path(tmp),
+                load_result=lambda result_id: stored if result_id == "occurrence-1" else None,
+                store_result=lambda kind, value: "coverage-map-1",
+            )
+            with mock.patch.object(
+                SERVER, "_publish_html_document",
+                return_value={"document_id": "map-1", "url": "#map-map-1",
+                              "label": "Open data coverage map"},
+            ), mock.patch.object(SERVER.X, "execute") as execute:
+                result = SERVER._map_evidence_coverage({
+                    "result_ids": ["occurrence-1"], "target_region": "EBTL",
+                    "title": "Where viper data exists",
+                }, session)
+        execute.assert_not_called()
+        self.assertEqual(result["status"], "answer")
+        self.assertEqual(len(result["value"]["rows"]), 2)
+        self.assertEqual(result["value"]["input_result_ids"], ["occurrence-1"])
+        self.assertEqual(
+            result["provenance"][0]["mode"], "observed-data-coverage")
 
     def test_field_map_emits_matching_audited_artifacts(self):
         with tempfile.TemporaryDirectory() as root_text:
@@ -1091,6 +1229,7 @@ class CodexNativeBridgeTests(unittest.TestCase):
                          "region": "dry-Deccan donor belt", "target_region": "EBTL"},
                 "result": {"execution": {"status": "answer", "value": {
                     "rows": [{"lat": 12.7, "lon": 78.1}],
+                    "result_id": "merged-taxon-occurrence-search-123",
                 }}},
             }],
         )
@@ -1098,9 +1237,11 @@ class CodexNativeBridgeTests(unittest.TestCase):
         self.assertIsNotNone(guidance)
         self.assertEqual(
             [option["operation"] for option in guidance["options"]],
-            ["show_observed_map", "test_transfer", "build_model_map"],
+            ["show_data_coverage", "test_transfer", "build_model_map"],
         )
-        self.assertEqual(guidance["options"][0]["args"]["map_mode"], "observed")
+        self.assertEqual(
+            guidance["options"][0]["args"]["result_ids"],
+            ["merged-taxon-occurrence-search-123"])
         self.assertEqual(guidance["options"][1]["args"]["target"], "EBTL")
 
     def test_local_named_taxon_offers_occurrences_not_open_ended_discovery(self):

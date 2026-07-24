@@ -33,7 +33,7 @@ by default and contains only skill names, bounded summaries and the audit id—n
 commands, paths, model routing or raw rows.
 
 Site overview, local-registry lookup, accumulated-dashboard publication, historical-fire exposure
-and vegetation-greenness trend are controller-owned capability routes. They start immediately and
+and vegetation-greenness trend are deterministic capability routes. They start immediately and
 emit the same bounded live skill events before Codex explains the result. The fire/greenness routes
 bind measurement families, not site answers: proxy, time and geometry boundaries still apply.
 Other evidence retrieval remains interactive and model-directed within the gateway constraints.
@@ -55,13 +55,20 @@ benchmark input unchanged.
 
 ## Evidence, protocol and map chain
 
-The frozen benchmark catalog remains 12 skills. Eleven operational skills are added at runtime,
-for 23 visible skills in `/health`:
+The frozen benchmark catalog remains 12 skills. Twelve operational skills are added at runtime,
+for 24 visible skills in `/health`:
 
 - `compile-scientific-algebra-9b` gives the local 9B-004d model one explicit scientific question,
-  the frozen Algebra grammar, and a controller-generated manifest of admitted entity, region and
-  layer symbols. It never gives 9B a skill catalogue. The controller rejects invented symbols,
-  validates the returned Algebra, binds its leaves to admitted resources and executes it.
+  immutable evidence-result handles, the frozen Algebra grammar, and a runtime-generated manifest
+  of admitted entity, region and layer symbols. It never gives 9B a skill catalogue. The trusted
+  Algebra runtime rejects invented symbols, validates the tree and satisfies matching `SELECT`
+  leaves from the named snapshots without rerunning their connectors. Codex owns widening, retry,
+  mapping and the next question. For an `ESTIMATE`, the runtime binds the donor `SELECT` to the
+  exact extent of the explicitly selected snapshot and records that binding in the audit.
+- `map-evidence-coverage` reads georeferenced rows from one or more current-session result handles
+  and maps them exactly as returned, with the target AOI outlined. It accepts multiple taxa and
+  sources, never reruns a connector, never predicts presence, and remains available after a model
+  gate fails.
 - `site-overview` inventories the onboarded profile, registered analysis geometry, local evidence
   partitions, configured capabilities and explicit geometry/data gaps. It never tokenises an
   organisation name as a taxon query.
@@ -104,7 +111,8 @@ for 23 visible skills in `/health`:
 Discovery and inspection results are stored as session-scoped result handles. Map and protocol
 skills publish self-contained HTML into Idlisseus's existing document panel. Only the labelled
 `#map-...` or `#document-...` link is model-visible; local artifact paths are not. Map CSV and
-GeoJSON downloads are embedded in the HTML and use the same stable `FIELD-01...` identifiers.
+GeoJSON downloads are embedded in the HTML and use the same stable `OBS-...` or `FIELD-...`
+identifiers as the visible table.
 
 The operational contract is:
 
@@ -139,21 +147,23 @@ search seeds; it cannot become site evidence. Broad site overviews and literatur
 do not invoke 9B.
 
 When the evidence supports an explicit scientific state, relationship, trend, comparison, ranking
-or transfer question, Codex invokes `compile-scientific-algebra-9b` with only that question:
+or transfer question, Codex invokes `compile-scientific-algebra-9b` with that question and the
+evidence result handles to use:
 
 ```text
-Codex dialogue + admitted evidence
+Codex dialogue + admitted evidence snapshots
   -> one explicit scientific question
   -> local Algebra 9B-004d emits frozen IR
   -> schema and resource-symbol validation
-  -> deterministic binding and gated execution
+  -> immutable snapshot binding and gated execution
   -> plain-English result + exact IR audit
 ```
 
 Codex cannot author, repair or replace the returned IR. A model-memory taxon, region or layer that
 is neither user-named nor admitted by the resource manifest is rejected before connector
-execution. If the IR contains a hole or the scientific gate fails, the answer asks the short
-clarifying or data-collection question needed for a later pass.
+execution. If the IR contains a hole, Codex asks the short clarification. If a scientific gate
+fails, Codex keeps the observed-data map useful, reports the exact failure, and may retrieve a
+different declared extent before compiling another pass.
 
 The chat formats this boundary explicitly under **Scientific analysis**:
 
@@ -196,15 +206,17 @@ completed and its result:
 
 ```text
 local evidence
-  -> wider occurrences or wider source discovery
-  -> raw observed-points map or environmental transfer
+  -> bounded wider occurrences or wider source discovery
+  -> immutable observed-data coverage map or environmental transfer
   -> modelled map / failed-gate confirmation design
 ```
 
 The bridge stores the pending actions with the resumable session. Idlisseus renders them through
 its durable choice card; selecting a label binds the stored entity and region and restricts that
 turn to the corresponding skill set. A different free-text message invalidates stale actions.
-Failed or empty occurrence searches do not expose map or transfer actions.
+An empty exact-site occurrence search offers a bounded radius expansion. Once wider coordinates
+return, the first visual action maps those exact snapshots and the target AOI. Transfer remains a
+separate scientific action; unresolved taxa and unavailable connectors still fail closed.
 
 Structured local inventory rows outrank broad group summaries when a user supplies a shorter local
 name. For example, `sand boa` resolves through the seeded inventory to the source-reported Common
@@ -212,9 +224,9 @@ Sand Boa / `Eryx conicus` row before any public point query. The same subset mat
 fails as ambiguous when several local taxa match. Taxa embedded only in a survey-summary
 `examples` list remain usable only when they identify one unambiguous candidate.
 
-This allows the generic occurrence path—and its “Show the raw points” button—to work without
+This allows the generic occurrence path—and its “Show where data exists” button—to work without
 hard-coding a species. A named local taxon also offers “Map field-check locations” immediately.
-Wider occurrence results offer raw-points, gate-test and modelled-map actions. A recoverable
+Wider occurrence results offer data-coverage, gate-test and modelled-map actions. A recoverable
 geospatial taxon `data_request` offers a field-check map even when no occurrences were returned;
 unresolved or ambiguous taxa and missing connectors still fail closed. A completed modelled map
 offers a button for its supporting donor observations.
@@ -235,6 +247,10 @@ collection points labelled `Designed`.
 
 The typed scientific Algebra is unchanged. Holes still represent required missing values; this
 session envelope represents optional scope-expansion decisions.
+
+Idlisseus transport date/time context is removed before site routing and local semantic search.
+This prevents generic calendar text such as “date”, “use” or “event” from selecting an unrelated
+ecology partition; the raw request remains in the server audit.
 
 The two-pass four-arm development report is in
 `../../narrative/benchmarks/evidence-chain-map/runs/overnight-001/REPORT.md`. A post-run native
