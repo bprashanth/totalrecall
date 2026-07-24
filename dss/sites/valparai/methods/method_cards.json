@@ -18,7 +18,7 @@
   "method_cards": [
     {
       "method_id": "plot-area-normalised-adult-tree-stocks",
-      "label": "Adult-tree density, basal area and carbon per hectare",
+      "label": "Sampled adult-tree count plus basal area and carbon per hectare",
       "implementation_state": "specified",
       "applies_to": ["adult_tree_plot"],
       "required_inputs": [
@@ -29,7 +29,7 @@
         "source_reported_carbon"
       ],
       "formulae": {
-        "stem_density_per_hectare": "count(eligible adult-tree rows) / sampled_area_hectares",
+        "adult_tree_count_per_plot": "count(eligible adult-tree rows)",
         "basal_area_per_hectare": "sum(source_reported_basal_area) / sampled_area_hectares",
         "aboveground_carbon_per_hectare": "sum(source_reported_carbon) / sampled_area_hectares"
       },
@@ -41,8 +41,11 @@
       "denominator": "source-declared sampled plot area",
       "first_visual": "plot_map_linked_to_distribution_and_benchmark_interval",
       "evidence_class": "derived",
-      "allowed_claim": "area-normalised stock or stem density in sampled plots",
+      "allowed_claim": "adult-tree count in a sampled plot or area-normalised basal area and carbon in sampled plots",
       "forbidden_claim": "estate-wide stock without a design-based or model-based expansion",
+      "review_notes": [
+        "The source figure code labels the unscaled adult-tree row count as density. This card retains it as a sampled-plot count; only basal area and carbon are multiplied by 25 in the source code."
+      ],
       "source_code": [
         {
           "path": "zenodo-10692141-restoration-opportunities/Osuri_tree_script.R",
