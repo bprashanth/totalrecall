@@ -91,7 +91,7 @@
       "url": "https://zenodo.org/records/10077040",
       "publisher": "Nature Conservation Foundation",
       "license": "CC-BY-4.0",
-      "capabilities": ["inspectable", "mappable", "has_events", "has_locations", "candidate_model_input"],
+      "capabilities": ["inspectable", "mappable", "has_events", "has_locations", "has_measurements", "candidate_model_input"],
       "local_metadata": "raw/zenodo-10077040/README.txt",
       "adapters": [
         {
@@ -119,6 +119,49 @@
             "uncertainty_m": "coordinateUncertaintyInMeters"
           },
           "properties": ["pointID", "Fragment", "nativeAlien", "Distance_eff", "Girth_eff", "TreeHeight"]
+        },
+        {
+          "kind": "measurement",
+          "path": "raw/zenodo-10077040/habitat.csv",
+          "record_id": ["Year", "Fragment", "Point"],
+          "date": "Year",
+          "location_lookup": {
+            "path": "raw/zenodo-10077040/sites.csv",
+            "event_key": "Fragment",
+            "lookup_key": "Fragment",
+            "location_id": "Fragment",
+            "latitude": "decimalLatitude",
+            "longitude": "decimalLongitude"
+          },
+          "metrics": {
+            "vertical_foliage_strata": "count/point",
+            "canopy_height": "m",
+            "canopy_openness": "percent",
+            "canopy_cover": "percent",
+            "altitude": "m",
+            "rainforest_shrub_stems": "count/2m-radius-plot",
+            "coffee_stems": "count/2m-radius-plot",
+            "maesopsis_stems": "count/2m-radius-plot",
+            "strobilanthes_stems": "count/2m-radius-plot",
+            "total_shrub_stems": "count/2m-radius-plot",
+            "leaf_litter_depth": "cm",
+            "cut_tree_stems": "count/5m-radius-plot"
+          },
+          "metric_columns": {
+            "vertical_foliage_strata": "VertStrata",
+            "canopy_height": "CanopyHeight",
+            "canopy_openness": "CanopyOpenness",
+            "canopy_cover": "CanopyCover",
+            "altitude": "Altitude",
+            "rainforest_shrub_stems": "RfShrub",
+            "coffee_stems": "Coffee",
+            "maesopsis_stems": "Maesopsis",
+            "strobilanthes_stems": "Strobilanthes",
+            "total_shrub_stems": "TotalShrub",
+            "leaf_litter_depth": "LeafLitter",
+            "cut_tree_stems": "CutTrees"
+          },
+          "properties": ["verbatimLocality", "Fragment", "Point", "Liana", "Cane", "Lantana", "Bamboo"]
         }
       ]
     },
@@ -173,7 +216,7 @@
       "url": "https://zenodo.org/records/7457732",
       "publisher": "Nature Conservation Foundation",
       "license": "CC-BY-4.0",
-      "capabilities": ["inspectable", "mappable", "has_events", "has_locations", "has_entity_hierarchy", "candidate_model_input"],
+      "capabilities": ["inspectable", "mappable", "has_events", "has_locations", "has_measurements", "has_entity_hierarchy", "candidate_model_input"],
       "local_metadata": "raw/zenodo-7457732/README.txt",
       "hierarchy": {
         "path": "raw/zenodo-7457732/entity_names.csv",
@@ -216,6 +259,55 @@
             "uncertainty_m": "coordinateUncertaintyInMeters"
           },
           "properties": ["site", "plot_no", "P_ID", "gbh_1"]
+        },
+        {
+          "kind": "event",
+          "path": "raw/zenodo-7457732/regeneration.csv",
+          "record_id": ["site", "plot_no", "q_no", "t_no"],
+          "date_value": "2003",
+          "entity": "current_code",
+          "entity_lookup": {
+            "path": "raw/zenodo-7457732/entity_names.csv",
+            "event_key": "current_code",
+            "lookup_key": "current_code",
+            "canonical": "scientificName",
+            "label": "canonicalName"
+          },
+          "event_type_value": "woody_regeneration_measurement",
+          "location_lookup": {
+            "path": "raw/zenodo-7457732/sites.csv",
+            "event_key": "site",
+            "lookup_key": "site",
+            "location_id": "site",
+            "latitude": "decimalLatitude",
+            "longitude": "decimalLongitude",
+            "uncertainty_m": "coordinateUncertaintyInMeters"
+          },
+          "properties": ["site", "plot_no", "q_no", "P_ID", "eff_dbh"]
+        },
+        {
+          "kind": "measurement",
+          "path": "raw/zenodo-7457732/canopy.csv",
+          "record_id": ["site", "plot_no", "reading"],
+          "date_value": "2003",
+          "location_lookup": {
+            "path": "raw/zenodo-7457732/sites.csv",
+            "event_key": "site",
+            "lookup_key": "site",
+            "location_id": "site",
+            "latitude": "decimalLatitude",
+            "longitude": "decimalLongitude",
+            "uncertainty_m": "coordinateUncertaintyInMeters"
+          },
+          "metrics": {
+            "canopy_light_reading": "source-unit-not-recorded",
+            "canopy_openness": "percent"
+          },
+          "metric_columns": {
+            "canopy_light_reading": "light",
+            "canopy_openness": "canopy_openness"
+          },
+          "properties": ["site", "plot_no", "reading", "P_ID"]
         }
       ]
     },
@@ -242,6 +334,39 @@
             "temperature": "degrees_C",
             "humidity": "percent",
             "radiance": "umol/m2/s"
+          }
+        },
+        {
+          "kind": "measurement",
+          "path": "raw/zenodo-18646715/weather_daily.csv",
+          "record_id": "date",
+          "date": "date",
+          "location_id_value": "iyerpadi-weather-station",
+          "latitude_value": 10.363725,
+          "longitude_value": 76.977628,
+          "metrics": {
+            "daily_precipitation": "mm/day",
+            "daily_max_temperature": "degrees_C",
+            "daily_min_temperature": "degrees_C",
+            "daily_mean_temperature": "degrees_C",
+            "daily_mean_humidity": "percent",
+            "daily_mean_windspeed": "m/s",
+            "daily_mean_gustspeed": "m/s",
+            "daily_mean_dewpoint": "degrees_C",
+            "daily_mean_radiance": "umol/m2/s",
+            "daily_daylight": "hours/day"
+          },
+          "metric_columns": {
+            "daily_precipitation": "precipitation",
+            "daily_max_temperature": "maxTemp",
+            "daily_min_temperature": "minTemp",
+            "daily_mean_temperature": "temperature",
+            "daily_mean_humidity": "humidity",
+            "daily_mean_windspeed": "windspeed",
+            "daily_mean_gustspeed": "gustspeed",
+            "daily_mean_dewpoint": "dewpoint",
+            "daily_mean_radiance": "radiance",
+            "daily_daylight": "daylight"
           }
         }
       ]

@@ -178,6 +178,17 @@ def _properties(row: dict[str, str], names: list[str] | None) -> str:
     )
 
 
+def _configured(row: dict[str, str], spec: dict[str, Any], name: str) -> Any:
+    """Read a source column only when the adapter explicitly names it.
+
+    Some CSV exports contain empty header names. Calling ``row.get("")`` for an
+    omitted optional adapter field can therefore turn an unrelated trailing
+    value into a status, event type or coordinate.
+    """
+    column = spec.get(name)
+    return row.get(column) if column else None
+
+
 class Builder:
     def __init__(self, site_pack: pathlib.Path, output: pathlib.Path):
         self.site_pack = site_pack.resolve()
@@ -354,6 +365,7 @@ class Builder:
                     "latitude": statistics.fmean(lats) if lats else None,
                     "longitude": statistics.fmean(lons) if lons else None,
                     "uncertainty_m": None,
+                    "location_id": str(rows[0].get(spec["lookup_key"]) or key),
                 }
             else:
                 row = rows[0]
@@ -361,6 +373,9 @@ class Builder:
                     "latitude": _coord(row.get(spec.get("latitude", "")), latitude=True),
                     "longitude": _coord(row.get(spec.get("longitude", "")), latitude=False),
                     "uncertainty_m": _float(row.get(spec.get("uncertainty_m", ""))),
+                    "location_id": str(
+                        row.get(spec.get("location_id", spec["lookup_key"])) or key
+                    ),
                     "canonical": row.get(spec.get("canonical", "")),
                     "label": row.get(spec.get("label", "")),
                 }
@@ -389,39 +404,44 @@ class Builder:
             location = location_lookup.get(
                 _key(row.get((spec.get("location_lookup") or {}).get("event_key", ""))), {}
             )
-            lat = _coord(row.get(spec.get("latitude", "")), latitude=True)
-            lon = _coord(row.get(spec.get("longitude", "")), latitude=False)
+            lat = _coord(_configured(row, spec, "latitude"), latitude=True)
+            lon = _coord(_configured(row, spec, "longitude"), latitude=False)
             lat = lat if lat is not None else location.get("latitude")
             lon = lon if lon is not None else location.get("longitude")
-            uncertainty = _float(row.get(spec.get("uncertainty_m", "")))
+            uncertainty = _float(_configured(row, spec, "uncertainty_m"))
             if uncertainty is None:
                 uncertainty = location.get("uncertainty_m")
-            entity_raw = row.get(spec.get("entity", "")) or ""
+            entity_raw = _configured(row, spec, "entity") or ""
             entity_match = entity_lookup.get(
                 _key(row.get((spec.get("entity_lookup") or {}).get("event_key", ""))), {}
             )
             canonical = entity_match.get("canonical") or entity_raw
-            label = entity_match.get("label") or row.get(spec.get("entity_alias", "")) or canonical
+            label = entity_match.get("label") or _configured(row, spec, "entity_alias") or canonical
             entity_id = self.aliases.get(_key(canonical)) or self.aliases.get(_key(entity_raw))
             if not entity_id:
                 entity_id = self._ensure_entity(canonical, label, source_id)
             elif label:
                 self._alias(label, entity_id, source_id)
-            date_value = row.get(spec.get("date", "")) or spec.get("date_value")
+            date_value = _configured(row, spec, "date") or spec.get("date_value")
             event_date, year, month = _date_parts(date_value)
             original_id = _row_id(row, spec.get("record_id"), row_number)
             # Upstream "unique" keys are not always unique. Retain the immutable source-row
             # locator so duplicate natural keys never silently replace evidence.
-            event_id = _stable("evt", source_id, original_id, row_number)
-            event_type = str(row.get(spec.get("event_type", "")) or spec.get("event_type_value") or "event")
-            status = str(row.get(spec.get("status", "")) or "present").lower()
+            adapter_id = spec.get("adapter_id") or spec["path"]
+            event_id = _stable("evt", source_id, adapter_id, original_id, row_number)
+            event_type = str(
+                _configured(row, spec, "event_type")
+                or spec.get("event_type_value")
+                or "event"
+            )
+            status = str(_configured(row, spec, "status") or "present").lower()
             self.sql.execute(
                 "INSERT OR REPLACE INTO events VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
                     event_id, source_id, row_number, entity_id, event_type,
                     spec.get("evidence_class", "observed"), status,
                     event_date, year, month, lat, lon, uncertainty,
-                    _float(row.get(spec.get("count", ""))), _cell(lat, lon),
+                    _float(_configured(row, spec, "count")), _cell(lat, lon),
                     _properties(row, spec.get("properties")),
                 ),
             )
@@ -441,7 +461,11 @@ class Builder:
             self.sql.execute(
                 "INSERT OR REPLACE INTO effort VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (
-                    _stable("eff", source["source_id"], original_id), source["source_id"], row_number,
+                    _stable(
+                        "eff", source["source_id"],
+                        spec.get("adapter_id") or spec["path"], original_id, row_number,
+                    ),
+                    source["source_id"], row_number,
                     spec.get("method_value", "survey"), event_date, year, month, lat, lon,
                     _float(row.get(spec.get("effort_value", ""))), spec.get("effort_unit"),
                     _cell(lat, lon), _properties(row, spec.get("properties")),
@@ -450,24 +474,41 @@ class Builder:
             self.stats["effort_rows"] += 1
 
     def _ingest_measurement(self, source: dict, spec: dict) -> None:
+        location_lookup = self._lookup(spec.get("location_lookup"))
         for row_number, row in enumerate(_rows(self.path(spec["path"])), 1):
             if spec.get("date_parts"):
                 year = int(row.get(spec["date_parts"][0]) or 0) or None
                 month = int(row.get(spec["date_parts"][1]) or 1) if year else None
                 event_date = f"{year:04d}-{month:02d}" if year and month else None
             else:
-                event_date, year, month = _date_parts(row.get(spec.get("date", "")))
+                date_value = row.get(spec.get("date", "")) or spec.get("date_value")
+                event_date, year, month = _date_parts(date_value)
+            location = location_lookup.get(
+                _key(row.get((spec.get("location_lookup") or {}).get("event_key", ""))), {}
+            )
             lat = _coord(spec.get("latitude_value"), latitude=True)
             lon = _coord(spec.get("longitude_value"), latitude=False)
+            lat = lat if lat is not None else location.get("latitude")
+            lon = lon if lon is not None else location.get("longitude")
+            location_id = (
+                spec.get("location_id_value")
+                or location.get("location_id")
+                or row.get(spec.get("location_id", ""))
+            )
             original_id = _row_id(row, spec.get("record_id"), row_number)
             for metric, unit in spec.get("metrics", {}).items():
+                source_column = spec.get("metric_columns", {}).get(metric, metric)
                 self.sql.execute(
                     "INSERT OR REPLACE INTO measurements VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                     (
-                        _stable("mea", source["source_id"], original_id, metric),
-                        source["source_id"], row_number, spec.get("location_id_value"),
-                        metric, _float(row.get(metric)), unit, event_date, year, month,
-                        lat, lon, _cell(lat, lon), "{}",
+                        _stable(
+                            "mea", source["source_id"],
+                            spec.get("adapter_id") or spec["path"], original_id, metric,
+                        ),
+                        source["source_id"], row_number, location_id,
+                        metric, _float(row.get(source_column)), unit, event_date, year, month,
+                        lat, lon, _cell(lat, lon),
+                        _properties(row, spec.get("properties")),
                     ),
                 )
                 self.stats["measurements"] += 1

@@ -34,10 +34,10 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         report = json.loads((self.output / "build_report.json").read_text())
         self.assertEqual(report["integrity"], "ok")
         self.assertEqual(report["sources"], 7)
-        self.assertEqual(report["events"], 13_592)
-        self.assertEqual(report["georeferenced_events"], 13_577)
+        self.assertEqual(report["events"], 15_159)
+        self.assertEqual(report["georeferenced_events"], 15_144)
         self.assertEqual(report["effort_rows"], 229)
-        self.assertEqual(report["measurements"], 580)
+        self.assertEqual(report["measurements"], 56_326)
         self.assertGreaterEqual(report["ready_views"], 8)
         self.assertLess(self.elapsed, 3.0)
 
@@ -48,7 +48,7 @@ class ValparaiVisualIndexTest(unittest.TestCase):
             "zenodo-13910696": 638,
             "zenodo-10077040": 3684,
             "zenodo-7060430": 2473,
-            "zenodo-7457732": 2177,
+            "zenodo-7457732": 3744,
         }
         actual = dict(
             self.db.execute(
@@ -87,6 +87,47 @@ class ValparaiVisualIndexTest(unittest.TestCase):
             "SELECT COUNT(*) FROM effort WHERE cell_id IS NOT NULL"
         ).fetchone()[0]
         self.assertGreater(georeferenced, 200)
+
+    def test_plot_and_station_measurements_keep_location_units_and_lineage(self):
+        by_source = dict(
+            self.db.execute(
+                "SELECT source_id,COUNT(*) FROM measurements GROUP BY source_id"
+            ).fetchall()
+        )
+        self.assertEqual(by_source["zenodo-10077040"], 10_956)
+        self.assertEqual(by_source["zenodo-7457732"], 880)
+        self.assertEqual(by_source["zenodo-18646715"], 44_490)
+        mapped = self.db.execute(
+            """SELECT COUNT(*) FROM measurements
+               WHERE source_id='zenodo-7457732'
+                 AND location_id IS NOT NULL AND cell_id IS NOT NULL"""
+        ).fetchone()[0]
+        self.assertEqual(mapped, 880)
+        daily = self.db.execute(
+            """SELECT COUNT(*),COUNT(DISTINCT metric),MIN(unit)
+               FROM measurements WHERE source_id='zenodo-18646715'
+                 AND metric='daily_precipitation'"""
+        ).fetchone()
+        self.assertEqual(daily, (4391, 1, "mm/day"))
+        properties = json.loads(
+            self.db.execute(
+                """SELECT properties_json FROM measurements
+                   WHERE source_id='zenodo-10077040'
+                     AND metric='canopy_cover' LIMIT 1"""
+            ).fetchone()[0]
+        )
+        self.assertIn("Fragment", properties)
+
+    def test_omitted_optional_fields_do_not_read_empty_csv_headers(self):
+        event_types = dict(
+            self.db.execute(
+                """SELECT event_type,COUNT(*) FROM events
+                   WHERE source_id='zenodo-7457732' GROUP BY event_type"""
+            ).fetchall()
+        )
+        self.assertEqual(event_types["adult_tree_measurement"], 2177)
+        self.assertEqual(event_types["woody_regeneration_measurement"], 1567)
+        self.assertNotIn("TRUE", event_types)
 
     def test_evidence_classes_and_source_capabilities_are_explicit(self):
         classes = self.db.execute(

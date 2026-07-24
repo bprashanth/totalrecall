@@ -123,11 +123,13 @@ claims legal: `path`, `record_id`, `date`, `method_value`, `effort_value` (colum
 denominators here). v0.1 does not read inline effort coordinates or effort `date_parts`.
 
 **`measurement`** — tidy metric series: `path`, `record_id` (col or list of cols),
-`date` or `date_parts: ["year","month"]`, `metrics: {column: "unit", …}`, and a location.
-v0.1 limit: measurement location is **one fixed point per adapter**
-(`location_id_value`/`latitude_value`/`longitude_value`) — per-entity series need one adapter
-per entity, or route per-entity magnitudes through the `event` plane's `count` instead (what the
-reference pack does for headcounts and persondays).
+`date`, `date_value`, or `date_parts: ["year","month"]`; `metrics: {canonical_metric: "unit",
+…}`; optional `metric_columns: {canonical_metric: "source_column", …}` when source headings
+should not become public metric identifiers; and `properties`. A location may be fixed
+(`location_id_value`/`latitude_value`/`longitude_value`) or resolved row by row through the same
+`location_lookup` shape used by events. This preserves site/plot identity for generic spatial
+metric views. Per-entity measurements still belong in `event` when the row represents a
+countable occurrence; do not turn an occurrence into a metric merely to obtain a map.
 
 ### Entity extras (source-level, beside `adapters`)
 

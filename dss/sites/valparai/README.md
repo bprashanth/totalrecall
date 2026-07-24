@@ -37,12 +37,12 @@ python3 -m unittest dss.visual_index.tests.test_build -v
 
 The current build indexes:
 
-- 13,592 source-linked events;
-- 13,577 georeferenced events;
-- 543 resolved or retained broad entities and 1,039 aliases;
+- 15,159 source-linked events, including 1,567 regeneration records;
+- 15,144 georeferenced events;
+- 544 resolved or retained broad entities and 1,040 aliases;
 - 29 named/source locations;
 - 229 explicit effort rows;
-- 580 monthly metric values; and
+- 56,326 typed weather, canopy and habitat measurement rows (51,963 with usable values); and
 - 284 spatial cells.
 
 Eight of the ten probed visual contracts are immediately renderable. Transfer is partial because
@@ -64,7 +64,7 @@ mapping is blocked because there is no versioned uncertainty surface or action-c
   rather than being discarded or described as target observations.
 - The available long metric series is suitable for time visuals. Event counts by year are coverage
   visuals, not population trends.
-- 4,552 georeferenced event rows are outside the target envelope; 9,025 are inside it.
+- 4,922 georeferenced event rows are outside the target envelope; 10,222 are inside it.
 - Twenty-five opportunistic effort rows have no matching route geometry. They remain explicit
   effort records but cannot appear in a cell-level effort map.
 - Fifteen event rows have no usable coordinates. They remain queryable through source and time

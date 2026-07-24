@@ -60,7 +60,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
         self.assertEqual(result["status"], "complete")
         self.assertEqual(result["visuals"][0]["visual_type"], "map")
         self.assertEqual(
-            result["visuals"][0]["summary"]["denominators"]["records"], 13_577
+            result["visuals"][0]["summary"]["denominators"]["records"], 15_144
         )
         self.assertEqual(len(result["audit"]["source_versions"]), 7)
         for layer in result["visuals"][0]["layers"]:
