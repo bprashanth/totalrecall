@@ -1,0 +1,69 @@
+---
+editor_options: 
+  chunk_output_type: console
+---
+
+# Creation of selection tables using Raven Pro and Rraven
+
+Loading latest libraries for warbleR and Rraven using devtools
+```{r}
+devtools::install_github("maRce10/warbleR")
+library(warbleR)
+library(dplyr)
+library(Rraven)
+
+```
+
+Exploratory data analysis - Here I will try a few different functions from the seewave package in R to get a better sense of the distribution of frequencies over time
+```{r}
+# Read a sample .wav file
+a <- tuneR::readWave("data\HP37P4B_20200307_083000.wav")
+
+# Soundscape frequency spectrum of a time wave
+
+# This function returns a kHz binned spectrum as described by Kasten et al. (2012) for the description of a soundscape.
+# This function essentially creates a bar plot of frequencies in kHZ by amplitude values
+s_spectr <- soundscapespec(a)
+```
+
+Importing selection tables and annotations made from Raven
+
+Steps taken to create a selection table using Raven:
+
+1. Load a given recording using Raven Pro 1.6.1.
+2. Select a given feature and save it within your training data folder
+3. Re-load the file - one at a time 
+2. Create a selection table by dragging and dropping a selection box around the feature of interest.
+3. Press enter to commit the selection table.
+4. Right-click on the tool bar and select 'Choose Measurements'.
+5. Select the following measurements to ensure that a selection table is loaded in R and recognized by the Rraven package: selection, view, channel, beginTime(s), endTime(s), lowFreq(Hz), highFreq(Hz), Begin Path, Begin File, File Offset(s), Beg File Samp (samples)
+6. Click File - Save selection table as - save it in a folder that contains the acoustic data as well (.wav file)
+
+Below we can import the selection table that was created in Raven
+```{r}
+rvn.dat <- imp_raven(all.data=T, sound.file.col = "sound.files", warbler.format =  TRUE, path ="path-to-selection-table")
+
+rvn.dat.st <- selection_table(rvn.dat[1,], path ="path-to-selection-table")
+```
+
+Load the necessary training data and create a selection table
+```{r}
+# Create a vector of all the recordings in the directory
+list.wav.file.names <- list.files("file-path", full.names=T)
+
+# What's the duration of these recordings?
+duration <- wavdur(files=basename(list.wav.file.names), path = "file-path")
+
+# Create long spectrograms with all the training data
+long_spec <- lspec(flist = basename(list.wav.file.names), ovlp = 10, it = "tiff",
+      path = "file-path")
+
+# Now create selection tables
+data <- duration %>%
+  mutate(start= 0, end = duration, selec = 1)
+data <- data[,-2]  
+colnames(data) <- c("sound.files","start","end","selec")
+
+dat_table <- selection_table(data,path = "file-path")
+```
+

@@ -18,6 +18,7 @@ immutable bronze inputs.
 | `dryad-rjdfn2zc3-restoration-birds` | `10.5061/dryad.rjdfn2zc3` | CC0 1.0 | point counts, effort, plot coordinates, habitat and tree quadrats |
 | `dryad-b2rbnzsff-shade-birds` | `10.5061/dryad.b2rbnzsff` | CC0 1.0 | bird detections, guilds and scientific-name crosswalk |
 | `dryad-8kprr4xvb-restoration-opportunities` | `10.5061/dryad.8kprr4xvb` | CC0 1.0 | plot locations, adult trees, regeneration, carbon, conservation and dispersal traits |
+| `github-acoustics-restoration-v1` | `10.5281/zenodo.7036137` | GPL 3.0 repository snapshot | recorder sites, vegetation, aggregate acoustic-space-use matrices, bird summaries, traits and analysis notebooks; restricted clip-level table excluded |
 | `gbif-v6ku49-butterflies` | `10.15468/v6ku49` | CC BY 4.0 | butterfly point counts, Darwin Core metadata and immutable archive |
 | `gbif-ysrzbw-frogs` | `10.15468/ysrzbw` | CC BY 4.0 | frog belt-transect occurrences and effort, Darwin Core metadata and archive |
 | `gbif-d96cu4-herpetofauna` | `10.15468/d96cu4` | CC BY 4.0 | systematic and incidental herpetofauna records, methods and archive |
@@ -31,7 +32,10 @@ Documented upstream digest anomalies remain explicit in each source's `SOURCE.md
 `ACQUISITION.json`; all advertised byte sizes match. The six GBIF Darwin Core
 archives were retrieved and verified against their GBIF dataset metadata on 2026-07-25; each
 source README records the archive SHA-256 and exact modified timestamp. Use the citation given in
-each source README. The source registry records the stable record URL and computes a content hash
+each source README. The acoustic repository subset was acquired from pinned commit
+`72064c89c9f9d14344c6e217aade02e074e70597`; its archive and selected file digests are recorded
+in `ACQUISITION.json`, and its explicit contact-requested clip table was not admitted. The source
+registry records the stable record URL and computes a content hash
 across every admitted local file at build time.
 
 Photos, PDFs, audio and raw high-frequency logger data were not duplicated. Retrieve them from
