@@ -65,6 +65,12 @@ data exist, the agent may offer a gated model; if the gate fails, it still shows
 unsupported target cells. A field-data request comes after this check and should name safe,
 high-information cells and a source-backed protocol rather than ask vaguely for “more data”.
 
+The first implemented transfer stage is deliberately narrower than a distribution model. It uses
+all 64 normalised AlphaEarth axes to show environmental analogues of admitted donor-occurrence
+cells, derives the support threshold from other spatial blocks, and hatches unsupported target
+cells. It always leaves predictive discrimination unevaluated until compatible effort-linked
+nondetection or declared target-group background data can support that test.
+
 ## Visual acceptance questions
 
 The conversational benchmark should include short, ordinary Indian-English turns such as:

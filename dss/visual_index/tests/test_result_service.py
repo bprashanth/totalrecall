@@ -269,7 +269,7 @@ class ValparaiResultServiceTest(unittest.TestCase):
             {item["code"] for item in result["limitations"]},
         )
 
-    def test_unavailable_model_capability_is_explicitly_blocked(self):
+    def test_gated_transfer_separates_observations_analogues_and_failed_gate(self):
         result = self.service.query(
             "transfer-1",
             "gated-transfer",
@@ -281,9 +281,30 @@ class ValparaiResultServiceTest(unittest.TestCase):
             "Can the surrounding data be transferred?",
         )
         self.assert_contract(result)
-        self.assertEqual(result["status"], "blocked")
-        self.assertEqual(result["answer"]["evidence_classes"], ["missing"])
-        self.assertEqual(result["limitations"][0]["code"], "capability-not-ready")
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["visuals"][0]["view"], "donor-target-gates")
+        self.assertEqual(
+            [layer["evidence_class"] for layer in result["visuals"][0]["layers"]],
+            ["modelled", "missing", "observed", "reported"],
+        )
+        denominators = result["visuals"][0]["summary"]["denominators"]
+        self.assertGreaterEqual(denominators["donor_records"], 20)
+        self.assertGreaterEqual(denominators["donor_cells"], 10)
+        self.assertEqual(denominators["embedding_axes"], 64)
+        gates = json.loads(
+            self.service.load_data(result["result_id"], "transfer-gates")[1]
+        )
+        self.assertEqual(
+            next(
+                gate["status"] for gate in gates
+                if gate["gate_id"] == "predictive-discrimination"
+            ),
+            "not_evaluated",
+        )
+        self.assertIn(
+            "analogue-not-occurrence-probability",
+            {item["code"] for item in result["limitations"]},
+        )
 
     def test_result_and_payloads_are_immutable(self):
         first = self.service.query(

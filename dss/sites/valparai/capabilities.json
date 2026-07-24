@@ -114,8 +114,8 @@
     },
     {
       "capability_id": "gated-transfer",
-      "version": "0.1.0",
-      "label": "Test transfer from admitted donor data into the target",
+      "version": "1.0.0",
+      "label": "Screen environmental analogues from admitted donor records into a target",
       "input_schema": {
         "type": "object",
         "required": ["entity", "donor_scope", "target_scope"],
@@ -126,13 +126,12 @@
         },
         "additionalProperties": false
       },
-      "output_views": ["donor-target-gates"],
-      "required_planes": ["events", "feature_cube", "model_runs", "gate_results"],
-      "optional_planes": ["effort", "action_costs"],
+      "output_views": ["donor-target-gates", "transfer-gates"],
+      "required_planes": ["events", "cell_features", "cells"],
+      "optional_planes": ["effort", "model_runs", "action_costs"],
       "latency_class": "model",
       "evidence_classes": ["observed", "modelled", "missing"],
-      "availability": "partial",
-      "reason": "The predictor cube is onboarded; versioned model runs, spatial validation and gate results are not yet onboarded."
+      "availability": "ready"
     },
     {
       "capability_id": "stratified-survey-summary",

@@ -23,6 +23,11 @@ import sys
 import urllib.parse
 from typing import Any
 
+try:
+    from dss.visual_index.analogue_transfer import score_analogues
+except ModuleNotFoundError:  # Direct execution: python dss/visual_index/result_service.py
+    from analogue_transfer import score_analogues
+
 
 MAX_REQUEST_BYTES = 64 * 1024
 SAFE_HANDLE = re.compile(r"^[A-Za-z0-9_.-]{1,240}$")
@@ -281,6 +286,7 @@ class ResultService:
             "interaction-map": self._interaction_map,
             "stratified-survey-summary": self._stratified_survey_summary,
             "cell-feature-map": self._cell_feature_map,
+            "gated-transfer": self._gated_transfer,
             "coverage-versus-effort": self._coverage_effort,
             "metric-time-series": self._metric_time_series,
         }
@@ -1498,6 +1504,504 @@ class ResultService:
                 "cell-feature-values": ("application/geo+json", cells),
                 "target-aoi-boundary": ("application/geo+json", target_boundary),
                 "cell-feature-metadata": ("application/json", metadata),
+            },
+        )
+
+    def _gated_transfer(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        if set(arguments) != {"entity", "donor_scope", "target_scope"}:
+            raise ValueError(
+                "gated-transfer requires only entity, donor_scope and target_scope"
+            )
+        requested = str(arguments.get("entity") or "").strip()
+        donor_scope = str(arguments.get("donor_scope") or "").strip()
+        target_scope = str(arguments.get("target_scope") or "").strip()
+        valid_scopes = {"target", "context", "all_indexed"}
+        if (
+            not requested
+            or donor_scope not in valid_scopes
+            or target_scope not in valid_scopes
+            or donor_scope == target_scope
+        ):
+            raise ValueError("entity and two distinct declared scopes are required")
+
+        def scope_clause(scope_name: str) -> tuple[str, tuple[Any, ...]]:
+            if scope_name == "target":
+                return "c.target_role='target'", ()
+            if scope_name == "context":
+                west, south, east, north = self.site["context_aoi"]["bbox"]
+                return (
+                    "c.center_lon BETWEEN ? AND ? AND c.center_lat BETWEEN ? AND ?",
+                    (west, east, south, north),
+                )
+            return "1=1", ()
+
+        donor_clause, donor_parameters = scope_clause(donor_scope)
+        target_clause, target_parameters = scope_clause(target_scope)
+        with self.connect() as connection:
+            entity = self._resolve_entity(connection, requested)
+            if entity is None:
+                sources = self._source_versions(connection)
+                result = self._base_result(
+                    request_id, "gated-transfer", original,
+                    "Resolve an entity before testing environmental transfer.",
+                    {
+                        "entity": requested,
+                        "donor_scope": donor_scope,
+                        "target_scope": target_scope,
+                    },
+                    f"No indexed entity matched “{requested}”.",
+                    ["missing"], "blocked", sources,
+                )
+                result["limitations"].append(self._limitation(
+                    "unresolved-entity",
+                    "The supplied name did not resolve to a canonical entity in this pack.",
+                    severity="error", affects=["answer"],
+                ))
+                return self._write_result(result, {})
+            target_rows = [
+                dict(row) for row in connection.execute(
+                    f"""SELECT c.cell_id,c.west,c.south,c.east,c.north,
+                               c.center_lat,c.center_lon,c.target_role
+                        FROM cells c WHERE {target_clause} ORDER BY c.cell_id""",
+                    target_parameters,
+                )
+            ]
+            target_ids = {row["cell_id"] for row in target_rows}
+            donor_event_rows = [
+                dict(row) for row in connection.execute(
+                    f"""SELECT e.event_id,e.source_id,e.source_row,e.event_date,
+                               e.latitude,e.longitude,e.uncertainty_m,e.count_value,
+                               e.cell_id,c.center_lat,c.center_lon
+                        FROM events e JOIN cells c ON c.cell_id=e.cell_id
+                        WHERE e.entity_id=? AND {donor_clause}
+                          AND e.latitude IS NOT NULL AND e.longitude IS NOT NULL
+                        ORDER BY e.source_id,e.source_row""",
+                    (entity["entity_id"], *donor_parameters),
+                )
+            ]
+            donor_event_rows = [
+                row for row in donor_event_rows if row["cell_id"] not in target_ids
+            ]
+            feature_year_row = connection.execute(
+                """SELECT MAX(year) FROM cell_features
+                   WHERE feature_id GLOB 'alphaearth_A[0-9][0-9]'"""
+            ).fetchone()
+            feature_year = feature_year_row[0] if feature_year_row else None
+            vector_rows = [
+                dict(row) for row in connection.execute(
+                    """SELECT f.cell_id,f.feature_id,f.value,f.source_id,
+                              c.center_lat,c.center_lon
+                       FROM cell_features f JOIN cells c USING(cell_id)
+                       WHERE f.year=?
+                         AND f.feature_id GLOB 'alphaearth_A[0-9][0-9]'
+                       ORDER BY f.cell_id,f.feature_id""",
+                    (feature_year,),
+                )
+            ] if feature_year is not None else []
+            event_source_ids = {row["source_id"] for row in donor_event_rows}
+            feature_source_ids = {row["source_id"] for row in vector_rows}
+            sources = self._source_versions(
+                connection, event_source_ids | feature_source_ids
+            )
+        if not target_rows:
+            result = self._base_result(
+                request_id, "gated-transfer", original,
+                f"Test transfer for {entity['canonical_name']} into {target_scope}.",
+                {
+                    "entity": entity["canonical_name"],
+                    "donor_scope": donor_scope,
+                    "target_scope": target_scope,
+                },
+                f"The declared target scope “{target_scope}” contains no indexed cells.",
+                ["missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "empty-target-scope",
+                "A transfer cannot be evaluated without target cells.",
+                severity="error", affects=["answer"],
+            ))
+            return self._write_result(result, {})
+        if feature_year is None:
+            result = self._base_result(
+                request_id, "gated-transfer", original,
+                f"Test transfer for {entity['canonical_name']} into {target_scope}.",
+                {
+                    "entity": entity["canonical_name"],
+                    "donor_scope": donor_scope,
+                    "target_scope": target_scope,
+                },
+                "No complete, versioned environmental feature cube is indexed.",
+                ["observed", "missing"], "blocked", sources,
+            )
+            result["limitations"].append(self._limitation(
+                "feature-cube-not-indexed",
+                "Environmental analogy cannot be scored without a common feature vector in donor and target cells.",
+                severity="error", affects=["answer"],
+            ))
+            return self._write_result(result, {})
+
+        vector_parts: dict[str, dict[str, Any]] = {}
+        for row in vector_rows:
+            item = vector_parts.setdefault(
+                row["cell_id"],
+                {
+                    "latitude": row["center_lat"],
+                    "longitude": row["center_lon"],
+                    "values": {},
+                },
+            )
+            item["values"][row["feature_id"]] = row["value"]
+        feature_ids = [f"alphaearth_A{index:02d}" for index in range(64)]
+        vectors = {
+            cell_id: {
+                "latitude": item["latitude"],
+                "longitude": item["longitude"],
+                "vector": [item["values"][feature_id] for feature_id in feature_ids],
+            }
+            for cell_id, item in vector_parts.items()
+            if all(feature_id in item["values"] for feature_id in feature_ids)
+        }
+        donor_cell_ids = {row["cell_id"] for row in donor_event_rows}
+        donor_vectors = {
+            cell_id: vectors[cell_id] for cell_id in donor_cell_ids
+            if cell_id in vectors
+        }
+        target_vectors = {
+            row["cell_id"]: vectors[row["cell_id"]] for row in target_rows
+            if row["cell_id"] in vectors
+        }
+        analogue = score_analogues(donor_vectors, target_vectors)
+        threshold = analogue["threshold"]
+        scores = analogue["scores"]
+        supported_ids = {
+            cell_id for cell_id, score in scores.items()
+            if threshold is not None and score >= threshold
+        }
+        unsupported_ids = target_ids - supported_ids
+        feature_support = (
+            len(target_vectors) / len(target_rows) if target_rows else 0.0
+        )
+        environmental_support = (
+            len(supported_ids) / len(target_rows)
+            if threshold is not None and target_rows else None
+        )
+        donor_blocks = analogue["donor_spatial_blocks"]
+        gates = [
+            {
+                "gate_id": "donor-sample",
+                "status": (
+                    "pass" if len(donor_event_rows) >= 20 and len(donor_vectors) >= 10
+                    else "fail"
+                ),
+                "observed": (
+                    f"{len(donor_event_rows)} records in "
+                    f"{len(donor_vectors)} feature-complete cells"
+                ),
+                "threshold": "at least 20 records and 10 cells",
+                "explanation": "Avoid fitting or transferring from a handful of clustered records.",
+            },
+            {
+                "gate_id": "spatial-replication",
+                "status": "pass" if donor_blocks >= 4 else "fail",
+                "observed": f"{donor_blocks} donor blocks",
+                "threshold": "at least 4 blocks of 0.05 degrees",
+                "explanation": "The analogue threshold uses other spatial blocks, not the focal donor cell.",
+            },
+            {
+                "gate_id": "target-feature-support",
+                "status": "pass" if feature_support >= 0.95 else "fail",
+                "observed": f"{feature_support:.1%} of target cells",
+                "threshold": "at least 95 percent",
+                "explanation": "All 64 embedding axes must be finite in a target cell.",
+            },
+            {
+                "gate_id": "environmental-support",
+                "status": (
+                    "pass" if environmental_support is not None
+                    and environmental_support >= 0.50 else "fail"
+                ),
+                "observed": (
+                    f"{environmental_support:.1%} of target cells"
+                    if environmental_support is not None else "not estimable"
+                ),
+                "threshold": (
+                    f"at least 50 percent above donor holdout q10={threshold:.3f}"
+                    if threshold is not None else "no defensible threshold"
+                ),
+                "explanation": "Marks target cells with an environmental analogue among donor occurrence cells.",
+            },
+            {
+                "gate_id": "predictive-discrimination",
+                "status": "not_evaluated",
+                "observed": "no compatible effort-linked nondetection or background evaluation",
+                "threshold": "spatially separated evaluation against a declared baseline",
+                "explanation": "Similarity alone cannot establish occurrence probability or species-level discrimination.",
+            },
+        ]
+
+        donor_points = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": row["event_id"],
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [row["longitude"], row["latitude"]],
+                },
+                "properties": {
+                    "label": entity["display_name"],
+                    "source_id": row["source_id"],
+                    "source_row": row["source_row"],
+                    "event_date": row["event_date"],
+                    "coordinate_uncertainty_m": row["uncertainty_m"],
+                    "count": row["count_value"],
+                    "scope_role": donor_scope,
+                },
+            } for row in donor_event_rows],
+        }
+
+        def cell_feature(row: dict[str, Any], score: float | None, reason: str) -> dict:
+            properties: dict[str, Any] = {
+                "label": row["cell_id"],
+                "scope_role": row["target_role"],
+                "support_status": reason,
+            }
+            if score is not None:
+                properties["estimate"] = score
+                properties["unit"] = "cosine-similarity"
+                properties["support_threshold"] = threshold
+            return {
+                "type": "Feature",
+                "id": row["cell_id"],
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [row["west"], row["south"]],
+                        [row["east"], row["south"]],
+                        [row["east"], row["north"]],
+                        [row["west"], row["north"]],
+                        [row["west"], row["south"]],
+                    ]],
+                },
+                "properties": properties,
+            }
+
+        analogue_cells = {
+            "type": "FeatureCollection",
+            "features": [
+                cell_feature(row, scores[row["cell_id"]], "supported-analogue")
+                for row in target_rows if row["cell_id"] in supported_ids
+            ],
+        }
+        unsupported_cells = {
+            "type": "FeatureCollection",
+            "features": [
+                cell_feature(
+                    row,
+                    scores.get(row["cell_id"]),
+                    (
+                        "below-donor-support-threshold"
+                        if row["cell_id"] in scores else "missing-feature-vector"
+                    ),
+                )
+                for row in target_rows if row["cell_id"] in unsupported_ids
+            ],
+        }
+        target_boundary = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": "target-aoi-boundary",
+                "geometry": {
+                    "type": "LineString",
+                    "coordinates": self.site["target_aoi"]["geometry"]["coordinates"][0],
+                },
+                "properties": {
+                    "label": self.site["label"],
+                    "role": self.site["target_aoi"]["geometry_role"],
+                },
+            }],
+        }
+        limitations = [
+            self._limitation(
+                "analogue-not-occurrence-probability",
+                "The orange surface is embedding similarity to donor occurrence cells, not occurrence probability, abundance or a confirmed distribution.",
+                affects=["analogue-transfer", "answer"],
+            ),
+            self._limitation(
+                "predictive-gate-not-evaluated",
+                "No compatible effort-linked nondetection or target-group background was available for spatially separated predictive evaluation.",
+                affects=["analogue-transfer", "answer"],
+            ),
+            self._limitation(
+                "mixed-observation-processes",
+                "Donor records may combine protocols and reporting processes; repeated records do not become independent samples.",
+                affects=["donor-observations", "answer"],
+            ),
+        ]
+        headline = (
+            f"{len(donor_event_rows):,} {entity['display_name']} donor records in "
+            f"{len(donor_vectors):,} feature-complete cells support an environmental-analogue "
+            f"screen for {len(supported_ids):,} of {len(target_rows):,} target cells."
+        )
+        result = self._base_result(
+            request_id, "gated-transfer", original,
+            (
+                f"Use all 64 normalised {feature_year} AlphaEarth axes to test environmental "
+                f"analogy from {donor_scope} records of {entity['canonical_name']} into "
+                f"{target_scope}; keep predictive discrimination unevaluated."
+            ),
+            {
+                "entity": entity["canonical_name"],
+                "entity_id": entity["entity_id"],
+                "donor_scope": donor_scope,
+                "target_scope": target_scope,
+                "feature_year": feature_year,
+            },
+            headline, ["reported", "observed", "modelled", "missing"],
+            "partial", sources,
+        )
+        result["answer"]["detail"] = (
+            "Observed donor points, environmentally supported target cells and unsupported "
+            "target cells are separate layers. The screen is useful for deciding whether a "
+            "full model is worth attempting; it does not pass the predictive-model gate."
+        )
+        result["limitations"].extend(limitations)
+        donor_ref = self._data_ref(
+            "donor-observations", "application/geo+json", donor_points
+        )
+        analogue_ref = self._data_ref(
+            "target-analogue-cells", "application/geo+json", analogue_cells
+        )
+        unsupported_ref = self._data_ref(
+            "unsupported-target-cells", "application/geo+json", unsupported_cells
+        )
+        boundary_ref = self._data_ref(
+            "transfer-target-boundary", "application/geo+json", target_boundary
+        )
+        gates_ref = self._data_ref("transfer-gates", "application/json", gates)
+        scope = {
+            "aoi_ids": [donor_scope, target_scope],
+            "time": {"start": f"{feature_year}-01-01", "end": f"{feature_year}-12-31"},
+        }
+        denominators = {
+            "donor_records": len(donor_event_rows),
+            "donor_cells": len(donor_vectors),
+            "donor_spatial_blocks": donor_blocks,
+            "target_cells": len(target_rows),
+            "supported_target_cells": len(supported_ids),
+            "feature_year": feature_year,
+            "embedding_axes": 64,
+        }
+        result["visuals"] = [
+            {
+                "visual_id": "analogue-transfer",
+                "visual_type": "map",
+                "view": "donor-target-gates",
+                "title": f"Environmental analogue screen for {entity['display_name']}",
+                "priority": "primary",
+                "status": "partial",
+                "scope": scope,
+                "layers": [
+                    {
+                        "layer_id": "target-analogue-cells",
+                        "evidence_class": "modelled",
+                        "geometry_type": "raster",
+                        "data_ref": analogue_ref,
+                        "legend": {"label": "Supported environmental analogue score"},
+                        "style_hint": {
+                            "palette_role": "modelled",
+                            "value_field": "estimate",
+                        },
+                    },
+                    {
+                        "layer_id": "unsupported-target-cells",
+                        "evidence_class": "missing",
+                        "geometry_type": "cell",
+                        "data_ref": unsupported_ref,
+                        "legend": {"label": "Unsupported or missing target cells"},
+                        "style_hint": {"palette_role": "missing"},
+                    },
+                    {
+                        "layer_id": "donor-observations",
+                        "evidence_class": "observed",
+                        "geometry_type": "point",
+                        "data_ref": donor_ref,
+                        "legend": {"label": "Observed donor records"},
+                        "style_hint": {"palette_role": "observed"},
+                    },
+                    {
+                        "layer_id": "transfer-target-boundary",
+                        "evidence_class": "reported",
+                        "geometry_type": "line",
+                        "data_ref": boundary_ref,
+                        "legend": {"label": "Declared target envelope"},
+                        "style_hint": {"palette_role": "reported"},
+                    },
+                ],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [{
+                    "action_id": "inspect-transfer-gates",
+                    "label": "Inspect every transfer gate",
+                    "data_ref": gates_ref,
+                }],
+                "limitations": limitations,
+            },
+            {
+                "visual_id": "transfer-gates",
+                "visual_type": "table",
+                "view": "transfer-gates",
+                "title": "Transfer gates",
+                "priority": "supporting",
+                "status": "partial",
+                "scope": scope,
+                "layers": [{
+                    "layer_id": "transfer-gates",
+                    "evidence_class": "derived",
+                    "geometry_type": "table",
+                    "data_ref": gates_ref,
+                    "legend": {"label": "Gate result"},
+                    "style_hint": {"palette_role": "derived"},
+                }],
+                "summary": {"headline": headline, "denominators": denominators},
+                "drilldowns": [],
+                "limitations": limitations,
+            },
+        ]
+        if donor_scope != "all_indexed":
+            result["actions"].append(self._action(
+                "broaden-donor-scope", "run_capability",
+                "Check all indexed donor records", "gated-transfer",
+                {
+                    "entity": entity["canonical_name"],
+                    "donor_scope": "all_indexed",
+                    "target_scope": target_scope,
+                },
+            ))
+        result["actions"].append(self._action(
+            "request-predictive-model", "request_model",
+            "Request an effort-aware predictive model", "gated-transfer",
+            {
+                "entity": entity["canonical_name"],
+                "donor_scope": donor_scope,
+                "target_scope": target_scope,
+                "missing_gate": "predictive-discrimination",
+            },
+        ))
+        return self._write_result(
+            result,
+            {
+                "donor-observations": ("application/geo+json", donor_points),
+                "target-analogue-cells": ("application/geo+json", analogue_cells),
+                "unsupported-target-cells": (
+                    "application/geo+json", unsupported_cells
+                ),
+                "transfer-target-boundary": (
+                    "application/geo+json", target_boundary
+                ),
+                "transfer-gates": ("application/json", gates),
             },
         )
 

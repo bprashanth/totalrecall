@@ -64,8 +64,10 @@ keeps unit, evidence class, source asset, scale and missing support in the resul
 surfaces remain context or model inputs; they never become presence records.
 
 Nine typed probes are immediately executable, alongside five visual-contract probes awaiting
-their next producer operation. Transfer is partial because the pack does not yet include a
-versioned fitted model and gate result. Expected-value collection
+their next producer operation. Transfer now produces a versioned all-axis AlphaEarth
+environmental-analogue screen, spatial support gates, observed donor points and unsupported
+target cells. It remains partial because similarity has not passed an effort-aware predictive
+discrimination gate. Expected-value collection
 mapping is blocked because there is no versioned uncertainty surface or action-cost layer.
 
 ## Important data findings

@@ -46,8 +46,10 @@ map a taxonomic class, an occupation sector or another pack-defined hierarchy. I
 adapters are equally generic but stricter: a source must expose the relation or an explicit join;
 proximity never creates an edge. Stratified summaries are descriptive unless a separate
 inferential design is declared. Environmental features remain context or predictor inputs rather
-than occurrence evidence. A declared but incomplete transfer capability returns a structured
-blocked result.
+than occurrence evidence. The transfer operation can produce a spatially gated environmental-
+analogue screen from all 64 normalised AlphaEarth axes, but keeps that separate from an
+effort-aware predictive model: observed donors, modelled analogues, unsupported cells and every
+gate are separate result layers.
 
 One-shot query:
 
