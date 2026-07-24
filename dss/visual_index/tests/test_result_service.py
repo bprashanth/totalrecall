@@ -194,6 +194,18 @@ class ValparaiResultServiceTest(unittest.TestCase):
             {"Benchmark", "Restored", "Unrestored"},
         )
         self.assertTrue(all(item["sites"] and item["visits"] for item in summary))
+        points = json.loads(
+            self.service.load_data(
+                result["result_id"], "stratified-survey-sites"
+            )[1]
+        )
+        self.assertTrue(
+            all(
+                " · " in feature["properties"]["label"]
+                and feature["properties"]["category"]
+                for feature in points["features"]
+            )
+        )
         self.assertIn(
             "descriptive-not-causal",
             {item["code"] for item in result["limitations"]},

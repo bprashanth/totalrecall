@@ -1099,11 +1099,14 @@ class ResultService:
                     "coordinates": [row["longitude"], row["latitude"]],
                 },
                 "properties": {
-                    key: row[key] for key in (
-                        "site_id", "category", "event_records", "detected_entities",
-                        "detected_count", "visits", "effort", "effort_unit",
-                        "records_per_visit",
-                    )
+                    "label": f"{row['site_id']} · {row['category']}",
+                    **{
+                        key: row[key] for key in (
+                            "site_id", "category", "event_records",
+                            "detected_entities", "detected_count", "visits",
+                            "effort", "effort_unit", "records_per_visit",
+                        )
+                    },
                 },
             } for row in sites],
         }
