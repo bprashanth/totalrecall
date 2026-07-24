@@ -999,24 +999,42 @@ class ResultService:
     def _stratified_survey_summary(
         self, request_id: str, arguments: dict[str, Any], original: str
     ) -> dict[str, Any]:
-        if set(arguments) != {"source_id", "category_property"}:
+        if (
+            not {"source_id", "category_property"}.issubset(arguments)
+            or not set(arguments).issubset({
+                "source_id", "category_property", "event_type", "effort_method"
+            })
+        ):
             raise ValueError(
-                "stratified-survey-summary requires only source_id and category_property"
+                "stratified-survey-summary requires source_id and category_property, "
+                "with optional event_type and effort_method"
             )
         source_id = str(arguments.get("source_id") or "").strip()
         category_property = str(arguments.get("category_property") or "").strip()
+        event_type = str(arguments.get("event_type") or "").strip()
+        effort_method = str(arguments.get("effort_method") or "").strip()
         if not source_id or not re.fullmatch(
             r"[A-Za-z][A-Za-z0-9_]{0,63}", category_property
-        ):
+        ) or len(event_type) > 200 or len(effort_method) > 200:
             raise ValueError("source_id and a safe category_property are required")
         category_path = f"$.{category_property}"
+        event_filter = " AND event_type=?" if event_type else ""
+        effort_filter = " AND method=?" if effort_method else ""
+        event_parameters: tuple[Any, ...] = (
+            category_path, source_id, category_path,
+            *((event_type,) if event_type else ()),
+        )
+        effort_parameters: tuple[Any, ...] = (
+            category_path, source_id, category_path,
+            *((effort_method,) if effort_method else ()),
+        )
         with self.connect() as connection:
             source_exists = connection.execute(
                 "SELECT 1 FROM sources WHERE source_id=?", (source_id,)
             ).fetchone()
             event_rows = [
                 dict(row) for row in connection.execute(
-                    """SELECT json_extract(properties_json,'$.Site_ID') AS site_id,
+                    f"""SELECT json_extract(properties_json,'$.Site_ID') AS site_id,
                               json_extract(properties_json,?) AS category,
                               AVG(latitude) AS latitude,AVG(longitude) AS longitude,
                               COUNT(*) AS event_records,
@@ -1026,13 +1044,14 @@ class ResultService:
                        WHERE source_id=? AND latitude IS NOT NULL AND longitude IS NOT NULL
                          AND json_extract(properties_json,'$.Site_ID') IS NOT NULL
                          AND json_extract(properties_json,?) IS NOT NULL
+                         {event_filter}
                        GROUP BY site_id,category ORDER BY category,site_id""",
-                    (category_path, source_id, category_path),
+                    event_parameters,
                 )
             ]
             effort_rows = [
                 dict(row) for row in connection.execute(
-                    """SELECT json_extract(properties_json,'$.Site_ID') AS site_id,
+                    f"""SELECT json_extract(properties_json,'$.Site_ID') AS site_id,
                               json_extract(properties_json,?) AS category,
                               COUNT(*) AS visits,SUM(effort_value) AS effort,
                               MIN(effort_unit) AS effort_unit
@@ -1040,8 +1059,9 @@ class ResultService:
                        WHERE source_id=?
                          AND json_extract(properties_json,'$.Site_ID') IS NOT NULL
                          AND json_extract(properties_json,?) IS NOT NULL
+                         {effort_filter}
                        GROUP BY site_id,category ORDER BY category,site_id""",
-                    (category_path, source_id, category_path),
+                    effort_parameters,
                 )
             ]
             sources = self._source_versions(connection, {source_id})
@@ -1138,7 +1158,12 @@ class ResultService:
         result = self._base_result(
             request_id, "stratified-survey-summary", original,
             f"Compare {source_id} by source-reported {category_property} with site replication and effort.",
-            {"source_id": source_id, "category_property": category_property},
+            {
+                "source_id": source_id,
+                "category_property": category_property,
+                **({"event_type": event_type} if event_type else {}),
+                **({"effort_method": effort_method} if effort_method else {}),
+            },
             headline, ["observed", "derived"], "partial", sources,
         )
         result["answer"]["detail"] = (

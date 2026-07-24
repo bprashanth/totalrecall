@@ -946,6 +946,224 @@
           ]
         }
       ]
+    },
+    {
+      "source_id": "dryad-8kprr4xvb-restoration-opportunities",
+      "title": "Restoration opportunities beyond highly degraded tropical forests",
+      "doi": "10.5061/dryad.8kprr4xvb",
+      "url": "https://datadryad.org/dataset/doi:10.5061/dryad.8kprr4xvb",
+      "publisher": "Dryad / Nature Conservation Foundation",
+      "license": "CC0-1.0",
+      "capabilities": [
+        "inspectable",
+        "mappable",
+        "has_events",
+        "has_locations",
+        "has_measurements",
+        "has_entity_hierarchy",
+        "candidate_model_input"
+      ],
+      "local_metadata": "raw/dryad-8kprr4xvb-restoration-opportunities/ACQUISITION.json",
+      "adapters": [
+        {
+          "kind": "location",
+          "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+          "location_id": "Site_ID",
+          "label": "Site_name",
+          "latitude": "Lat_final",
+          "longitude": "Long_final",
+          "properties": [
+            "Treatment",
+            "dist_PA",
+            "CanCover"
+          ]
+        },
+        {
+          "kind": "measurement",
+          "adapter_id": "restoration-plot-context",
+          "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+          "record_id": "Site_ID",
+          "location_id": "Site_ID",
+          "latitude": "Lat_final",
+          "longitude": "Long_final",
+          "date_value": "2024",
+          "metrics": {
+            "canopy_cover": "percent",
+            "distance_to_protected_area": "m"
+          },
+          "metric_columns": {
+            "canopy_cover": "CanCover",
+            "distance_to_protected_area": "dist_PA"
+          },
+          "properties": [
+            "Site_name",
+            "Site_ID",
+            "Treatment"
+          ]
+        },
+        {
+          "kind": "effort",
+          "adapter_id": "restoration-adult-tree-plot-effort",
+          "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+          "record_id": "Site_ID",
+          "method_value": "adult_tree_inventory_plot",
+          "effort_value_value": 0.04,
+          "effort_unit": "ha",
+          "location_lookup": {
+            "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+            "lookup_key": "Site_ID",
+            "event_key": "Site_ID",
+            "location_id": "Site_ID",
+            "latitude": "Lat_final",
+            "longitude": "Long_final"
+          },
+          "properties": [
+            "Site_name",
+            "Site_ID",
+            "Treatment"
+          ]
+        },
+        {
+          "kind": "effort",
+          "adapter_id": "restoration-regeneration-plot-effort",
+          "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+          "record_id": "Site_ID",
+          "method_value": "regeneration_inventory_plot",
+          "effort_value_value": 0.04,
+          "effort_unit": "ha",
+          "location_lookup": {
+            "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+            "lookup_key": "Site_ID",
+            "event_key": "Site_ID",
+            "location_id": "Site_ID",
+            "latitude": "Lat_final",
+            "longitude": "Long_final"
+          },
+          "properties": [
+            "Site_name",
+            "Site_ID",
+            "Treatment"
+          ]
+        },
+        {
+          "kind": "event",
+          "adapter_id": "restoration-adult-tree-inventory",
+          "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_tree_data.csv",
+          "date": "DateTime",
+          "entity": "Accept_name_WFO",
+          "entity_alias": "Species_name",
+          "entity_hierarchy": {
+            "habit": "Habit",
+            "origin": "Distribution",
+            "iucn_status": "IUCN_status",
+            "dispersal_mode": "disperser",
+            "habitat_affinity": "habt_new"
+          },
+          "event_type_value": "adult_tree_inventory",
+          "location_lookup": {
+            "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+            "lookup_key": "Site_ID",
+            "event_key": "Site_ID",
+            "location_id": "Site_ID",
+            "latitude": "Lat_final",
+            "longitude": "Long_final"
+          },
+          "properties": [
+            "Site_ID",
+            "Treatment",
+            "Habit",
+            "Distribution",
+            "IUCN_status",
+            "wden_sps",
+            "Wden_final",
+            "seed_size",
+            "disperser",
+            "habt_new",
+            "ad_ht",
+            "Height",
+            "DBH",
+            "Basal",
+            "Carbon"
+          ]
+        },
+        {
+          "kind": "measurement",
+          "adapter_id": "restoration-adult-tree-structure",
+          "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_tree_data.csv",
+          "date": "DateTime",
+          "location_lookup": {
+            "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+            "lookup_key": "Site_ID",
+            "event_key": "Site_ID",
+            "location_id": "Site_ID",
+            "latitude": "Lat_final",
+            "longitude": "Long_final"
+          },
+          "metrics": {
+            "tree_height": "m",
+            "dbh": "cm",
+            "basal_area": "m2",
+            "aboveground_carbon": "Mg",
+            "wood_density": "g/cm3"
+          },
+          "metric_columns": {
+            "tree_height": "Height",
+            "dbh": "DBH",
+            "basal_area": "Basal",
+            "aboveground_carbon": "Carbon",
+            "wood_density": "Wden_final"
+          },
+          "properties": [
+            "Site_ID",
+            "Treatment",
+            "Accept_name_WFO",
+            "Habit",
+            "Distribution",
+            "IUCN_status",
+            "seed_size",
+            "disperser",
+            "habt_new"
+          ]
+        },
+        {
+          "kind": "event",
+          "adapter_id": "restoration-regeneration-inventory",
+          "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_regen_data.csv",
+          "date": "Date",
+          "entity": "Accept_name_WFO",
+          "entity_alias": "Species_name",
+          "count": "Abun",
+          "entity_hierarchy": {
+            "habit": "Habit",
+            "origin": "Distribution",
+            "iucn_status": "IUCN_status",
+            "dispersal_mode": "disperser",
+            "habitat_affinity": "habt_new"
+          },
+          "event_type_value": "regeneration_inventory",
+          "location_lookup": {
+            "path": "raw/dryad-8kprr4xvb-restoration-opportunities/Osuri_plotInfo.csv",
+            "lookup_key": "Site_ID",
+            "event_key": "Site_ID",
+            "location_id": "Site_ID",
+            "latitude": "Lat_final",
+            "longitude": "Long_final"
+          },
+          "properties": [
+            "Site_ID",
+            "Treatment",
+            "Habit",
+            "Distribution",
+            "IUCN_status",
+            "wden_sps",
+            "Wden_final",
+            "seed_size",
+            "disperser",
+            "habt_new",
+            "ad_ht"
+          ]
+        }
+      ]
     }
   ]
 }

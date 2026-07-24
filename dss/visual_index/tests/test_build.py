@@ -33,14 +33,14 @@ class ValparaiVisualIndexTest(unittest.TestCase):
     def test_build_is_complete_and_fast(self):
         report = json.loads((self.output / "build_report.json").read_text())
         self.assertEqual(report["integrity"], "ok")
-        self.assertEqual(report["sources"], 18)
-        self.assertEqual(report["events"], 41_501)
-        self.assertEqual(report["georeferenced_events"], 38_521)
-        self.assertEqual(report["effort_rows"], 710)
-        self.assertEqual(report["measurements"], 56_955)
+        self.assertEqual(report["sources"], 19)
+        self.assertEqual(report["events"], 45_328)
+        self.assertEqual(report["georeferenced_events"], 42_348)
+        self.assertEqual(report["effort_rows"], 974)
+        self.assertEqual(report["measurements"], 68_194)
         self.assertEqual(report["interactions"], 5_622)
         self.assertEqual(report["cell_features"], 28_764)
-        self.assertEqual(report["entities"], 1_121)
+        self.assertEqual(report["entities"], 1_145)
         self.assertEqual(report["cells"], 302)
         self.assertGreaterEqual(report["ready_views"], 8)
         self.assertLess(self.elapsed, 3.0)
@@ -77,6 +77,43 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         ).fetchone()[0]
         self.assertEqual(july, 0)
 
+    def test_restoration_inventory_retains_plot_traits_and_conservation_fields(self):
+        counts = self.db.execute(
+            """SELECT COUNT(*),COUNT(DISTINCT location_id),COUNT(DISTINCT metric)
+               FROM measurements
+               WHERE source_id='dryad-8kprr4xvb-restoration-opportunities'"""
+        ).fetchone()
+        self.assertEqual(counts, (11_239, 132, 7))
+        events = dict(
+            self.db.execute(
+                """SELECT event_type,COUNT(*) FROM events
+                   WHERE source_id='dryad-8kprr4xvb-restoration-opportunities'
+                   GROUP BY event_type"""
+            ).fetchall()
+        )
+        self.assertEqual(events["adult_tree_inventory"], 2195)
+        self.assertEqual(events["regeneration_inventory"], 1632)
+        lantana = self.db.execute(
+            """SELECT COUNT(*),SUM(count_value)
+               FROM events JOIN entities USING(entity_id)
+               WHERE source_id='dryad-8kprr4xvb-restoration-opportunities'
+                 AND canonical_name='Lantana camara'
+                 AND json_extract(hierarchy_json,'$.origin')='Introduced'"""
+        ).fetchone()
+        self.assertGreater(lantana[0], 0)
+        self.assertGreater(lantana[1], 0)
+        trait = json.loads(
+            self.db.execute(
+                """SELECT properties_json FROM events
+                   WHERE source_id='dryad-8kprr4xvb-restoration-opportunities'
+                     AND json_extract(properties_json,'$.IUCN_status')='VU'
+                     AND json_extract(properties_json,'$.disperser') IS NOT NULL
+                   LIMIT 1"""
+            ).fetchone()[0]
+        )
+        self.assertIn("Distribution", trait)
+        self.assertIn("disperser", trait)
+
     def test_duplicate_upstream_keys_do_not_drop_source_rows(self):
         expected = {
             "zenodo-7008315": 3741,
@@ -93,6 +130,7 @@ class ValparaiVisualIndexTest(unittest.TestCase):
             "gbif-4e53vk-threatened-trees": 8397,
             "gbif-2bqrzp-frugivory": 2640,
             "gbif-utzvkm-seed-predation": 779,
+            "dryad-8kprr4xvb-restoration-opportunities": 3827,
         }
         actual = dict(
             self.db.execute(
@@ -129,6 +167,7 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         self.assertEqual(
             sources,
             [
+                ("dryad-8kprr4xvb-restoration-opportunities",),
                 ("dryad-rjdfn2zc3-restoration-birds",),
                 ("gbif-v6ku49-butterflies",),
                 ("gbif-ysrzbw-frogs",),

@@ -19,6 +19,9 @@ The first two admitted tranches now cover:
 - focal-tree watches, visitor behaviour scans, seed fate and movement;
 - restored, naturally regenerating and benchmark bird point counts with explicit effort;
 - restoration habitat and tree-quadrat measurements;
+- 132 fragment/reference plots with separately declared adult-tree and regeneration effort,
+  canopy, protected-area distance, carbon, origin, IUCN status, habitat affinity and dispersal
+  traits;
 - shade-plantation bird guild and scientific-name crosswalks; and
 - source-linked camera detections at focal seed experiments.
 

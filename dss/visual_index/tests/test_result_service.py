@@ -60,9 +60,9 @@ class ValparaiResultServiceTest(unittest.TestCase):
         self.assertEqual(result["status"], "complete")
         self.assertEqual(result["visuals"][0]["visual_type"], "map")
         self.assertEqual(
-            result["visuals"][0]["summary"]["denominators"]["records"], 38_521
+            result["visuals"][0]["summary"]["denominators"]["records"], 42_348
         )
-        self.assertEqual(len(result["audit"]["source_versions"]), 18)
+        self.assertEqual(len(result["audit"]["source_versions"]), 19)
         for layer in result["visuals"][0]["layers"]:
             resolved = self.service.load_data(result["result_id"], layer["data_ref"]["handle"])
             self.assertIsNotNone(resolved)
@@ -254,6 +254,34 @@ class ValparaiResultServiceTest(unittest.TestCase):
             for feature in cells["features"]
         ))
 
+    def test_stratified_survey_can_filter_compatible_protocols(self):
+        result = self.service.query(
+            "adult-tree-comparison-1",
+            "stratified-survey-summary",
+            {
+                "source_id": "dryad-8kprr4xvb-restoration-opportunities",
+                "category_property": "Treatment",
+                "event_type": "adult_tree_inventory",
+                "effort_method": "adult_tree_inventory_plot",
+            },
+            "Compare adult-tree records between fragments and benchmark forests.",
+        )
+        self.assert_contract(result)
+        denominators = result["visuals"][0]["summary"]["denominators"]
+        self.assertEqual(denominators["sites"], 132)
+        self.assertEqual(denominators["categories"], 2)
+        self.assertEqual(denominators["visits"], 132)
+        summary = json.loads(
+            self.service.load_data(
+                result["result_id"], "stratified-category-summary"
+            )[1]
+        )
+        self.assertEqual(
+            {item["category"] for item in summary},
+            {"Benchmark", "Fragment"},
+        )
+        self.assertEqual(sum(item["event_records"] for item in summary), 2195)
+
     def test_feature_with_no_finite_support_is_blocked_not_zero_filled(self):
         result = self.service.query(
             "cloudy-july-1",
@@ -436,7 +464,7 @@ class PackSwapContractTest(unittest.TestCase):
                 (pack / "questions.json").read_text(encoding="utf-8")
             )["questions"]
             typed = [probe for probe in probes if probe.get("capability_id")]
-            expected_typed = 9 if pack_name == "real" else 7
+            expected_typed = 11 if pack_name == "real" else 7
             self.assertEqual(len(typed), expected_typed)
             for probe in typed:
                 with self.subTest(pack=pack_name, probe=probe["id"]):

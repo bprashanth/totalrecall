@@ -37,14 +37,15 @@ python3 -m unittest dss.visual_index.tests.test_build -v
 
 The current build indexes:
 
-- 18 source records, including one reproducible multi-asset derived feature cube;
-- 41,501 source-linked events, including 1,567 regeneration records and 10,752
+- 19 source records, including one reproducible multi-asset derived feature cube;
+- 45,328 source-linked events, including 3,199 regeneration rows and 10,752
   restoration-study bird/tree records;
-- 38,521 georeferenced events;
-- 1,121 resolved or retained broad entities and 1,859 aliases;
-- 29 named/source locations;
-- 710 explicit effort rows, including 460 fifteen-minute bird point counts;
-- 56,955 typed weather, canopy, seed-fate and habitat measurement rows;
+- 42,348 georeferenced events;
+- 1,145 resolved or retained broad entities and 1,893 aliases;
+- 161 named/source locations;
+- 974 explicit effort rows, including 460 fifteen-minute bird point counts and 264
+  declared 0.04-hectare adult-tree or regeneration plots;
+- 68,194 typed weather, canopy, carbon, tree-structure, seed-fate and habitat measurement rows;
 - 5,622 explicit visitor–focal-tree or animal–seed-experiment association rows; and
 - 28,764 finite 2024 Earth-observation feature values across 97 available features, with
   832 cloudy-season gaps retained as missing; and
@@ -63,7 +64,7 @@ The cell-feature capability maps any indexed feature-year through the same typed
 keeps unit, evidence class, source asset, scale and missing support in the result. Environmental
 surfaces remain context or model inputs; they never become presence records.
 
-Nine typed probes are immediately executable, alongside five visual-contract probes awaiting
+Eleven typed probes are immediately executable, alongside five visual-contract probes awaiting
 their next producer operation. Transfer now produces a versioned all-axis AlphaEarth
 environmental-analogue screen, spatial support gates, observed donor points and unsupported
 target cells. It remains partial because similarity has not passed an effort-aware predictive
