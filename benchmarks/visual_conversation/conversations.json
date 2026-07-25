@@ -1,0 +1,319 @@
+{
+  "schema_version": "visual-conversation-bench/0.1",
+  "site": "valparai_livelihoods",
+  "language_note": "Turns are written in the plain Indian English NGO programme staff actually use on a call: 'what all', 'kindly', 'na', 'only' as emphasis, 'we are having'. No caricature, no transliteration.",
+  "conversations": [
+    {
+      "id": "c1-orientation",
+      "title": "Orientation and graph comprehension",
+      "categories": ["orientation", "graph_comprehension"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Hello, we are running a livelihoods programme in Valparai. What all data do you have for this place?",
+          "checks": {
+            "expect_visual": true,
+            "vocab_any": [["valparai"]]
+          },
+          "note": "Category 1: plain-language inventory plus a visual marker."
+        },
+        {
+          "id": "t2",
+          "user": "What is this map actually showing? Kindly explain in simple words na, I have to tell my field team.",
+          "checks": {
+            "max_questions": 1
+          },
+          "note": "Category 2: plain explanation of the visual, no jargon."
+        },
+        {
+          "id": "t3",
+          "user": "This data is covering which years? And is it for the whole plateau or only some estates only?",
+          "checks": {
+            "expect_numbers": true
+          },
+          "note": "Coverage question; years should be stated concretely."
+        },
+        {
+          "id": "t4",
+          "user": "Out of all this, which one is most useful if I want to understand worker income?",
+          "checks": {
+            "vocab_any": [["wage", "income", "earning", "pay"]]
+          },
+          "note": "Should route to the wage data in the user's own framing."
+        }
+      ]
+    },
+    {
+      "id": "c2-vocabulary",
+      "title": "Vocabulary pickup: MGNREGA / mnrega / job work",
+      "categories": ["vocabulary", "orientation"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Kindly show me what public works data you are having for this area.",
+          "checks": {
+            "expect_visual": true,
+            "vocab_any": [["mgnrega", "public work", "public-works", "employment guarantee"]]
+          },
+          "note": "Seeds the MGNREGA vocabulary that later turns re-spell."
+        },
+        {
+          "id": "t2",
+          "user": "This mnrega thing, how many works are there in last few years?",
+          "checks": {
+            "vocab_any": [["mnrega", "mgnrega"]],
+            "expect_numbers": true
+          },
+          "note": "Category 3: misspelt term must connect, not bounce."
+        },
+        {
+          "id": "t3",
+          "user": "In our office we just say job work only. So tell me na, this job work is increasing or decreasing?",
+          "checks": {
+            "vocab_any": [["job work", "job", "work"]]
+          },
+          "note": "Category 3: everyday phrasing for the same thing; reuse the user's words."
+        },
+        {
+          "id": "t4",
+          "user": "And which village is getting most of this job work?",
+          "checks": {
+            "vocab_any": [["village", "job work", "work"]]
+          },
+          "note": "Drill-down inside the user's vocabulary."
+        },
+        {
+          "id": "t5",
+          "user": "Same thing for women workers, any data on that?",
+          "checks": {
+            "expect_gap_or_answer": true
+          },
+          "note": "Either an honest gap for MGNREGA-by-gender or a real answer from estate labour."
+        }
+      ]
+    },
+    {
+      "id": "c3-drilldown",
+      "title": "Drill-down to rows with understandable framing",
+      "categories": ["drilldown"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Which villages have the most survey visits? Show rows please.",
+          "checks": {
+            "expect_visual": true,
+            "expect_rows": true,
+            "vocab_any": [["village"]]
+          },
+          "note": "Category 4: rows, plus prose that a programme officer can read."
+        },
+        {
+          "id": "t2",
+          "user": "There is one column called effort. What it means actually?",
+          "checks": {
+            "expect_translation_of": ["effort"],
+            "max_questions": 1
+          },
+          "note": "Category 4: esoteric header translated into prose."
+        },
+        {
+          "id": "t3",
+          "user": "Kindly turn it around and show which village we visited least. We have to plan next round.",
+          "checks": {
+            "vocab_any": [["village"]],
+            "expect_numbers": true
+          },
+          "note": "Re-sort request in plain words."
+        },
+        {
+          "id": "t4",
+          "user": "Give me one line I can put in our monthly report about this.",
+          "checks": {
+            "max_sentences": 4
+          },
+          "note": "Brevity under an explicit one-line request."
+        }
+      ]
+    },
+    {
+      "id": "c4-estimate",
+      "title": "Estimate with clarification near Kadamparai",
+      "categories": ["estimate"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Near Kadamparai there is one empty square on the map. Can you estimate how many jobs will be there?",
+          "checks": {
+            "max_questions": 1,
+            "vocab_any": [["kadamparai"]]
+          },
+          "note": "Category 5: interpretation in plain words, or exactly ONE clarifying question."
+        },
+        {
+          "id": "t2",
+          "user": "Yes, the square just below Kadamparai village. Take it as 10.255, 76.965. Kindly estimate for that one.",
+          "checks": {
+            "expect_estimate": true,
+            "expect_confidence": true,
+            "max_questions": 1
+          },
+          "note": "Category 5: an estimate with confidence stated in everyday terms."
+        },
+        {
+          "id": "t3",
+          "user": "How much you are trusting this number? Be frank with me.",
+          "checks": {
+            "expect_confidence": true
+          },
+          "note": "Confidence restated without statistics jargon."
+        },
+        {
+          "id": "t4",
+          "user": "If I put this in a proposal, what caveat I should write?",
+          "checks": {
+            "expect_gap": true,
+            "max_sentences": 6
+          },
+          "note": "Limitation carried into the user's own document."
+        }
+      ]
+    },
+    {
+      "id": "c5-honest-limits",
+      "title": "Honest limits: school data is absent",
+      "categories": ["honest_limits"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "How many children go to school here? We need it for our education programme.",
+          "checks": {
+            "expect_gap": true,
+            "expect_alternatives": true
+          },
+          "note": "Category 6: honest gap plus what data does exist."
+        },
+        {
+          "id": "t2",
+          "user": "So you are saying there is no school data at all? Or maybe it is there but not matching?",
+          "checks": {
+            "expect_non_absence": true
+          },
+          "note": "Category 6: non-match is not absence framing."
+        },
+        {
+          "id": "t3",
+          "user": "Then what all is the closest to household level information you are having?",
+          "checks": {
+            "vocab_any": [["household", "survey"]],
+            "expect_alternatives": true
+          },
+          "note": "Should land on the household survey effort data."
+        },
+        {
+          "id": "t4",
+          "user": "Fine. Kindly note it down that we need school enrolment data for Valparai.",
+          "checks": {
+            "vocab_any": [["school", "enrol", "enroll", "noted", "record"]]
+          },
+          "note": "Data request captured, not silently dropped."
+        }
+      ]
+    },
+    {
+      "id": "c6-general-knowledge",
+      "title": "General knowledge may frame, numbers must come from data",
+      "categories": ["gk_usage"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Is 10000 rupees a month good income for a tea worker?",
+          "checks": {
+            "expect_gk_label": true,
+            "require_number_attribution": true,
+            "user_numbers": ["10000", "10,000"]
+          },
+          "note": "Category 7: general context allowed, but it must be labelled as general."
+        },
+        {
+          "id": "t2",
+          "user": "What the actual data is saying about tea worker wages here?",
+          "checks": {
+            "expect_visual": true,
+            "expect_numbers": true,
+            "require_number_attribution": true,
+            "vocab_any": [["wage", "tea"]]
+          },
+          "note": "Numbers now must be from the site's own records."
+        },
+        {
+          "id": "t3",
+          "user": "So compared to what you said generally, this is high or low?",
+          "checks": {
+            "expect_gk_label": true,
+            "require_number_attribution": true
+          },
+          "note": "The comparison must keep general context and data separate."
+        },
+        {
+          "id": "t4",
+          "user": "Can you write two lines for our donor about this wage situation?",
+          "checks": {
+            "max_sentences": 5,
+            "require_number_attribution": true
+          },
+          "note": "Donor-facing prose stays honest and short."
+        }
+      ]
+    },
+    {
+      "id": "c7-migration",
+      "title": "Out-migration: orientation, drill-down and the user's own words",
+      "categories": ["orientation", "drilldown", "vocabulary"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "What all is happening with people leaving this area for work? Any data on that?",
+          "checks": {
+            "expect_visual": true,
+            "vocab_any": [["migrat", "leaving", "moving out", "out-migration"]]
+          },
+          "note": "Everyday phrasing must reach the migration source."
+        },
+        {
+          "id": "t2",
+          "user": "This migration, which occupation is leaving most?",
+          "checks": {
+            "vocab_any": [["occupation", "worker", "driver", "plucker", "labour", "staff"]],
+            "expect_numbers": true
+          },
+          "note": "Drill-down by occupation."
+        },
+        {
+          "id": "t3",
+          "user": "Show me the rows na.",
+          "checks": {
+            "expect_visual": true,
+            "expect_rows": true
+          },
+          "note": "Terse request must still produce a table view."
+        },
+        {
+          "id": "t4",
+          "user": "And the tea plucker people, same thing for them?",
+          "checks": {
+            "vocab_any": [["tea plucker", "plucker", "tea"]]
+          },
+          "note": "Entity vocabulary reuse."
+        },
+        {
+          "id": "t5",
+          "user": "Summarise in 3 simple points for our team meeting.",
+          "checks": {
+            "max_sentences": 8
+          },
+          "note": "Summary stays plain and short."
+        }
+      ]
+    }
+  ]
+}
