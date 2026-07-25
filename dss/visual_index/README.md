@@ -105,14 +105,24 @@ conversation. The bytes are stored immutably by content hash under
 date-like and lat/lon-like and numeric columns, candidate entity-name columns), and two
 capabilities emit ordinary `idli-result/1` envelopes: `upload-profile` (sample-row table, monthly
 series when a date and a numeric column exist, observed-points map when coordinates exist, and
-count/range tiles) and `upload-cross-join` (uploaded names against the pack's entity aliases,
-exact and case/space-normalised, with match rates, a map of matched names at known entity
-locations, and every unmatched name listed). Uploaded rows are `reported` evidence and always
+count/range tiles) and `upload-cross-join`, which matches uploaded names against two planes — the
+pack's registered entity aliases and its named locations, because a household survey names
+villages that a pack may register as places rather than as entities. Every match reports its own
+strength: `exact`, `normalised` (case and spacing) or `normalised-suffix`, where a generic place
+word such as "Village" was removed from one side; the last carries its own `relaxed-name-match`
+limitation so a weaker match is never presented as an alias match. The result holds match rates
+per candidate column, a map of matched names at their known locations and every unmatched name
+listed in full. Uploaded rows are `reported` evidence and always
 carry a `user-supplied-unverified` limitation; a non-match is reported as a gap, never as absence.
 Result ids are namespaced by session and the envelope audit records the session binding, so one
 conversation's upload never becomes another's evidence. Workbooks are read with `openpyxl` when it
 is importable and with a standard-library zip/XML reader (including date-format decoding)
 otherwise, because the bridge interpreter has no `openpyxl`.
+
+A file does not always arrive as a staged upload: for small text files the browser inlines the
+content into the user message as a `=== File: name.csv ===` block. The bridge stages those blocks
+into the session's own attachment directory before the turn runs, so one convention reaches this
+module either way. See `dss/sites/valparai_livelihoods/README.md` for the path convention.
 
 `PackSwapContractTest` builds the real Valparai pack and the synthetic Valparai livelihoods pack,
 runs their declared typed question probes through this same service, validates both against the

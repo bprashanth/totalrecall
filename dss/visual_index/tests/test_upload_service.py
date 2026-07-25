@@ -355,6 +355,47 @@ class UploadResultTest(unittest.TestCase):
             manifest["sheets"][0]["columns"][1]["first"],
         )
 
+    def test_village_names_match_registered_places_and_say_how(self):
+        """A household survey names places, which this pack registers as locations."""
+        path = self.root / "household_income_survey.csv"
+        path.write_text(
+            "village,survey_month,households,median_income\n"
+            "Thonimalai,2024-01,42,9800\n"
+            "Perumpallam,2024-01,37,10450\n"
+            "Kadamparai,2024-02,51,8900\n"
+            "Puliyara Colony,2024-02,18,7600\n"
+        )
+        manifest = self.service.ingest("sess-village", path)
+        result = self.service.cross_join_result(
+            "sess-village", manifest["upload_id"], "req-village-1",
+            "Cross-check the villages against the site data",
+        )
+        self.assert_contract(result)
+        stored = self.service.state_root / "results" / result["result_id"]
+        rates = json.loads((stored / "data" / "upload-match-rates.json").read_text())[0]
+        self.assertEqual(rates["distinct_names"], 4)
+        self.assertEqual(rates["matched_names"], 3)
+        self.assertEqual(rates["unmatched_names"], 1)
+        self.assertEqual(rates["match_rate"], 0.75)
+        self.assertEqual(rates["matched_places"], 3)
+        self.assertEqual(rates["matched_normalised_suffix"], 3)
+        matched = json.loads((stored / "data" / "upload-matched-names.json").read_text())
+        self.assertEqual(
+            {item["uploaded_name"] for item in matched},
+            {"Thonimalai", "Perumpallam", "Kadamparai"},
+        )
+        for item in matched:
+            self.assertEqual(item["target_kind"], "location")
+            # A weaker match must never be reported as an alias match.
+            self.assertEqual(item["match_type"], "normalised-suffix")
+            self.assertIsNotNone(item["latitude"])
+        unmatched = json.loads((stored / "data" / "upload-unmatched-names.json").read_text())
+        self.assertEqual([item["uploaded_name"] for item in unmatched], ["Puliyara Colony"])
+        self.assertIn(
+            "relaxed-name-match", {item["code"] for item in result["limitations"]})
+        joined = json.loads((stored / "data" / "upload-joined-points.geojson").read_text())
+        self.assertEqual(len(joined["features"]), 3)
+
     def test_explaining_an_upload_mark_never_borrows_pack_rows(self):
         from dss.visual_index.explain_service import ExplainService
 

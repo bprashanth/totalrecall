@@ -150,6 +150,22 @@ def _number(value: Any) -> float | None:
         return None
 
 
+PLACE_WORD = re.compile(
+    r"\b(village|villages|estate|estates|colony|hamlet|town|panchayat|ward|block|division|"
+    r"settlement|camp|lines|city|taluk|district|farm|plot|unit|scheme|works?)\b"
+)
+
+
+def _strip_parenthetical(value: str) -> str:
+    """Drop a trailing qualifier such as '(synthetic)' from a registered label."""
+    return " ".join(re.sub(r"\([^)]*\)", " ", str(value or "")).split())
+
+
+def _strip_place_word(key: str) -> str:
+    """Remove generic place/unit words so 'Thonimalai' can meet 'Thonimalai Village'."""
+    return " ".join(PLACE_WORD.sub(" ", str(key or "")).split())
+
+
 def _header_key(name: str) -> str:
     """Normalise a column header so word-boundary hints survive snake_case and CamelCase."""
     return _key(re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", str(name or "")))
@@ -969,6 +985,123 @@ class UploadService:
 
     # ------------------------------------------------------------------ path b: cross join
 
+    def _match_targets(self) -> tuple[dict[str, dict[str, dict[str, Any]]], int, int]:
+        """Index everything in the pack a user-supplied name could legitimately name.
+
+        Two planes qualify: registered entity aliases, and the pack's own named locations. A
+        household survey names villages, which this pack registers as places rather than as
+        entities, so restricting the join to entity aliases would report a false zero.
+
+        Returns ({"strict": {key: target}, "relaxed": {key: target}}, entities, locations).
+        """
+        strict: dict[str, dict[str, Any]] = {}
+        relaxed: dict[str, dict[str, Any]] = {}
+
+        def admit(target: dict[str, Any], names: list[str]) -> None:
+            for name in names:
+                key = _key(_strip_parenthetical(name))
+                if not key:
+                    continue
+                existing = strict.get(key)
+                if existing is None:
+                    strict[key] = {**target, "matched_name": name}
+                elif existing["target_id"] != target["target_id"]:
+                    existing.setdefault("ambiguous_with", []).append(target["target_id"])
+                elif existing["latitude"] is None and target["latitude"] is not None:
+                    strict[key] = {**target, "matched_name": name}
+                loose = _strip_place_word(key)
+                if loose and loose != key:
+                    candidate = relaxed.get(loose)
+                    if candidate is None:
+                        relaxed[loose] = {**target, "matched_name": name}
+                    elif candidate["target_id"] != target["target_id"]:
+                        candidate["ambiguous"] = True
+
+        with self.connect() as connection:
+            event_locations = {
+                row["entity_id"]: row for row in connection.execute(
+                    """SELECT entity_id,AVG(latitude) AS latitude,AVG(longitude) AS longitude,
+                              COUNT(*) AS records
+                       FROM events WHERE entity_id IS NOT NULL AND latitude IS NOT NULL
+                         AND longitude IS NOT NULL
+                       GROUP BY entity_id"""
+                )
+            }
+            entities: dict[str, dict[str, Any]] = {}
+            for row in connection.execute(
+                """SELECT a.alias_key,a.alias,a.source_id,a.entity_id,
+                          e.canonical_name,e.display_name
+                   FROM entity_aliases a JOIN entities e ON e.entity_id=a.entity_id
+                   ORDER BY a.entity_id,a.alias"""
+            ):
+                place = event_locations.get(row["entity_id"])
+                target = entities.setdefault(row["entity_id"], {
+                    "kind": "entity",
+                    "target_id": row["entity_id"],
+                    "entity_id": row["entity_id"],
+                    "canonical_name": row["canonical_name"],
+                    "display_name": row["display_name"],
+                    "latitude": place["latitude"] if place else None,
+                    "longitude": place["longitude"] if place else None,
+                    "records": place["records"] if place else 0,
+                    "source_ids": [],
+                })
+                if row["source_id"] not in target["source_ids"]:
+                    target["source_ids"].append(row["source_id"])
+                admit(target, [row["alias"]])
+            places: dict[str, dict[str, Any]] = {}
+            for row in connection.execute(
+                """SELECT location_id,source_id,label,latitude,longitude
+                   FROM locations ORDER BY location_id,source_id"""
+            ):
+                key = _key(_strip_parenthetical(row["label"])) or row["location_id"]
+                target = places.setdefault(key, {
+                    "kind": "location",
+                    "target_id": row["location_id"],
+                    "entity_id": None,
+                    "canonical_name": _strip_parenthetical(row["label"]),
+                    "display_name": _strip_parenthetical(row["label"]),
+                    "latitude": row["latitude"],
+                    "longitude": row["longitude"],
+                    "records": 0,
+                    "source_ids": [],
+                })
+                if row["source_id"] not in target["source_ids"]:
+                    target["source_ids"].append(row["source_id"])
+                if target["latitude"] is None and row["latitude"] is not None:
+                    target["latitude"] = row["latitude"]
+                    target["longitude"] = row["longitude"]
+                admit(target, [row["label"], row["location_id"]])
+            registered_entities = connection.execute(
+                "SELECT COUNT(*) FROM entities").fetchone()[0]
+            registered_locations = connection.execute(
+                "SELECT COUNT(DISTINCT location_id) FROM locations").fetchone()[0]
+        return (
+            {"strict": strict, "relaxed": relaxed},
+            int(registered_entities), int(registered_locations),
+        )
+
+    @staticmethod
+    def _match_name(
+        name: str, targets: dict[str, dict[str, dict[str, Any]]]
+    ) -> tuple[dict[str, Any] | None, str]:
+        """Match one uploaded name, always reporting how strong the match was."""
+        cleaned = _strip_parenthetical(name)
+        key = _key(cleaned)
+        target = targets["strict"].get(key)
+        if target:
+            return target, ("exact" if target["matched_name"] == name else "normalised")
+        loose = _strip_place_word(key)
+        if loose and loose != key:
+            target = targets["strict"].get(loose)
+            if target:
+                return target, "normalised-suffix"
+        for candidate_key in (loose or key, key):
+            target = targets["relaxed"].get(candidate_key)
+            if target and not target.get("ambiguous"):
+                return target, "normalised-suffix"
+        return None, "none"
+
     def cross_join_result(
         self, session_id: str, upload_id: str, request_id: str, question: str = "",
         sheet: str | None = None, column: str | None = None,
@@ -1027,39 +1160,11 @@ class UploadService:
             if value is not None:
                 item["values"].append(value)
 
-        with self.connect() as connection:
-            aliases = {
-                row["alias_key"]: {
-                    "entity_id": row["entity_id"], "alias": row["alias"],
-                    "canonical_name": row["canonical_name"],
-                    "display_name": row["display_name"],
-                }
-                for row in connection.execute(
-                    """SELECT a.alias_key,a.alias,a.entity_id,e.canonical_name,e.display_name
-                       FROM entity_aliases a JOIN entities e ON e.entity_id=a.entity_id"""
-                )
-            }
-            locations = {
-                row["entity_id"]: {
-                    "latitude": row["latitude"], "longitude": row["longitude"],
-                    "records": row["records"],
-                }
-                for row in connection.execute(
-                    """SELECT entity_id,AVG(latitude) AS latitude,AVG(longitude) AS longitude,
-                              COUNT(*) AS records
-                       FROM events WHERE entity_id IS NOT NULL AND latitude IS NOT NULL
-                         AND longitude IS NOT NULL
-                       GROUP BY entity_id"""
-                )
-            }
-            registered_entities = connection.execute(
-                "SELECT COUNT(*) FROM entities"
-            ).fetchone()[0]
+        targets, registered_entities, registered_locations = self._match_targets()
 
         matched_rows: list[dict[str, Any]] = []
         unmatched_rows: list[dict[str, Any]] = []
         for item in sorted(grouped.values(), key=lambda entry: entry["uploaded_name"]):
-            alias = aliases.get(item["alias_key"])
             values = item["values"]
             summary = {
                 "uploaded_name": item["uploaded_name"],
@@ -1070,17 +1175,21 @@ class UploadService:
                 "value_sum": sum(values) if values else None,
                 "value_mean": (sum(values) / len(values)) if values else None,
             }
-            if alias:
+            target, match_type = self._match_name(item["uploaded_name"], targets)
+            if target:
                 matched_rows.append({
                     **summary,
-                    "entity_id": alias["entity_id"],
-                    "matched_alias": alias["alias"],
-                    "canonical_name": alias["canonical_name"],
-                    "display_name": alias["display_name"],
-                    "match_type": (
-                        "exact" if alias["alias"] == item["uploaded_name"]
-                        else "normalised"
-                    ),
+                    "match_type": match_type,
+                    "target_kind": target["kind"],
+                    "target_id": target["target_id"],
+                    "entity_id": target["entity_id"],
+                    "matched_alias": target["matched_name"],
+                    "canonical_name": target["canonical_name"],
+                    "display_name": target["display_name"],
+                    "latitude": target["latitude"],
+                    "longitude": target["longitude"],
+                    "indexed_records": target["records"],
+                    "target_sources": target["source_ids"],
                 })
             else:
                 unmatched_rows.append(summary)
@@ -1088,9 +1197,14 @@ class UploadService:
         distinct_names = len(grouped)
         matched_count = len(matched_rows)
         match_rate = (matched_count / distinct_names) if distinct_names else 0.0
+        by_type: dict[str, int] = {}
+        for row in matched_rows:
+            by_type[row["match_type"]] = by_type.get(row["match_type"], 0) + 1
+        relaxed = by_type.get("normalised-suffix", 0)
         headline = (
             f"{matched_count:,} of {distinct_names:,} uploaded names in “{chosen}” matched a "
-            f"registered entity ({match_rate:.0%}); {len(unmatched_rows):,} did not."
+            f"registered entity or named place ({match_rate:.0%}); "
+            f"{len(unmatched_rows):,} did not."
         )
         status = "partial" if unmatched_rows else "complete"
         result = self._base(
@@ -1098,19 +1212,20 @@ class UploadService:
             question or f"Match {manifest['display_name']} against the site.",
             (
                 f"Match the uploaded {chosen} values against the pack's registered entity "
-                "aliases, exactly and after case/space normalisation."
+                "aliases and named places, exactly and after case/space normalisation."
             ),
             bindings, headline, ["reported", "derived", "missing"], status,
         )
         result["answer"]["detail"] = (
-            "Matching is by name only. A name that did not match may still be a real place or "
-            "entity that this pack has not registered; a non-match is not absence."
+            "Matching is by name only, against registered entity aliases and the pack's named "
+            "places. A name that did not match may still be a real place or entity that this "
+            "pack has not registered; a non-match is not absence."
         )
         shared_limitations = [
             self._limitation(
                 "name-join-only",
-                "Rows were joined to entities by name alone, without coordinates, dates or an "
-                "admitted crosswalk.",
+                "Rows were joined to entities and named places by name alone, without "
+                "coordinates, dates or an admitted crosswalk.",
                 affects=["upload-match-rates", "upload-matched-entities", "answer"],
             ),
             self._limitation(
@@ -1120,6 +1235,14 @@ class UploadService:
                 affects=["upload-unmatched-names", "answer"],
             ),
         ]
+        if relaxed:
+            shared_limitations.append(self._limitation(
+                "relaxed-name-match",
+                f"{relaxed:,} name(s) matched only after a generic place word (for example "
+                "\u201cVillage\u201d) was removed from one side. Those rows are labelled "
+                "normalised-suffix and are weaker than an alias match.",
+                affects=["upload-match-rates", "upload-matched-entities", "answer"],
+            ))
         result["limitations"].extend(shared_limitations)
 
         rates = [{
@@ -1130,7 +1253,15 @@ class UploadService:
             "matched_names": matched_count,
             "unmatched_names": len(unmatched_rows),
             "match_rate": round(match_rate, 4),
+            "matched_exact": by_type.get("exact", 0),
+            "matched_normalised": by_type.get("normalised", 0),
+            "matched_normalised_suffix": relaxed,
+            "matched_entities": sum(
+                row["target_kind"] == "entity" for row in matched_rows),
+            "matched_places": sum(
+                row["target_kind"] == "location" for row in matched_rows),
             "registered_entities": registered_entities,
+            "registered_places": registered_locations,
         }] + [{
             "column": item["column"],
             "sheet": sheet_name,
@@ -1139,7 +1270,13 @@ class UploadService:
             "matched_names": None,
             "unmatched_names": None,
             "match_rate": None,
+            "matched_exact": None,
+            "matched_normalised": None,
+            "matched_normalised_suffix": None,
+            "matched_entities": None,
+            "matched_places": None,
             "registered_entities": registered_entities,
+            "registered_places": registered_locations,
         } for item in profile["entity_candidates"] if item["column"] != chosen]
         rates_ref = self._data_ref("upload-match-rates", "application/json", rates)
         matched_ref = self._data_ref("upload-matched-names", "application/json", matched_rows)
@@ -1156,27 +1293,28 @@ class UploadService:
 
         features = []
         for item in matched_rows:
-            location = locations.get(item["entity_id"])
-            if not location or location["latitude"] is None:
+            if item["latitude"] is None or item["longitude"] is None:
                 continue
             features.append({
                 "type": "Feature",
-                "id": item["entity_id"],
+                "id": item["target_id"],
                 "geometry": {
                     "type": "Point",
-                    "coordinates": [location["longitude"], location["latitude"]],
+                    "coordinates": [item["longitude"], item["latitude"]],
                 },
                 "properties": {
                     "uploaded_name": item["uploaded_name"],
                     "display_name": item["display_name"],
                     "canonical_name": item["canonical_name"],
                     "match_type": item["match_type"],
+                    "target_kind": item["target_kind"],
+                    "target_id": item["target_id"],
                     "uploaded_rows": item["uploaded_rows"],
                     "source_rows": item["source_rows"],
                     "value_column": item["value_column"],
                     "value_sum": item["value_sum"],
                     "value_mean": item["value_mean"],
-                    "indexed_records": location["records"],
+                    "indexed_records": item["indexed_records"],
                 },
             })
         if features:
@@ -1186,7 +1324,7 @@ class UploadService:
                 "visual_id": "upload-matched-entities",
                 "visual_type": "map",
                 "view": "upload-matched-entities",
-                "title": "Uploaded values at known entity locations",
+                "title": "Uploaded values at known entity and place locations",
                 "priority": "primary",
                 "status": "partial",
                 "scope": scope,
@@ -1195,7 +1333,8 @@ class UploadService:
                     "evidence_class": "reported",
                     "geometry_type": "point",
                     "data_ref": joined_ref,
-                    "legend": {"label": "Uploaded values joined to registered entities"},
+                    "legend": {
+                        "label": "Uploaded values joined to registered entities and places"},
                     "style_hint": {
                         "palette_role": "reported", "size_field": "uploaded_rows",
                     },
@@ -1251,7 +1390,7 @@ class UploadService:
             "visual_id": "upload-unmatched-names",
             "visual_type": "table",
             "view": "upload-unmatched-names",
-            "title": "Uploaded names with no registered alias",
+            "title": "Uploaded names with no registered alias or place",
             "priority": "supporting",
             "status": "partial" if unmatched_rows else "ready",
             "scope": scope,
@@ -1260,7 +1399,7 @@ class UploadService:
                 "evidence_class": "missing",
                 "geometry_type": "table",
                 "data_ref": unmatched_ref,
-                "legend": {"label": "Names this pack does not register"},
+                "legend": {"label": "Names this pack registers neither as entity nor place"},
                 "style_hint": {"palette_role": "missing"},
             }],
             "summary": {

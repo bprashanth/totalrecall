@@ -187,16 +187,34 @@ The Codex agent reaches the same paths through two skills beside `visual-result`
 - `visual-explain` (`{result_id, layer?, mark?}`) for why/how questions. Its answer must repeat
   the marker of the ORIGINAL result id so the UI keeps that chapter in focus.
 - `visual-upload` (`{path | upload_id, mode: profile|cross-join, sheet?, column?}`) for a table
-  the user attached. **Attachment path convention:** Idlisseus posts an attachment manifest with
-  the chat request; `_stage_attachments` copies each authorised file into
-  `<state>/sessions/<session id>/input/attachments/<upload id>-<file name>` and records the
-  relative path `attachments/<upload id>-<file name>`. The system prompt shows Codex the full
-  path under its container mount `/tmp/codex-native/sessions/<session id>/input/`. The skill
-  accepts the container path, the host path, the relative form or the attachment's display name,
-  and refuses anything resolving outside that session's own input directory. Uploads and their
-  results are session-scoped: the bytes live under `<state>/visual-results/uploads/<session>/
-  <content hash>/`, result ids are namespaced `result-upl-<session>-<hash>` and the envelope
-  audit carries a `session_binding`.
+  the user attached. **Attachment path convention — two ways a file arrives:**
+  1. *Staged upload.* Idlisseus posts an attachment manifest with the chat request;
+     `_stage_attachments` copies each authorised file into
+     `<state>/sessions/<session id>/input/attachments/<upload id>-<file name>` and records the
+     relative path `attachments/<upload id>-<file name>`.
+  2. *Inlined text file.* For small text files the browser stages nothing and pastes the file
+     into the user message as `=== File: name.csv ===`, an optional
+     `[Type: csv, Lines: N, Size: M bytes]` line, then the raw content. The bridge parses those
+     blocks (`_inline_file_blocks`) and stages them itself before the turn runs
+     (`_stage_inline_files`) as `attachments/inline-<content hash>-<file name>`, registered in
+     `ATTACHMENTS.json` exactly like a staged upload, so both paths behave identically for
+     routing, the prompt and the skill.
+
+  The system prompt shows Codex the full path under its container mount
+  `/tmp/codex-native/sessions/<session id>/input/`. The skill accepts the container path, the
+  host path, the relative form or the attachment's display name, falls back to the session's
+  newest table when the path is missing or wrong, and refuses anything resolving outside that
+  session's own input directory. Uploads and their results are session-scoped: the bytes live
+  under `<state>/visual-results/uploads/<session>/<content hash>/`, result ids are namespaced
+  `result-upl-<session>-<hash>` and the envelope audit carries a `session_binding`.
+
+A turn that carries a table and asks to profile, visualise or check it is routed
+deterministically: `_required_first_skill` returns `visual-upload` and the controller prefetches
+the profile — or the cross-join, when the turn asks to match names against the site — before the
+model deliberates. That outranks `local-site-evidence-search`, because a search over the pack
+cannot answer a question about the user's own file. An unrelated site question asked later in the
+same conversation is unaffected: the table only claims the turn when the request actually refers
+to it.
 
 The bridge binds to `172.17.0.1:7013` (Docker bridge only, same convention as
 vLLM/ds4 — never `0.0.0.0`), so the odysseus container reaches it via

@@ -614,10 +614,21 @@ def _visual_upload_skill() -> dict | None:
         "georeferenced": True,
         "binding": {"mode": "visual_upload"},
         "instructions": (
+            "TRIGGER. When the user turn carries a table — a staged attachment with a "
+            "`.csv`/`.tsv`/`.xlsx` name, or a pasted `=== File: something.csv ===` block — and "
+            "asks to profile, visualise, show, plot, map, summarise, analyse or check that data, "
+            "this skill MUST be your first skill call. Do not answer from the pasted text, do "
+            "not read the file yourself, and do not run `local-site-evidence-search` or any "
+            "other evidence search first; a search over the site pack cannot answer a question "
+            "about the user's own file. Evidence search comes afterwards, only if the user's "
+            "question still needs it.\n\n"
             "Pass `path` — the attachment path given in this session's attachment list — and "
             "`mode`. Attachments arrive in the session input directory as "
-            "`<session input>/attachments/<upload-id>-<file name>`; the attachment list in your "
-            "instructions gives the full path, and the file's own name also works.\n\n"
+            "`<session input>/attachments/<upload-id>-<file name>`; a file the user pasted into "
+            "the message is staged there too, as `attachments/inline-<hash>-<file name>`. The "
+            "attachment list in your instructions gives the full path, and the file's own name "
+            "also works. If you omit `path` and the session holds one table, that table is "
+            "used.\n\n"
             "Run `mode: \"profile\"` first. It reads the file exactly as supplied and returns a "
             "table of sample rows, a monthly series when a date and a numeric column exist, a "
             "map when latitude/longitude columns exist, and count/range tiles. Add `sheet` for a "
@@ -1185,6 +1196,10 @@ def _session_attachment_path(session: "Session", raw: str) -> pathlib.Path:
     and refuse anything that resolves outside this session's own input directory.
     """
     value = str(raw or "").strip()
+    tabular = _tabular_attachments(session)
+    if not value and tabular:
+        # The model is not required to guess a path when this session has exactly one table.
+        value = str(tabular[-1]["path"])
     if not value:
         raise ValueError("path is required and must name a file attached to this session")
     for item in session.attachments:
@@ -1198,6 +1213,10 @@ def _session_attachment_path(session: "Session", raw: str) -> pathlib.Path:
     resolved = (
         candidate if candidate.is_absolute() else (session.input / candidate)
     ).resolve()
+    if (not _inside(session.input.resolve(), resolved) or not resolved.is_file()) and tabular:
+        # A wrong path from the model must not lose the user's file: fall back to the newest
+        # table this session actually holds, which is still inside the session input directory.
+        resolved = (session.input / str(tabular[-1]["path"])).resolve()
     if not _inside(session.input.resolve(), resolved) or not resolved.is_file():
         raise ValueError(
             "attachment not found in this session; pass the path shown in the session's "
@@ -3934,7 +3953,9 @@ def _is_broad_site_request_text(normal: str) -> bool:
     ))
 
 
-def _required_first_skill(message: str, selected_action: dict | None = None) -> str | None:
+def _required_first_skill(
+    message: str, selected_action: dict | None = None, session: "Session | None" = None
+) -> str | None:
     """Protect broad/local requests from source substitution before model reasoning begins."""
     if selected_action:
         sequence = GUIDED_OPERATION_SEQUENCE.get(str(selected_action.get("operation"))) or []
@@ -3944,6 +3965,11 @@ def _required_first_skill(message: str, selected_action: dict | None = None) -> 
         return "publish-evidence-dashboard"
     visual_pack = _is_visual_site_pack(_load_site_profile())
     if visual_pack:
+        # A turn that carries the user's own table is about that table. This must outrank the
+        # local-evidence route below: "cross-check the villages against the site data" mentions
+        # the site, but the answer starts from the uploaded file, not from a pack search.
+        if "visual-upload" in SKILLS_BY_ID and _upload_turn_intent(message, session):
+            return "visual-upload"
         if _is_broad_site_request_text(normal):
             return "site-overview"
         mentions_configured_site = any(
@@ -4565,7 +4591,7 @@ class Session:
         else:
             message = user_message
         self.current_data_question = str(message or "")[:8000]
-        self.required_first_skill = _required_first_skill(user_message, selected)
+        self.required_first_skill = _required_first_skill(user_message, selected, self)
         self.algebra_planner_calls = 0
         self.algebra_plans = []
         self.active_algebra_plan = None
@@ -4887,6 +4913,140 @@ def _stage_attachments(session: Session, manifest: Any) -> list[dict]:
     return session.attachments
 
 
+TABULAR_SUFFIXES = {".csv", ".tsv", ".xlsx", ".xlsm", ".xls"}
+INLINE_TEXT_TYPES = {"csv", "tsv", "text", "txt", "tab", "psv"}
+INLINE_FILE_BLOCK = re.compile(
+    r"^===\s*File:\s*(?P<name>[^=\n]+?)\s*===[ \t]*\r?\n"
+    r"(?:\[(?P<meta>[^\]\n]*)\][ \t]*\r?\n)?"
+    r"(?P<body>.*?)(?=^===\s*File:|\Z)",
+    re.MULTILINE | re.DOTALL,
+)
+MAX_INLINE_FILE_BYTES = 4 * 1024 * 1024
+
+
+def _inline_file_blocks(message: str) -> list[dict]:
+    """Parse the file blocks Idlisseus inlines into a user message for small text files.
+
+    The browser does not always stage a small attachment as an upload: it pastes the file into
+    the message as `=== File: name.csv ===`, an optional `[Type: csv, Lines: 9, Size: 436 bytes]`
+    line, then the raw content. Those turns must behave exactly like a staged attachment, so the
+    bridge recovers the blocks here.
+    """
+    blocks: list[dict] = []
+    for match in INLINE_FILE_BLOCK.finditer(str(message or "")):
+        name = _safe_display_name(match.group("name"), "attachment")
+        meta = " ".join(str(match.group("meta") or "").split())
+        body = match.group("body") or ""
+        declared = ""
+        kind = re.search(r"(?i)\btype\s*:\s*([A-Za-z0-9_.-]+)", meta)
+        if kind:
+            declared = kind.group(1).strip().lower()
+        suffix = pathlib.Path(name).suffix.lower()
+        if not suffix and declared:
+            name = f"{name}.{declared}"
+            suffix = f".{declared}"
+        # Only text the browser can safely inline. A binary workbook pasted as text would be
+        # corrupt, so it is left to the real attachment path.
+        if suffix not in {".csv", ".tsv", ".txt"} and declared not in INLINE_TEXT_TYPES:
+            continue
+        content = body.strip("\r\n")
+        if not content.strip():
+            continue
+        raw = content.encode("utf-8", errors="replace")
+        if len(raw) > MAX_INLINE_FILE_BYTES:
+            continue
+        blocks.append({"name": name, "bytes": raw, "meta": meta})
+        if len(blocks) >= MAX_ATTACHMENTS:
+            break
+    return blocks
+
+
+def _stage_inline_files(session: Session, message: str) -> list[dict]:
+    """Stage inlined file blocks as ordinary session attachments before the turn runs.
+
+    The bytes come from the user's own message and are written only inside this session's input
+    directory, under a deterministic content-hashed name, so the same path checks that guard a
+    staged upload also guard an inlined one.
+    """
+    blocks = _inline_file_blocks(message)
+    if not blocks:
+        return session.attachments
+    target_root = session.input / "attachments"
+    target_root.mkdir(parents=True, exist_ok=True)
+    staged_by_id = {str(item.get("id")): item for item in session.attachments}
+    for block in blocks:
+        digest = _sha256(block["bytes"])
+        upload_id = f"inline-{digest[:16]}"
+        stored_name = f"{upload_id}-{block['name']}"
+        target = target_root / stored_name
+        if not target.exists() or target.read_bytes() != block["bytes"]:
+            target.write_bytes(block["bytes"])
+        staged_by_id[upload_id] = {
+            "id": upload_id,
+            "name": block["name"],
+            "mime": "text/csv" if block["name"].lower().endswith(".csv") else "text/plain",
+            "size": len(block["bytes"]),
+            "path": f"attachments/{stored_name}",
+            "sha256": digest,
+            "origin": "inline",
+        }
+    session.attachments = list(staged_by_id.values())[-MAX_ATTACHMENTS:]
+    _atomic_json(session.input / "ATTACHMENTS.json", {
+        "schema": 1, "session_id": session.id, "attachments": session.attachments,
+    })
+    session._save()
+    return session.attachments
+
+
+def _tabular_attachments(session: Session) -> list[dict]:
+    return [
+        item for item in session.attachments
+        if pathlib.Path(str(item.get("name") or "")).suffix.lower() in TABULAR_SUFFIXES
+        or pathlib.Path(str(item.get("path") or "")).suffix.lower() in TABULAR_SUFFIXES
+    ]
+
+
+def _upload_turn_intent(message: str, session: Session | None) -> str | None:
+    """Decide whether this turn is about the user's own table, and in which direction.
+
+    A turn that carries a table and asks to see it must reach `visual-upload` first: an evidence
+    search over the pack cannot answer a question about the user's file, and answering it in
+    prose loses the visual entirely.
+    """
+    if session is None or not _tabular_attachments(session):
+        return None
+    normal = " ".join(str(message or "").casefold().split())
+    has_block = bool(_inline_file_blocks(message))
+    cross = bool(re.search(
+        r"\b(cross[- ]?check|cross[- ]?join|match|matched|matching|compare|check)\b.{0,60}"
+        r"\b(site|pack|registered|known|indexed|our data|site data|entities|estates|villages)\b",
+        normal,
+    )) or bool(re.search(
+        r"\b(check|match|compare)\s+(it|them|these|those|the (?:names|villages|estates))\b",
+        normal,
+    ))
+    verb = bool(re.search(
+        r"\b(profile|visuali[sz]e|show|display|plot|chart|graph|map|summari[sz]e|analy[sz]e|"
+        r"read|load|open|ingest|import|inspect|look at)\b",
+        normal,
+    ))
+    # Outside the turn that carries the file, the request must actually refer to that file.
+    # Otherwise an ordinary site question ("show me where records are available") asked later in
+    # the same conversation would be hijacked by an attachment from an earlier turn.
+    refers_to_file = bool(re.search(
+        r"\b(attached|attachment|upload(?:ed)?|file|csv|tsv|excel|spreadsheet|workbook|sheet|"
+        r"my data|our data|this data|the data|survey data|my table|the table)\b",
+        normal,
+    ))
+    if has_block and (verb or refers_to_file):
+        return "profile"
+    if cross:
+        return "cross-join"
+    if verb and refers_to_file:
+        return "profile"
+    return None
+
+
 def _publish_report(session: Session, args: Any) -> dict:
     """Persist a bounded Idlisseus visual-report bundle for the current chat owner."""
     if not isinstance(args, dict):
@@ -4954,6 +5114,15 @@ def _native_prompt(message: str, session: Session) -> str:
             "\n".join(attachment_lines) +
             "\nInspect the raw attached files when the question depends on them."
         )
+        if _tabular_attachments(session) and "visual-upload" in SKILLS_BY_ID:
+            attachment_note += (
+                "\nA CSV or spreadsheet is attached to this session. If the user asks to "
+                "profile, visualise, show, summarise or check that file, your FIRST skill call "
+                "must be `visual-upload` (`mode: profile`), passing the attachment path above. "
+                "Do not answer from the pasted file text, do not open the file yourself, and do "
+                "not run an evidence search first. When the user also asks to check the file's "
+                "names against this site, call `visual-upload` again with `mode: cross-join`."
+            )
     normalised_message = " ".join(message.casefold().split())
     routing_note = ""
     site_aliases = [item.casefold() for item in _site_aliases()]
@@ -5068,10 +5237,14 @@ def _native_prompt(message: str, session: Session) -> str:
             "When the user asks WHY or HOW a value, cell or map came out that way, invoke the "
             "`visual-explain` skill with the original `result_id` (optionally `layer` and "
             "`mark`), answer from the returned lineage — the exact source rows, the aggregation "
-            "and the limitations — and repeat the marker for that ORIGINAL result id. When the "
-            "user attaches a CSV or spreadsheet and asks to see it, invoke the `visual-upload` "
-            "skill with the attachment path and `mode: profile`, then offer its cross-join "
-            "action as the next step."
+            "and the limitations — and repeat the marker for that ORIGINAL result id.\n"
+            "USER FILES OUTRANK SEARCH. When the turn carries a table — an attachment named "
+            "`.csv`/`.tsv`/`.xlsx`, or a pasted `=== File: ... ===` block — and the user asks to "
+            "profile, visualise, show, summarise, analyse or check it, your FIRST skill call "
+            "must be `visual-upload` with `mode: profile`. Never answer from the pasted file "
+            "text and never start with `local-site-evidence-search` for such a turn. When the "
+            "user also asks to cross-check the file's names against this site, call "
+            "`visual-upload` again with `mode: cross-join`, and emit that result's marker too."
         )
     compiler = SKILLS_BY_ID["compile-scientific-algebra-9b"]
     invocation_root = (
@@ -5435,10 +5608,21 @@ def _prefetch_required_skill(session: Session, message: str,
     skill_id = session.required_first_skill
     if session.guided_action or skill_id not in {
         "site-overview", "local-site-evidence-search", "publish-evidence-dashboard",
-        "historical-fire-exposure", "vegetation-greenness-trend",
+        "historical-fire-exposure", "vegetation-greenness-trend", "visual-upload",
     }:
         return None
-    if skill_id == "site-overview":
+    if skill_id == "visual-upload":
+        # The user's own file is a deterministic input, not a judgement call: profile it (or
+        # match it) here so the turn cannot end without the visual.
+        attachments = _tabular_attachments(session)
+        if not attachments:
+            return None
+        args = {
+            "path": attachments[-1].get("path"),
+            "mode": _upload_turn_intent(message, session) or "profile",
+            "question": " ".join(str(message).split())[:600],
+        }
+    elif skill_id == "site-overview":
         args = {"site_id": "EBTL"}
     elif skill_id == "local-site-evidence-search":
         args = {"query": " ".join(message.split())[:1200], "region": "EBTL"}
@@ -5598,12 +5782,22 @@ def run_turn(session: Session, message: str, emit: Callable[[dict], None]) -> di
                 "schema": prefetched.get("schema"),
                 "execution": prefetched.get("execution"),
             }
+            prefetched_skill = str(
+                prefetched.get("skill") or session.required_first_skill or "")
+            repeat_rule = (
+                ". Do not repeat this exact call. Put its `answer_marker` on its own line in "
+                "your answer. If the user ALSO asked to check the file's names against this "
+                "site, call `visual-upload` once more with `mode: \"cross-join\"` and emit that "
+                "result's marker as well. Answer from these audited results only, and keep "
+                "their limitations:\n"
+                if prefetched_skill == "visual-upload" else
+                ". Do not invoke it again. Answer from this audited result and keep its "
+                "limitations:\n"
+            )
             message = (
                 message
                 + "\n\nCONTROLLER-PREFETCHED PREREQUISITE: The controller already invoked "
-                + str(prefetched.get("skill") or session.required_first_skill)
-                + ". Do not invoke it again. Answer from this audited result and keep its "
-                "limitations:\n"
+                + prefetched_skill + repeat_rule
                 + json.dumps(prefetch_value, ensure_ascii=False, default=str)[:30000]
             )
         prompt = _native_prompt(message, session)
@@ -6344,6 +6538,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         except Exception as exc:
             self._send_json(400, {"error": {"message": f"Invalid attachments: {exc}"}})
             return
+        # Small text files arrive inlined in the message rather than as staged uploads. Stage
+        # them before the turn begins so routing, the prompt and the skills see one convention.
+        with contextlib.suppress(OSError, ValueError):
+            _stage_inline_files(session, message)
         session._save()
         structured = parsed.path == "/v1/audit/chat"
         stream = bool(body.get("stream")) or structured
