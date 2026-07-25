@@ -458,7 +458,33 @@ PLAIN_ANSWER_RULE = (
     "TRANSLATE THE DATA'S OWN JARGON TOO. Column, metric and record names come from whoever "
     "collected the data and are often opaque. The first time you use one, gloss it: "
     "\"persondays — days of paid work\", \"worker_count — people on the estate payroll\", "
-    "\"persons_moved — people who left the village\". Never make the reader guess."
+    "\"persons_moved — people who left the village\". Never make the reader guess.\n"
+    "THESE EXACT PHRASES ARE BANNED, with their replacements. They survive because they sound "
+    "careful, and they are the last of our vocabulary still reaching users:\n"
+    "  \"onboarded\" / \"onboarded site records\" → \"the data this site has\"\n"
+    "  \"entities\" / \"named entities\" → name them: \"villages\", \"estates\", \"kinds of "
+    "work\", or \"different things the records are about\"\n"
+    "  \"site records\" → \"the records\" or name them: \"the household survey\"\n"
+    "  \"indexed\" (of the user's data) → \"recorded\", or drop the word entirely\n"
+    "  \"this visual\" → \"this map\", \"this chart\", \"this table\"\n"
+    "\"grid squares\", \"map squares\" and \"the square you clicked\" are good; keep them.\n"
+    "OFFER OPTIONS BY THEIR LABEL, NOT THEIR COLUMN NAME. When you list what the user can "
+    "choose from, write \"the daily wage rate, the overtime rate, or paid days per month\" — "
+    "never `daily_wage`, `overtime_rate`, `paid_days_per_month`. A column name in backticks is "
+    "something to type, and the user should never have to type anything.\n"
+    "NEVER PRINT A SQUARE'S ID. Strings shaped like `g0.010:10.3000:76.9900` are internal names "
+    "for a square, and to a user they read as if the system silently changed the coordinates "
+    "they gave. Describe a square by its extent instead, exactly as the response's "
+    "`description` / `cell_description` field gives it: \"the 1.1 km square covering your point "
+    "(10.305 N, 76.995 E), spanning 10.300–10.310 N and 76.990–77.000 E\". Confirm in plain "
+    "words that it covers the point they asked about — \"that point falls inside the square "
+    "covering 10.300–10.310 N, 76.990–77.000 E, so here is the estimate for that square\". "
+    "Never ask a user to type `at:<lat>:<lon>`: resolve the place they named yourself.\n"
+    "COMPARISON AND GENERAL KNOWLEDGE. When a turn compares this place against the wider world, "
+    "give EXACTLY ONE clearly-labelled sentence of each, and lead with the data: one sentence "
+    "beginning \"From the data here...\" with the figure, and one beginning \"In general...\" "
+    "or \"Outside this data...\" for the outside context. If the data half is empty, say that "
+    "first, before any verdict — an unlabelled verdict reads as a finding when it is not one."
 )
 
 
@@ -494,6 +520,78 @@ def _visual_capability_lines() -> list[str]:
             f"- `{item['capability_id']}` — {item.get('label') or ''}. Arguments: {arguments}."
             + note
         )
+    if lines:
+        # Declared by this bridge rather than by the pack's registry, and listed here because a
+        # capability the model cannot see is a capability it will not call.
+        lines.append(
+            "- `co-occurrence-map` — Map the squares where two or more subjects were both "
+            "recorded. Arguments: `subjects` (a list of 2-4 names, or "
+            "`{\"kind\":\"group\",\"rank\":\"family\",\"value\":\"Bucerotidae\"}`), "
+            "`time` (optional), `same_year` (optional)."
+        )
+        lines.append(
+            "- `entity-activity-profile` — Everything recorded for one subject: kinds of record, "
+            "surveys, years, what was measured where it was seen, and which subjects share its "
+            "squares. Arguments: `entity`, or `rank` with `group`."
+        )
+    return lines
+
+
+def _visual_argument_lines() -> list[str]:
+    """What the capabilities' arguments will actually accept, read from the pinned index.
+
+    Declared argument NAMES are not enough to make a call: "which village has the most survey
+    visits?" needs `stratified-survey-summary` with a `source_id` and a `category_property`, and
+    a model that has never been shown that `syn-household-survey` carries a `village` property
+    cannot make that call. It reaches for the orientation map instead and then reports the
+    orientation map's limitations as though they were the site's.
+    """
+    if VISUAL_INDEX_PATH is None or not VISUAL_INDEX_PATH.is_file():
+        return []
+    try:
+        # Read-only, and directly: the skill list is built while this module is still being
+        # imported, before the lazily-bound visual services exist.
+        for candidate in (str(REPO), str(REPO / "dss" / "visual_index")):
+            if candidate not in sys.path:
+                sys.path.insert(0, candidate)
+        from dss.visual_index import target_catalogue
+        connection = sqlite3.connect(f"file:{VISUAL_INDEX_PATH}?mode=ro", uri=True)
+        connection.row_factory = sqlite3.Row
+        with contextlib.closing(connection):
+            vocabulary = target_catalogue.capability_vocabulary(connection)
+    except Exception:
+        return []
+    lines: list[str] = []
+    if vocabulary.get("metrics"):
+        lines.append(
+            "- `metric-time-series` accepts `metric`: "
+            + "; ".join(
+                f"`{item['metric']}` ({item['label']}, {item['unit']})"
+                for item in vocabulary["metrics"][:10]
+            )
+        )
+    if vocabulary.get("subjects"):
+        lines.append(
+            "- `entity-record-map` accepts `entity`, and these have the most records: "
+            + ", ".join(f"{item['entity']}" for item in vocabulary["subjects"][:10])
+        )
+    for item in vocabulary.get("hierarchy") or []:
+        lines.append(
+            f"- `group-record-map` accepts `rank`: `{item['rank']}` with `group`: "
+            + ", ".join(item["groups"][:6])
+        )
+    for item in vocabulary.get("sources") or []:
+        if item.get("category_properties"):
+            lines.append(
+                f"- `stratified-survey-summary` accepts `source_id`: `{item['source_id']}` "
+                "with `category_property`: "
+                + ", ".join(f"`{key}`" for key in item["category_properties"][:8])
+            )
+    if vocabulary.get("event_types"):
+        lines.append(
+            "- record kinds in this site: "
+            + ", ".join(f"`{name}`" for name in vocabulary["event_types"][:10])
+        )
     return lines
 
 
@@ -502,6 +600,7 @@ def _visual_result_skill() -> dict | None:
     capability_lines = _visual_capability_lines()
     if not capability_lines:
         return None
+    argument_lines = _visual_argument_lines()
     example = (
         "```bash\npython3 {skill_call} visual-result "
         "'{\"capability_id\":\"site-orientation\",\"arguments\":{},"
@@ -533,6 +632,11 @@ def _visual_result_skill() -> dict | None:
             "registered capability answers, invoke this skill instead of describing the data in "
             "prose.\n\nRegistered capabilities and their declared inputs:\n\n"
             + "\n".join(capability_lines) +
+            (
+                "\n\nWHAT THOSE ARGUMENTS ACCEPT HERE. These values exist in this site's data "
+                "and will resolve; anything else will not:\n\n" + "\n".join(argument_lines)
+                if argument_lines else ""
+            ) +
             "\n\nPass `capability_id`, an `arguments` object containing only that capability's "
             "declared inputs, and `question` (the user's own words). Supply no arguments when the "
             "schema declares none. If the user names no entity, metric or group, use "
@@ -540,7 +644,40 @@ def _visual_result_skill() -> dict | None:
             "blocked capability with invented arguments.\n\n"
             + example +
             "\n\nThe skill returns only `result_id`, `status`, `headline`, `limitations`, visual "
-            "titles and an `answer_marker`. It never returns the result payload.\n\n"
+            "titles, `actions` and an `answer_marker`. It never returns the result payload.\n\n"
+            "TWO SUBJECTS IN ONE QUESTION. \"Where do X and Y both occur\", \"are they seen together\", "
+            "\"overlay X with Y\", \"does X occur with Y\" → `co-occurrence-map` with both as "
+            "`subjects`. Never eyeball two separate maps, never state an overlap from memory, and never "
+            "leave the user with a route that failed: this capability answers it directly. "
+            "`interaction-map` is NOT the same thing — it maps only the associations a source "
+            "explicitly declared, so it comes back empty for a question about sharing a place. When the "
+            "user names a loose group (\"hornbills\"), pass it as a group subject, or ask ONE short "
+            "question about which they mean; when they say \"all of them together\", use the family or "
+            "group name. \"What else is X doing\", \"tell me everything about X\" → "
+            "`entity-activity-profile`.\n"
+            "Two records in one square is NOT interaction, association or contact — it is two records "
+            "written down inside the same square, and the returned limitations say so in the words to "
+            "use. Relay them. Say \"squares inside this site's boundary\", never \"target map squares\".\n"
+            "A TREND QUESTION ALWAYS CALLS THE TREND CAPABILITY. \"Trend\", \"over the years\", \"increasing or decreasing\", \"year-wise\" → call `metric-time-series` with the closest metric, or with the user's own words when nothing is close. Never answer a trend question from `site-orientation`. A call that cannot resolve comes back with `actions` carrying the real list of what CAN be plotted here — that returned list is the menu you offer, in plain labels, and it is the only menu you may offer.\n"
+            ""
+            "COUNTING QUESTIONS ARE NEVER ANSWERED FROM THE ORIENTATION MAP. \"How many...\", "
+            "\"which village has the most/least...\", \"is it going up or down\", \"show me the "
+            "rows\" — `site-orientation` cannot answer any of these, and its limitations are "
+            "about the orientation map, NOT about this site's data. Route instead: counts of "
+            "things that happened → `coverage-versus-effort` or `stratified-survey-summary` for "
+            "survey visits and villages, `entity-record-map` or `group-record-map` for records "
+            "of one named thing; measured quantities through time → `metric-time-series`. If the "
+            "first capability comes back unresolved or empty, SILENTLY TRY THE OTHER ROUTE ONCE "
+            "before you write anything — one retry, then speak. An answer to a counting question "
+            "must carry a figure, or state honestly that this specific capability returned "
+            "nothing and name what it did return; \"this map does not split that out\" is not an "
+            "answer when a capability that does split it out was never called.\n\n"
+            "ONE QUESTION PER CONVERSATION. Asking the user to narrow down is a budget, not a "
+            "habit: at most ONE clarifying question in the whole conversation, and never a "
+            "second one in a later turn. After that, pick the more likely reading, say in one "
+            "sentence which reading you picked, run it, and offer the other as a follow-up. "
+            "Never ask a person for a map reference or coordinates — resolve the place they "
+            "named yourself from the site's own named places.\n\n"
             "REQUIRED ANSWER FORMAT. In your user-facing answer, put the returned `answer_marker` "
             "on its own line, exactly as returned, for example:\n\n"
             "<!-- idli-result:{\"result_id\":\"result-abc123\"} -->\n\n"
@@ -548,6 +685,13 @@ def _visual_result_skill() -> dict | None:
             "limitations. Never paste the envelope, JSON, layer data, coordinates, source rows or "
             "the summary object into your prose, and never invent a number the summary did not "
             "return.\n\n"
+            "OFFER ONLY WHAT CAME BACK. When a capability needs the user to choose — which "
+            "measure, which entity, which group — the returned `actions` carry the real options "
+            "in their `arguments`. Read the option list out of `actions` (or, for an estimate, "
+            "out of the target catalogue) and offer exactly those, in the user's own kind of "
+            "words. NEVER compose a plausible list from memory: a menu of \"number of works, "
+            "sanctioned amount, expenditure, persondays\" that this site does not hold is worse "
+            "than saying you cannot plot it, because the user will ask for one of them.\n\n"
             + PLAIN_ANSWER_RULE + "\n\n"
             "VISUAL VARIETY. Do not answer with the same visual form turn after turn. If the "
             "previous turn already used a capability or view — a density map, say — and this "
@@ -605,14 +749,21 @@ def _visual_explain_skill() -> dict | None:
             "service resolves them against the stored layer geometry and names the feature at "
             "that location. Only when NO mark of any kind is available does the service explain "
             "the layer's largest mark, and it flags that with `mark.auto_selected: true`.\n\n"
+            "YOU DO NOT HAVE TO NAME A LAYER. Leave `layer` out and the service picks the layer "
+            "whose own stored geometry contains the place asked about and which carries "
+            "countable values — not merely the first layer drawn, which on most maps is the "
+            "study boundary and holds nothing to count.\n\n"
             "```bash\npython3 {skill_call} visual-explain "
             "'{\"result_id\":\"result-abc123\",\"layer\":\"event-density\","
             "\"mark\":\"at:10.335:76.975\"}'\n```\n\n"
             "REQUIRED HONESTY ABOUT THE MARK. If the response has `mark.auto_selected: true`, "
             "your answer MUST say the lineage is for the layer's largest mark because no "
             "specific mark was identified — never present it as the mark the user pointed at. "
-            "If `mark.kind` is `no_mark_at_location`, say that no mark exists at that location "
-            "in this layer and stop; do not substitute another mark.\n\n"
+            "If `mark.kind` is `no_mark_at_location`, first check `suggestion` and "
+            "`other_layers`: when another layer of the same map does cover that place, call this "
+            "skill again naming that layer — once, silently — before writing anything. Only when "
+            "that retry is also empty do you say that nothing is recorded at that location, and "
+            "even then do not substitute another mark.\n\n"
             "Nothing is recomputed and no model is consulted: the lineage re-reads the stored "
             "result and the same index rows. Answer in plain language — which capability ran, "
             "what the mark's value actually counts or averages, how many source rows stand "
@@ -739,10 +890,21 @@ def _visual_estimate_skill() -> dict | None:
             "labour census or out-migration mean is exactly what you should use here — and "
             "out-migration is a negative signal for local employment, so say so if you use it. "
             "NEVER reply that there is no such variable, no such target, or that the word the "
-            "user used does not exist. That is not an answer; it is a failure to interpret. If "
-            "two readings are genuinely different answers to the user's actual question, ask ONE "
-            "short question (\"do you mean public-works work-days, or estate jobs?\") and stop — "
-            "one question, never a list of them, and never instead of an obvious reading.\n\n"
+            "user used does not exist. That is not an answer; it is a failure to interpret.\n\n"
+            "ONE QUESTION PER CONVERSATION, AND NEVER ABOUT COORDINATES. If two readings are "
+            "genuinely different answers to the user's actual question, you may ask ONE short "
+            "question (\"do you mean public-works work-days, or estate jobs?\") — once, in the "
+            "whole conversation, not once per turn. If you have already asked it, or the user "
+            "has already answered a question in this conversation, you have spent it: pick the "
+            "more likely reading, say in one sentence which you picked, run it, and offer the "
+            "other as a follow-up. A user who asked for an estimate and got only questions "
+            "received nothing.\n"
+            "The `targets` response lists this site's named `places` with their coordinates. "
+            "When the user names a place — \"near Kadamparai\", \"the square just below "
+            "Kadamparai village\" — resolve it yourself: take the point from that list, apply "
+            "the direction they gave (below/south is a lower latitude, by about 0.01° for one "
+            "square), and pass `at:<lat>:<lon>` on. NEVER ask a person to type a map reference "
+            "or coordinates.\n\n"
             "General knowledge may choose and frame the target and explain what a column means. "
             "It may NEVER supply a number: every figure you state comes back from a run.\n\n"
             "THEN THE APPROACH MENU. Call `mode: \"suggest\"` with `cell` exactly as the user "
@@ -773,6 +935,12 @@ def _visual_estimate_skill() -> dict | None:
             "\"cell\":\"at:10.30:76.94\",\"target\":\"event_total:mgnrega_work\"}'\n```\n\n"
             "REQUIRED ANSWER SHAPE for the run. Put the returned `answer_marker` on its own line, "
             "then state, in this order and in everyday language:\n"
+            "0. which square this is, from `cell_description`, said as an extent that covers "
+            "their point — \"that point falls inside the 1.1 km square covering 10.300–10.310 N, "
+            "76.990–77.000 E, so here is the estimate for that square\". The grid labels each "
+            "square by its south-west corner, so the square covering 10.305 N is the one "
+            "starting at 10.300; say the extent, never the internal id, or the user will think "
+            "you moved their point;\n"
             "1. how you read the user's words, if they used their own (one sentence, first);\n"
             "2. the estimate and its interval, said as a range and never as a point fact, with "
             "the unit explained in words the first time (\"about 4,900 persondays — days of paid "
@@ -1125,6 +1293,7 @@ _EXPLAIN_SERVICE: Any = None
 _UPLOAD_SERVICE: Any = None
 _ESTIMATE_SERVICE: Any = None
 _EARTH_LAYER_SERVICE: Any = None
+_COOCCURRENCE_SERVICE: Any = None
 _VISUAL_SERVICE_ERRORS: dict[str, str] = {}
 
 
@@ -1186,6 +1355,21 @@ def _estimate_service() -> Any:
     return _ESTIMATE_SERVICE
 
 
+def _cooccurrence_service() -> Any:
+    """Bind the shared-square service to the same pinned pack, index and state."""
+    global _COOCCURRENCE_SERVICE
+    service = _result_service()
+    if service is None:
+        return None
+    if _COOCCURRENCE_SERVICE is None and "cooccurrence" not in _VISUAL_SERVICE_ERRORS:
+        try:
+            module = _visual_module("cooccurrence_service")
+            _COOCCURRENCE_SERVICE = module.CooccurrenceService.from_result_service(service)
+        except Exception as exc:
+            _VISUAL_SERVICE_ERRORS["cooccurrence"] = f"{type(exc).__name__}: {exc}"
+    return _COOCCURRENCE_SERVICE
+
+
 def _earth_layer_service() -> Any:
     """Bind the computed earth-layer renderer to the same pinned pack, index and state."""
     global _EARTH_LAYER_SERVICE
@@ -1199,6 +1383,29 @@ def _earth_layer_service() -> Any:
         except Exception as exc:
             _VISUAL_SERVICE_ERRORS["earth_layer"] = f"{type(exc).__name__}: {exc}"
     return _EARTH_LAYER_SERVICE
+
+
+_SITE_STATS: dict | None = None
+
+
+def _site_headline_stats() -> dict | None:
+    """Three to five plain headline numbers for the pinned site, for a UI context rail.
+
+    Built once per process: the pack and its derived index are pinned for the life of the bridge,
+    so the numbers cannot change under a running server, and a rail should not re-query sqlite on
+    every page load.
+    """
+    global _SITE_STATS
+    service = _result_service()
+    if service is None:
+        return None
+    if _SITE_STATS is None and "site_stats" not in _VISUAL_SERVICE_ERRORS:
+        try:
+            module = _visual_module("site_stats")
+            _SITE_STATS = module.build_site_stats(service)
+        except Exception as exc:
+            _VISUAL_SERVICE_ERRORS["site_stats"] = f"{type(exc).__name__}: {exc}"
+    return _SITE_STATS
 
 
 def _upload_capabilities() -> list[dict]:
@@ -1216,6 +1423,7 @@ def _upload_capabilities() -> list[dict]:
         ("upload_service", "UPLOAD_CAPABILITIES"),
         ("estimate_service", "ESTIMATE_CAPABILITIES"),
         ("earth_layer_service", "EARTH_LAYER_CAPABILITIES"),
+        ("cooccurrence_service", "COOCCURRENCE_CAPABILITIES"),
     ):
         with contextlib.suppress(Exception):
             listed.extend(getattr(_visual_module(module_name), attribute))
@@ -1230,9 +1438,11 @@ def _visual_result_marker(result_id: str) -> str:
 def _visual_result_summary(envelope: dict) -> dict:
     """Reduce one idli-result/1 envelope to what the dialogue model may safely see.
 
-    Codex receives an identifier, a headline, a status and the declared limitations. Layer data,
-    coordinates, source rows and the envelope itself stay behind the result transport, so the
-    model cannot retype evidence into prose or invent a number that no capability returned.
+    Codex receives an identifier, a headline, a status, the declared limitations and the offered
+    actions. Layer data, coordinates, source rows and the envelope itself stay behind the result
+    transport, so the model cannot retype evidence into prose or invent a number that no
+    capability returned — but the actions must come through, because a choice the model cannot
+    see is a choice it invents.
     """
     answer = envelope.get("answer") if isinstance(envelope.get("answer"), dict) else {}
     result_id = str(envelope.get("result_id") or "")
@@ -1257,6 +1467,17 @@ def _visual_result_summary(envelope: dict) -> dict:
             "title": " ".join(str(item.get("title") or "").split()),
             "status": str(item.get("status") or ""),
         } for item in (envelope.get("visuals") or []) if isinstance(item, dict)][:6],
+        # The real menu, forwarded exactly as the upload summary has always forwarded it. When a
+        # capability needs a choice it returns that choice as an action carrying the actual
+        # options (`choose-metric` with `available_metrics`). A model that cannot see the menu it
+        # is being asked to offer either refuses or invents one: the wage series really is here,
+        # and the user was offered "sanctioned amount, expenditure, persondays" instead.
+        "actions": [{
+            "action_id": item.get("action_id"), "label": item.get("label"),
+            "kind": item.get("kind"), "capability_id": item.get("capability_id"),
+            "arguments": item.get("arguments"),
+            "expected_effect": " ".join(str(item.get("expected_effect") or "").split()) or None,
+        } for item in (envelope.get("actions") or []) if isinstance(item, dict)][:6],
         "answer_marker": _visual_result_marker(result_id),
         "instruction": (
             "Put answer_marker on its own line in your final answer, then write 1-3 sentences "
@@ -1265,11 +1486,44 @@ def _visual_result_summary(envelope: dict) -> dict:
             "sentences in plain English for a programme manager: no internal vocabulary (pack, "
             "gate, capability, skill, envelope, evidence class, plane, layer) and no identifiers "
             "of ours — name sources the way a person would, and translate any esoteric column or "
-            "record name the first time you use it."
+            "record name the first time you use it. "
+            "ANY CHOICE YOU OFFER THE USER MUST COME FROM `actions` — its arguments carry the "
+            "options this site actually holds. Never compose a plausible-sounding list of "
+            "metrics, columns or breakdowns from memory."
         ),
         "source": "Totalrecall visual result service",
         "label": "observed",
     }
+
+
+_COOCCURRENCE_CAPABILITY_IDS = {"co-occurrence-map", "entity-activity-profile"}
+
+
+def _cooccurrence_envelope(
+    capability_id: str, arguments: dict, question: str, request_id: str
+) -> dict:
+    """Run one shared-square capability, raising ValueError the way the result service does."""
+    service = _cooccurrence_service()
+    if service is None:
+        raise ValueError(
+            _VISUAL_SERVICE_ERRORS.get("cooccurrence")
+            or "the shared-square service is not available on this bridge"
+        )
+    if capability_id == "co-occurrence-map":
+        return service.co_occurrence_map(
+            request_id,
+            arguments.get("subjects") or arguments.get("entities") or [],
+            question=question,
+            time=arguments.get("time"),
+            same_year=bool(arguments.get("same_year")),
+        )
+    return service.activity_profile(
+        request_id,
+        entity=arguments.get("entity") or arguments.get("subject"),
+        rank=" ".join(str(arguments.get("rank") or "").split()),
+        group=" ".join(str(arguments.get("group") or "").split()),
+        question=question,
+    )
 
 
 def _visual_result_query(args: dict, session: "Session | None") -> dict:
@@ -1293,13 +1547,21 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
         session_id = session.id if session is not None else "bridge"
         request_id = f"{session_id}-t{turn}-{secrets.token_hex(4)}"
     try:
-        envelope = service.query(request_id, capability_id, arguments, question)
+        # Two capabilities are declared by this bridge rather than by the pack's registry, and
+        # answer the question the pack could not: where two subjects were recorded in the same
+        # square, and what else is recorded for one of them. Everything else is the pack's own.
+        if capability_id in _COOCCURRENCE_CAPABILITY_IDS:
+            envelope = _cooccurrence_envelope(capability_id, arguments, question, request_id)
+        else:
+            envelope = service.query(request_id, capability_id, arguments, question)
     except ValueError as exc:
         return {
             "status": "data_request", "reason": "invalid_capability_request",
             "detail": {
                 "error": str(exc), "capability_id": capability_id,
-                "registered_capabilities": sorted(service.capabilities),
+                "registered_capabilities": sorted(
+                    set(service.capabilities) | _COOCCURRENCE_CAPABILITY_IDS
+                ),
                 "ask": "Choose one registered capability id and supply only its declared inputs.",
             },
             "provenance": [],
@@ -1337,8 +1599,17 @@ def _visual_explain_summary(lineage: dict) -> dict:
         "resolved_question": (lineage.get("question") or {}).get("resolved"),
         "bindings": (lineage.get("question") or {}).get("bindings") or {},
         "layer_id": (lineage.get("layer") or {}).get("layer_id"),
+        "layer_auto_selected": bool((lineage.get("layer") or {}).get("auto_selected")),
+        "layer_chosen_because": (lineage.get("layer") or {}).get("chosen_because"),
+        "other_layers": (lineage.get("layer") or {}).get("alternatives") or [],
+        # Set when this layer had nothing at that place but another layer of the same map does.
+        "suggestion": lineage.get("suggestion"),
         "mark": {
+            # `id` is for the audit trail and the map. `description` is the only form of this
+            # mark that may appear in a sentence the user reads.
             "id": mark.get("id"), "kind": mark.get("kind"),
+            "description": mark.get("description"),
+            "description_short": mark.get("description_short"),
             "resolution": mark.get("resolution"),
             "auto_selected": bool(mark.get("auto_selected")),
             "stored_value": mark.get("stored_value"),
@@ -1363,10 +1634,18 @@ def _visual_explain_summary(lineage: dict) -> dict:
             "averages, how many source rows stand behind it and which sources they came from; "
             "you may cite a few source ids and row numbers exactly as given. Do not assert a "
             "cause the lineage does not contain. If mark.auto_selected is true, your answer "
-            "MUST say the lineage is for the layer's largest mark because no specific mark was "
-            "identified. If mark.kind is no_mark_at_location, say plainly that no mark exists "
-            "at that location in this layer, and do not explain any other mark instead. Repeat "
-            "answer_marker on its own line so the original visual stays in focus."
+            "MUST say the lineage is for the largest mark on this view because no specific mark "
+            "was identified. If `suggestion` is set, or mark.kind is no_mark_at_location while "
+            "`other_layers` shows a layer that does cover the place, CALL THIS SKILL AGAIN with "
+            "that layer named — once, silently — before you write anything: a map draws its "
+            "boundary underneath its data, and the answer lives in the layer on top. Only if "
+            "that retry is also empty do you say plainly that nothing is recorded at that "
+            "location, and even then do not explain a different mark instead. "
+            "When `mark.description` is present the mark is a square on the grid: name it by "
+            "that description and confirm in plain words that it covers the point the user "
+            "asked about. NEVER write `mark.id` — a string like `g0.010:10.3000:76.9900` reads "
+            "as if their coordinates were silently changed. Repeat answer_marker on its own "
+            "line so the original visual stays in focus."
         ),
         "source": "Totalrecall visual explain service",
         "label": "derived",
@@ -1651,6 +1930,14 @@ _TARGET_CATALOGUE_INSTRUCTION = (
     "schemes plus the estate employment counts, since those are the employment data this area "
     "actually has\" — and continue. Never tell the user their word does not exist here; if two "
     "readings genuinely answer different questions, ask ONE short clarifying question instead.\n"
+    "RESOLVE THE PLACE YOURSELF. `places` lists every named place here with its coordinates. "
+    "When the user names one — \"near Kadamparai\", \"the square just below Kadamparai village\" "
+    "— take its point from that list, apply the direction they gave (below/south means a lower "
+    "latitude, above/north a higher one, by roughly one square, which is about 0.01°), and pass "
+    "the result as `at:<lat>:<lon>`. NEVER ask a person to type a map reference or coordinates: "
+    "they already told you where they mean. At most ONE clarifying question in the whole "
+    "conversation, and if you have already spent it, choose the more likely reading, say which "
+    "you chose, and run it.\n"
     "Then call this skill again with mode 'suggest', passing the chosen `target_id` verbatim. "
     "Free text is refused, so pass the id, not the user's phrase. Targets whose `estimable` is "
     "false have too few surveyed squares to fit a model on — you may still name that quantity to "
@@ -1677,6 +1964,11 @@ def _visual_estimate_targets_summary(catalogue: dict) -> dict:
         "targets": _visual_estimate_target_rows(catalogue),
         "target_ids": catalogue.get("target_ids") or [],
         "default_target_id": catalogue.get("default_target_id"),
+        # Named places with their own coordinates. A user who says "near Kadamparai" has already
+        # given the location; asking them to type it back as `at:<lat>:<lon>` is asking them to
+        # do our arithmetic, and it is why one bench conversation clarified forever and never
+        # produced a number.
+        "places": catalogue.get("places") or [],
         "instruction": _TARGET_CATALOGUE_INSTRUCTION,
         "source": "Totalrecall visual estimate service",
         "label": "derived",
@@ -1713,10 +2005,18 @@ def _visual_estimate_targets_query(args: dict, session: "Session | None") -> dic
 
 def _visual_estimate_menu_summary(menu: dict) -> dict:
     """Reduce the approach menu to what the dialogue model must relay, gates included."""
+    cell = menu.get("cell") if isinstance(menu.get("cell"), dict) else {}
     return {
         "kind": "visual_estimate_suggest",
-        "cell_id": (menu.get("cell") or {}).get("cell_id"),
-        "cell_inside_aoi": bool((menu.get("cell") or {}).get("inside_aoi")),
+        "cell_id": cell.get("cell_id"),
+        # The square as a person reads it: its size, the point it covers, the band it spans.
+        "cell_description": cell.get("description"),
+        "cell_description_short": cell.get("description_short"),
+        "requested_point": (
+            {"lat": cell.get("requested_lat"), "lon": cell.get("requested_lon")}
+            if cell.get("requested_lat") is not None else None
+        ),
+        "cell_inside_aoi": bool(cell.get("inside_aoi")),
         "target": menu.get("target") or {},
         "pack_evidence": menu.get("pack_evidence") or {},
         "approaches": [{
@@ -1738,14 +2038,20 @@ def _visual_estimate_menu_summary(menu: dict) -> dict:
                 menu.get("target_catalogue"), dict) else {}
         ),
         "instruction": (
-            "Relay EVERY way of estimating to the user, in plain words, saying which this "
+            "CONFIRM THE SQUARE FIRST, in plain words, using `cell_description`: \"that point "
+            "falls inside the 1.1 km square covering 10.300–10.310 N, 76.990–77.000 E — here "
+            "are the ways I can estimate for that square\". Never print `cell_id`; a string like "
+            "`g0.010:10.3000:76.9900` reads as if the system replaced the coordinates the user "
+            "gave with different ones.\n"
+            "Then relay EVERY way of estimating to the user, in plain words, saying which this "
             "site's data supports and which it does not, and for each one it does not, what "
             "check failed and what it saw. Do not run an estimate yet unless the user already "
             "asked you to pick the best; in that case pick recommended_approach_id — the "
             "supported approach that performed best when tested against held-back squares — and "
             "call this skill again with mode 'run'. Check `target` first: if it is not the "
             "quantity the user meant, pick a better `target_id` from available_targets, tell the "
-            "user how you are reading their words, and re-run this step. This response contains "
+            "user how you are reading their words, and re-run this step. Every option you offer "
+            "comes from this response; never compose one from memory. This response contains "
             "no estimate and no result marker; do not invent one."
         ),
         "source": "Totalrecall visual estimate service",
@@ -1770,6 +2076,9 @@ def _visual_estimate_run_summary(envelope: dict) -> dict:
             ).split()) or None
         ),
         "cell_id": estimate.get("cell_id"),
+        "cell_description": estimate.get("cell_description"),
+        "cell_description_short": estimate.get("cell_description_short"),
+        "requested_point": estimate.get("requested_point"),
         "estimate": estimate.get("estimate"),
         "interval": interval,
         "confidence": estimate.get("confidence"),
@@ -1794,7 +2103,11 @@ def _visual_estimate_run_summary(envelope: dict) -> dict:
         "source": "Totalrecall visual estimate service",
         "instruction": (
             "Put answer_marker on its own line. Open by saying how you read the user's words, "
-            "if they used their own. Give the estimate AS A RANGE, never a single fact, and "
+            "if they used their own, and confirm the square in plain words from "
+            "`cell_description` — that it is the square covering the point they gave. NEVER "
+            "print `cell_id`: `g0.010:10.3000:76.9900` reads as if their coordinates were "
+            "silently changed for different ones. Give the estimate AS A RANGE, never a single "
+            "fact, and "
             "explain the unit in plain words the first time (what_it_counts and target_unit say "
             "what is being counted). Say how solid it is and why, in everyday terms drawn from "
             "confidence_basis — how many surveyed squares it learned from and how wide the "
@@ -1835,9 +2148,12 @@ def _estimate_request_refused(
         catalogue = service.target_catalogue()
         detail["available_targets"] = _visual_estimate_target_rows(catalogue)
         detail["target_ids"] = catalogue.get("target_ids") or []
+        detail["places"] = catalogue.get("places") or []
     if not args.get("cell") and not args.get("mark"):
         detail["ask_cell"] = (
-            "Pass the location as 'at:<lat>:<lon>' exactly as the user gave it, or a cell id."
+            "Pass the location as 'at:<lat>:<lon>'. If the user named a place instead of giving "
+            "coordinates, take that place's point from `places` and apply the direction they "
+            "gave. Do not ask the user to type a map reference; they already said where."
         )
     return {
         "status": "data_request", "reason": "invalid_estimate_request",
@@ -5936,6 +6252,33 @@ def _native_prompt(message: str, session: Session) -> str:
             "prefer the one the user has not just seen, and escalate map → trend → comparison → "
             "drill-down table when the user drills deeper on the same subject. Prefer "
             "`entity-record-map` over `site-orientation` whenever the question names an entity.\n"
+            "TWO SUBJECTS IN ONE QUESTION. \"Where do X and Y both occur\", \"are they seen together\", "
+            "\"overlay X with Y\", \"does X occur with Y\" → `co-occurrence-map` with both as "
+            "`subjects`. Never eyeball two separate maps, never state an overlap from memory, and never "
+            "leave the user with a route that failed: this capability answers it directly. "
+            "`interaction-map` is NOT the same thing — it maps only the associations a source "
+            "explicitly declared, so it comes back empty for a question about sharing a place. When the "
+            "user names a loose group (\"hornbills\"), pass it as a group subject, or ask ONE short "
+            "question about which they mean; when they say \"all of them together\", use the family or "
+            "group name. \"What else is X doing\", \"tell me everything about X\" → "
+            "`entity-activity-profile`.\n"
+            "Two records in one square is NOT interaction, association or contact — it is two records "
+            "written down inside the same square, and the returned limitations say so in the words to "
+            "use. Relay them. Say \"squares inside this site's boundary\", never \"target map squares\".\n"
+            "A TREND QUESTION ALWAYS CALLS THE TREND CAPABILITY. \"Trend\", \"over the years\", \"increasing or decreasing\", \"year-wise\" → call `metric-time-series` with the closest metric, or with the user's own words when nothing is close. Never answer a trend question from `site-orientation`. A call that cannot resolve comes back with `actions` carrying the real list of what CAN be plotted here — that returned list is the menu you offer, in plain labels, and it is the only menu you may offer.\n"
+            ""
+            "COUNTING QUESTIONS NEVER COME FROM THE ORIENTATION MAP. \"How many\", \"which "
+            "village has the most or least\", \"is it going up or down\", \"show me the rows\" "
+            "are answered by `coverage-versus-effort`, `stratified-survey-summary`, "
+            "`entity-record-map`, `group-record-map` or `metric-time-series` — never by "
+            "`site-orientation`, whose limitations describe the orientation map and not this "
+            "site's data. If the first capability returns nothing usable, silently try the other "
+            "route ONCE before writing anything. An answer to a counting question carries a "
+            "figure, or says honestly which capability came back empty and what it did return.\n"
+            "Offer only options that came back in `actions` or in the estimate catalogue; never "
+            "compose a menu of plausible metrics from memory. Ask at most ONE clarifying "
+            "question in the whole conversation, and never ask a user for coordinates or a map "
+            "reference — resolve the place they named from the site's own named places.\n"
             "When the user asks WHY or HOW a value, cell or map came out that way, invoke the "
             "`visual-explain` skill with the original `result_id` (optionally `layer` and "
             "`mark`; pass map coordinates from the question through as `at:<lat>:<lon>`), "
@@ -6039,8 +6382,8 @@ def _native_prompt(message: str, session: Session) -> str:
         "staff-safety display may be called model-informed caution only, never a safe-zone map. "
         "Do not default only to collecting local data when trusted donor evidence can be searched. "
         "Do not hide returned points merely because a prediction is unavailable.\n\n"
-        "FINAL FORMAT. Use short descriptive headings only where helpful. Say `From the onboarded "
-        "site records, ...`, `From public occurrence data, ...`, `The modelled estimate suggests "
+        "FINAL FORMAT. Use short descriptive headings only where helpful. Say `From the data "
+        "this site has, ...`, `From public occurrence data, ...`, `The modelled estimate suggests "
         "...`, or `The remaining data gap is ...`; never prefix claims with bracketed provenance "
         "tags. Keep observations, reports, search leads, proxies, estimates and designed field "
         "points distinct. Include returned map or protocol links, never local paths. Do not call "
@@ -7063,6 +7406,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 }]})
             return
         if self._visual_results(parsed):
+            return
+        if parsed.path == "/v1/site/headline-stats":
+            if not self._authorized():
+                self._send_json(401, {"error": "unauthorized"})
+                return
+            stats = _site_headline_stats()
+            if stats is None:
+                self._send_json(404, {
+                    "error": "no visual site pack is pinned to this bridge",
+                    "detail": (
+                        _VISUAL_SERVICE_ERRORS.get("site_stats") or _RESULT_SERVICE_ERROR or None
+                    ),
+                })
+                return
+            self._send_json(200, stats)
             return
         if parsed.path.startswith("/v1/audit/"):
             if not self._authorized():

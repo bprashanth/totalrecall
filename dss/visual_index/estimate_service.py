@@ -37,6 +37,7 @@ partial pivoting on a matrix of at most seven columns.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import math
 import pathlib
@@ -45,6 +46,7 @@ import sqlite3
 from typing import Any
 
 try:
+    from dss.visual_index.cell_language import describe_cell
     from dss.visual_index.explain_service import COORDINATE_MARK
     from dss.visual_index.result_service import (
         SAFE_HANDLE, _atomic_write_once, _digest, _load_json, _percentile, _stable_json,
@@ -53,6 +55,7 @@ try:
         TARGET_CATALOGUE_CAPABILITIES, build_target_catalogue, catalogue_index,
     )
 except ModuleNotFoundError:  # Direct execution: python dss/visual_index/estimate_service.py
+    from cell_language import describe_cell  # type: ignore[no-redef]
     from explain_service import COORDINATE_MARK  # type: ignore[no-redef]
     from result_service import (  # type: ignore[no-redef]
         SAFE_HANDLE, _atomic_write_once, _digest, _load_json, _percentile, _stable_json,
@@ -285,18 +288,46 @@ class EstimateService:
                 raise ValueError(f"coordinate out of range: {lat}, {lon}")
             cell_id = self.cell_id_for(lat, lon)
             west, south, east, north = self.cell_box(cell_id)  # type: ignore[misc]
+        # The square's real extent comes from the row the index stores for it, not from the id's
+        # arithmetic: a pack built on a different grid describes itself correctly without anyone
+        # editing a constant here.
+        stored = self.stored_cell_box(cell_id)
+        if stored is not None:
+            west, south, east, north = stored
         center_lat, center_lon = (south + north) / 2, (west + east) / 2
         aoi_west, aoi_south, aoi_east, aoi_north = self.aoi_bbox()
+        description = describe_cell(
+            cell_id=cell_id, box=(west, south, east, north),
+            requested_lat=lat, requested_lon=lon,
+        ) or {}
         return {
             "cell_id": cell_id,
             "west": west, "south": south, "east": east, "north": north,
             "center_lat": center_lat, "center_lon": center_lon,
             "requested_lat": lat, "requested_lon": lon,
+            # How this square is named to a person. The id above is for the map and the audit.
+            "description": description.get("phrase", ""),
+            "description_short": description.get("short_phrase", ""),
+            "extent": description,
             "inside_aoi": (
                 aoi_west <= center_lon <= aoi_east and aoi_south <= center_lat <= aoi_north
             ),
             "aoi_bbox": [aoi_west, aoi_south, aoi_east, aoi_north],
         }
+
+    def stored_cell_box(self, cell_id: str) -> tuple[float, float, float, float] | None:
+        """The box the index actually stores for this square, when it holds one."""
+        with contextlib.suppress(sqlite3.Error, OSError, TypeError):
+            with self.connect() as connection:
+                row = connection.execute(
+                    "SELECT west,south,east,north FROM cells WHERE cell_id=?", (cell_id,)
+                ).fetchone()
+            if row is not None:
+                return (
+                    float(row["west"]), float(row["south"]),
+                    float(row["east"]), float(row["north"]),
+                )
+        return None
 
     @staticmethod
     def _grid_distance(left: str, right: str) -> float | None:
@@ -725,8 +756,8 @@ class EstimateService:
                 "gate": "effort-rows-in-target-cell",
                 "requirement": "the target cell must itself carry documented effort to scale",
                 "observed": (
-                    f"{table.get(target_cell, {}).get('effort_rows', 0)} effort rows indexed "
-                    f"in {target_cell}"
+                    f"{table.get(target_cell, {}).get('effort_rows', 0)} rows of recorded "
+                    "survey work in the square asked about"
                 ),
                 "passed": float(table.get(target_cell, {}).get("effort_value", 0.0)) > 0,
             })
@@ -1069,9 +1100,11 @@ class EstimateService:
             f"Estimate {target['requested'] or target['label']} for the cell at "
             f"{bindings['at']}."
         )
+        # The resolved question is read back to the user, so it names the square by its extent.
+        # `bindings.cell_id` above still carries the id for the map and the audit trail.
         resolved_question = (
-            f"Estimate {target['label']} for cell {target_cell} using "
-            f"{approach['label'].lower()}, fitted on the pack's other surveyed cells."
+            f"Estimate {target['label']} for {resolved_cell['description']} using "
+            f"{approach['label'].lower()}, learning from the other surveyed squares here."
         )
         result_id = "result-est-" + _digest({
             "site": self.site.get("site_id"), "pack": self.pack_digest,
@@ -1135,8 +1168,9 @@ class EstimateService:
         )
 
         headline = (
-            f"Estimated {target['label']} for cell {target_cell}: {estimate_value:.3g} "
-            f"{target['unit']} ({int(INTERVAL_LEVEL * 100)}% interval {low:.3g}–{high:.3g}); "
+            f"Estimated {target['label']} for {resolved_cell['description_short']}: "
+            f"{estimate_value:.3g} {target['unit']} "
+            f"({int(INTERVAL_LEVEL * 100)}% interval {low:.3g}–{high:.3g}); "
             f"confidence {confidence.upper()}."
         )
         result = self._base(
@@ -1144,10 +1178,10 @@ class EstimateService:
             bindings, headline, ["derived", "modelled"], "complete", source_versions,
         )
         result["answer"]["detail"] = (
-            f"This value was generated by {approach['label'].lower()} fitted on "
-            f"{len(training_ids)} surveyed cells; the cell itself was held out of its own "
-            "training set. It is a modelled expectation of what the pack's own recording would "
-            "show here, not an observation and not a real-world quantity."
+            f"This value was worked out by {approach['label'].lower()}, learning from "
+            f"{len(training_ids)} surveyed map squares; the square asked about was held out of "
+            "what the model learned from. It is what this area's own recording would be expected "
+            "to show here, not an observation and not a count on the ground."
         )
 
         aoi = self._aoi_payload()
@@ -1237,10 +1271,10 @@ class EstimateService:
             self._limitation(
                 "modelled-not-observed",
                 (
-                    f"The value in cell {target_cell} is generated, not observed. It describes "
-                    "what this pack's recording would be expected to show, so it inherits every "
-                    "bias in where the pack's sources looked; it is not a measurement of the "
-                    "place."
+                    f"The value for {resolved_cell['description_short']} is worked out, not "
+                    "observed. It describes what the recording here would be expected to show, "
+                    "so it carries every bias in where the data collectors actually went; it is "
+                    "not a measurement of the place."
                 ),
                 severity="warning", affects=["estimated-cell"],
             ),
@@ -1260,8 +1294,9 @@ class EstimateService:
             limitations.append(self._limitation(
                 "sparse-training-set",
                 (
-                    f"Only {len(training_ids)} surveyed cells were available to fit; with this "
-                    "few cells the interval is wide and the fitted structure may not generalise."
+                    f"Only {len(training_ids)} surveyed map squares were available to learn "
+                    "from; with this few squares the range is wide and the pattern found may not "
+                    "hold elsewhere."
                 ),
                 severity="warning", affects=["answer"],
             ))
@@ -1269,10 +1304,10 @@ class EstimateService:
             limitations.append(self._limitation(
                 "target-cell-already-surveyed",
                 (
-                    f"Cell {target_cell} already carries observed data "
-                    f"({observed[target_cell]:.3g} {target['unit']}). The estimate here is a "
-                    "held-out check of the model, not new information about the cell; prefer the "
-                    "observed value."
+                    f"{resolved_cell['description_short'].capitalize()} already carries real "
+                    f"recorded data ({observed[target_cell]:.3g} {target['unit']}). The estimate "
+                    "here is a check of the method against a known answer, not new information "
+                    "about that square; prefer the real figure."
                 ),
                 severity="info", affects=["answer", "estimated-cell"],
             ))
@@ -1304,8 +1339,8 @@ class EstimateService:
                 "visual_type": "map",
                 "view": "estimate-cell-surface",
                 "title": (
-                    f"{target['label'].capitalize()}: observed cells and the estimate for "
-                    f"{target_cell}"
+                    f"{target['label'].capitalize()}: surveyed squares and the estimate for "
+                    f"{resolved_cell['description_short']}"
                 ),
                 "priority": "primary",
                 "status": "ready",
@@ -1390,6 +1425,14 @@ class EstimateService:
             "target_counts": target["counts"],
             "target_requested": target["requested"],
             "cell_id": target_cell,
+            # The square in words, carried in the audit so every relay of this estimate can name
+            # it the way the user asked for it rather than by its id.
+            "cell_description": resolved_cell["description"],
+            "cell_description_short": resolved_cell["description_short"],
+            "requested_point": (
+                {"lat": resolved_cell["requested_lat"], "lon": resolved_cell["requested_lon"]}
+                if resolved_cell["requested_lat"] is not None else None
+            ),
             "estimate": round(estimate_value, 6),
             "interval": {
                 "kind": "interval", "level": INTERVAL_LEVEL,
@@ -1433,33 +1476,34 @@ class EstimateService:
             ),
         )[:3]
         neighbours_missing = max(0, 8 - self._neighbour_support(target_cell, observed))
+        # Every label here is read aloud to a person, so squares are named by where they are, and
+        # the ids they were chosen by ride alongside in their own machine field.
+        nearest = [cell_id for _, cell_id in unsurveyed]
         requests = [{
             "action_id": "request-effort-in-nearest-unsurveyed-cells",
             "kind": "data_request",
             "label": (
-                "Add effort rows for the nearest cells with no observed value: "
-                + (", ".join(cell_id for _, cell_id in unsurveyed) or "none in the index")
+                f"Survey the {len(nearest)} nearest map squares that carry no value yet"
+                if nearest else "No neighbouring map square is left unsurveyed"
             ),
             "capability_id": "cell-estimate-run",
             "arguments": {"cell": target_cell, "target": target["target_id"]},
+            "nearest_unsurveyed_cell_ids": nearest,
             "requires_confirmation": True,
             "expected_effect": (
-                f"Each surveyed neighbour tightens the adjacent-cell features directly; the "
-                f"current interval spans {spread:.3g} {target['unit']} because the model is "
-                f"fitted on only {training_count} cells."
+                f"Each surveyed neighbour sharpens the picture next door directly; the range is "
+                f"{spread:.3g} {target['unit']} wide because the model had only "
+                f"{training_count} squares to learn from."
             ),
         }, {
             "action_id": "request-survey-in-target-cell",
             "kind": "data_request",
-            "label": (
-                f"Survey cell {target_cell} itself "
-                f"(centre {resolved_cell['center_lat']:.4f}, {resolved_cell['center_lon']:.4f})"
-            ),
+            "label": f"Survey {resolved_cell['description_short']} itself",
             "capability_id": "cell-estimate-run",
             "arguments": {"cell": target_cell, "target": target["target_id"]},
             "requires_confirmation": True,
             "expected_effect": (
-                "One observed value replaces the estimate outright and removes its interval."
+                "One real recorded value replaces the estimate outright and removes its range."
             ),
         }]
         if neighbours_missing:
@@ -1467,15 +1511,15 @@ class EstimateService:
                 "action_id": "request-neighbourhood-completion",
                 "kind": "data_request",
                 "label": (
-                    f"Complete the 8-cell neighbourhood of {target_cell}: "
-                    f"{neighbours_missing} of its 8 adjacent cells carry no observed value"
+                    f"Complete the ring of squares around it: {neighbours_missing} of the 8 "
+                    "squares touching it carry no recorded value"
                 ),
                 "capability_id": "cell-estimate-run",
                 "arguments": {"cell": target_cell, "target": target["target_id"]},
                 "requires_confirmation": True,
                 "expected_effect": (
-                    "The adjacent-cell mean is the strongest feature in the fit; a complete ring "
-                    "is what moves this estimate from a regional guess to a local one."
+                    "What the neighbouring squares hold matters most to the answer; a complete "
+                    "ring is what moves this from a whole-area guess to a local one."
                 ),
             })
         if target["target_id"] != "effort_normalised_rate":
@@ -1483,15 +1527,15 @@ class EstimateService:
                 "action_id": "request-effort-denominator",
                 "kind": "data_request",
                 "label": (
-                    "Add documented survey effort for every cell so counts can be "
-                    "effort-normalised instead of compared raw"
+                    "Record how much survey work was done in every square, so counts can be "
+                    "compared fairly instead of raw"
                 ),
                 "capability_id": "cell-estimate-run",
                 "arguments": {"cell": target_cell, "target": "effort_normalised_rate"},
                 "requires_confirmation": True,
                 "expected_effect": (
-                    "Record counts partly measure where people looked; an effort denominator "
-                    "separates recording intensity from the quantity being estimated."
+                    "Record counts partly measure where people looked; knowing the survey work "
+                    "behind them separates how hard people looked from what is actually there."
                 ),
             })
         return requests
@@ -1509,16 +1553,16 @@ class EstimateService:
         target_cell = resolved_cell["cell_id"]
         names = ", ".join(item["gate"] for item in failed)
         headline = (
-            f"No estimate was produced for cell {target_cell}: "
-            f"{approach['label'].lower()} failed the gate {names}."
+            f"No estimate was produced for {resolved_cell['description_short']}: "
+            f"{approach['label'].lower()} failed the check {names}."
         )
         result = self._base(
             result_id, request_id, "cell-estimate-run", original, resolved_question,
             bindings, headline, ["derived", "missing"], "blocked", source_versions,
         )
         result["answer"]["detail"] = (
-            "The observed cells are still shown. A failed gate is a statement about this pack's "
-            "data, not about the place: "
+            "The surveyed squares are still shown. A failed check is a statement about the data "
+            "here, not about the place: "
             + "; ".join(f"{item['gate']} — {item['observed']}" for item in failed)
             + "."
         )
@@ -1549,7 +1593,7 @@ class EstimateService:
             self._limitation(
                 "estimate-gate-failed",
                 (
-                    f"Gate {names} failed, so no value was generated. "
+                    f"The check {names} failed, so no value was worked out. "
                     + "; ".join(
                         f"{item['gate']} requires {item['requirement']}, but {item['observed']}"
                         for item in failed
@@ -1561,8 +1605,8 @@ class EstimateService:
             self._limitation(
                 "observed-data-retained",
                 (
-                    f"{len(training_payload['features'])} surveyed cells are still drawn. The "
-                    "absence of an estimate is not the absence of evidence."
+                    f"{len(training_payload['features'])} surveyed map squares are still "
+                    "drawn. The absence of an estimate is not the absence of evidence."
                 ),
                 severity="info", affects=["estimate-training-cells"],
             ),
@@ -1572,7 +1616,10 @@ class EstimateService:
             "visual_id": "cell-estimate",
             "visual_type": "map",
             "view": "estimate-cell-surface",
-            "title": f"Observed {target['label']} (no estimate for {target_cell})",
+            "title": (
+                f"Recorded {target['label']} (no estimate for "
+                f"{resolved_cell['description_short']})"
+            ),
             "priority": "primary",
             "status": "blocked",
             "scope": {"aoi_ids": ["target"], "time": {"start": None, "end": None}},
@@ -1592,7 +1639,7 @@ class EstimateService:
                 {
                     "layer_id": "estimate-blocked-cell", "evidence_class": "missing",
                     "geometry_type": "cell", "data_ref": blocked_ref,
-                    "legend": {"label": f"Requested cell — gate {names} failed"},
+                    "legend": {"label": f"The square asked about — {names} failed"},
                     "style_hint": {"palette_role": "missing"},
                 },
             ],
@@ -1621,6 +1668,12 @@ class EstimateService:
             "target_counts": target["counts"],
             "target_requested": target["requested"],
             "cell_id": target_cell,
+            "cell_description": resolved_cell["description"],
+            "cell_description_short": resolved_cell["description_short"],
+            "requested_point": (
+                {"lat": resolved_cell["requested_lat"], "lon": resolved_cell["requested_lon"]}
+                if resolved_cell["requested_lat"] is not None else None
+            ),
             "estimate": None,
             "failed_gates": [item["gate"] for item in failed],
             "gates": gates,

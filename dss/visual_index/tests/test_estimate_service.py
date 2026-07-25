@@ -318,9 +318,12 @@ class EstimateServiceTest(unittest.TestCase):
             self.assertTrue(item["label"])
             self.assertTrue(item["expected_effect"])
         self.assertTrue(
-            any("effort" in item["label"].casefold() for item in requests),
-            "the pack's thinnest plane is effort; that should be asked for",
+            any("survey work" in item["label"].casefold() for item in requests),
+            "the pack's thinnest plane is documented survey work; that should be asked for",
         )
+        # The improvements are read out to a person, so no square is named by its id.
+        for item in requests:
+            self.assertNotIn("g0.0", item["label"])
 
     def test_unknown_approach_is_refused(self):
         with self.assertRaises(ValueError):

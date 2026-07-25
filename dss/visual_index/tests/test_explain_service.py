@@ -74,6 +74,81 @@ class ExplainServiceTest(unittest.TestCase):
             float(lineage["computation"]["contributing_rows"]), top[1]["value"]
         )
 
+    def test_a_click_resolves_against_the_layer_that_holds_data_not_the_boundary(self):
+        """The bug: clicking a density square answered "0 source rows contributed there".
+
+        The orientation map draws the declared boundary first and the density squares on top of
+        it. Defaulting to the visual's first layer therefore explained the boundary polygon —
+        which carries no countable rows — for a coordinate that lands squarely inside a density
+        square. Both layers contain the point; only one of them can answer.
+        """
+        result = self.service.query(
+            "explain-layer-choice", "site-orientation", {}, "Where is the data?"
+        )
+        layers = [
+            layer["layer_id"] for visual in result["visuals"] for layer in visual["layers"]
+        ]
+        self.assertEqual(layers[:2], ["declared-aoi", "event-density"])
+        cell = self.explain.load_payload(result["result_id"], "event-density")["features"][0]
+        ring = cell["geometry"]["coordinates"][0]
+        lat = (ring[0][1] + ring[2][1]) / 2
+        lon = (ring[0][0] + ring[2][0]) / 2
+
+        lineage = self.explain.explain(result["result_id"], None, f"at:{lat}:{lon}")
+        self.assertEqual(lineage["layer"]["layer_id"], "event-density")
+        self.assertTrue(lineage["layer"]["auto_selected"])
+        self.assertIn("contains", lineage["layer"]["chosen_because"])
+        self.assertEqual(lineage["mark"]["kind"], "cell")
+        self.assertEqual(lineage["mark"]["id"], cell["id"])
+        self.assertGreater(lineage["computation"]["contributing_rows"], 0)
+        self.assertTrue(lineage["source_rows"])
+        # The boundary layer was considered and passed over, and the reason is legible.
+        passed_over = {
+            item["layer_id"]: item for item in lineage["layer"]["alternatives"]
+        }
+        self.assertEqual(passed_over["declared-aoi"]["marks_with_a_value"], 0)
+
+        # Naming the boundary layer explicitly is still honoured, and then the caller is told
+        # which layer would have answered instead of being left with an empty result.
+        boundary = self.explain.explain(result["result_id"], "declared-aoi", f"at:{lat}:{lon}")
+        self.assertEqual(boundary["layer"]["layer_id"], "declared-aoi")
+        self.assertFalse(boundary["layer"]["auto_selected"])
+
+    def test_a_clicked_square_is_named_by_its_extent_not_by_its_id(self):
+        """A click at 10.305 lands in the square starting at 10.300; say that, do not print an id.
+
+        The user's complaint was that the answer looked like the system had quietly swapped their
+        coordinates for different ones. The square is the same square either way; only the way it
+        is named to a person changes.
+        """
+        result = self.service.query(
+            "explain-square-language", "site-orientation", {}, "Where is the data?"
+        )
+        payload = self.explain.load_payload(result["result_id"], "event-density")
+        cell = next(
+            feature for feature in payload["features"]
+            if str(feature.get("id", "")).startswith("g0.0")
+        )
+        west, south = cell["geometry"]["coordinates"][0][0]
+        inside_lat, inside_lon = south + 0.005, west + 0.005
+        lineage = self.explain.explain(
+            result["result_id"], "event-density", f"at:{inside_lat}:{inside_lon}"
+        )
+        mark = lineage["mark"]
+        self.assertEqual(mark["kind"], "cell")
+        self.assertEqual(mark["id"], cell["id"])
+        self.assertEqual(mark["resolution"], "coordinate")
+        # The description says how big the square is, which point of theirs it covers, and the
+        # band it spans — computed from the geometry the layer actually stored.
+        self.assertIn("km square", mark["description"])
+        self.assertIn("covering your point", mark["description"])
+        self.assertIn(f"{south:.3f}", mark["description"])
+        self.assertNotIn("g0.0", mark["description"])
+        self.assertNotIn("g0.0", lineage["computation"]["statement"])
+        self.assertIn(mark["description_short"], lineage["computation"]["statement"])
+        # Other marks a caller might offer are nameable too.
+        self.assertTrue(all("description" in item for item in lineage["top_marks"]))
+
     def test_point_mark_is_one_unchanged_source_row(self):
         result = self.service.query(
             "explain-entity", "entity-record-map", {"entity": "Karumalai Estate"},
@@ -200,7 +275,7 @@ class ExplainServiceTest(unittest.TestCase):
         )
         self.assertEqual(lineage["mark"]["kind"], "unresolved")
         self.assertEqual(lineage["source_rows"], [])
-        self.assertIn("did not resolve", lineage["computation"]["statement"])
+        self.assertIn("did not match", lineage["computation"]["statement"])
 
 
 if __name__ == "__main__":

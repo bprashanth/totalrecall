@@ -63,44 +63,44 @@ GENERIC_TARGETS: list[dict[str, Any]] = [
     {
         "target_id": "record_density",
         "family": "record_density",
-        "label": "indexed record density",
-        "unit": "indexed event rows per cell",
+        "label": "how many records of any kind the square holds",
+        "unit": "records per map square",
         "counts": {
             "column": None,
-            "aggregation": "number of indexed event rows whose location falls in the cell",
+            "aggregation": "number of records whose location falls inside the square",
         },
         "planes": ["events", "cells"],
     },
     {
         "target_id": "entity_richness",
         "family": "entity_richness",
-        "label": "distinct indexed entities",
-        "unit": "distinct entities per cell",
+        "label": "how many different things the square's records are about",
+        "unit": "distinct subjects per map square",
         "counts": {
             "column": None,
-            "aggregation": "number of distinct entities appearing in the cell's event rows",
+            "aggregation": "number of distinct subjects appearing in the square's records",
         },
         "planes": ["events", "entities", "cells"],
     },
     {
         "target_id": "survey_effort",
         "family": "survey_effort",
-        "label": "documented survey effort",
-        "unit": "summed effort units per cell",
+        "label": "how much survey work is documented in the square",
+        "unit": "summed effort units per map square",
         "counts": {
             "column": "effort_value",
-            "aggregation": "sum of the documented effort recorded in the cell",
+            "aggregation": "sum of the documented survey work recorded in the square",
         },
         "planes": ["effort", "cells"],
     },
     {
         "target_id": "effort_normalised_rate",
         "family": "effort_normalised_rate",
-        "label": "records per 100 units of documented effort",
+        "label": "records per 100 units of documented survey work",
         "unit": "records per 100 effort units",
         "counts": {
             "column": None,
-            "aggregation": "indexed event rows divided by documented effort, times 100",
+            "aggregation": "records divided by documented survey work, times 100",
         },
         "planes": ["events", "effort", "cells"],
     },
@@ -142,6 +142,110 @@ def event_count_columns(site_pack: pathlib.Path) -> dict[str, str]:
             if source_id and column:
                 columns.setdefault(source_id, column)
     return columns
+
+
+def named_places(connection: sqlite3.Connection, limit: int = 40) -> list[dict[str, Any]]:
+    """Every named place this index carries a coordinate for, deduplicated by name.
+
+    This exists so nobody ever has to ask a user to type `at:<lat>:<lon>`. When a person says
+    "the square just below Kadamparai", the name is already in the index with a point on it; the
+    caller resolves it and moves on. Names are returned as stored, minus the pack's own
+    "(synthetic)" suffix, which is a property of the test data and not part of the place's name.
+    """
+    places: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for row in connection.execute(
+        """SELECT label,latitude,longitude,location_id,source_id FROM locations
+           WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+           ORDER BY label,location_id"""
+    ):
+        name = _clean(row["label"]).replace("(synthetic)", "").strip()
+        key = name.casefold()
+        if not name or key in seen:
+            continue
+        seen.add(key)
+        places.append({
+            "name": name,
+            "lat": round(float(row["latitude"]), 6),
+            "lon": round(float(row["longitude"]), 6),
+            "location_id": row["location_id"],
+            "source_id": row["source_id"],
+        })
+        if len(places) >= limit:
+            break
+    return places
+
+
+def capability_vocabulary(connection: sqlite3.Connection) -> dict[str, Any]:
+    """The values this index will actually accept for the capabilities' declared arguments.
+
+    A capability list that says `stratified-survey-summary` takes `source_id` and
+    `category_property` tells a caller the shape of the call and nothing about which call to
+    make. So a question like "which village has the most survey visits?" bounced off the
+    orientation map — the data was there, the argument values were not. This enumerates them from
+    the index: the metrics that can be plotted, the subjects that can be mapped, the hierarchy
+    ranks and groups that exist, and, per source, the row properties that can be summarised as
+    categories. It matches nothing against anybody's words; it lists what would resolve.
+    """
+    metrics = [{
+        "metric": row["metric"], "label": row["label"], "unit": row["unit"],
+    } for row in connection.execute(
+        """SELECT m.metric AS metric, COALESCE(d.label, m.metric) AS label,
+                  COALESCE(d.unit, m.unit) AS unit
+           FROM (SELECT DISTINCT metric, unit FROM measurements WHERE value IS NOT NULL) m
+           LEFT JOIN metric_definitions d ON d.metric = m.metric
+           ORDER BY m.metric"""
+    )]
+    subjects = [{
+        "entity": row["display_name"], "records": int(row["records"]),
+    } for row in connection.execute(
+        """SELECT en.display_name AS display_name, COUNT(*) AS records
+           FROM events e JOIN entities en ON en.entity_id = e.entity_id
+           GROUP BY en.display_name ORDER BY records DESC, display_name LIMIT 12"""
+    )]
+    ranks: dict[str, set[str]] = {}
+    for row in connection.execute("SELECT hierarchy_json FROM entities"):
+        try:
+            hierarchy = json.loads(row[0] or "{}")
+        except (TypeError, ValueError):
+            continue
+        for rank, group in (hierarchy or {}).items():
+            if isinstance(group, str) and group:
+                ranks.setdefault(str(rank), set()).add(group)
+    categories: dict[str, set[str]] = {}
+    for table in ("events", "effort"):
+        for row in connection.execute(
+            f"SELECT source_id, properties_json FROM {table}"
+        ):
+            try:
+                properties = json.loads(row["properties_json"] or "{}")
+            except (TypeError, ValueError):
+                continue
+            for key, value in (properties or {}).items():
+                if isinstance(value, (str, int, float)) and str(value):
+                    categories.setdefault(row["source_id"], set()).add(str(key))
+    return {
+        "metrics": metrics,
+        "subjects": subjects,
+        "hierarchy": [
+            {"rank": rank, "groups": sorted(groups)[:8]}
+            for rank, groups in sorted(ranks.items()) if groups
+        ][:8],
+        "event_types": [
+            row[0] for row in connection.execute(
+                "SELECT DISTINCT event_type FROM events ORDER BY event_type"
+            )
+        ][:12],
+        "effort_methods": [
+            row[0] for row in connection.execute(
+                "SELECT DISTINCT method FROM effort ORDER BY method"
+            )
+        ][:8],
+        "sources": [
+            {"source_id": source_id, "category_properties": sorted(keys)[:10]}
+            for source_id, keys in sorted(categories.items())
+        ][:12],
+    }
 
 
 def _source_titles(connection: sqlite3.Connection) -> dict[str, str]:
@@ -277,8 +381,8 @@ def _entry(
         # answer, and hiding it would make the catalogue a recommendation engine.
         "estimable": cells > minimum_cells,
         "estimable_note": (
-            f"{cells} of {coverage.get('cells_indexed')} indexed cells carry a value for this "
-            f"target; an estimate needs more than {minimum_cells} other cells to fit on."
+            f"{cells} of {coverage.get('cells_indexed')} map squares carry a value for this "
+            f"quantity; an estimate needs more than {minimum_cells} other squares to learn from."
         ),
     }
     if note:
@@ -301,6 +405,7 @@ def build_target_catalogue(service: Any, minimum_cells: int = 8) -> dict[str, An
             "SELECT COUNT(DISTINCT cell_id) FROM events WHERE cell_id IS NOT NULL"
         ).fetchone()[0] or 0)
         titles = _source_titles(connection)
+        places = named_places(connection)
         events = _event_groups(connection)
         metrics = _metric_groups(connection)
         effort = _effort_groups(connection)
@@ -332,14 +437,14 @@ def build_target_catalogue(service: Any, minimum_cells: int = 8) -> dict[str, An
         if group["valued"]:
             targets.append(_entry(
                 f"event_total:{event_type}", "event_total",
-                f"total {column or 'counted units'} recorded in the cell, "
+                f"total {column or 'counted units'} recorded in the map square, "
                 f"for {event_type} records",
                 f"{column or 'counted units'} per cell",
                 {
                     "column": column or None,
                     "aggregation": (
                         f"sum of the {column or 'count'} column over every {event_type} record "
-                        "whose location falls in the cell"
+                        "whose location falls inside the map square"
                     ),
                     "rows_carrying_a_count": group["valued"],
                 },
@@ -348,12 +453,12 @@ def build_target_catalogue(service: Any, minimum_cells: int = 8) -> dict[str, An
             ))
         targets.append(_entry(
             f"event_records:{event_type}", "event_records",
-            f"number of {event_type} records in the cell",
+            f"number of {event_type} records in the map square",
             f"{event_type} records per cell",
             {
                 "column": None,
                 "aggregation": (
-                    f"number of {event_type} rows whose location falls in the cell, "
+                    f"number of {event_type} records whose location falls inside the map square, "
                     "regardless of how large each one is"
                 ),
             },
@@ -364,11 +469,11 @@ def build_target_catalogue(service: Any, minimum_cells: int = 8) -> dict[str, An
         years = _years(group["first_year"], group["last_year"])
         targets.append(_entry(
             f"metric_mean:{metric}", "metric_mean",
-            f"average {group['label']} in the cell ({metric})",
+            f"average {group['label']} in the map square ({metric})",
             group["unit"] or "measured units",
             {
                 "column": metric,
-                "aggregation": "mean of every measured value recorded in the cell",
+                "aggregation": "mean of every measured value recorded in the map square",
                 "declared_description": _clean(group["description"]) or None,
             },
             ["measurements", "cells"],
@@ -389,11 +494,11 @@ def build_target_catalogue(service: Any, minimum_cells: int = 8) -> dict[str, An
                 {"source_id": item["source_id"], "records": item["rows"]} for item in effort
             ])
             note = (
-                "Documented effort in this pack: "
+                "Documented survey work here: "
                 + ("; ".join(
                     f"{item['method']} measured in {item['unit'] or 'unstated units'} "
-                    f"({item['rows']} rows over {item['cells']} cells)" for item in effort
-                ) or "none indexed")
+                    f"({item['rows']} rows over {item['cells']} map squares)" for item in effort
+                ) or "none recorded")
             )
         else:
             cells_with_a_value = cells_with_events
@@ -432,6 +537,9 @@ def build_target_catalogue(service: Any, minimum_cells: int = 8) -> dict[str, An
         },
         "targets": targets,
         "target_ids": [item["target_id"] for item in targets],
+        # Named places with their own coordinates, so a caller can turn "near Kadamparai" into a
+        # point itself instead of asking the person who asked the question to do it.
+        "places": places,
         "default_target_id": "record_density",
         "method": (
             "Enumerated from the pinned index and the pack's declared adapters. No word was "

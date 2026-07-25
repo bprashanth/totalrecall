@@ -24,8 +24,10 @@ import sqlite3
 from typing import Any
 
 try:
+    from dss.visual_index.cell_language import describe_cell, is_cell_id, scrub_cell_ids
     from dss.visual_index.result_service import SAFE_HANDLE, _load_json
 except ModuleNotFoundError:  # Direct execution: python dss/visual_index/explain_service.py
+    from cell_language import describe_cell, is_cell_id, scrub_cell_ids  # type: ignore[no-redef]
     from result_service import SAFE_HANDLE, _load_json
 
 
@@ -105,23 +107,117 @@ class ExplainService:
     # ------------------------------------------------------------------ selection
 
     @staticmethod
+    def _layer_options(
+        envelope: dict[str, Any]
+    ) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+        """Every layer in this result, in the order a reader would consider them."""
+        priority = {"primary": 0, "supporting": 1, "audit": 2}
+        ordered: list[tuple[int, int, int, dict[str, Any], dict[str, Any]]] = []
+        for index, visual in enumerate(
+            item for item in (envelope.get("visuals") or []) if isinstance(item, dict)
+        ):
+            for position, layer in enumerate(visual.get("layers") or []):
+                if isinstance(layer, dict):
+                    ordered.append((
+                        priority.get(str(visual.get("priority") or ""), 3),
+                        index, position, visual, layer,
+                    ))
+        ordered.sort(key=lambda item: item[:3])
+        return [(visual, layer) for _, _, _, visual, layer in ordered]
+
     def _select_layer(
-        envelope: dict[str, Any], layer_id: str | None
-    ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
-        visuals = [item for item in (envelope.get("visuals") or []) if isinstance(item, dict)]
+        self, envelope: dict[str, Any], layer_id: str | None,
+        mark: dict[str, Any] | None = None,
+    ) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any]]:
+        """Pick the layer the question is actually about, not merely the first one drawn.
+
+        A map's first layer is usually its context: the declared study boundary, drawn underneath
+        everything so the rest has somewhere to sit. It carries one polygon and no countable rows.
+        Defaulting to it turned a click that landed squarely inside a density square into "I
+        cannot explain that: 0 source rows contributed there", while the very same coordinate
+        resolved perfectly against the density layer sitting on top of it.
+
+        So when the caller names no layer, every layer is tried against the mark they did give:
+        the layer whose own stored geometry contains their point (or whose features carry their
+        mark id) wins, preferring one that carries countable rows. Nothing is guessed — each
+        candidate is checked against the payload the user was actually shown — and the layers that
+        were passed over are reported, so a caller looking at an empty answer can see that another
+        layer would have answered it.
+        """
+        options = self._layer_options(envelope)
         if layer_id:
-            for visual in visuals:
-                for layer in visual.get("layers") or []:
-                    if layer.get("layer_id") == layer_id:
-                        return visual, layer
-            return None, None
-        for wanted in ("primary", "supporting", "audit"):
-            for visual in visuals:
-                if visual.get("priority") == wanted and visual.get("layers"):
-                    return visual, visual["layers"][0]
-        if visuals and visuals[0].get("layers"):
-            return visuals[0], visuals[0]["layers"][0]
-        return (visuals[0] if visuals else None), None
+            for visual, layer in options:
+                if layer.get("layer_id") == layer_id:
+                    return visual, layer, {
+                        "auto_selected": False,
+                        "chosen_because": "the caller named this layer",
+                        "alternatives": [],
+                    }
+            return None, None, {"auto_selected": False, "chosen_because": "", "alternatives": []}
+        if not options:
+            visuals = [item for item in (envelope.get("visuals") or []) if isinstance(item, dict)]
+            return (visuals[0] if visuals else None), None, {
+                "auto_selected": True,
+                "chosen_because": "this result draws no layers",
+                "alternatives": [],
+            }
+
+        result_id = str(envelope.get("result_id") or "")
+        coordinate = self._mark_coordinate(mark) if mark else None
+        scored = []
+        for position, (visual, layer) in enumerate(options):
+            handle = str((layer.get("data_ref") or {}).get("handle") or "")
+            features = self._features(self.load_payload(result_id, handle)) if handle else []
+            countable = sum(1 for item in features if self._feature_value(item) is not None)
+            if coordinate is not None:
+                hit = self._feature_at(features, coordinate[0], coordinate[1]) is not None
+            elif mark:
+                hit = self._find_feature(features, mark) is not None
+            else:
+                hit = False
+            scored.append({
+                "position": position, "visual": visual, "layer": layer,
+                "layer_id": str(layer.get("layer_id") or ""),
+                "covers_the_mark": hit, "marks_with_a_value": countable,
+                "marks_in_layer": len(features),
+            })
+        # Rank: the layer that actually contains what was asked about, then one that carries
+        # values rather than context geometry, then the order the map draws them in.
+        best = min(
+            scored,
+            key=lambda item: (
+                not item["covers_the_mark"], item["marks_with_a_value"] == 0, item["position"]
+            ),
+        )
+        if best["covers_the_mark"]:
+            because = "its own stored geometry contains the place asked about"
+        elif best["marks_with_a_value"]:
+            because = (
+                "no layer covers that place, so the first layer carrying countable values was "
+                "used"
+            )
+        else:
+            because = "no layer covers that place and none carries countable values"
+        report = {
+            "auto_selected": True,
+            "chosen_because": because,
+            "alternatives": [{
+                "layer_id": item["layer_id"],
+                "covers_the_mark": item["covers_the_mark"],
+                "marks_with_a_value": item["marks_with_a_value"],
+            } for item in scored if item["position"] != best["position"]],
+        }
+        rescued = [
+            item for item in scored
+            if item["position"] != best["position"] and item["covers_the_mark"]
+            and item["marks_with_a_value"]
+        ]
+        if not best["covers_the_mark"] and rescued:
+            report["suggestion"] = (
+                f"The {best['layer_id']} layer has nothing recorded at that place, but the "
+                f"{rescued[0]['layer_id']} layer does; ask again naming that layer."
+            )
+        return best["visual"], best["layer"], report
 
     @staticmethod
     def _features(payload: Any) -> list[dict[str, Any]]:
@@ -386,18 +482,22 @@ class ExplainService:
     def _lineage_for(
         self, connection: sqlite3.Connection, identity: dict[str, Any],
         bindings: dict[str, Any], layer_id: str, feature: dict[str, Any] | None,
+        mark_label: str = "",
     ) -> dict[str, Any]:
         kind = identity.get("kind")
         mark_id = str(identity.get("id") or "")
         value = self._feature_value(feature) if feature else None
+        # How this mark is named inside the lineage sentence. A grid square is named by where it
+        # is, never by its id; `mark.id` in the response still carries the id for the map.
+        label = mark_label or "that map square"
         if kind == "event":
             rows = self._event_rows(connection, "e.event_id=?", (mark_id,))
             return {
                 "aggregation": "none",
                 "statement": (
-                    f"This mark is one admitted source row carried through unchanged: "
-                    f"event {mark_id} from {rows[0]['source_id']} row {rows[0]['source_row']}."
-                    if rows else f"No indexed event row matches {mark_id}."
+                    "This mark is one source row carried through unchanged, from "
+                    f"{rows[0]['source_id']} row {rows[0]['source_row']}."
+                    if rows else "No recorded row matches the mark asked about."
                 ),
                 "plane": "events", "rows": rows, "row_count": len(rows),
             }
@@ -417,8 +517,8 @@ class ExplainService:
             return {
                 "aggregation": "none",
                 "statement": (
-                    "This mark is one source-reported association row carried through "
-                    f"unchanged: interaction {mark_id}."
+                    "This mark is one source-reported association row, carried through "
+                    "unchanged."
                 ),
                 "plane": "interactions", "rows": rows, "row_count": len(rows),
             }
@@ -433,7 +533,7 @@ class ExplainService:
             ]
             return {
                 "aggregation": "none",
-                "statement": f"This mark is one indexed measurement row: {mark_id}.",
+                "statement": "This mark is one recorded measurement row.",
                 "plane": "measurements", "rows": rows, "row_count": len(rows),
             }
         if kind == "cell":
@@ -454,8 +554,8 @@ class ExplainService:
                 return {
                     "aggregation": "sum",
                     "statement": (
-                        f"cell {mark_id} effort = sum of effort_value over "
-                        f"{total[0]:,} effort rows = {total[1]}"
+                        f"The value for {label} is the survey work recorded there added up: "
+                        f"{total[0]:,} rows totalling {total[1]}."
                     ),
                     "plane": "effort", "rows": rows, "row_count": int(total[0] or 0),
                 }
@@ -475,9 +575,9 @@ class ExplainService:
                 return {
                     "aggregation": str(aggregation or "unknown"),
                     "statement": (
-                        f"cell {mark_id} value = one indexed cell_features row for "
-                        f"{feature_id}{f' in {year}' if year else ''}, produced upstream by "
-                        f"'{aggregation}' over the source asset at "
+                        f"The value for {label} comes from a single recorded row for "
+                        f"{feature_id}{f' in {year}' if year else ''}, produced by "
+                        f"'{aggregation}' over the source imagery at "
                         f"{rows[0]['scale_m'] if rows else '?'} m."
                     ),
                     "plane": "cell_features", "rows": rows, "row_count": len(rows),
@@ -500,9 +600,9 @@ class ExplainService:
             return {
                 "aggregation": "count",
                 "statement": (
-                    f"cell {mark_id} value = count of {totals['records']:,} indexed event rows "
-                    f"({totals['entities']:,} distinct entities) whose cell_id is {mark_id}."
-                    + observed
+                    f"The value for {label} is a count of the {totals['records']:,} records "
+                    f"whose location falls inside it, covering {totals['entities']:,} different "
+                    "subjects." + observed
                 ),
                 "plane": "events", "rows": rows, "row_count": int(totals["records"]),
             }
@@ -533,8 +633,8 @@ class ExplainService:
                 return {
                     "aggregation": "mean",
                     "statement": (
-                        f"the {mark_id} point = mean of {aggregate[0]:,} indexed {metric} "
-                        f"measurement rows = "
+                        f"The {mark_id} point is the average of {aggregate[0]:,} recorded "
+                        f"{metric} measurements: "
                         f"{f'{mean:.4g}' if isinstance(mean, float) else mean} "
                         f"{aggregate[2] or ''}".strip()
                     ),
@@ -557,8 +657,8 @@ class ExplainService:
             return {
                 "aggregation": "count",
                 "statement": (
-                    f"the {mark_id} point = count of {total:,} indexed event rows dated in "
-                    f"that bucket."
+                    f"The {mark_id} point is a count of the {total:,} records dated in that "
+                    "period."
                 ),
                 "plane": "events", "rows": rows, "row_count": int(total or 0),
             }
@@ -570,7 +670,7 @@ class ExplainService:
             return {
                 "aggregation": "count",
                 "statement": (
-                    f"entity {mark_id} value = {total:,} indexed event rows for that entity."
+                    f"This value is a count of the {total:,} records held for that subject."
                 ),
                 "plane": "events", "rows": rows, "row_count": int(total or 0),
             }
@@ -587,16 +687,16 @@ class ExplainService:
             return {
                 "aggregation": "count",
                 "statement": (
-                    f"site {mark_id} value = {total:,} indexed event rows whose source row "
-                    f"reports Site_ID {mark_id}."
+                    f"This value is a count of the {total:,} records the source reports at "
+                    f"survey site {mark_id}."
                 ),
                 "plane": "events", "rows": rows, "row_count": int(total or 0),
             }
         return {
             "aggregation": "unknown",
             "statement": (
-                "The requested mark did not resolve to an indexed row; ask for a mark id that "
-                "the stored layer actually contains."
+                "The mark asked about did not match anything recorded in this view; ask about "
+                "something the map actually shows."
                 if mark_id else
                 "No mark was requested, so this lineage describes the whole result."
             ),
@@ -703,9 +803,39 @@ class ExplainService:
             value = self._feature_value(feature)
             identity = self._feature_identity(feature)
             if identity and value is not None:
-                scored.append({"mark": identity, "value": value})
+                entry = {"mark": identity, "value": value}
+                # A square offered as "another mark you could ask about" has to be nameable in a
+                # sentence, so it travels with its extent as well as its id.
+                if is_cell_id(identity):
+                    described = describe_cell(
+                        cell_id=identity, geometry=feature.get("geometry")
+                    )
+                    if described:
+                        entry["description"] = described["short_phrase"]
+                scored.append(entry)
         scored.sort(key=lambda item: (-item["value"], item["mark"]))
         return scored[:MAX_MARKS]
+
+    @staticmethod
+    def _describe_mark(
+        identity: dict[str, Any], feature: dict[str, Any] | None,
+        coordinate: tuple[float, float] | None,
+    ) -> dict[str, Any] | None:
+        """Describe a grid-square mark by its extent, from the geometry the user actually saw.
+
+        The point the caller pointed at is carried into the phrase whenever the mark was resolved
+        from a coordinate, so the answer can say the square covers the place they clicked instead
+        of appearing to have replaced their coordinates with different ones.
+        """
+        mark_id = str(identity.get("id") or "")
+        if identity.get("kind") != "cell" and not is_cell_id(mark_id):
+            return None
+        geometry = feature.get("geometry") if isinstance(feature, dict) else None
+        return describe_cell(
+            cell_id=mark_id, geometry=geometry,
+            requested_lat=coordinate[0] if coordinate else None,
+            requested_lon=coordinate[1] if coordinate else None,
+        )
 
     # ------------------------------------------------------------------ entry point
 
@@ -722,7 +852,7 @@ class ExplainService:
             key: value for key, value in (mark or {}).items()
             if value not in (None, "") and isinstance(key, str)
         }
-        visual, layer = self._select_layer(envelope, layer_id)
+        visual, layer, layer_choice = self._select_layer(envelope, layer_id, mark)
         if layer_id and layer is None:
             raise LookupError(f"result {result_id} has no layer {layer_id}")
         resolved_layer = str((layer or {}).get("layer_id") or "")
@@ -772,6 +902,7 @@ class ExplainService:
                 lat, lon = coordinate
                 identity = {"kind": "no_mark_at_location", "id": f"at:{lat:g}:{lon:g}"}
                 feature = None
+                cell_description = None
                 lineage = {
                     "aggregation": "none",
                     "statement": (
@@ -791,10 +922,12 @@ class ExplainService:
                 feature = self._find_feature(features, mark) if mark else None
                 if feature is None and identity.get("kind") not in {"none", "unresolved"}:
                     feature = self._find_feature(features, {"mark": identity.get("id")})
+                cell_description = self._describe_mark(identity, feature, coordinate)
                 lineage = (
                     self._upload_lineage(envelope, feature, identity) if user_supplied
                     else self._lineage_for(
-                        connection, identity, bindings, resolved_layer, feature
+                        connection, identity, bindings, resolved_layer, feature,
+                        (cell_description or {}).get("short_phrase", ""),
                     )
                 )
             source_ids = {
@@ -839,13 +972,22 @@ class ExplainService:
                 "handle": handle,
                 "digest": ((layer or {}).get("data_ref") or {}).get("digest"),
                 "marks_in_layer": len(features),
+                # Which layer answered, and why it rather than the others drawn on this map.
+                "auto_selected": bool(layer_choice.get("auto_selected")),
+                "chosen_because": layer_choice.get("chosen_because"),
+                "alternatives": layer_choice.get("alternatives") or [],
             },
             "mark": {
                 "requested": requested_mark,
                 "resolution": resolution,
                 "auto_selected": auto_selected,
                 "kind": identity.get("kind"),
+                # The id is for the map and the audit trail. `description` is the only form of
+                # this mark that may appear in a sentence a person reads.
                 "id": identity.get("id"),
+                "description": (cell_description or {}).get("phrase"),
+                "description_short": (cell_description or {}).get("short_phrase"),
+                "extent": cell_description,
                 "stored_properties": (
                     (feature.get("properties") if isinstance(feature, dict) else None)
                     or (feature if isinstance(feature, dict) else None)
@@ -854,13 +996,14 @@ class ExplainService:
             },
             "computation": {
                 "aggregation": lineage["aggregation"],
-                "statement": _clean(
+                "statement": _clean(scrub_cell_ids(
                     (
                         "AUTO-SELECTED: no specific mark was identified, so this lineage is "
-                        "for the layer's largest mark. " if auto_selected else ""
+                        "for the largest mark on this view. " if auto_selected else ""
                     )
-                    + str(lineage["statement"])
-                ),
+                    + str(lineage["statement"]),
+                    (cell_description or {}).get("short_phrase") or "that map square",
+                )),
                 "plane": lineage["plane"],
                 "contributing_rows": lineage["row_count"],
                 "rows_returned": len(lineage["rows"]),
@@ -870,6 +1013,10 @@ class ExplainService:
             "source_versions": sources,
             "limitations": self._limitations(envelope, visual, resolved_layer),
             "top_marks": top_marks,
+            # Set only when this answer came back empty and a different layer of the same map
+            # would have answered it. It exists so a caller corrects itself instead of telling
+            # the user nothing can be explained there.
+            "suggestion": layer_choice.get("suggestion"),
             "evidence_origin": "user_upload" if user_supplied else "site_pack",
             "method": (
                 "Deterministic lineage: the stored idli-result/1 envelope and its immutable layer "

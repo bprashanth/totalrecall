@@ -183,10 +183,24 @@ prefixed `AUTO-SELECTED:` in the statement; a coordinate that hits nothing retur
 `no_mark_at_location` payload instead of a substituted mark. `GET /v1/capabilities` also
 lists the two session-scoped upload capabilities (`upload-profile`, `upload-cross-join`).
 
+`layer` is optional and is better left out. A map draws the declared boundary first, so
+defaulting to a visual's first layer explained a one-polygon context layer with nothing to count
+and answered a click inside a density square with "0 source rows contributed there". Omitting it
+now picks the layer whose stored geometry contains the point and which carries countable values,
+and reports the choice in `layer.chosen_because` and `layer.alternatives`.
+
+A square is never named to a user by its id. `mark.description` gives its extent — "the 1.1 km
+square covering your point (10.305 N, 76.995 E), spanning 10.300–10.310 N and 76.990–77.000 E" —
+because the grid labels squares by their south-west corner and `g0.010:10.3000:76.9900` reads to
+a user as though their coordinates had been silently replaced. The id stays in `mark.id`.
+
 ```bash
 TOK=$(cat "$SITE_STATE/.api-token")
 curl -fsS -H "Authorization: Bearer $TOK" \
-  "http://172.17.0.1:7013/v1/results/<result_id>/explain?layer=event-density&mark=at:10.255:76.965"
+  "http://172.17.0.1:7013/v1/results/<result_id>/explain?mark=at:10.30500:76.99500"
+
+# Three to five plain headline numbers for a UI context rail.
+curl -fsS -H "Authorization: Bearer $TOK" http://172.17.0.1:7013/v1/site/headline-stats
 ```
 
 The Codex agent reaches the same paths through two skills beside `visual-result`:

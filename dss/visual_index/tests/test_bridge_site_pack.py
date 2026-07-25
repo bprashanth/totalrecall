@@ -185,6 +185,91 @@ class BridgeEstimateTargetsTest(unittest.TestCase):
             for word in self.JARGON:
                 self.assertIn(word, instructions.casefold(), f"{skill_id} must ban {word!r}")
 
+    def test_a_resolved_square_is_relayed_as_an_extent_that_covers_the_point(self):
+        """The complaint this fixes: a user clicked 10.305 and was answered about a cell id.
+
+        The grid labels each square by its south-west corner, so 10.305 belongs to the square
+        starting at 10.300. That is right, and `g0.010:10.3000:76.9900` is an unreadable way to
+        say it: it looks like the system replaced the user's coordinates with different ones.
+        """
+        with self.configured_bridge():
+            menu = server._execute_skill("visual-estimate", {
+                "mode": "suggest", "cell": "at:10.30500:76.99500",
+                "target": "event_total:mgnrega_work",
+            }, None)["execution"]["value"]
+            run = server._execute_skill("visual-estimate", {
+                "mode": "run", "approach_id": "aoi-baseline-mean",
+                "cell": "at:10.30500:76.99500", "target": "event_total:mgnrega_work",
+            }, None)["execution"]["value"]
+        for value in (menu, run):
+            description = value["cell_description"]
+            self.assertIn("km square", description)
+            self.assertIn("10.305 N", description)
+            self.assertIn("10.300", description)
+            self.assertIn("76.990", description)
+            self.assertNotIn("g0.0", description)
+            # The id itself stays available for the map and the audit trail.
+            self.assertEqual(value["cell_id"], "g0.010:10.3000:76.9900")
+        self.assertEqual(run["requested_point"], {"lat": 10.305, "lon": 76.995})
+        for text in (run["headline"], run["detail"]):
+            self.assertNotIn("g0.0", text)
+        for item in run["limitations"]:
+            self.assertNotIn("g0.0", item["message"])
+        for item in run["improvements"]:
+            self.assertNotIn("g0.0", item["label"])
+        self.assertIn("cell_description", run["instruction"])
+
+    def test_the_result_summary_forwards_the_real_option_menu(self):
+        """A menu the model cannot see is a menu the model invents."""
+        with self.configured_bridge():
+            summary = server._visual_result_summary({
+                "result_id": "result-abc123",
+                "status": "partial",
+                "answer": {"headline": "Choose a measure."},
+                "actions": [{
+                    "action_id": "choose-metric", "kind": "choice",
+                    "label": "Which measure?", "capability_id": "metric-time-series",
+                    "arguments": {"available_metrics": ["daily_wage", "paid_days_per_month"]},
+                }],
+            })
+        self.assertEqual(summary["actions"][0]["action_id"], "choose-metric")
+        self.assertIn(
+            "daily_wage", summary["actions"][0]["arguments"]["available_metrics"]
+        )
+        self.assertIn("actions", summary["instruction"])
+
+    def test_named_places_travel_with_the_catalogue_so_nobody_types_coordinates(self):
+        with self.configured_bridge():
+            targets = server._execute_skill(
+                "visual-estimate", {"mode": "targets"}, None)["execution"]["value"]
+        places = {item["name"]: item for item in targets["places"]}
+        self.assertIn("Kadamparai Village", places)
+        self.assertAlmostEqual(places["Kadamparai Village"]["lat"], 10.261, places=3)
+        self.assertAlmostEqual(places["Kadamparai Village"]["lon"], 76.966, places=3)
+        self.assertIn("never ask a person to type", targets["instruction"].casefold())
+
+    def test_headline_stats_speak_in_the_reader_s_nouns_not_ours(self):
+        """The rail said "entities". A programme manager does not have entities; they have data."""
+        with self.configured_bridge():
+            stats = server._site_headline_stats()
+        self.assertEqual(stats["schema_version"], "idli-site-stats/1")
+        self.assertEqual(stats["site_id"], "valparai_livelihoods")
+        self.assertGreaterEqual(len(stats["stats"]), 3)
+        self.assertLessEqual(len(stats["stats"]), 5)
+        labels = {item["label"] for item in stats["stats"]}
+        self.assertIn("Households surveyed", labels)
+        self.assertIn("Villages covered", labels)
+        # The count column the pack declared names the quantity, spelled the pack's own way.
+        persondays = next(
+            item for item in stats["stats"] if item["id"] == "total:mgnrega_work"
+        )
+        self.assertEqual(persondays["value"], 56636)
+        self.assertIn("MGNREGA", persondays["detail"])
+        for item in stats["stats"]:
+            self.assertTrue(item["detail"])
+            for word in ("entit", "cell", "adapter", "plane", "source_id", "event_total"):
+                self.assertNotIn(word, item["label"].casefold(), item["label"])
+
     def test_the_relay_instructions_never_ask_the_model_to_speak_in_ids(self):
         """What the model is told to say is what it says. The instruction must be plain."""
         with self.configured_bridge():

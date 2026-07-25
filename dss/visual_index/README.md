@@ -96,6 +96,31 @@ prefixed `AUTO-SELECTED:` in the statement; a coordinate that hits nothing retur
 `no_mark_at_location` payload, never a silently substituted mark. A mark inside a
 user-upload result is attributed to the uploaded rows; the site index is never consulted for it.
 
+When no `layer` is supplied, the layer is chosen rather than defaulted. A map draws its context
+first — the declared study boundary, one polygon with nothing to count — so taking the visual's
+first layer answered a click that landed squarely inside a density square with "0 source rows
+contributed there", while the same coordinate resolved perfectly against the density layer drawn
+on top of it. Every layer is now checked against the mark that was given: the layer whose own
+stored geometry contains that point (or whose features carry that mark id) wins, preferring one
+that carries countable values. `layer.auto_selected`, `layer.chosen_because` and
+`layer.alternatives` report the choice, and when the chosen layer has nothing there but another
+layer would have answered, `suggestion` says so, so a caller retries instead of reporting a dead
+end.
+
+## Naming a grid square to a person
+
+`cell_language.py` turns a square into words. The grid labels each square by its south-west
+corner, so a point at 10.305 N belongs to `g0.010:10.3000:76.9900` — arithmetically exact, and to
+a user indistinguishable from the system having quietly changed the coordinates they gave. So an
+id never appears in a sentence. `describe_cell` returns the extent instead — *"the 1.1 km square
+covering your point (10.305 N, 76.995 E), spanning 10.300–10.310 N and 76.990–77.000 E"* —
+computed from the square's own stored geometry (the `cells` row, or the polygon the layer
+actually drew), never from an assumed resolution: a pack gridded at 0.05° describes itself as a
+5.5 km square with nothing to change here. The id stays in `mark.id`, the audit and the layer
+payloads, where the map and the audit trail need it. `estimate_service` carries the same phrase
+through `question.resolved`, `answer.headline`, every limitation and every improvement, and the
+bridge relays it as `cell_description`.
+
 ```bash
 python3 dss/visual_index/explain_service.py \
   --site-pack dss/sites/valparai_livelihoods \
@@ -155,6 +180,16 @@ job is to publish the vocabulary and then bind exactly: `resolve_target` accepts
 `target_id` and refuses free text, listing what would have worked. Every number still comes from
 the data.
 
+The catalogue also carries `places`: every named location in the index with its coordinates. A
+person who says "the square just below Kadamparai" has already given the location, and asking
+them to type it back as `at:<lat>:<lon>` is asking them to do our arithmetic — which is exactly
+how one bench conversation spent all four turns clarifying and never produced a number.
+`capability_vocabulary` does the same job for the result capabilities: the values their declared
+arguments will actually accept here (which metrics can be plotted, which subjects mapped, which
+ranks and groups exist, which source carries which category property). An argument's *name* does
+not tell a caller which call to make; a question like "which village has the most survey visits?"
+bounced off the orientation map because the data was there and the argument values were not.
+
 ```bash
 python3 dss/visual_index/estimate_service.py \
   --site-pack dss/sites/valparai_livelihoods \
@@ -199,6 +234,56 @@ python3 dss/visual_index/estimate_service.py \
   --index /tmp/valparai-livelihoods-index/site_index.sqlite \
   --state /tmp/valparai-livelihoods-results \
   --cell at:10.30:76.94 --target event_total:mgnrega_work   # add --approach to run one
+```
+
+## Two subjects in the same square
+
+"Show me where both hornbills and elephants occur" had no answer here at all. `interaction-map`
+maps only the associations a source explicitly declared, so it came back blocked, while the index
+held elephant in about a hundred squares, hornbills in thirty-one, and twenty squares with both.
+
+`cooccurrence_service.py` adds two bridge-side capabilities, neither tied to any kind of subject.
+`co-occurrence-map` intersects the squares each subject's own records fall in; the shared squares
+are the answer, so they are the first and only filled layer, and each subject keeps its own
+outline layer so a reader can see which side of the overlap is thin. A subject may be a
+registered name, a hierarchy group (`{"kind": "group", "value": "Bucerotidae"}`, whose rank is
+found rather than demanded, which is how "all hornbills together" resolves) or a kind of record —
+"public works" and "people leaving" are event types, not entities, and the question is the same.
+`entity-activity-profile` answers "what else is X doing" from the same engine: kinds of record,
+surveys, years, what was measured where X was seen, and the subjects sharing most of its squares.
+
+The honesty is in the envelope, not left to the model. Every result carries, in words: that both
+being recorded in one square is **not** an interaction, an association or contact — with the size
+of the square stated; that the records may come from different surveys, methods, amounts of effort
+and years, so an overlap partly shows where people looked; that no overlap is not evidence of
+separation; and how many of the shared squares hold records from the same year, with an action to
+show only those.
+
+```bash
+python3 dss/visual_index/cooccurrence_service.py \
+  --site-pack dss/sites/valparai \
+  --index /tmp/valparai-index/site_index.sqlite \
+  --state /tmp/valparai-results \
+  --subject elephant --subject Bucerotidae
+```
+
+## Headline statistics for a context rail
+
+`site_stats.py` answers "what is known about this place" in three to five numbers a programme
+manager already uses. A rail that says "1,145 entities across 302 cells" is describing our
+database; these describe the site. Nothing about any sector is written down in the module: each
+stat is derived from the pack's own event types, declared count columns, metric registry, effort
+methods and entity hierarchies, and the wording is recovered from the pack's own human-written
+strings — which is how `mgnrega_work` prints its capitals from a source title, and how a count
+column that only says "how many of them" (`individualCount`, `num`) is kept out of the label and
+put in the detail instead. Entities become "Species recorded" only when the pack's own hierarchy
+gives them a biological rank. `GET /v1/site/headline-stats` serves it, cached per process.
+
+```bash
+python3 dss/visual_index/site_stats.py \
+  --site-pack dss/sites/valparai_livelihoods \
+  --index /tmp/valparai-livelihoods-index/site_index.sqlite \
+  --state /tmp/valparai-livelihoods-results
 ```
 
 ## Computed earth layers
