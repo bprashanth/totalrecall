@@ -4,6 +4,14 @@ Run: `round1`  |  endpoint: `http://172.17.0.1:7012`  |  model: `idli-insight-va
 
 **3/52 turns pass (6%)**, 0/8 conversations clean, mean language score 1.58/2, median latency 18.5s (max 72.7s), 3 turns retried.
 
+## How this number was baselined
+
+- ROUTING EXPECTATIONS RE-BASELINED after the bridge shipped `interaction-pairs` and `survey-priority-squares` (commit 1a57eb9). The rule applied: widen an existing `capabilities_any` list only where the newly-chosen tool genuinely answers the question better; never narrow one, and never add a routing requirement to a turn that did not already have one. Where the model simply picked a worse tool, the turn was left failing.
+- WIDENED (5 turns, routing is genuinely right): c5/t2 and c5/t3 now accept `interaction-pairs` -- it names the recorded tree-animal pairs, which is exactly what 'who disperses what' asks for, where `interaction-map` only maps declared association types. c5/t4 now accepts `entity-activity-profile` and `interaction-pairs` -- it answered with Heynea trijuga, 237 records in 45 squares, 2002-2022, tied to the threatened-tree records. c7/t1 and c7/t6 now accept `survey-priority-squares` -- it ranks by the records-versus-effort gap and names squares by real places, which is the question.
+- LEFT FAILING (5 turns, the tool picked was worse): c1/t6 ran `stratified-survey-summary` for 'show me the rows behind the mammal counts', could not produce a row, and offered the mapped-records route in its own next sentence -- a tool that could answer was available and not used. c2/t3 and c2/t5 never called `stratified-survey-summary` with the declared `Site_type` category that holds the split being asked for. c3/t3 ran `method-catalog` for a question about canopy cover and plant-community plots. c4/t5 ran `entity-activity-profile` and then asserted there was no canopy comparison, without querying the ten canopy and structure metrics this index holds (`canopy_cover`, `canopy_openness`, `basal_area`, `tree_height` among them).
+- Re-grading the bridge's own round5 transcript under these corrected expectations moves it from 27/52 to 31/52 and `right_tool` from 58% to 79%. That is the size of the harness drift, isolated from any product change.
+- GRADER CALIBRATED TWICE, both times against transcripts rather than intuition. Round 1: `honest_gap` and `confidence` were widened after reading the failures showed 'there is still no recorded lantana name here' and 'I cannot call that a real plot-type effect yet' were being missed. Round 2: `join_rule_disclosed` was widened (a join is also disclosed by saying what the table actually records and how unequal the watching behind it was), and the gap checks were made conditional -- where the product now finds the data and answers with a figure, answering is better than confessing, so `honest_gap` passes on evidence and `names_alternative` binds only when absence was actually claimed. Uncorrected, round 2 scores 37/66; corrected, 46/66. Both numbers are stated here on purpose.
+
 ## Pass rate by dimension
 
 | Check | Pass rate | n |
@@ -13,7 +21,6 @@ Run: `round1`  |  endpoint: `http://172.17.0.1:7012`  |  model: `idli-insight-va
 | `gap_or_answer` | 33% | 3 |
 | `general_knowledge_labelled` | 50% | 2 |
 | `honest_gap` | 50% | 6 |
-| `names_alternative` | 50% | 4 |
 | `has_evidence` | 56% | 27 |
 | `rows` | 56% | 16 |
 | `join_rule_disclosed` | 67% | 3 |
@@ -24,6 +31,7 @@ Run: `round1`  |  endpoint: `http://172.17.0.1:7012`  |  model: `idli-insight-va
 | `jargon` | 96% | 52 |
 | `brevity` | 100% | 1 |
 | `multi_turn` | 100% | 45 |
+| `names_alternative` | 100% | 4 |
 | `no_invention` | 100% | 1 |
 | `no_reask` | 100% | 45 |
 | `no_transport_leak` | 100% | 52 |
@@ -240,7 +248,7 @@ User: And what would you not let me say?
 
 - `next_step_in_prose`: answer names no move the user could make next
 - `dead_end`: no next move in the prose and no buttons for the interface
-- `honest_gap`: no plain statement of what is missing
+- `honest_gap`: neither a plain statement of what is missing nor a real figure
 
 ```
 From the data this site has, I would not let you say that restoration has already proven a causal recovery of rainforest specialist birds, or that restored plots have fully matched benchmark plots. This map is only a site overview, and the bird comparison we checked is still descriptive, with survey effort and detectability still able to affect the gap.
@@ -252,7 +260,7 @@ Session: `ecoanr-round1-c3-lantana`  |  categories: gap-honesty, study-design, t
 
 | Turn | User | Result | Failed | Tools run | Lang | s | Excerpt |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| t1 | Why does lantana keep coming back after we weed it? | **FAIL** | `next_step_in_prose`, `dead_end`, `gap_or_answer`, `names_alternative` | entity-record-map | 2.0 | 23 | From the data this site has, I could not confirm a recorded `lantana` record here, so this answer is general rather than site-specific. General ecological conte... |
+| t1 | Why does lantana keep coming back after we weed it? | **FAIL** | `next_step_in_prose`, `dead_end`, `gap_or_answer` | entity-record-map | 2.0 | 23 | From the data this site has, I could not confirm a recorded `lantana` record here, so this answer is general rather than site-specific. General ecological conte... |
 | t2 | Do you have anything at all on lantana at this site? Even just where it has been recorded? | **FAIL** | `has_evidence`, `traceable` | local-site-evidence-search, entity-record-map | 2.0 | 14 | From the data this site has, I do not have a recorded `lantana` name or a map of its records here. The site search and the map both came back as a name non-matc... |
 | t3 | So what could I use as a stand-in? I was thinking canopy cover, or the plant community plots. | **FAIL** | `right_tool` | - | 1.85 | 9 | From the data this site has, we do not yet have a recorded `lantana` name to calibrate any stand-in against actual lantana records here. General ecological cont... |
 | t4 | If I wanted to test whether shade suppresses lantana, what would I actually have to go and measure, given what is already here? | **FAIL** | `next_step_in_prose`, `dead_end`, `rows`, `honest_gap` | - | 0.85 | 10 | From the data this site has, there is still no recorded `lantana` name here, so you would need to add a direct lantana field to the plant community plots. Measu... |
@@ -266,7 +274,6 @@ User: Why does lantana keep coming back after we weed it?
 - `next_step_in_prose`: answer names no move the user could make next
 - `dead_end`: no next move in the prose and no buttons for the interface
 - `gap_or_answer`: neither an answer nor an honest gap
-- `names_alternative`: gap stated without naming what does exist
 
 ```
 From the data this site has, I could not confirm a recorded `lantana` record here, so this answer is general rather than site-specific. General ecological context: lantana often comes back because weeding removes the top growth but not the root crown, buried seeds keep germinating for years, and fresh light after clearing helps new shoots establish. In practice, it usually needs repeat follow-up on resprouts and seedlings, not one-time removal alone.
@@ -300,7 +307,7 @@ User: If I wanted to test whether shade suppresses lantana, what would I actuall
 - `next_step_in_prose`: answer names no move the user could make next
 - `dead_end`: no next move in the prose and no buttons for the interface
 - `rows`: no table, list or row language where the user asked for specifics
-- `honest_gap`: no plain statement of what is missing
+- `honest_gap`: neither a plain statement of what is missing nor a real figure
 
 ```
 From the data this site has, there is still no recorded `lantana` name here, so you would need to add a direct lantana field to the plant community plots. Measure lantana presence, percent cover, stem counts, height class, and whether it is seedling, resprout, or mature, and at the same points measure canopy cover, light reaching the understorey, and disturbance like recent weeding, edge, grazing, or fire. General ecological context: if you only measure shade, you cannot tell whether low lantana is due to shade or due to repeated clearing; you need both shade and disturbance in the same plots.
@@ -448,7 +455,7 @@ User: Are any threatened species in that list worth including?
 
 - `next_step_in_prose`: answer names no move the user could make next
 - `dead_end`: no next move in the prose and no buttons for the interface
-- `right_tool`: ran ['nothing'], wanted one of ['entity-record-map', 'group-record-map', 'matrix-profile', 'plot-indicator-profile']
+- `right_tool`: ran ['nothing'], wanted one of ['entity-activity-profile', 'entity-record-map', 'group-record-map', 'interaction-pairs', 'matrix-profile', 'plot-indicator-profile']
 - `rows`: no table, list or row language where the user asked for specifics
 - `traceable`: no survey named and no path to the rows
 
@@ -619,7 +626,7 @@ User: If it were a hyperspectral sensor instead, would the answer change? I woul
 
 - `next_step_in_prose`: answer names no move the user could make next
 - `dead_end`: no next move in the prose and no buttons for the interface
-- `honest_gap`: no plain statement of what is missing
+- `honest_gap`: neither a plain statement of what is missing nor a real figure
 
 ```
 General ecological context: Yes, the answer can change with hyperspectral data. For invasive cover, the best flights are usually where the target plant is already recorded across enough places to learn its spectral pattern, and where nearby unsampled areas could then be checked for spread. From the data this site has, I would shift from general gap-filling to places where `Maesopsis eminii` is already recorded, because that is the closest direct evidence here for invasive cover. This map shows many such records, including many inside the site, but these are occurrence points only: they do not by themselves show cover, absence, or spread rate. One useful follow-up: do you want to treat `Maesopsis eminii` as the invasive target, or do you mean invasive plants in general?
@@ -678,7 +685,7 @@ Session: `ecoanr-round1-c8-monitoring-plan`  |  categories: design, data-request
 | t1 | Help me design three years of monitoring to answer whether assisted natural regeneration beats active planting here. | **FAIL** | `next_step_in_prose`, `dead_end`, `traceable` | site-orientation | 1.5 | 25 | This map shows where this site already has records; use those better-covered cells to place matched ANR and active-planting plots, so the comparison is fair and... |
 | t2 | What can I reuse as a baseline instead of starting from scratch? | **FAIL** | `next_step_in_prose`, `dead_end` | coverage-versus-effort | 1.9 | 13 | General ecological context: For restoration monitoring, the strongest baseline is usually existing measured plots or surveys with clear effort, not just scatter... |
 | t3 | What is the minimum I have to keep collecting so the old data stays comparable? | **FAIL** | `next_step_in_prose`, `dead_end` | method-catalog | 1.25 | 13 | General ecological context: To keep old and new restoration data comparable, the minimum is to hold the measurement method, plot design, timing, and effort stea... |
-| t4 | What is missing entirely, that I would have to start measuring from zero? | **FAIL** | `next_step_in_prose`, `dead_end`, `names_alternative` | method-catalog | 1.4 | 14 | General ecological context: Old biodiversity and vegetation records can give you context, but they rarely contain the intervention details needed for a clean AN... |
+| t4 | What is missing entirely, that I would have to start measuring from zero? | **FAIL** | `next_step_in_prose`, `dead_end` | method-catalog | 1.4 | 14 | General ecological context: Old biodiversity and vegetation records can give you context, but they rarely contain the intervention details needed for a clean AN... |
 | t5 | How many plots, and how many visits a year, to have a real chance of detecting a difference? | **FAIL** | `jargon` | coverage-versus-effort, compile-scientific-algebra-9b | 2.0 | 24 | General ecological context: In restoration monitoring, the number of plots matters more than very frequent visits once you have seasonal coverage. A practical d... |
 | t6 | Write it up as a one page plan I can hand to my team. | PASS | - | - | 1.85 | 18 | **Three-Year Monitoring Plan: ANR vs Active Planting** **Purpose** From the data this site has, we want a fair test of whether assisted natural regeneration (AN... |
 | t7 | And a list of the data I would need to request from the other groups working here. | **FAIL** | `next_step_in_prose`, `dead_end` | method-catalog | 1.85 | 17 | From the data this site has, there are method notes you can align to, but this table is only a guide to analysis designs, not a finished comparison result. Ask ... |
@@ -723,7 +730,6 @@ User: What is missing entirely, that I would have to start measuring from zero?
 
 - `next_step_in_prose`: answer names no move the user could make next
 - `dead_end`: no next move in the prose and no buttons for the interface
-- `names_alternative`: gap stated without naming what does exist
 
 ```
 General ecological context: Old biodiversity and vegetation records can give you context, but they rarely contain the intervention details needed for a clean ANR-versus-planting test. For that comparison, treatment history and repeated survival data are usually the first big gaps. From the data this site has, the method notes show analysis designs, but not a ready-made ANR-versus-planting baseline by themselves. What you will likely need to start from zero is treatment tracking for each plot, repeated seedling or sapling survival by treatment, management inputs like weeding and protection, and cost records in the same format across both approaches.

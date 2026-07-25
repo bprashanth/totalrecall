@@ -109,7 +109,8 @@ GAP_RE = re.compile(
 ALTERNATIVES_RE = re.compile(
     r"(?:what (?:i|we) (?:do )?have|what (?:does|is) (?:exist|here)|instead|closest|nearest thing"
     r"|i do hold|available here|the data (?:i|we) (?:do )?have|these (?:records|surveys)"
-    r"|plant community|canopy|tree and habitat|restoration plot|point counts?|but (?:there|i) (?:is|are|do))",
+    r"|plant community|canopy|tree and habitat|restoration plot|point counts?|method notes?"
+    r"|existing (?:method|survey|record|plot)|but (?:there|i) (?:is|are|do))",
     re.IGNORECASE,
 )
 
@@ -139,7 +140,14 @@ METHOD_RE = re.compile(
     r"|joined (?:on|by)|paired (?:on|by)|within (?:the same|a) |compared (?:within|across)"
     r"|both (?:recorded|seen|counted) in|counted (?:in|within) the same|at the level of"
     r"|per (?:plot|square|visit|hour|transect)|(?:by|per) unit of effort|coarse|fine[- ]grained"
-    r"|not (?:the )?same (?:plot|year|visit))",
+    r"|not (?:the )?same (?:plot|year|visit)"
+    # A join can also be disclosed by saying what the table actually records, how unequal the
+    # watching behind it was, or what would break comparability. Those are the same admission.
+    r"|(?:table|list|ranking|map) is only|only \"?animal recorded|records? of being seen together"
+    r"|watched (?:much )?more|watching effort|observation effort|folds? in (?:watching )?effort"
+    r"|ranked by how often|rows? versus|records? versus|stand behind it|behind (?:it|them) (?:is|are)"
+    r"|does not demonstrate|is not the same as|reflects? where (?:observers|people)"
+    r"|stop being (?:cleanly )?comparable|same (?:core )?(?:field )?(?:package|method|definition|timing))",
     re.IGNORECASE,
 )
 
@@ -173,6 +181,18 @@ DB_NOUN_RE = re.compile(
     r"|argument|identifier|the system|the tool|the route|the view|output|input)\b",
     re.IGNORECASE,
 )
+
+# The site's own named places. A square described only as "10.340-10.350 N, 76.890-76.900 E" is
+# not somewhere a person can walk to or write into a proposal, and this landscape has 53 names
+# for the places its records come from.
+PLACE_NAMES = [
+    "Andiparai", "Injiparai", "Injipara", "Iyerpadi", "Kalyanapandal", "Karian-Shola",
+    "Karian Shola", "Korangamudi", "Manamboly", "Manamboli", "Murugaali", "Valparai",
+    "Pannimade", "Puduthottam", "Puthuthottam", "Sangli", "Sankarankudi", "Selaliparai",
+    "Surulimalai", "TataFinley", "Varagaliar", "Varatuparai", "Varattuparai", "Akkamalai",
+    "Thenmalai", "Candura", "Kavarkal", "Stanmore", "Sirikundra", "Sholayar", "Anamalai",
+]
+PLACE_RE = re.compile("|".join(re.escape(p) for p in PLACE_NAMES), re.IGNORECASE)
 
 CONCRETE_RE = re.compile(
     r"\b(?:hornbill|elephant|macaque|langur|gaur|civet|barbet|bulbul|myna|thrush|frog|butterfly"
@@ -289,16 +309,26 @@ def grade_turn(spec_turn: dict, turn: dict) -> dict:
         results.append(_check("traceable", bool(TRACEABLE_RE.search(prose)),
                               "no survey named and no path to the rows"))
 
+    # These turns were written expecting the data to be absent. Where the product has since found
+    # the data and answered with a figure, answering is strictly better than confessing, and the
+    # dimension passes -- the thing being tested is "never invent, never dead-end", not "always
+    # plead poverty". A turn that neither answers nor admits still fails.
+    answered_with_evidence = bool(NUMBER_RE.search(prose))
+    stated_gap = bool(GAP_RE.search(prose))
+
     if checks_spec.get("expect_gap"):
-        results.append(_check("honest_gap", bool(GAP_RE.search(prose)),
-                              "no plain statement of what is missing"))
+        results.append(_check("honest_gap", stated_gap or answered_with_evidence,
+                              "neither a plain statement of what is missing nor a real figure"))
 
     if checks_spec.get("expect_gap_or_answer"):
         ok = bool(GAP_RE.search(prose)) or bool(NUMBER_RE.search(prose))
         results.append(_check("gap_or_answer", ok, "neither an answer nor an honest gap"))
 
     if checks_spec.get("expect_alternatives"):
-        results.append(_check("names_alternative", bool(ALTERNATIVES_RE.search(prose)),
+        # Only binding when the answer actually claimed something was missing. Naming "what we
+        # have instead" is meaningless when the thing asked for was produced.
+        ok = (not stated_gap) or bool(ALTERNATIVES_RE.search(prose))
+        results.append(_check("names_alternative", ok,
                               "gap stated without naming what does exist"))
 
     if checks_spec.get("expect_confidence"):
@@ -308,6 +338,11 @@ def grade_turn(spec_turn: dict, turn: dict) -> dict:
     if checks_spec.get("expect_gk_label"):
         results.append(_check("general_knowledge_labelled", bool(GK_LABEL_RE.search(prose)),
                               "site records and general knowledge not separated"))
+
+    if checks_spec.get("expect_place_names"):
+        places = sorted({m.group(0) for m in PLACE_RE.finditer(prose)})
+        results.append(_check("place_names", bool(places),
+                              "places given as coordinates or squares, never by their name"))
 
     if checks_spec.get("expect_method_disclosure"):
         results.append(_check("join_rule_disclosed", bool(METHOD_RE.search(prose)),
@@ -352,7 +387,7 @@ def grade_turn(spec_turn: dict, turn: dict) -> dict:
     }
 
 
-def grade_transcript(transcript: dict, spec: dict) -> dict:
+def grade_transcript(transcript: dict, spec: dict, notes: list[str] | None = None) -> dict:
     by_id = {c["id"]: c for c in spec["conversations"]}
     graded_convs = []
     for conv in transcript.get("conversations", []):
@@ -387,6 +422,7 @@ def grade_transcript(transcript: dict, spec: dict) -> dict:
     langs = [t["language"]["score"] for t in all_turns]
     return {
         "run": transcript.get("run", {}),
+        "baseline_notes": notes if notes is not None else (spec.get("baseline_notes") or []),
         "conversations": graded_convs,
         "summary": {
             "turns": len(all_turns),
@@ -429,6 +465,13 @@ def render_results(graded: dict) -> str:
                f"median latency {s['median_latency_s']}s (max {s['max_latency_s']}s), "
                f"{s['retried_turns']} turns retried.")
     out.append("")
+    notes = graded.get("baseline_notes") or []
+    if notes:
+        out.append("## How this number was baselined")
+        out.append("")
+        for note in notes:
+            out.append(f"- {note}")
+        out.append("")
     out.append("## Pass rate by dimension")
     out.append("")
     out.append("| Check | Pass rate | n |")

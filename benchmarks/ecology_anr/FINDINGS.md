@@ -1,301 +1,215 @@
-# Ecology ANR bench — findings, ranked by impact
+# Ecology ANR bench — findings
 
-Run `round1`, 52 turns across 8 conversations, live against `insight-valparai`
-(`http://172.17.0.1:7012`, model `idli-insight-valparai`), 2026-07-26.
+Round 2, 66 turns across 10 conversations, live against `insight-valparai`, 2026-07-26, after the
+bridge shipped commit `1a57eb9`.
 
-**Headline: 3 of 52 turns (6%) pass every dimension. Ignoring the two next-step dimensions,
-21 of 52 (40%) pass.** No conversation is clean end to end.
+**46 of 66 turns (70%) pass every dimension, against 3 of 52 (6%) in round 1.** One conversation
+(`c7`, the survey budget) is now clean end to end. Uncorrected — that is, grading round 2 with the
+round-1 regexes — the score is 37/66; the difference and its justification are set out in
+RESULTS.md under "How this number was baselined", and both numbers are published on purpose.
 
-The gap between those two numbers is the story. The prose is well-mannered — no transport
-leakage (100%), no re-asking (100%), one clarifying question honoured (100%), thread continuity
-held across all 45 turns where it was tested, and jargon was clean in 50 of 52 turns. What fails
-is the ecology: the system repeatedly tells a field ecologist that data is absent when it is
-sitting in the index, and it almost never tells them what to do next.
+| Dimension | R1 | R2 | n |
+| --- | --- | --- | --- |
+| `next_step_in_prose` | 17% | **98%** | 66 |
+| `dead_end` | 19% | **98%** | 66 |
+| `has_evidence` | 56% | **85%** | 34 |
+| `traceable` | 67% | **91%** | 33 |
+| `honest_gap` | 50% | **100%** | 7 |
+| `gap_or_answer` | 33% | **100%** | 5 |
+| `right_tool` | 71% | **83%** | 29 |
+| `rows` | 56% | 65% | 23 |
+| `not_catch_all` | 95% | 100% | 25 |
+| `jargon` | 96% | 98% | 66 |
+| `join_rule_disclosed` | 67% | 100% | 6 |
+| `place_names` | — | 100% | 3 |
+| `confidence` | 92% | 94% | 18 |
+| `multi_turn`, `no_reask`, `no_transport_leak`, `visual_present`, `questions`, `responded` | 100% | 100% | — |
 
-| Dimension | Pass | n |
-| --- | --- | --- |
-| `next_step_in_prose` | 17% | 52 |
-| `dead_end` | 19% | 52 |
-| `gap_or_answer` | 33% | 3 |
-| `honest_gap` | 50% | 6 |
-| `names_alternative` | 50% | 4 |
-| `general_knowledge_labelled` | 50% | 2 |
-| `has_evidence` | 56% | 27 |
-| `rows` | 56% | 16 |
-| `traceable` | 67% | 27 |
-| `join_rule_disclosed` | 67% | 3 |
-| `right_tool` | 71% | 24 |
-| `confidence` | 92% | 12 |
-| `not_catch_all` | 95% | 20 |
-| `jargon` | 96% | 52 |
-| `multi_turn`, `no_reask`, `no_transport_leak`, `questions`, `visual_present`, `responded` | 100% | — |
+| Conversation | Pass |
+| --- | --- |
+| c7 survey budget | 100% |
+| c8 monitoring plan | 86% |
+| c4 natives suppress | 83% |
+| c10 budget monitoring plan (new) | 71% |
+| c1 what is here | 67% |
+| c6 what grows where | 67% |
+| c2 does restoration work | 57% |
+| c5 what to replant | 57% |
+| c9 seed dispersal design (new) | 57% |
+| c3 lantana | 50% |
 
-Mean language score 1.58/2. Median latency 18.5 s. Three turns were retried through a bridge
-restart (another agent was mid-change); continuity survived it — turn 4 of `c2` correctly
-referenced the bird comparison established in turn 2.
+## The three round-1 headline failures are fixed
 
-A note on grader calibration: the first pass scored `honest_gap` at 0% and `confidence` at 58%.
-Reading the transcripts showed both were regex artifacts — "there is still no recorded lantana
-name here" and "I cannot call that a real plot-type effect yet" are a gap and a confidence
-statement in anyone's English. Both patterns were widened and the same transcript re-graded
-offline. The numbers above are the calibrated ones. `dead_end` was *not* softened: it was checked
-against the audit trail and got worse, not better (see fix 3).
+**Name resolution.** The flagship failure is gone, and gone well:
+
+> **c3/t1** — "I read "lantana" as *Lantana camara*, which this site has 36 records of; this map
+> shows where those records are available, with 17 in squares inside the site boundary"
+
+36 records, 15 squares, 2003–2022 — every figure matches the index. It now names the plant
+community structure survey correctly, which also closes round-1 finding 8 (evidence attributed to
+the wrong survey) on this turn.
+
+**The frugivory network.** Round 1 said "there are no recorded source-linked rows for seed
+movement itself". Round 2:
+
+> **c9/t1** — "there are 150 recorded tree-animal pairs across 5,622 rows from the focal-tree
+> frugivore visitation study, the seed-fate study, and the seed-predation experiment; the most
+> recorded pair is Yellow-browed Bulbul with *Persea macrantha* at 629 records […] These are
+> records of being seen together, not proof that seed was actually moved, and the ranking also
+> reflects where observers spent more effort"
+
+That is the register the product was aiming for: the number, the named pair, and the honest limit
+in one breath, unprompted.
+
+**Dead ends.** 17% → 98%. This was the cheapest fix in the list and it moved the most turns.
+
+**Named places.** `place_names` passes 3/3. Round 1's "10.340–10.350 N, 76.890–76.900 E" is now
+"Puduthottam, Sirikundra, Thenmalai, Murugaali-BlackBridge" — a list an ecologist can walk.
 
 ---
 
-## 1. [bridge] A name that does not resolve is reported as data that does not exist
+## 1. [bridge] "This route does not expose X" is told to the user as a fact about their data
 
-**Impact: highest. This is the failure that would lose the user's trust in one sitting.**
+**Impact: highest remaining. It is round 1's finding 1 wearing new clothes.**
 
-The pack holds `Lantana camara` — 36 records across three surveys (29 in
-`dryad-8kprr4xvb-restoration-opportunities`, 4 in the plant community survey `zenodo-7457732`,
-3 in the threatened-tree inventory). The assistant called `entity-record-map` with
-`{"entity": "Lantana"}`, the bare genus did not match the only alias (`lantana camara`), and it
-reported absence:
+The name-resolution failure was *"your word does not exist here"*. The replacement is
+*"this site's data is not structured to answer that"* — said about the summary, not the survey,
+and the user cannot tell the difference. Six turns, verbatim:
 
-> **c3/t2** — *"Do you have anything at all on lantana at this site? Even just where it has been
-> recorded?"*
-> "From the data this site has, I do not have a recorded `lantana` name or a map of its records
-> here. The site search and the map both came back as a name non-match, and that is not evidence
-> that lantana is absent. If you want, I can next check nearby public records for
-> `Lantana camara`."
+> **c3/t5** — *"How many of the plant community plots could I revisit, and where are they?"*
+> "This site does not have compatible site-and-effort structure for the plant community structure
+> survey, so I cannot give a defensible count of revisit-ready plots or map their locations"
 
-It types the correct binomial in the last sentence and never tries it against the site's own
-index. It then spends four more turns designing a field campaign to collect data it already has:
+> **c2/t5** — "This route failed because the survey summary here does not expose a species-level
+> split that keeps site, plot type and visit effort aligned"
 
-> **c3/t3** — "From the data this site has, we do not yet have a recorded `lantana` name to
-> calibrate any stand-in against actual lantana records here. […] Plant community plots are
-> usually the better stand-in"
+> **c5/t4** — "its threat-status field is there, but this site does not have the matching
+> site-level survey structure needed to summarise it here"
 
-The plant community plots are exactly where four of the lantana records live.
+> **c1/t6** — "the summary check failed because this source does not keep site, effort and
+> category fields in a way that supports a row-level year split"
 
-The same mechanism fires on mammals. `Mammalia` is a valid class group (30 entities, three
-dedicated mammal occurrence sources spanning 2015–2024), and the answer is:
+> **c6/t5** — "the comparison table on this map did not expose a recorded mark called "benchmark""
 
-> **c1/t6** — *"Show me the actual records behind the mammal counts for one year."*
-> "The remaining data gap is that a plain search for "mammal" in the local records also did not
-> resolve to one recorded mammal name, so I cannot yet show you a single raw row from that route."
+**c3/t5 is a straight regression.** Round 1 answered that same question with "132 plant community
+plot sites are mapped, with 264 explicit visits". Round 2 refuses. The round-1 answer was
+attributed to the wrong survey (finding 8) — that has been fixed by *withdrawing the number*
+rather than by attributing it correctly. The user is worse off on that turn than they were before.
 
-**Root cause, and it is one line.** The accepted-value lists in `visual-result/SKILL.md` are
-**truncated alphabetically**, and the skill text tells the model to treat them as exhaustive
-("These values exist in this site's data and will resolve; anything else will not"). For
-`rank: class` the list reads *Amphibia, Aves, Gnetopsida, Insecta, Liliopsida, Lycopodiopsida* —
-six items, alphabetical, so `Magnoliopsida` (575 entities, the largest group in the index) and
-`Mammalia` are both cut off. `metric-time-series` shows ten metrics, all beginning `a`, ending at
-`adult_medium_large_animal_dispersed_species_richness` — every metric after "adult_m" is invisible.
+**Fix:** these are properties of a summary shape, not of the landscape. Say so — "I can see the
+plots but this particular summary will not give me a per-year row; here is the count and the map
+instead" — and fall back to the capability that does hold it. Never let a route's shape be
+reported as the data's poverty.
 
-**Fix, in order of cheapness:**
-1. Sort the accepted-value lists by record count, not alphabetically, and raise the cap. The
-   truncation is what makes the largest groups invisible.
-2. Say in the skill text that the list is a sample, not the whole vocabulary, and that an
-   unresolved name must be retried once against the fuller index before absence is reported.
-3. Resolve genus → species and common name → binomial in `entity-record-map` before returning a
-   non-match (`Lantana` → `Lantana camara`; `mammal` → `rank: class, group: Mammalia`).
-4. Make the returned non-match carry the near-misses it rejected, so the model has something to
-   offer instead of a denial.
+## 2. [bridge] `visual-explain` silently answers about "the largest point" nobody asked about
 
-## 2. [bridge] The frugivory network — the single richest thing in this pack — is reported as empty
+**Impact: high. Round 1's finding 5 (unit substitution) survives inside a different capability.**
 
-**Impact: very high. This is the question the site's data was assembled to answer.**
-
-The index holds 5,622 source-linked interaction rows with named subjects and objects:
-`observed_visiting_focal_tree`, `focal_scan_on_fruiting_tree`, `detected_at_seed_experiment`,
-`camera_detected_at_focal_seed_tree`. Concrete pairs include *Ocyceros griseus* (Malabar grey
-hornbill) on *Myristica dactyloides*, 132 scans; *Ratufa indica* on *Canarium strictum*, 130;
-*Gracula indica* on *Heynea trijuga*, 392.
-
-The user asked for exactly this, and `interaction-map` ran:
-
-> **c5/t2** — *"Which trees here actually get their seed moved by animals, and by which animals?"*
-> "From the data this site has, there are no recorded source-linked rows for seed movement itself,
-> so I cannot name tree-animal pairs here from this map. What the records do have for follow-up
-> are four observed relation types around focal trees and seed experiments"
-
-It has the four relation types in hand and will not descend from the type to the pairs. The
-follow-up turn does the same with counts:
-
-> **c5/t3** — "there are 745 recorded detections at seed experiments linking 37 recorded things in
-> 72 pairs […] But this map does not show which tree loses the most seed"
-
-"37 recorded things in 72 pairs" is the network, described as a shape and never named. A planting
-list grounded in this site's own records was the whole point of the conversation and it never
-arrives.
-
-**Fix:** `interaction-map` should return the top named subject–object pairs with counts in its
-summary, not just interaction-type totals. The model can only relay what the summary returns, and
-the skill text forbids it from inventing figures — correctly. The capability is starving the
-answer.
-
-## 3. [bridge] + [ui] Four answers in five leave the user with nowhere to go
-
-**Impact: very high, and cheap to fix.**
-
-`next_step_in_prose` passes on 9 of 52 turns. The bridge prompt is the direct cause — it says:
-
-> "Do not add a prose menu; the controller renders valid next actions as buttons."
-
-**The controller rendered buttons on 2 of 52 turns.** So the model is forbidden from writing a
-next step on the grounds that the interface will supply one, and the interface supplies one 4% of
-the time. The user gets neither. Every one of these ends on a limitation:
-
-> **c1/t1** — "This map is useful for seeing where monitoring was actually documented, but it does
-> not show the year range, so the remaining data gap is how far back those monitored series go."
-
-> **c2/t1** — "So yes, there is something to inspect here, but this map view alone does not yet
-> show whether the comparison was actually run or what it found."
-
-The house style has become: state the finding, then retract half of it, then stop. It reads as
-careful and lands as helpless.
-
-**Fix:**
-- [bridge] Drop the "do not add a prose menu" instruction, or condition it on `actions` actually
-  being non-empty. Require every answer to end on a move the user could make — the sentence the
-  good turns already produce ("I can next show records against survey effort").
-- [ui] Find out why `insight_actions` fires on 2 turns in 52. If buttons are the plan, they need
-  to be present; if they are not reliable, prose must carry it.
-
-## 4. [bridge] Denominators are asked for, exist, and are refused
-
-**Impact: high — this is the "is the difference real" question, i.e. the reason to trust the tool.**
-
-`dryad-rjdfn2zc3-restoration-birds` declares `Site_type` and `PlotID` as category properties.
-The user asked for the split and got a total:
-
-> **c2/t3** — *"How many plots in each of those three, and how many times was each visited?"*
-> "the bird comparison table confirms 69 surveyed plots across the three plot types and 460 visits
-> in total. The exact split by plot type is not exposed in the short summary here, and the
-> follow-up count trace I tried for the per-type breakdown did not return, so I cannot state those
-> three counts safely from this run alone."
-
-69 plots and 460 visits across three types, with the per-type split withheld. The skill text
-already says a counting question must carry a figure or name what came back empty — it does the
-second half and stops. `stratified-survey-summary` with `category_property: Site_type` is the
-answer and it was never re-run.
-
-**Fix:** when a summary returns a total and the user asked for a breakdown, re-call the same
-capability with the declared `category_property` before answering. The one-silent-retry rule
-already exists in the skill text for unresolved calls; extend it to under-resolved ones.
-
-## 5. [bridge] Drill-down collapses: no ranking → re-ask → answers about a different unit
-
-**Impact: high. This is conversation 6's entire arc, failing in three consecutive turns.**
-
-> **c6/t2** — *"Which plot has the highest share of rainforest species?"*
-> "I cannot identify a highest-plot value for rainforest-species share from the available plot
-> summaries. […] this site does not currently hold that rainforest-share table in a usable form"
+Five turns took this route, and each one quietly changed the subject:
 
 > **c6/t3** — *"Tell me more about that one. What is the stem density there, and what does the
 > canopy look like?"*
-> "I do not yet have a specific plot to inspect. […] Which plot do you want me to open: name the
-> plot, or point to it on the map?"
+> "the explanation I pulled is for the largest point on that map because no specific plot was
+> identified from a click or location. That point has a rainforest bird detection share of 1.0 in
+> one acoustic survey row on 12 December 2020"
 
-> **c6/t4** — *"Where does that number come from? Show me the rows."*
-> "This is for the busiest square on that map, because no specific point or square was identified
-> in your question. In that 1.1 km square spanning 10.360–10.370 N and 76.990–77.000 E, the number
-> is a straight count of 3,300 recorded observations from the bird recovery study"
+The user asked about stem density and canopy in a vegetation plot; they were given a bird acoustic
+reading from one December day. Also `c2/t4` ("defaults to the largest category because no one
+category was selected"), `c6/t5`, `c7/t2`, `c10/t2`.
 
-The user asked about a vegetation **plot**; the answer is about a 1.1 km **map square**, sourced
-from the **bird** study, and the substitution is never flagged as a substitution. The index holds
-`nativeAlien` on `zenodo-10077040` and habit/habitat-affinity groups that would rank plots
-directly.
+To its credit it always *says* it is doing this, which is why these still pass `traceable` and
+`dead_end`. But "no specific plot was identified from a click" is untrue: the plot was identified
+in the previous turn, in words. The thread carries the referent (`multi_turn` is 57/57) — the
+explain route just does not consume it.
 
-**Fix:** when a plot-level question cannot be answered at plot level, say that in those words and
-name the unit actually being used. Silently changing the unit of analysis is worse than failing.
+**Fix:** pass the entity established in the conversation into `visual-explain` instead of
+defaulting to the largest mark. When there is genuinely no referent, ask, rather than answering
+about a different thing.
 
-## 6. [bridge] The where-to-survey answer ranks by where we have already looked
+## 3. [bridge] Breakdowns are still refused where the category is declared
 
-**Impact: high, because conversation 7 is otherwise the best thread in the run.**
+**Impact: high, and unchanged from round 1's finding 4.** `c2/t3` was my round-1 example and it
+fails again for the same reason:
 
-`c7` reasons well for six turns — "records are spread across 302 squares inside the site's
-boundary, but explicit survey effort is documented in only 42 squares […] prioritise squares that
-show records with little or no documented effort". That is correct value-of-information framing.
-Then the final ask inverts it:
+> **c2/t3** — "I can confirm the three bird-survey plot types are Restored, Unrestored and
+> Benchmark. But this result does not expose the per-type plot counts or the per-type visit counts
+> in a way I can quote honestly; it only shows the overall survey total of 69 sites and 460 visits"
 
-> **c7/t7** — *"Rank the top five places, with a reason for each that I could put in a proposal."*
-> "1. the 1.1 km square spanning 10.360–10.370 N and 76.990–77.000 E, because it has the strongest
-> recorded activity on this view; 2. […] because it is the next strongest concentration of
-> records […] This ranking comes from the biggest record concentrations on the map, not from proof
-> of ecological importance"
+It now knows the three category *names* and still cannot count them.
+`stratified-survey-summary` on `dryad-rjdfn2zc3-restoration-birds` declares `Site_type`; it was
+never called with it. Same shape in `c2/t5` (species-level split) and `c5/t4` (threat status).
 
-Ranked by record density — the opposite of the coverage-gap logic it argued for six turns running,
-and it says so itself. Separately: the site holds **205 named places** (Andiparai, Karian-Shola,
-Puduthottam, Iyerpadi). No ecologist will put "10.340–10.350 N, 76.890–76.900 E" in a proposal.
+**Fix:** when a summary returns a total and the user asked for the split, re-call the same
+capability with the declared `category_property` before writing. This was fix 4 in round 1 and is
+the single most repeated remaining failure.
 
-**Fix:** rank by the gap statistic (records present, effort absent) rather than raw count, and
-resolve each square to its nearest named place in the summary. The names are already in the index.
+## 4. [bridge] `rows` is the weakest dimension left, at 65%
 
-## 7. [ui] A raw failure panel is appended to the user's answer, carrying the banned vocabulary
+Eight failures. The user asks for a list and gets prose about why a list is hard. `c9/t7`
+("what would my team have to record next season") and `c3/t4` ("what would I have to go and
+measure") both answer in paragraphs where a numbered field protocol is the deliverable — and
+round 1 proved the system can write one, because round-1 `c3/t6` produced an excellent numbered
+field-data request.
 
-**Impact: medium-high. Both `jargon` failures in the run come from here, not from the model.**
+**Fix:** when the user asks what to record, collect or bring back, answer in a numbered list.
 
-The two longest planning answers have a "Scientific analysis / What Idli Insight executed" panel
-stapled to them containing:
+## 5. [ui] + [bridge] The failure panel and "target cells" — the last jargon
 
-> "no valid Algebra tree was returned. **What Idli Insight executed** Execution stopped with site
-> pack capability not parameterised. The next required input is: Parameterise this capability
-> with…"
+One jargon failure in 66 turns, and it is on the forbidden list verbatim:
 
-`site pack`, `capability`, `parameterise` — every one on the banned list, reaching the user
-verbatim, in the two answers most likely to be shown to a funder. The model's own prose in both
-turns is clean; the controller undoes it.
+> **c4/t6** — "802 mapped records with 436 in the target cells"
 
-**Fix:** [ui] suppress the panel when the run failed, or render the failure in the same plain
-English the rest of the answer uses. A user does not need to know an Algebra tree was not returned.
+"target cells" was named explicitly as banned. The round-1 "site pack capability not
+parameterised" panel did not recur in this run, but it was never fixed — it is triggered by
+Algebra failures, which happened not to fire here. Both remain worth closing.
 
-## 8. [bridge] Evidence is attributed to the wrong survey
+## 6. [bridge] The prose got denser, and the register slipped
 
-**Impact: medium, but corrosive — a wrong citation is worse than none, and no regex catches it.**
+**Impact: medium. This is the cost of the fix and it should be watched.**
 
-> **c3/t6** — "From the data this site has, 132 plant community plot sites are mapped, with 264
-> explicit visits, so these are the plots you could likely target for revisit."
+Mean language score fell 1.58 → 1.31. Sentences went from 24.7 to 29.6 words, answers from 111 to
+125 words. The numbers, sources and caveats that now (rightly) appear are being stacked into
+single sentences:
 
-The call was `stratified-survey-summary` on `dryad-8kprr4xvb-restoration-opportunities`. The plant
-community survey is `zenodo-7457732`. The number is real; the survey named in prose is not the one
-it came from. The user is being sent to revisit the wrong plots. The same slip appears in `c6/t5`
-and `c6/t6`, where plot questions get answered from "the bird recovery study".
+> **c4/t6** — "My confidence is moderate for Vateria indica, because this site has 802 mapped
+> records with 436 in the target cells across the restoration, bird recovery, threatened-tree,
+> tree and habitat structure, and plant community surveys"
 
-**Fix:** carry the source title through from the result summary into the sentence, rather than
-letting the model name the survey from context.
+Five surveys, two counts and a confidence judgement in one sentence. Everything in it is true and
+useful; it is just not how a field ecologist would say it.
 
-## 9. [bridge] Numbers go missing on orientation turns
-
-**Impact: medium.** `has_evidence` fails on 12 of 27 turns that asked how much / which / where.
-The orientation result carries figures (42,348 records, 962 kinds of thing, 302 squares) and some
-turns relay them well — `c6/t1` does. Others describe the same result with no figure at all:
-
-> **c1/t1** — "monitoring is substantial and spread widely across the Anamalai fragments, with
-> records in many places but explicit survey effort recorded in a much smaller subset"
-
-"Substantial", "many", "a much smaller subset" — the numbers were in hand. `c1/t2` lists nine
-metric names for a trend question without a single year range or record count.
-
-**Fix:** require the figure the summary returned whenever one is present. This is a prompt
-sentence, not a capability change.
+**Fix:** cap sentence length in the answer guidance. The content is right — it needs breaking into
+shorter sentences, which is a prompt instruction, not a capability change.
 
 ---
 
-## What is already good, and should not be regressed
+## What round 2 proves
 
-- **Thread continuity is excellent.** 45/45 on carrying the established entity, place or word;
-  0 re-asks for something the user already said. It survived a mid-run bridge restart.
-- **The join rule gets disclosed well when asked.** `c4/t2`: "the default match is shared squares
-  inside this site's boundary […] That does not mean same plot, same visit, or direct interaction;
-  and it is not same year unless we deliberately add a same-year condition." That is exactly right
-  and exactly the register wanted.
-- **Non-match is not absence** is said reliably, even when — as in fix 1 — the underlying claim of
-  non-match is itself wrong.
-- **No invention.** Zero fabricated weeding trials, herbicide records or seed-predation results
-  across 52 turns. The system fails by under-claiming, never by over-claiming.
-- **Register is close.** Mean 1.58/2; "squares inside this site's boundary" is used consistently
-  in preference to internal names. The remaining drag is passive voice and a habit of ending on a
-  caveat.
+The two new conversations were written to push into the territory the fixes unlocked, and they
+land differently:
+
+- **c9 (seed dispersal, 57%)** produces genuinely expert answers and then runs out of road on the
+  specific sub-questions — which trees have *no* disperser, which dispersers are in the degraded
+  fragments. Its best turn is a model of the register: asked how much of the pair list is really
+  dispersal, it said *"all of that planting list rests on the weaker reading […] this table does
+  not demonstrate dispersal, and it also folds in watching effort"* — the honest limit, unhedged,
+  with a next move. It also correctly reported the watching effort skew I verified independently
+  (3,144 rows on *Persea macrantha* against 805 on *Heynea trijuga*, 31 visitor species against 22).
+- **c10 (budget plan, 71%)** is the strongest evidence the product now has real value: a three-year
+  plan naming Puduthottam, Sirikundra, Thenmalai and Murugaali-BlackBridge, grounded in "903
+  records across 98 different subjects, but only 4 rows of documented survey work", and "302
+  squares with records against effort documented in only 42".
+
+The remaining failures are no longer about trust — nothing was invented across 118 turns in two
+rounds, and the system never re-asks for something it was already told. They are about **finishing
+the job**: producing the split, the list, or the row once it has correctly found the data.
 
 ## Suggested order of work
 
-1. Un-truncate and re-sort the accepted-value lists (fix 1) — one change, unblocks mammals,
-   Magnoliopsida and most metrics.
-2. Make every answer end on a move (fix 3) — one prompt sentence plus an interface decision;
-   moves 43 turns.
-3. Return named pairs from `interaction-map` (fix 2) — unblocks the whole replanting line of work.
-4. Retry with the declared category when a breakdown is asked for (fix 4).
-5. Suppress or translate the failure panel (fix 7) — small, and it is the only jargon left.
+1. Stop reporting a route's shape as the data's poverty (fix 1) — it is the largest remaining
+   class and it re-creates the round-1 trust problem in new words.
+2. Re-call with the declared category when a breakdown is asked for (fix 3) — repeated in three
+   conversations, and already written down as round-1 fix 4.
+3. Feed the conversation's established entity into `visual-explain` (fix 2).
+4. Answer "what should I record" in a numbered list (fix 4).
+5. Cap sentence length (fix 6), and close out "target cells" and the failure panel (fix 5).
