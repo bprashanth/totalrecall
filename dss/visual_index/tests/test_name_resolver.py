@@ -14,7 +14,7 @@ import unittest
 
 from dss.visual_index.build import Builder
 from dss.visual_index.name_resolver import resolve_name
-from dss.visual_index.target_catalogue import capability_vocabulary
+from dss.visual_index.target_catalogue import capability_vocabulary, source_facts
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -79,6 +79,47 @@ class NameResolverTest(unittest.TestCase):
         self.assertEqual(len(metrics), vocabulary["metrics_total"])
         readings = [item["readings"] for item in vocabulary["metrics"]]
         self.assertEqual(readings, sorted(readings, reverse=True))
+
+
+class SourceFactsTest(unittest.TestCase):
+    """A blocked route must never be relayed as an absence of data."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.temp = tempfile.TemporaryDirectory()
+        root = pathlib.Path(cls.temp.name)
+        Builder(PACK, root).run()
+        cls.connection = sqlite3.connect(
+            f"file:{root / 'site_index.sqlite'}?mode=ro", uri=True)
+        cls.connection.row_factory = sqlite3.Row
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.connection.close()
+        cls.temp.cleanup()
+
+    def test_each_survey_reports_its_own_sampling_unit(self):
+        """The regression: a plot count was answered from the wrong survey, then withdrawn.
+
+        Every survey names its sampling unit differently — this pack alone uses Site_ID, PlotID,
+        P_ID and plot_no — so the count has to be found per survey and attributed to it.
+        """
+        plants = source_facts(self.connection, "zenodo-7457732")
+        self.assertEqual(plants["survey"], "Plant community structure survey")
+        self.assertEqual(plants["sampling_unit_field"], "P_ID")
+        self.assertGreater(plants["named_sites_or_plots"], 0)
+        self.assertGreater(plants["records"], 0)
+
+        birds = source_facts(self.connection, "dryad-rjdfn2zc3-restoration-birds")
+        self.assertEqual(birds["named_sites_or_plots"], 69)
+        self.assertEqual(birds["documented_visits"], 460)
+        # Two surveys, two different counts: the point is that they cannot be confused.
+        self.assertNotEqual(
+            plants["named_sites_or_plots"], birds["named_sites_or_plots"]
+        )
+
+    def test_an_unknown_source_returns_nothing_rather_than_guessing(self):
+        self.assertEqual(source_facts(self.connection, "no-such-source"), {})
 
 
 if __name__ == "__main__":

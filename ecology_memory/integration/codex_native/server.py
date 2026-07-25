@@ -467,6 +467,7 @@ PLAIN_ANSWER_RULE = (
     "  \"site records\" → \"the records\" or name them: \"the household survey\"\n"
     "  \"indexed\" (of the user's data) → \"recorded\", or drop the word entirely\n"
     "  \"this visual\" → \"this map\", \"this chart\", \"this table\"\n"
+    "  \"target cells\" / \"target cell\" → \"squares inside this site's boundary\"\n"
     "\"grid squares\", \"map squares\" and \"the square you clicked\" are good; keep them.\n"
     "OFFER OPTIONS BY THEIR LABEL, NOT THEIR COLUMN NAME. When you list what the user can "
     "choose from, write \"the daily wage rate, the overtime rate, or paid days per month\" — "
@@ -822,6 +823,43 @@ def _visual_result_skill() -> dict | None:
             "site does not have repeat measurements of X”, “there is no record of Y here”. "
             "Say it in those words before you offer anything. A caveat about how to read a "
             "figure is not the same as naming an absence.\n"
+            "WHEN A ROUTE FALLS SHORT, RETRY — DO NOT NARRATE IT. A blocked or partial run, or a "
+            "`route_note`, means THIS summary shape could not express the question. It is never a "
+            "fact about the landscape, and it is never how an answer opens. Resolve the argument "
+            "that failed — name the measure, the entity, the category — and call again, or call "
+            "the route that does hold it: `entity-record-map` and `group-record-map` for counts "
+            "of a named thing, `stratified-survey-summary` with a declared `category_property` "
+            "for a split, `coverage-versus-effort` for sites and visits, `interaction-pairs` for "
+            "who was recorded with what. Then answer with the figures. Only if the retry also "
+            "fails do you mention the view at all, in one short sentence, beside the numbers you "
+            "can defend and the survey they came from. `what_this_source_holds` gives that "
+            "survey's own totals: use them rather than withdrawing a number the user could have "
+            "had.\n"
+            "WHEN IT REALLY IS NOT THERE, SAY SO PLAINLY. If a lookup ran across the index and "
+            "found nothing, write it in those words — “this site does not have X”, “there is no "
+            "record of Y here” — and add that this is a gap in what was recorded, not proof of "
+            "absence. The rule above bans that sentence only when the records DO exist and a "
+            "route could not reach them.\n"
+            "IF A BREAKDOWN CAME BACK, QUOTE IT. `breakdown` carries the per-category figures "
+            "this run computed. When the user asked for a split, those numbers ARE the answer: "
+            "give them, one per line, with the survey named.\n"
+            "EXPLAIN WHAT THEY ASKED ABOUT. Pass the subject this conversation is already about — "
+            "the plot, species, category or place named in recent turns — to `visual-explain` as "
+            "its `mark`; `marks_you_could_ask_about` lists what the view holds. If you fall back "
+            "to the largest mark, say so in the first sentence.\n"
+            "WHAT TO RECORD IS A NUMBERED LIST. “What should I record / collect / measure / bring "
+            "back”, “draft the data request” → numbered items, each naming what, where, how often "
+            "and by which method, grounded in the survey methods this site already uses.\n"
+            "SPLIT SENTENCES, NEVER DROP FACTS. Shorter prose means one claim per sentence, "
+            "around 22 words, not less said. Everything that was going to be in the answer still "
+            "is — the figure, the survey it came from, how far to trust it, what does exist when "
+            "something is missing, how two things were matched — each in its own short sentence. "
+            "Never stack five surveys, two counts and a confidence judgement into one sentence, "
+            "and never solve that by deleting the confidence or the alternative.\n"
+            "KEEP SAYING HOW THINGS WERE MATCHED, AND WHERE THEY ARE. When two things are "
+            "compared, give the join in one sentence: same plot, same square, same year, or only "
+            "the same landscape. When you name places, use the site's own place names, never a "
+            "latitude band.\n"
             "GIVE THE FIGURE. If the summary came back with numbers, your answer contains "
             "numbers. “Substantial”, “many”, “a much smaller subset” are not answers to a how "
             "much / which / where question when the count was in your hand.\n"
@@ -1616,6 +1654,27 @@ def _visual_result_marker(result_id: str) -> str:
         {"result_id": str(result_id)}, separators=(",", ":")) + " -->"
 
 
+# Phrases a capability writes into its own headline that are ours, not the reader's. They are
+# rewritten before the model ever sees them, because a model told to avoid jargon still repeats
+# the words handed to it: "436 in the target cells" reached a user verbatim.
+_HEADLINE_REWRITES = (
+    ("target cells", "squares inside this site's boundary"),
+    ("target cell", "square inside this site's boundary"),
+    ("indexed metric", "measured quantity"),
+    ("indexed record", "record"),
+    ("indexed event", "record"),
+    ("site pack", "this site's data"),
+)
+
+
+def _plain_capability_text(text: Any) -> str:
+    """Rewrite a capability's own wording into the register the answer has to be written in."""
+    value = " ".join(str(text or "").split())
+    for machine, plain in _HEADLINE_REWRITES:
+        value = re.sub(re.escape(machine), plain, value, flags=re.IGNORECASE)
+    return value
+
+
 def _visual_result_summary(envelope: dict) -> dict:
     """Reduce one idli-result/1 envelope to what the dialogue model may safely see.
 
@@ -1634,13 +1693,13 @@ def _visual_result_summary(envelope: dict) -> dict:
         "capability_id": str((
             (envelope.get("audit") or {}).get("capability_runs") or [{}]
         )[0].get("capability_id") or ""),
-        "headline": " ".join(str(answer.get("headline") or "").split()),
-        "detail": " ".join(str(answer.get("detail") or "").split()),
+        "headline": _plain_capability_text(answer.get("headline")),
+        "detail": _plain_capability_text(answer.get("detail")),
         "evidence_classes": answer.get("evidence_classes") or [],
         "limitations": [{
             "code": str(item.get("code") or ""),
             "severity": str(item.get("severity") or ""),
-            "message": " ".join(str(item.get("message") or "").split()),
+            "message": _plain_capability_text(item.get("message")),
         } for item in (envelope.get("limitations") or []) if isinstance(item, dict)][:6],
         "visuals": [{
             "visual_id": str(item.get("visual_id") or ""),
@@ -1760,9 +1819,83 @@ def _survey_priority_query(args: dict, session: "Session | None") -> dict:
     }
 
 
+# Codes a capability uses when ITS OWN summary shape cannot express something. They are facts
+# about a route, never about the landscape, and they must not reach a user as "this site does
+# not have X" when X is sitting in the index.
+_ROUTE_SHAPE_CODES = {
+    "incompatible-stratified-survey", "method-catalog-not-onboarded", "no-compatible-sites",
+    "unsupported-category", "category-not-declared", "no-category-summary",
+    "incompatible-matrix", "incompatible-plot-indicator", "no-compatible-series",
+}
+
+
+def _visual_breakdown(envelope: dict, result_service: Any) -> list[dict]:
+    """The per-category rows a capability computed but its summary does not carry.
+
+    `stratified-survey-summary` with `Site_type` really does compute 23 restored sites, 23
+    unrestored and 23 benchmark, with 154/154/152 visits and 27.4/24.3/18.5 detections per visit.
+    None of it reached the dialogue model, which saw only "69 sites in 3 categories" and told the
+    user, accurately and uselessly, that the per-type counts were not exposed. This is the same
+    starvation the frugivory pairs had: the answer exists one layer below the summary.
+    """
+    rows: list[dict] = []
+    with contextlib.suppress(Exception):
+        for visual in envelope.get("visuals") or []:
+            for layer in visual.get("layers") or []:
+                if str(layer.get("geometry_type") or "") != "table":
+                    continue
+                handle = str((layer.get("data_ref") or {}).get("handle") or "")
+                payload = result_service.load_data(envelope.get("result_id"), handle)
+                if not payload:
+                    continue
+                parsed = json.loads(payload[1].decode())
+                if not isinstance(parsed, list):
+                    continue
+                for item in parsed[:12]:
+                    if not isinstance(item, dict):
+                        continue
+                    label = next(
+                        (item[key] for key in ("category", "group", "class", "type", "label",
+                                               "name", "rank", "subject")
+                         if item.get(key) not in (None, "")),
+                        None,
+                    )
+                    if label is None:
+                        continue
+                    rows.append({
+                        "of": str(label),
+                        **{
+                            key: value for key, value in item.items()
+                            if isinstance(value, (int, float)) and not isinstance(value, bool)
+                        },
+                    })
+                if rows:
+                    return rows[:12]
+    return rows[:12]
+
+
 def _named_pairs_capability(capability_id: str) -> bool:
     """`interaction-map` returns relation totals; the pairs underneath them are the answer."""
     return capability_id == "interaction-map"
+
+
+def _visual_source_facts(source_id: Any) -> dict:
+    """What one survey actually holds, so a blocked route never becomes "you have no data".
+
+    The regression this closes: "how many plant community plots could I revisit?" was answered in
+    round 1 with a real count from the wrong survey, and in round 2 by withdrawing the number
+    altogether. The number was never the problem; the attribution was.
+    """
+    service = _result_service()
+    source_id = " ".join(str(source_id or "").split())
+    if service is None or not source_id:
+        return {}
+    with contextlib.suppress(Exception):
+        module = _visual_module("target_catalogue")
+        with service.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            return module.source_facts(connection, source_id)
+    return {}
 
 
 def _visual_named_pairs(arguments: dict) -> list[dict]:
@@ -1917,6 +2050,30 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
         pairs = _visual_named_pairs(arguments)
         if pairs:
             summary["named_pairs"] = pairs
+    breakdown = _visual_breakdown(envelope, service)
+    if breakdown:
+        summary["breakdown"] = breakdown
+        summary["breakdown_note"] = (
+            "These are the per-category figures this run computed. Quote them: a user who asked "
+            "for the split has been given the split. Name the source they came from."
+        )
+    shape_codes = sorted({
+        str(item.get("code") or "") for item in (envelope.get("limitations") or [])
+        if isinstance(item, dict) and str(item.get("code") or "") in _ROUTE_SHAPE_CODES
+    })
+    if shape_codes or envelope.get("status") == "blocked":
+        summary["route_note"] = (
+            "A check that fails here is a fact about THIS summary route, not about the site's "
+            "data. Do NOT tell the user their site does not have this information. Say that this "
+            "particular view cannot express it, give whatever this run did return with its "
+            "source named, and offer the route that would answer the rest — "
+            "`entity-record-map` or `group-record-map` for counts of a named thing, "
+            "`coverage-versus-effort` for sites and visits, `interaction-pairs` for who was "
+            "recorded with what."
+        )
+        facts = _visual_source_facts(arguments.get("source_id"))
+        if facts:
+            summary["what_this_source_holds"] = facts
     status = "answer" if envelope.get("status") in {"complete", "partial", "working"} \
         else "data_request"
     execution = {
@@ -1978,6 +2135,9 @@ def _visual_explain_summary(lineage: dict) -> dict:
         } for item in (lineage.get("source_versions") or [])[:8]],
         "limitations": lineage.get("limitations") or [],
         "other_marks": lineage.get("top_marks") or [],
+        "marks_you_could_ask_about": [
+            item.get("mark") for item in (lineage.get("top_marks") or [])
+        ][:6],
         "answer_marker": _visual_result_marker(str(lineage.get("result_id") or "")),
         "instruction": (
             "Answer in plain language using this lineage only. State what the mark counts or "
@@ -6658,6 +6818,43 @@ def _native_prompt(message: str, session: Session) -> str:
             "site does not have repeat measurements of X”, “there is no record of Y here”. "
             "Say it in those words before you offer anything. A caveat about how to read a "
             "figure is not the same as naming an absence.\n"
+            "WHEN A ROUTE FALLS SHORT, RETRY — DO NOT NARRATE IT. A blocked or partial run, or a "
+            "`route_note`, means THIS summary shape could not express the question. It is never a "
+            "fact about the landscape, and it is never how an answer opens. Resolve the argument "
+            "that failed — name the measure, the entity, the category — and call again, or call "
+            "the route that does hold it: `entity-record-map` and `group-record-map` for counts "
+            "of a named thing, `stratified-survey-summary` with a declared `category_property` "
+            "for a split, `coverage-versus-effort` for sites and visits, `interaction-pairs` for "
+            "who was recorded with what. Then answer with the figures. Only if the retry also "
+            "fails do you mention the view at all, in one short sentence, beside the numbers you "
+            "can defend and the survey they came from. `what_this_source_holds` gives that "
+            "survey's own totals: use them rather than withdrawing a number the user could have "
+            "had.\n"
+            "WHEN IT REALLY IS NOT THERE, SAY SO PLAINLY. If a lookup ran across the index and "
+            "found nothing, write it in those words — “this site does not have X”, “there is no "
+            "record of Y here” — and add that this is a gap in what was recorded, not proof of "
+            "absence. The rule above bans that sentence only when the records DO exist and a "
+            "route could not reach them.\n"
+            "IF A BREAKDOWN CAME BACK, QUOTE IT. `breakdown` carries the per-category figures "
+            "this run computed. When the user asked for a split, those numbers ARE the answer: "
+            "give them, one per line, with the survey named.\n"
+            "EXPLAIN WHAT THEY ASKED ABOUT. Pass the subject this conversation is already about — "
+            "the plot, species, category or place named in recent turns — to `visual-explain` as "
+            "its `mark`; `marks_you_could_ask_about` lists what the view holds. If you fall back "
+            "to the largest mark, say so in the first sentence.\n"
+            "WHAT TO RECORD IS A NUMBERED LIST. “What should I record / collect / measure / bring "
+            "back”, “draft the data request” → numbered items, each naming what, where, how often "
+            "and by which method, grounded in the survey methods this site already uses.\n"
+            "SPLIT SENTENCES, NEVER DROP FACTS. Shorter prose means one claim per sentence, "
+            "around 22 words, not less said. Everything that was going to be in the answer still "
+            "is — the figure, the survey it came from, how far to trust it, what does exist when "
+            "something is missing, how two things were matched — each in its own short sentence. "
+            "Never stack five surveys, two counts and a confidence judgement into one sentence, "
+            "and never solve that by deleting the confidence or the alternative.\n"
+            "KEEP SAYING HOW THINGS WERE MATCHED, AND WHERE THEY ARE. When two things are "
+            "compared, give the join in one sentence: same plot, same square, same year, or only "
+            "the same landscape. When you name places, use the site's own place names, never a "
+            "latitude band.\n"
             "GIVE THE FIGURE. If the summary came back with numbers, your answer contains "
             "numbers. “Substantial”, “many”, “a much smaller subset” are not answers to a how "
             "much / which / where question when the count was in your hand.\n"

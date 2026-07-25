@@ -236,6 +236,36 @@ python3 dss/visual_index/estimate_service.py \
   --cell at:10.30:76.94 --target event_total:mgnrega_work   # add --approach to run one
 ```
 
+## A route that cannot express something is not a site that lacks it
+
+The round-1 fix taught the system to stop saying "your word does not exist here". Round 2 found
+the same refusal in new clothes: *"this site does not have compatible site-and-effort structure
+for the plant community structure survey, so I cannot give a defensible count"* — said about a
+summary's shape, and heard as a statement about the landscape. One turn was a straight
+regression: round 1 answered "how many plant community plots?" with a real number attributed to
+the wrong survey, and round 2 fixed the attribution by withdrawing the number.
+
+Three bridge-side changes. `source_facts` in `target_catalogue.py` counts what one survey holds —
+records, named plots or sites, documented visits, years — finding each survey's own sampling-unit
+field, because this pack alone uses `Site_ID`, `PlotID`, `P_ID` and `plot_no` across four studies.
+The plant community survey has 110 plots; the restoration-opportunities survey has 132. Both
+numbers are now available, each attached to the survey it came from. A blocked or partial result
+carries `route_note` and `what_this_source_holds`, and the skill text says to resolve the argument
+and retry rather than narrate the failure.
+
+`_visual_breakdown` forwards the per-category rows a capability already computed. The flagship
+"does restoration work" question — 23 restored, 23 unrestored and 23 benchmark plots, visited
+154, 154 and 152 times, at 24.3, 18.5 and 27.4 detections per visit — was computed on every run
+and stopped one layer below the summary the model could see, which is why the honest answer was
+"this result does not expose the per-type plot counts". Same starvation as the frugivory pairs,
+same fix.
+
+Explain now ranks a layer whose own mark IS the thing asked about above one that merely carries it
+as a property: asking about "Benchmark" matched both the 69 tagged survey sites and the three-row
+category table, and only the table can say how Benchmark compares. A mark that resolves to a
+computed summary row rather than an index row is explained from that row instead of being reported
+as unresolved.
+
 ## Looking the name up before refusing it
 
 A field ecologist asked whether the site held anything at all on lantana and was told it did not.

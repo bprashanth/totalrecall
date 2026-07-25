@@ -11,6 +11,7 @@ from dss.visual_index.result_service import ResultService
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 PACK = ROOT / "dss" / "sites" / "valparai_livelihoods"
+ECOLOGY_PACK = ROOT / "dss" / "sites" / "valparai"
 
 
 class ExplainServiceTest(unittest.TestCase):
@@ -276,6 +277,63 @@ class ExplainServiceTest(unittest.TestCase):
         self.assertEqual(lineage["mark"]["kind"], "unresolved")
         self.assertEqual(lineage["source_rows"], [])
         self.assertIn("did not match", lineage["computation"]["statement"])
+
+
+class CategoryMarkTest(unittest.TestCase):
+    """A declared category must be explainable as itself, on the ecology pack that declares one."""
+
+    SOURCE = "dryad-rjdfn2zc3-restoration-birds"
+    CATEGORY = "Site_type"
+
+    @classmethod
+    def setUpClass(cls):
+        cls.temp = tempfile.TemporaryDirectory()
+        root = pathlib.Path(cls.temp.name)
+        Builder(ECOLOGY_PACK, root).run()
+        cls.state = root / "state"
+        cls.service = ResultService(ECOLOGY_PACK, root / "site_index.sqlite", cls.state)
+        cls.explain = ExplainService(ECOLOGY_PACK, root / "site_index.sqlite", cls.state)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.temp.cleanup()
+
+    def test_a_named_category_beats_a_layer_that_merely_carries_it(self):
+        """Asking about "Benchmark" must reach the row that IS Benchmark, not a site tagged so.
+
+        The stratified result draws 69 survey sites, each tagged with its plot type, and a
+        three-row category table. Both "contain" the word; only the table can say how Benchmark
+        compares, and the sites layer was winning by being drawn first.
+        """
+        result = self.service.query(
+            "explain-category", "stratified-survey-summary",
+            {"source_id": self.SOURCE, "category_property": self.CATEGORY},
+            "How do the categories compare?",
+        )
+        categories = self.explain.load_payload(
+            result["result_id"], "stratified-category-summary")
+        self.assertTrue(categories, "the fixture must compute a category table")
+        wanted = str(categories[0].get("category"))
+
+        lineage = self.explain.explain(result["result_id"], None, wanted)
+        self.assertEqual(lineage["layer"]["layer_id"], "stratified-category-summary")
+        self.assertEqual(lineage["mark"]["id"], wanted)
+        self.assertFalse(lineage["mark"]["auto_selected"])
+        # A computed summary row is real lineage, not an unresolved mark.
+        self.assertEqual(lineage["computation"]["aggregation"], "summary_row")
+        self.assertIn(wanted, lineage["computation"]["statement"])
+        self.assertNotIn("did not match", lineage["computation"]["statement"])
+        self.assertEqual(lineage["computation"]["contributing_rows"], 1)
+
+    def test_the_marks_a_caller_could_ask_about_are_offered(self):
+        result = self.service.query(
+            "explain-offer", "stratified-survey-summary",
+            {"source_id": self.SOURCE, "category_property": self.CATEGORY},
+            "Compare the categories.",
+        )
+        lineage = self.explain.explain(result["result_id"], "stratified-category-summary")
+        self.assertTrue(lineage["top_marks"])
+        self.assertTrue(all(item.get("mark") for item in lineage["top_marks"]))
 
 
 if __name__ == "__main__":

@@ -170,23 +170,41 @@ class ExplainService:
             features = self._features(self.load_payload(result_id, handle)) if handle else []
             countable = sum(1 for item in features if self._feature_value(item) is not None)
             if coordinate is not None:
-                hit = self._feature_at(features, coordinate[0], coordinate[1]) is not None
+                strength = 2 if self._feature_at(
+                    features, coordinate[0], coordinate[1]) is not None else 0
             elif mark:
-                hit = self._find_feature(features, mark) is not None
+                # A layer whose own mark IS the thing asked about beats one that merely carries
+                # it as a property of something else. Asking about "Benchmark" matched both the
+                # 69 survey sites (each tagged Benchmark or not) and the three-row category
+                # table; only the table can answer how Benchmark compares.
+                wanted = {
+                    str(value).casefold() for key, value in mark.items()
+                    if key in {"id", "mark", "feature_id", "bucket", "time"}
+                    and value not in (None, "")
+                }
+                identities = {
+                    self._feature_identity(item).casefold() for item in features
+                }
+                if wanted & identities:
+                    strength = 2
+                elif self._find_feature(features, mark) is not None:
+                    strength = 1
+                else:
+                    strength = 0
             else:
-                hit = False
+                strength = 0
             scored.append({
                 "position": position, "visual": visual, "layer": layer,
                 "layer_id": str(layer.get("layer_id") or ""),
-                "covers_the_mark": hit, "marks_with_a_value": countable,
-                "marks_in_layer": len(features),
+                "covers_the_mark": bool(strength), "match_strength": strength,
+                "marks_with_a_value": countable, "marks_in_layer": len(features),
             })
         # Rank: the layer that actually contains what was asked about, then one that carries
         # values rather than context geometry, then the order the map draws them in.
         best = min(
             scored,
             key=lambda item: (
-                not item["covers_the_mark"], item["marks_with_a_value"] == 0, item["position"]
+                -item["match_strength"], item["marks_with_a_value"] == 0, item["position"]
             ),
         )
         if best["covers_the_mark"]:
@@ -205,6 +223,14 @@ class ExplainService:
                 "layer_id": item["layer_id"],
                 "covers_the_mark": item["covers_the_mark"],
                 "marks_with_a_value": item["marks_with_a_value"],
+                "marks": [
+                    entry["mark"] for entry in self._top_marks(
+                        self._features(self.load_payload(
+                            result_id,
+                            str((item["layer"].get("data_ref") or {}).get("handle") or ""),
+                        )), item["layer_id"],
+                    )
+                ][:6],
             } for item in scored if item["position"] != best["position"]],
         }
         rescued = [
@@ -691,6 +717,31 @@ class ExplainService:
                     f"survey site {mark_id}."
                 ),
                 "plane": "events", "rows": rows, "row_count": int(total or 0),
+            }
+        if feature is not None:
+            # The mark is not a row in the index — it is a summary row the capability computed,
+            # such as one category of a stratified comparison. That is still real lineage: the
+            # value came from this stored row, and its own fields say what it counts. Reporting
+            # it as "did not match anything recorded" hid the answer behind a technicality.
+            properties = feature.get("properties")
+            properties = properties if isinstance(properties, dict) else feature
+            readable = {
+                key: value for key, value in properties.items()
+                if not isinstance(value, (dict, list)) and value not in (None, "")
+                and str(key) not in {"role", "style", "colour", "color"}
+            }
+            described = "; ".join(
+                f"{str(key).replace('_', ' ')}: {value:g}"
+                if isinstance(value, float) else f"{str(key).replace('_', ' ')}: {value}"
+                for key, value in list(readable.items())[:10]
+            )
+            return {
+                "aggregation": "summary_row",
+                "statement": (
+                    f"This is the stored summary row for {mark_id}, computed by the capability "
+                    f"that produced this view: {described}."
+                ),
+                "plane": None, "rows": [readable], "row_count": 1,
             }
         return {
             "aggregation": "unknown",

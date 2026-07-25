@@ -24,6 +24,7 @@ number that comes back is bound to the id it named.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import pathlib
 import sqlite3
@@ -280,6 +281,81 @@ def capability_vocabulary(connection: sqlite3.Connection) -> dict[str, Any]:
             )
         ],
     }
+
+
+def source_facts(connection: sqlite3.Connection, source_id: str) -> dict[str, Any]:
+    """What one survey holds, counted directly, for when a summary route cannot express it.
+
+    A capability whose shape does not fit a question still leaves the records where they were.
+    This gives the caller something defensible to say — how many records, how many named sites,
+    how many visits, which years — attributed to the survey it actually came from, so a route
+    failure never has to be relayed as an absence of data.
+    """
+    title = connection.execute(
+        "SELECT title FROM sources WHERE source_id=?", (source_id,)
+    ).fetchone()
+    if title is None:
+        return {}
+    events = connection.execute(
+        """SELECT COUNT(*) AS records, COUNT(DISTINCT entity_id) AS subjects,
+                  COUNT(DISTINCT cell_id) AS squares,
+                  MIN(year) AS first_year, MAX(year) AS last_year
+           FROM events WHERE source_id=?""",
+        (source_id,),
+    ).fetchone()
+    effort = connection.execute(
+        """SELECT COUNT(*) AS visits, COUNT(DISTINCT cell_id) AS squares,
+                  COALESCE(SUM(effort_value),0) AS total, MIN(effort_unit) AS unit
+           FROM effort WHERE source_id=?""",
+        (source_id,),
+    ).fetchone()
+    measurements = connection.execute(
+        "SELECT COUNT(*) AS readings, COUNT(DISTINCT metric) AS metrics "
+        "FROM measurements WHERE source_id=?",
+        (source_id,),
+    ).fetchone()
+    # Which property names a survey uses for its own sampling unit is the survey's business, not
+    # ours: this pack alone uses Site_ID, PlotID, P_ID and plot_no across four studies.
+    unit_keys = (
+        "Site_ID", "site_id", "PlotID", "plot_id", "P_ID", "plot_no", "Site_name", "plot",
+        "site", "transect", "tcode",
+    )
+    units: dict[str, set[str]] = {}
+    for table in ("events", "effort", "measurements"):
+        with contextlib.suppress(sqlite3.Error):
+            for row in connection.execute(
+                f"SELECT properties_json FROM {table} WHERE source_id=?", (source_id,)
+            ):
+                try:
+                    properties = json.loads(row[0] or "{}")
+                except (TypeError, ValueError):
+                    continue
+                for key in unit_keys:
+                    value = (properties or {}).get(key)
+                    if value not in (None, ""):
+                        units.setdefault(key, set()).add(str(value))
+                        break
+    unit_key, sites = "", set()
+    if units:
+        unit_key, sites = max(units.items(), key=lambda item: len(item[1]))
+    facts = {
+        "source_id": source_id,
+        "survey": _clean(title[0]),
+        "records": int(events["records"] or 0),
+        "distinct_subjects": int(events["subjects"] or 0),
+        "map_squares_with_records": int(events["squares"] or 0),
+        "named_sites_or_plots": len(sites),
+        "sampling_unit_field": unit_key or None,
+        "documented_visits": int(effort["visits"] or 0),
+        "effort_total": float(effort["total"] or 0.0),
+        "effort_unit": _clean(effort["unit"]) or None,
+        "measurement_readings": int(measurements["readings"] or 0),
+        "measured_quantities": int(measurements["metrics"] or 0),
+        "years": _years(events["first_year"], events["last_year"]),
+    }
+    return {key: value for key, value in facts.items() if value not in (None, "", 0) or key in {
+        "source_id", "survey", "records",
+    }}
 
 
 def _source_titles(connection: sqlite3.Connection) -> dict[str, str]:
