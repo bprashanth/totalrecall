@@ -1,0 +1,24 @@
+services:
+  r-sidecar:
+    build:
+      context: ./r-sidecar
+    ports:
+      - "127.0.0.1:7331:7331"
+    restart: unless-stopped
+
+  fieldnote:
+    build:
+      context: .
+    depends_on:
+      - r-sidecar
+    environment:
+      VALPARAI_BRIDGE_URL: http://host.docker.internal:7012
+      VALPARAI_BRIDGE_TOKEN_FILE: /run/secrets/valparai-bridge-token
+      R_SIDECAR_URL: http://r-sidecar:7331
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../runs/insight-valparai/.api-token:/run/secrets/valparai-bridge-token:ro
+    ports:
+      - "127.0.0.1:7300:3000"
+    restart: unless-stopped
