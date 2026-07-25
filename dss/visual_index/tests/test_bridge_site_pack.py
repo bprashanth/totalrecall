@@ -12,6 +12,7 @@ from ecology_memory.integration.codex_native import setup_idlisseus
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 PACK = ROOT / "dss" / "sites" / "valparai"
+LIVELIHOODS = ROOT / "dss" / "sites" / "valparai_livelihoods"
 
 
 class BridgeSitePackTest(unittest.TestCase):
@@ -80,6 +81,123 @@ class BridgeSitePackTest(unittest.TestCase):
         self.assertEqual(config["site_id"], "valparai")
         self.assertEqual(config["pack"], PACK.resolve())
         self.assertEqual(config["aliases"], ["valparai", "Valparai Plateau"])
+
+
+class BridgeEstimateTargetsTest(unittest.TestCase):
+    """The bridge must publish the estimable vocabulary, and must never speak our own."""
+
+    # Words that describe our plumbing rather than the user's district. They are allowed in a
+    # skill's *instructions* (that text is for the model) but must be banned there explicitly,
+    # and must never be presented to the model as something to say.
+    JARGON = ("pack", "gate", "capability", "skill", "envelope", "evidence class")
+
+    @classmethod
+    def setUpClass(cls):
+        cls.temp = tempfile.TemporaryDirectory()
+        root = pathlib.Path(cls.temp.name)
+        cls.index_root = root / "index"
+        Builder(LIVELIHOODS, cls.index_root).run()
+        cls.state = root / "state"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.temp.cleanup()
+
+    def configured_bridge(self):
+        stack = contextlib.ExitStack()
+        stack.enter_context(mock.patch.object(server, "SITE_PACK_PATH", LIVELIHOODS))
+        stack.enter_context(mock.patch.object(
+            server, "SITE_PROFILE_PATH", LIVELIHOODS / "site.json"))
+        stack.enter_context(mock.patch.object(
+            server, "VISUAL_INDEX_PATH", self.index_root / "site_index.sqlite"))
+        stack.enter_context(mock.patch.object(server, "VISUAL_RESULTS_STATE", self.state))
+        stack.enter_context(mock.patch.object(server, "_RESULT_SERVICE", None))
+        stack.enter_context(mock.patch.object(server, "_ESTIMATE_SERVICE", None))
+        stack.enter_context(mock.patch.object(server, "_VISUAL_SERVICE_ERRORS", {}))
+        # The visual skills only exist when a pack is pinned, and the module built its skill
+        # table at import time with none. Rebuild it inside the patched configuration.
+        skills = server._load_skills()
+        stack.enter_context(mock.patch.object(server, "SKILLS", skills))
+        stack.enter_context(mock.patch.object(
+            server, "SKILLS_BY_ID", {item["id"]: item for item in skills}))
+        return stack
+
+    def test_targets_mode_lists_the_estimable_quantities_and_estimates_nothing(self):
+        with self.configured_bridge():
+            result = server._execute_skill("visual-estimate", {"mode": "targets"}, None)
+        self.assertEqual(result["ir"]["op"], "VISUAL_ESTIMATE_TARGETS")
+        execution = result["execution"]
+        self.assertEqual(execution["status"], "answer")
+        value = execution["value"]
+        self.assertEqual(value["kind"], "visual_estimate_targets")
+        self.assertIn("event_total:mgnrega_work", value["target_ids"])
+        rows = {item["target_id"]: item for item in value["targets"]}
+        self.assertEqual(rows["event_total:mgnrega_work"]["counts_column"], "persondays")
+        self.assertIn("Footpath repair", rows["event_total:mgnrega_work"]["record_labels"])
+        # A catalogue call is not an estimate: no result, no marker, no number to relay.
+        self.assertNotIn("result_id", value)
+        self.assertNotIn("answer_marker", value)
+        self.assertFalse(result["schema"]["has_estimate"])
+
+    def test_a_word_the_index_does_not_carry_is_refused_with_the_vocabulary(self):
+        """The bug this fixes: "jobs" must never come back as "no variable called job"."""
+        with self.configured_bridge():
+            result = server._execute_skill(
+                "visual-estimate",
+                {"mode": "suggest", "cell": "at:10.30:76.94", "target": "jobs"},
+                None,
+            )
+        detail = result["execution"]["detail"]
+        self.assertEqual(result["execution"]["reason"], "invalid_estimate_request")
+        self.assertIn("event_total:mgnrega_work", detail["target_ids"])
+        self.assertIn("does not exist", detail["ask"])
+        self.assertTrue(any(
+            item["counts_column"] == "persondays" for item in detail["available_targets"]
+        ))
+
+    def test_a_catalogued_id_runs_and_the_summary_carries_its_semantics(self):
+        with self.configured_bridge():
+            menu = server._execute_skill("visual-estimate", {
+                "mode": "suggest", "cell": "at:10.30:76.94",
+                "target": "event_total:mgnrega_work",
+            }, None)["execution"]["value"]
+            self.assertTrue(menu["available_targets"])
+            run = server._execute_skill("visual-estimate", {
+                "mode": "run", "approach_id": menu["recommended_approach_id"],
+                "cell": "at:10.30:76.94", "target": "event_total:mgnrega_work",
+            }, None)["execution"]["value"]
+        self.assertEqual(run["target_id"], "event_total:mgnrega_work")
+        self.assertIn("persondays", run["target_unit"])
+        self.assertIn("persondays", run["what_it_counts"])
+        self.assertTrue(run["answer_marker"].startswith("<!-- idli-result:"))
+
+    def test_every_visual_skill_bans_our_vocabulary_from_the_answer(self):
+        with self.configured_bridge():
+            skills = {item["id"]: item for item in server._load_skills()}
+        visual = [
+            key for key in skills
+            if key.startswith("visual-") and skills[key].get("binding", {}).get("mode")
+        ]
+        self.assertGreaterEqual(len(visual), 5)
+        for skill_id in visual:
+            instructions = skills[skill_id]["instructions"]
+            self.assertIn("PLAIN ENGLISH IS NOT OPTIONAL", instructions, skill_id)
+            for word in self.JARGON:
+                self.assertIn(word, instructions.casefold(), f"{skill_id} must ban {word!r}")
+
+    def test_the_relay_instructions_never_ask_the_model_to_speak_in_ids(self):
+        """What the model is told to say is what it says. The instruction must be plain."""
+        with self.configured_bridge():
+            targets = server._execute_skill(
+                "visual-estimate", {"mode": "targets"}, None)["execution"]["value"]
+            run = server._execute_skill("visual-estimate", {
+                "mode": "run", "approach_id": "aoi-baseline-mean",
+                "cell": "at:10.30:76.94", "target": "event_total:mgnrega_work",
+            }, None)["execution"]["value"]
+        self.assertIn("plain language", targets["instruction"])
+        self.assertIn("never tell the user", targets["instruction"].casefold())
+        self.assertIn("plain", run["instruction"].casefold())
+        self.assertIn("no internal vocabulary", run["instruction"].casefold())
 
 
 if __name__ == "__main__":

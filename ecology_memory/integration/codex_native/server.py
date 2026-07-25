@@ -435,6 +435,33 @@ OPERATIONAL_SKILLS = [{
 }]
 
 
+# Every visual skill ends with this. The reader is a programme manager who has never seen this
+# system and never will: our internal vocabulary — packs, gates, capabilities, skills, envelopes,
+# evidence classes, layer and column ids — describes our plumbing, not their district, and putting
+# it in an answer makes the answer unreadable while sounding authoritative. It is not a style
+# preference: an answer that has to be decoded is not an answer. The audit trail already carries
+# every internal name, machine-readably, for anyone who wants to check the work.
+PLAIN_ANSWER_RULE = (
+    "PLAIN ENGLISH IS NOT OPTIONAL. Write the answer for a programme manager who has never seen "
+    "this software. Say what the visual shows, give the number, say how solid it is in everyday "
+    "terms (\"this is a rough estimate — only 21 squares in the area have been surveyed\"), name "
+    "the data that went into it the way a person would name it (\"the household survey and the "
+    "public-works records\"), and say what would make it better.\n"
+    "These words are BANNED from your prose: pack, gate, capability, skill, envelope, result "
+    "service, evidence class, plane, layer, marker, and every internal identifier (capability "
+    "ids, layer ids, target ids, approach ids, result ids, source ids like `syn-mgnrega`, file "
+    "paths). Do not substitute a near-synonym for the same jargon either — say \"the data this "
+    "site holds\" for the pack, \"the check that failed, and what it needed\" for a gate, \"the "
+    "household survey\" for a source id, \"the map\" for a layer. The one exception is the "
+    "machine comment markers, which you copy through exactly as returned: they are comments, not "
+    "prose, and the audit trail behind them already records every internal name.\n"
+    "TRANSLATE THE DATA'S OWN JARGON TOO. Column, metric and record names come from whoever "
+    "collected the data and are often opaque. The first time you use one, gloss it: "
+    "\"persondays — days of paid work\", \"worker_count — people on the estate payroll\", "
+    "\"persons_moved — people who left the village\". Never make the reader guess."
+)
+
+
 def _visual_capability_registry() -> dict:
     """Read the pinned pack's registered capability descriptors."""
     if SITE_PACK_PATH is None:
@@ -521,6 +548,7 @@ def _visual_result_skill() -> dict | None:
             "limitations. Never paste the envelope, JSON, layer data, coordinates, source rows or "
             "the summary object into your prose, and never invent a number the summary did not "
             "return.\n\n"
+            + PLAIN_ANSWER_RULE + "\n\n"
             "VISUAL VARIETY. Do not answer with the same visual form turn after turn. If the "
             "previous turn already used a capability or view — a density map, say — and this "
             "question can be answered by a different ready capability or different arguments "
@@ -595,6 +623,7 @@ def _visual_explain_skill() -> dict | None:
             "concentration.\n\n"
             "Your answer MUST still carry the marker for the ORIGINAL result id, on its own "
             "line, exactly as `answer_marker` returns it, so the user's visual stays in focus."
+            "\n\n" + PLAIN_ANSWER_RULE
         ),
     }
 
@@ -655,7 +684,8 @@ def _visual_upload_skill() -> dict | None:
             "this pack registers no alias for it. Never merge uploaded values into a site "
             "statistic, and never claim the file confirms or contradicts pack data.\n\n"
             "The upload and its results belong to this conversation only. Put the returned "
-            "`answer_marker` on its own line in your answer, exactly as returned."
+            "`answer_marker` on its own line in your answer, exactly as returned.\n\n"
+            + PLAIN_ANSWER_RULE
         ),
     }
 
@@ -667,14 +697,14 @@ def _visual_estimate_skill() -> dict | None:
     return {
         "id": "visual-estimate",
         "description": (
-            "Estimate a cell-level quantity for one map location when no observation exists "
-            "there: first list the estimation approaches this pack's data can actually support, "
-            "then run the chosen one and return a value with an uncertainty interval."
+            "Estimate a quantity for one map location when no observation exists there: list "
+            "what this site's data can actually be asked for, list the estimation approaches it "
+            "supports, then run one and return a value with an uncertainty interval."
         ),
         "use_for": [
-            "what would the value likely be at this cell / here",
-            "estimating record density, entity richness, effort or an effort-normalised rate "
-            "for a location",
+            "what would the value likely be at this square / here",
+            "estimating a quantity the user names in their own words — jobs, work, employment, "
+            "wages, migration, records, richness — for one location",
             "asking how confident an estimate is and what data would improve it",
         ],
         "exclude": [
@@ -682,50 +712,87 @@ def _visual_estimate_skill() -> dict | None:
             "explaining an existing value (use `visual-explain`)",
             "presenting a modelled number as an observation",
         ],
-        "returns": "An approach menu, or an estimate with an interval plus the answer marker",
+        "returns": (
+            "A catalogue of estimable quantities, an approach menu, or an estimate with an "
+            "interval plus the answer marker"
+        ),
         "georeferenced": True,
         "binding": {"mode": "visual_estimate"},
         "instructions": (
-            "TWO STEPS, IN ORDER. When the user asks you to estimate something for a location, "
-            "your FIRST call MUST be `mode: \"suggest\"`. Never run an estimate before the menu: "
-            "the menu is what tells you which approaches this pack's data can support.\n\n"
-            "Pass `cell` exactly as the user gave it — `at:<lat>:<lon>` from a map click, or a "
-            "cell id — plus `target` (the quantity in the user's own words) and `purpose` when "
-            "the user gave a reason.\n\n"
+            "WHAT THE USER MEANS COMES FIRST. People ask in their own words — \"jobs\", "
+            "\"employment\", \"income\", \"kids in school\", \"how much work is there\" — and no "
+            "site's data ever uses those exact words. Interpreting them is YOUR job, using "
+            "ordinary general knowledge, out loud, in front of the user. The service will never "
+            "do it for you and will never guess: it only lists what exists.\n\n"
+            "So when the user names a quantity in their own words, your FIRST call is "
+            "`mode: \"targets\"`.\n\n"
+            "```bash\npython3 {skill_call} visual-estimate '{\"mode\":\"targets\"}'\n```\n\n"
+            "It returns every quantity this site's data can be asked for: each event kind with "
+            "the raw column it counts and what that column is measured in, each measured metric, "
+            "documented survey effort, record density and entity richness — with how many map "
+            "squares carry a value, which sources supply it, and the record labels that appear "
+            "in it (for instance `Footpath repair`, `Check dam construction`).\n\n"
+            "READ THE USER'S WORD ONTO THAT LIST, then SAY THE READING before any number, in one "
+            "plain sentence: \"I'll read 'jobs' as the days of paid work recorded on public-works "
+            "schemes, plus the estate workforce counts, since those are the employment data this "
+            "area actually has.\" Everyday knowledge of what MGNREGA persondays, an estate "
+            "labour census or out-migration mean is exactly what you should use here — and "
+            "out-migration is a negative signal for local employment, so say so if you use it. "
+            "NEVER reply that there is no such variable, no such target, or that the word the "
+            "user used does not exist. That is not an answer; it is a failure to interpret. If "
+            "two readings are genuinely different answers to the user's actual question, ask ONE "
+            "short question (\"do you mean public-works work-days, or estate jobs?\") and stop — "
+            "one question, never a list of them, and never instead of an obvious reading.\n\n"
+            "General knowledge may choose and frame the target and explain what a column means. "
+            "It may NEVER supply a number: every figure you state comes back from a run.\n\n"
+            "THEN THE APPROACH MENU. Call `mode: \"suggest\"` with `cell` exactly as the user "
+            "gave it — `at:<lat>:<lon>` from a map click, or a cell id — and `target` set to the "
+            "`target_id` you chose from the catalogue (the id, never the user's words; free text "
+            "is refused). Add `purpose` when the user gave a reason. The menu also carries the "
+            "catalogue again, so you can correct a bad choice in the same turn.\n\n"
             "```bash\npython3 {skill_call} visual-estimate "
             "'{\"mode\":\"suggest\",\"cell\":\"at:10.30:76.94\","
-            "\"target\":\"likely record density\",\"purpose\":\"<why the user asked>\"}'\n```\n\n"
-            "RELAY THE MENU. The response lists each approach with `supported` true or false, its "
-            "`expected_confidence`, its `measured_skill` (leave-one-out R², residual spread, "
-            "interval coverage measured on this pack) and, when unsupported, the exact gate that "
-            "failed. Tell the user every approach and mark clearly which are supported and which "
-            "are not, with the failing gate named in plain words. Do not hide an unsupported "
-            "approach: knowing the pack cannot support effort-normalised transfer is itself an "
-            "answer.\n\n"
+            "\"target\":\"event_total:mgnrega_work\","
+            "\"purpose\":\"<why the user asked>\"}'\n```\n\n"
+            "RELAY THE MENU IN PLAIN WORDS. The response lists each way of estimating, whether "
+            "this site's data supports it, how well it performed when tested against squares "
+            "held back, and — when it is not supported — exactly which check failed and what it "
+            "saw. Describe each one the way you would to a colleague (\"averaging the nearest "
+            "surveyed squares\", \"scaling by how much survey work was done\"), say which are "
+            "possible here and which are not, and give the reason a blocked one is blocked as a "
+            "fact about the data (\"there is no record of survey effort in this square, so that "
+            "one can't run\"). Do not hide the ones that cannot run: knowing the data does not "
+            "stretch that far is itself useful.\n\n"
             "THEN RUN ONE. If the user already said to pick the best, or asked a single direct "
-            "question, choose `recommended_approach_id` — it is the supported approach with the "
-            "best measured held-out skill, not a guess — and run it in the same turn. Otherwise "
-            "offer the menu and let the user choose. Then call `mode: \"run\"` with the chosen "
+            "question, choose `recommended_approach_id` — it is the supported approach that "
+            "performed best when tested, not a guess — and run it in the same turn. Otherwise "
+            "offer the choice in plain words. Then call `mode: \"run\"` with the chosen "
             "`approach_id` and the same `cell` and `target`.\n\n"
             "```bash\npython3 {skill_call} visual-estimate "
             "'{\"mode\":\"run\",\"approach_id\":\"spatial-neighbour-regression\","
-            "\"cell\":\"at:10.30:76.94\",\"target\":\"likely record density\"}'\n```\n\n"
+            "\"cell\":\"at:10.30:76.94\",\"target\":\"event_total:mgnrega_work\"}'\n```\n\n"
             "REQUIRED ANSWER SHAPE for the run. Put the returned `answer_marker` on its own line, "
-            "then state, in this order and in plain language:\n"
-            "1. the estimate and its interval, said as an interval and never as a point fact;\n"
-            "2. whether confidence is LOW or HIGH **and why**, quoting the returned "
-            "`confidence_basis` (training cells, residual spread, held-out R²) — the word LOW or "
-            "HIGH must appear;\n"
-            "3. exactly which data was used: the named sources and planes from `data_used`;\n"
-            "4. the top one or two `improvements` — what extra data would most shrink the "
-            "interval.\n\n"
-            "HONESTY RULES. The estimate is generated, not observed; say so. If `status` is "
-            "`blocked`, a gate failed: name the gate, say no estimate was produced, and describe "
-            "what the retained observed map does show — do not substitute a number. If the "
-            "response reports that the cell is already surveyed, say the estimate is a held-out "
-            "check and give the observed value precedence. Never widen, narrow or round away the "
-            "interval, and never claim the estimate describes the real world rather than what "
-            "this pack's recording would be expected to show."
+            "then state, in this order and in everyday language:\n"
+            "1. how you read the user's words, if they used their own (one sentence, first);\n"
+            "2. the estimate and its interval, said as a range and never as a point fact, with "
+            "the unit explained in words the first time (\"about 4,900 persondays — days of paid "
+            "work — somewhere between 3,100 and 6,800\");\n"
+            "3. how confident it is and WHY, in plain terms, using what `confidence_basis` "
+            "reports (how many surveyed squares it learned from, how wide the spread was, how "
+            "well it predicted squares held back) — say \"rough\" or \"reasonably solid\", not "
+            "an internal label;\n"
+            "4. what data went in, named as a person would name it: \"the public-works records\", "
+            "\"the household survey\", never a source id;\n"
+            "5. the one or two `improvements` that would most narrow the range.\n\n"
+            "HONESTY RULES. The estimate is generated, not measured; say so plainly (\"this is "
+            "worked out from nearby squares, not counted on the ground\"). If `status` is "
+            "`blocked`, a check failed: say which check and what it needed in plain words, say "
+            "no estimate could be produced, describe what the map of surveyed squares does show, "
+            "and give no number. If the response reports that the square is already surveyed, "
+            "say the estimate is a test of the method against a known answer and give the real "
+            "figure precedence. Never widen, narrow or round away the interval, and never claim "
+            "the estimate measures the place rather than what this area's records would be "
+            "expected to show.\n\n" + PLAIN_ANSWER_RULE
         ),
     }
 
@@ -769,7 +836,8 @@ def _visual_earth_layer_skill() -> dict | None:
             "observation of the ground, and give the returned reason. Never present a fallback "
             "surface as satellite data or as evidence about the site.\n\n"
             "If the request matches no registered product, the response is blocked and lists the "
-            "products this site does carry; relay that list instead of inventing a layer."
+            "products this site does carry; relay that list instead of inventing a layer.\n\n"
+            + PLAIN_ANSWER_RULE
         ),
     }
 
@@ -1193,7 +1261,11 @@ def _visual_result_summary(envelope: dict) -> dict:
         "instruction": (
             "Put answer_marker on its own line in your final answer, then write 1-3 sentences "
             "that reference the visual and keep its limitations. Do not paste this JSON, the "
-            "envelope, layer data, coordinates or source rows into the answer."
+            "result object, map data, coordinates or source rows into the answer. Write those "
+            "sentences in plain English for a programme manager: no internal vocabulary (pack, "
+            "gate, capability, skill, envelope, evidence class, plane, layer) and no identifiers "
+            "of ours — name sources the way a person would, and translate any esoteric column or "
+            "record name the first time you use it."
         ),
         "source": "Totalrecall visual result service",
         "label": "observed",
@@ -1536,6 +1608,109 @@ def _estimate_unavailable(reason_key: str, ask: str) -> dict:
     }
 
 
+def _visual_estimate_target_rows(catalogue: dict) -> list[dict]:
+    """One compact row per estimable quantity, carrying its own count semantics."""
+    rows = []
+    for item in (catalogue.get("targets") or [])[:40]:
+        if not isinstance(item, dict):
+            continue
+        counts = item.get("counts") if isinstance(item.get("counts"), dict) else {}
+        coverage = item.get("coverage") if isinstance(item.get("coverage"), dict) else {}
+        rows.append({
+            "target_id": item.get("target_id"),
+            "label": " ".join(str(item.get("label") or "").split()),
+            "unit": item.get("unit"),
+            "counts_column": counts.get("column"),
+            "how_it_is_counted": " ".join(str(counts.get("aggregation") or "").split()),
+            "map_squares_with_a_value": coverage.get("cells_with_a_value"),
+            "map_squares_indexed": coverage.get("cells_indexed"),
+            "records": coverage.get("records"),
+            "years": coverage.get("years"),
+            "record_labels": (item.get("record_labels") or [])[:6],
+            "sources": [{
+                "source_id": source.get("source_id"),
+                "title": " ".join(str(source.get("title") or "").split()),
+            } for source in (item.get("sources") or [])[:4]],
+            "estimable": bool(item.get("estimable")),
+            "estimable_note": " ".join(str(item.get("estimable_note") or "").split()),
+        })
+    return rows
+
+
+# The catalogue is the whole answer to "the system said there is no variable called job". The
+# deterministic layer lists what exists and stops; this instruction is where the interpreting
+# happens, and it insists the interpretation is said out loud rather than performed silently.
+_TARGET_CATALOGUE_INSTRUCTION = (
+    "This is everything this site's data can be asked to estimate. NOTHING here was matched "
+    "against the user's words — that reading is yours to make, with ordinary general knowledge, "
+    "and it must be stated to the user in plain language before any number.\n"
+    "Map the user's own word onto the closest one or two targets: employment or 'jobs' usually "
+    "means recorded work-days on public-works schemes and/or the estate workforce counts, and "
+    "out-migration is a signal in the opposite direction; 'income' usually means the recorded "
+    "wage metrics. Then say so — \"I'll read 'jobs' as the days of paid work on public-works "
+    "schemes plus the estate employment counts, since those are the employment data this area "
+    "actually has\" — and continue. Never tell the user their word does not exist here; if two "
+    "readings genuinely answer different questions, ask ONE short clarifying question instead.\n"
+    "Then call this skill again with mode 'suggest', passing the chosen `target_id` verbatim. "
+    "Free text is refused, so pass the id, not the user's phrase. Targets whose `estimable` is "
+    "false have too few surveyed squares to fit a model on — you may still name that quantity to "
+    "the user and say it is too thinly recorded here to estimate.\n"
+    "Column names like persondays, worker_count and persons_moved come from whoever collected "
+    "the data. Translate each one the first time you use it. This response contains no estimate "
+    "and no marker; do not invent one."
+)
+
+
+def _visual_estimate_targets_summary(catalogue: dict) -> dict:
+    """Relay the estimable-quantity catalogue, and put the interpreting where it belongs."""
+    index = catalogue.get("index") if isinstance(catalogue.get("index"), dict) else {}
+    return {
+        "kind": "visual_estimate_targets",
+        "index": {
+            "map_squares_indexed": index.get("cells_indexed"),
+            "map_squares_with_records": index.get("cells_with_events"),
+            "map_squares_with_survey_effort": index.get("cells_with_effort"),
+            "record_kinds": index.get("event_types") or [],
+            "measured_metrics": index.get("metrics") or [],
+            "effort_methods": index.get("effort_methods") or [],
+        },
+        "targets": _visual_estimate_target_rows(catalogue),
+        "target_ids": catalogue.get("target_ids") or [],
+        "default_target_id": catalogue.get("default_target_id"),
+        "instruction": _TARGET_CATALOGUE_INSTRUCTION,
+        "source": "Totalrecall visual estimate service",
+        "label": "derived",
+    }
+
+
+def _visual_estimate_targets_query(args: dict, session: "Session | None") -> dict:
+    """List every quantity this pinned index can be asked to estimate. Estimates nothing."""
+    service = _estimate_service()
+    if service is None:
+        return _estimate_unavailable(
+            "estimate", "Configure a visual site pack and derived index before estimating.")
+    try:
+        catalogue = service.target_catalogue()
+    except Exception as exc:
+        return {
+            "status": "data_request", "reason": "estimate_target_catalogue_unavailable",
+            "detail": {
+                "error": f"{type(exc).__name__}: {exc}",
+                "ask": "Rebuild the derived index before asking what can be estimated.",
+            },
+            "provenance": [],
+        }
+    summary = _visual_estimate_targets_summary(catalogue)
+    return {
+        "status": "answer", "label": "derived", "value": summary,
+        "provenance": [{
+            "op": "VISUAL_ESTIMATE_TARGETS",
+            "site_id": (catalogue.get("site") or {}).get("site_id"),
+            "target_ids": summary["target_ids"],
+        }],
+    }
+
+
 def _visual_estimate_menu_summary(menu: dict) -> dict:
     """Reduce the approach menu to what the dialogue model must relay, gates included."""
     return {
@@ -1556,13 +1731,22 @@ def _visual_estimate_menu_summary(menu: dict) -> dict:
             "blocked_reason": item.get("blocked_reason"),
         } for item in (menu.get("approaches") or [])],
         "recommended_approach_id": menu.get("recommended_approach_id"),
+        # The catalogue rides along so a wrong target can be corrected inside this same turn,
+        # without the model having to remember to ask for it again.
+        "available_targets": _visual_estimate_target_rows(
+            menu.get("target_catalogue") if isinstance(
+                menu.get("target_catalogue"), dict) else {}
+        ),
         "instruction": (
-            "Relay EVERY approach to the user with a clear supported / not-supported flag, and "
-            "for each unsupported one name the failing gate in plain words. Do not run an "
-            "estimate yet unless the user already asked you to pick the best; in that case pick "
-            "recommended_approach_id — the supported approach with the best measured held-out "
-            "skill — and call this skill again with mode 'run'. This response contains no "
-            "estimate and no result marker; do not invent one."
+            "Relay EVERY way of estimating to the user, in plain words, saying which this "
+            "site's data supports and which it does not, and for each one it does not, what "
+            "check failed and what it saw. Do not run an estimate yet unless the user already "
+            "asked you to pick the best; in that case pick recommended_approach_id — the "
+            "supported approach that performed best when tested against held-back squares — and "
+            "call this skill again with mode 'run'. Check `target` first: if it is not the "
+            "quantity the user meant, pick a better `target_id` from available_targets, tell the "
+            "user how you are reading their words, and re-run this step. This response contains "
+            "no estimate and no result marker; do not invent one."
         ),
         "source": "Totalrecall visual estimate service",
         "label": "derived",
@@ -1578,6 +1762,13 @@ def _visual_estimate_run_summary(envelope: dict) -> dict:
         "kind": "visual_estimate_run",
         "approach_id": estimate.get("approach_id"),
         "target_id": estimate.get("target_id"),
+        "target_label": estimate.get("target_label"),
+        "target_unit": estimate.get("target_unit"),
+        "what_it_counts": (
+            " ".join(str(
+                (estimate.get("target_counts") or {}).get("aggregation") or ""
+            ).split()) or None
+        ),
         "cell_id": estimate.get("cell_id"),
         "estimate": estimate.get("estimate"),
         "interval": interval,
@@ -1602,14 +1793,56 @@ def _visual_estimate_run_summary(envelope: dict) -> dict:
         "label": "modelled",
         "source": "Totalrecall visual estimate service",
         "instruction": (
-            "Put answer_marker on its own line. Then give the estimate AS AN INTERVAL, say "
-            "whether confidence is LOW or HIGH and quote confidence_basis as the reason, list "
-            "exactly which sources and planes data_used names, and give the top one or two "
-            "improvements. The value is generated, not observed — say so. If status is blocked, "
-            "name the failed gate and give no number at all."
+            "Put answer_marker on its own line. Open by saying how you read the user's words, "
+            "if they used their own. Give the estimate AS A RANGE, never a single fact, and "
+            "explain the unit in plain words the first time (what_it_counts and target_unit say "
+            "what is being counted). Say how solid it is and why, in everyday terms drawn from "
+            "confidence_basis — how many surveyed squares it learned from and how wide the "
+            "spread was — not as an internal label. Name the data that went in the way a person "
+            "would name it, from the source titles in data_used, never as ids. Give the top one "
+            "or two improvements. The value is worked out, not measured — say so. If status is "
+            "blocked, say which check failed and what it needed in plain words, and give no "
+            "number at all. No internal vocabulary anywhere in the prose: no pack, gate, "
+            "capability, skill, envelope, evidence class, plane, layer or identifier of ours."
         ),
     })
     return summary
+
+
+def _estimate_request_refused(
+    service: Any, exc: Exception, args: dict, approach_id: str = "",
+) -> dict:
+    """A refused estimate request must hand back the vocabulary that would have worked.
+
+    The old failure mode was the whole problem: a user asked about "jobs", the service refused,
+    and the model relayed the refusal as "there is no variable called job". So a refusal here
+    carries the full catalogue of what this site CAN be asked for, and says explicitly that the
+    next move is to interpret the user's word onto it — not to report a dead end.
+    """
+    detail: dict[str, Any] = {
+        "error": str(exc), "cell": args.get("cell"), "target": args.get("target"),
+        "ask": (
+            "Do not tell the user this quantity does not exist. Read their words onto one of "
+            "the listed targets with ordinary general knowledge, say which reading you chose in "
+            "plain language, and call this skill again passing that target_id. Ask ONE short "
+            "clarifying question only if two readings genuinely answer different questions."
+        ),
+    }
+    if approach_id:
+        detail["approach_id"] = approach_id
+        detail["known_approaches"] = [item["approach_id"] for item in service.APPROACHES]
+    with contextlib.suppress(Exception):
+        catalogue = service.target_catalogue()
+        detail["available_targets"] = _visual_estimate_target_rows(catalogue)
+        detail["target_ids"] = catalogue.get("target_ids") or []
+    if not args.get("cell") and not args.get("mark"):
+        detail["ask_cell"] = (
+            "Pass the location as 'at:<lat>:<lon>' exactly as the user gave it, or a cell id."
+        )
+    return {
+        "status": "data_request", "reason": "invalid_estimate_request",
+        "detail": detail, "provenance": [],
+    }
 
 
 def _visual_estimate_suggest_query(args: dict, session: "Session | None") -> dict:
@@ -1624,14 +1857,7 @@ def _visual_estimate_suggest_query(args: dict, session: "Session | None") -> dic
             args.get("cell") if args.get("cell") not in (None, "") else args.get("mark"),
         )
     except ValueError as exc:
-        return {
-            "status": "data_request", "reason": "invalid_estimate_request",
-            "detail": {
-                "error": str(exc), "cell": args.get("cell"),
-                "ask": "Pass the cell as 'at:<lat>:<lon>' exactly as the user gave it, or a cell id.",
-            },
-            "provenance": [],
-        }
+        return _estimate_request_refused(service, exc, args)
     summary = _visual_estimate_menu_summary(menu)
     return {
         "status": "answer", "label": "derived", "value": summary,
@@ -1669,20 +1895,7 @@ def _visual_estimate_run_query(args: dict, session: "Session | None") -> dict:
             purpose=" ".join(str(args.get("purpose") or "").split())[:400],
         )
     except ValueError as exc:
-        return {
-            "status": "data_request", "reason": "invalid_estimate_request",
-            "detail": {
-                "error": str(exc), "approach_id": approach_id, "cell": args.get("cell"),
-                "known_approaches": [
-                    item["approach_id"] for item in service.APPROACHES
-                ],
-                "ask": (
-                    "Call this skill with mode 'suggest' first, then run one of the approach ids "
-                    "it reported as supported."
-                ),
-            },
-            "provenance": [],
-        }
+        return _estimate_request_refused(service, exc, args, approach_id=approach_id)
     summary = _visual_estimate_run_summary(envelope)
     status = "answer" if envelope.get("status") in {"complete", "partial", "working"} \
         else "data_request"
@@ -4180,8 +4393,9 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
             "execution": execution,
         }
     if mode in {"visual_estimate", "visual_estimate_suggest", "visual_estimate_run"}:
-        # One skill, two modes. Suggest is the default so a model that forgets `mode` still gets
-        # the approach menu rather than an unrequested estimate.
+        # One skill, three modes. Suggest is the default so a model that forgets `mode` still
+        # gets the approach menu rather than an unrequested estimate; `targets` is the step
+        # before it, where the user's own word is read onto something this index carries.
         wanted = " ".join(str(args.get("mode") or "").split()).lower().replace("_", "-")
         if mode == "visual_estimate_run":
             wanted = "run"
@@ -4189,6 +4403,8 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
             wanted = "suggest"
         if wanted in {"run", "estimate", "execute"}:
             wanted = "run"
+        elif wanted in {"targets", "target", "catalogue", "catalog", "quantities", "variables"}:
+            wanted = "targets"
         elif wanted in {"suggest", "menu", "approaches", "list", ""}:
             wanted = "suggest"
         else:
@@ -4196,6 +4412,9 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         if wanted == "run":
             execution = _visual_estimate_run_query(args, session)
             op = "VISUAL_ESTIMATE_RUN"
+        elif wanted == "targets":
+            execution = _visual_estimate_targets_query(args, session)
+            op = "VISUAL_ESTIMATE_TARGETS"
         else:
             execution = _visual_estimate_suggest_query(args, session)
             op = "VISUAL_ESTIMATE_SUGGEST"
@@ -5730,21 +5949,34 @@ def _native_prompt(message: str, session: Session) -> str:
             "text and never start with `local-site-evidence-search` for such a turn. When the "
             "user also asks to cross-check the file's names against this site, call "
             "`visual-upload` again with `mode: cross-join`, and emit that result's marker too.\n"
-            "ESTIMATES ARE TWO CALLS. When the user asks you to ESTIMATE a value for a location "
-            "— \"estimate <something> for the cell at at:<lat>:<lon>\" — invoke `visual-estimate` "
-            "with `mode: suggest` FIRST, relay the approach menu marking clearly which approaches "
-            "this pack supports and naming the failing gate for each that it does not, then "
-            "invoke it again with `mode: run` and the chosen `approach_id` (choose "
-            "`recommended_approach_id` yourself when the user already said to pick the best). "
-            "Your answer must carry the run's marker and must state the interval, LOW or HIGH "
-            "confidence WITH the returned reason, exactly which sources and planes were used, and "
-            "the top improvement suggestions. An estimate is generated, never observed; say so, "
-            "and if a gate blocked the run, name the gate and give no number.\n"
+            "ESTIMATES: INTERPRET FIRST, THEN TWO CALLS. When the user asks you to ESTIMATE "
+            "something for a location — \"estimate <something> for the cell at at:<lat>:<lon>\" "
+            "— and they named the quantity in their own words (jobs, employment, income, work, "
+            "kids in school), invoke `visual-estimate` with `mode: targets` FIRST. It lists "
+            "every quantity this site's data can actually be asked for, with what each one "
+            "counts. Nothing matches it against the user's words: read their word onto the "
+            "closest one or two targets using ordinary general knowledge (jobs → recorded "
+            "work-days on public-works schemes and/or estate workforce counts, with "
+            "out-migration as a signal the other way), and TELL THE USER that reading in one "
+            "plain sentence before any number. NEVER answer that there is no such variable, no "
+            "such target, or that the word does not exist here — that is a failure to "
+            "interpret, not an answer. If two readings genuinely answer different questions, ask "
+            "ONE short clarifying question instead. Then invoke `mode: suggest` with the chosen "
+            "`target_id` (the id, never free text) and relay the ways of estimating in plain "
+            "words, saying which the data supports and, for those it does not, which check "
+            "failed and what it saw. Then invoke `mode: run` with the chosen `approach_id` "
+            "(choose `recommended_approach_id` yourself when the user already said to pick the "
+            "best). Your answer must carry the run's marker and must give the range, how solid "
+            "it is and why in everyday terms, which data went in named as a person would name "
+            "it, and the top improvements. An estimate is worked out, never measured; say so, "
+            "and if a check blocked the run, say which check and what it needed, and give no "
+            "number.\n"
             "COMPUTED MAP LAYERS. When the user asks to make the map a map of built-up, "
             "settlement, elevation, terrain, tree cover or land cover, invoke "
             "`visual-earth-layer` with their words as `layer` and emit its marker. If the "
             "response says `observed: false`, the image is a synthetic stand-in — say that "
-            "plainly and give the reason; never describe it as satellite or observed data."
+            "plainly and give the reason; never describe it as satellite or observed data.\n"
+            + PLAIN_ANSWER_RULE
         )
     compiler = SKILLS_BY_ID["compile-scientific-algebra-9b"]
     invocation_root = (
@@ -6897,7 +7129,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             except Exception as exc:
                 self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
             return
-        if parsed.path in {"/v1/estimate/suggest", "/v1/estimate/run"}:
+        if parsed.path in {"/v1/estimate/targets", "/v1/estimate/suggest", "/v1/estimate/run"}:
             if not self._authorized():
                 self._send_json(401, {"error": {"message": "unauthorized"}})
                 return
@@ -6907,6 +7139,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     "error": "no visual estimate service is configured",
                     "detail": _VISUAL_SERVICE_ERRORS.get("estimate") or _RESULT_SERVICE_ERROR
                     or None})
+                return
+            if parsed.path.endswith("/targets"):
+                try:
+                    self._send_json(200, service.target_catalogue())
+                except Exception as exc:
+                    self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
                 return
             cell = body.get("cell")
             if cell in (None, ""):
@@ -6926,12 +7164,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     purpose=str(body.get("purpose") or ""),
                 ))
             except ValueError as exc:
-                self._send_json(400, {
+                refusal = {
                     "error": str(exc),
                     "known_approaches": [
                         item["approach_id"] for item in service.APPROACHES
                     ],
-                })
+                }
+                # A refused target must hand back the vocabulary that would have worked, so a
+                # caller never has to report "there is no such quantity" as if it were a finding.
+                with contextlib.suppress(Exception):
+                    refusal["known_targets"] = service.target_catalogue()["target_ids"]
+                self._send_json(400, refusal)
             except Exception as exc:
                 self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
             return

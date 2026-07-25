@@ -223,6 +223,24 @@ Two further bridge-side capabilities are served here. They are declared by the b
 rather than by this pack's `capabilities.json`, because they are properties of the serving bridge
 rather than of the pinned data; `GET /v1/capabilities` lists them alongside the pack's own.
 
+`POST /v1/estimate/targets` (no body) returns `idli-estimate-targets/1`: every quantity this pack's
+index can be asked to estimate, each with the **raw column the pack counts** taken verbatim from
+`sources.json` — `event_total:mgnrega_work` counts `persondays`, `event_total:annual_labour_census`
+counts `worker_count`, `event_total:out_migration` counts `persons_moved` — plus a per-record-count
+variant of each, a `metric_mean:<metric>` entry per measured metric (`daily_wage` in INR/day,
+`overtime_rate`, `paid_days_per_month`), and the whole-cell quantities `record_density`,
+`entity_richness`, `survey_effort`, `effort_normalised_rate`. Each entry carries how many cells hold
+a value, the sources, the years, the record labels that appear in it (`Footpath repair`, `Check dam
+construction`) and whether there are enough surveyed cells to fit on.
+
+Nothing in that endpoint matches a user's words against anything. This is deliberate: a user asks
+about "jobs", and this pack has no such column. **Reading the user's word onto a catalogued target
+is the model's job, done with general knowledge and stated to the user in plain language before any
+number** — "I'll read 'jobs' as MGNREGA work-days plus estate employment, since those are the
+employment data this site actually has". The service then binds exactly: suggest and run accept a
+catalogued `target_id` and refuse free text, returning the ids that would have worked. Answering "no
+variable called job" is a failure to interpret, never a finding.
+
 `POST /v1/estimate/suggest` (`{cell, target?, purpose?}`) returns an `idli-estimate-menu/1` object:
 the approaches this pack's data can support for one cell, each with its required planes, its gate
 precheck **and what each gate actually saw**, and its `measured_skill` — leave-one-out R², residual
@@ -242,8 +260,8 @@ verify that the published interval covers held-out truth. A failed gate returns 
 envelope that keeps the observed map and names the gate; it never substitutes a number.
 
 `cell` accepts `at:<lat>:<lon>` (the same coordinate convention `explain` uses for a map click) or
-a cell id. Targets: `record_density`, `entity_richness`, `survey_effort`,
-`effort_normalised_rate`.
+a cell id. `target` must be one of the ids `/v1/estimate/targets` prints; the menu carries the whole
+catalogue back with it, so a wrong binding can be corrected in the same turn.
 
 `POST /v1/earth-layer` (`{layer}`) renders one AOI-clipped raster from a real Earth Engine
 product: "built-up" → `JRC/GHSL/P2023A/GHS_BUILT_S/2020` (100 m, 2020), "elevation"/"terrain" →
@@ -266,24 +284,35 @@ error-severity `synthetic-raster` limitation naming the exact reason.
 
 ```bash
 TOK=$(cat "$SITE_STATE/.api-token")
+curl -sS -X POST http://172.17.0.1:7013/v1/estimate/targets \
+  -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' -d '{}'
 curl -sS -X POST http://172.17.0.1:7013/v1/estimate/suggest \
   -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
-  -d '{"cell":"at:10.30:76.94","target":"likely record density"}'
+  -d '{"cell":"at:10.30:76.94","target":"event_total:mgnrega_work"}'
 curl -sS -X POST http://172.17.0.1:7013/v1/estimate/run \
   -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
-  -d '{"cell":"at:10.30:76.94","target":"record density","approach_id":"aoi-baseline-mean"}'
+  -d '{"cell":"at:10.30:76.94","target":"event_total:mgnrega_work",
+       "approach_id":"aoi-baseline-mean"}'
 curl -sS -X POST http://172.17.0.1:7013/v1/earth-layer \
   -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' -d '{"layer":"built-up"}'
 ```
 
 Codex reaches both through two more skills:
 
-- `visual-estimate` (`{mode: suggest|run, cell, target?, approach_id?, purpose?}`). Suggest MUST
-  come first and its menu must be relayed with supported/unsupported flags and the failing gate
-  named; the run's answer must state the interval, LOW or HIGH confidence **with the returned
-  reason**, exactly which sources and planes fed it, and the top improvement suggestions.
+- `visual-estimate` (`{mode: targets|suggest|run, cell, target?, approach_id?, purpose?}`). When the
+  user names the quantity in their own words, `targets` comes first: the model reads that word onto
+  a catalogued target with general knowledge, says the reading out loud, then suggests and runs. The
+  menu must be relayed with which approaches this data supports and, for those it does not, which
+  check failed and what it saw; the run's answer must give the range, how solid it is **and why**,
+  which data went in, and the top improvements.
 - `visual-earth-layer` (`{layer}`). When the response reports `observed: false`, the answer must
   say plainly that the image is a synthetic stand-in and give the reason.
+
+Every one of these answers is written for a programme manager, not for us. The words *pack*, *gate*,
+*capability*, *skill*, *envelope*, *result service*, *evidence class*, *plane* and every internal id
+are banned from the answer prose — they belong to the audit trail and the machine markers, which
+already carry them. Esoteric column names from the data get translated on first use ("persondays —
+days of paid work"). An answer that has to be decoded is not an answer.
 
 A turn that carries a table and asks to profile, visualise or check it is routed
 deterministically: `_required_first_skill` returns `visual-upload` and the controller prefetches

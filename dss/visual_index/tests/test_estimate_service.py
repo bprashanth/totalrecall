@@ -63,10 +63,128 @@ class EstimateServiceTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.service.resolve_cell(bad)
 
+    # ------------------------------------------------------------------ the catalogue
+
+    def test_catalogue_enumerates_every_event_type_with_its_own_count_column(self):
+        """The pack counts persondays, worker_count and persons_moved. Each must be sayable."""
+        catalogue = self.service.target_catalogue()
+        self.assertEqual(catalogue["schema_version"], "idli-estimate-targets/1")
+        entries = {item["target_id"]: item for item in catalogue["targets"]}
+        expected = {
+            "event_total:mgnrega_work": "persondays",
+            "event_total:annual_labour_census": "worker_count",
+            "event_total:out_migration": "persons_moved",
+        }
+        for target_id, column in expected.items():
+            self.assertIn(target_id, entries)
+            entry = entries[target_id]
+            # The count semantics come from the pack's declared adapter, verbatim.
+            self.assertEqual(entry["counts"]["column"], column)
+            self.assertIn(column, entry["unit"])
+            self.assertIn(column, entry["counts"]["aggregation"])
+            self.assertTrue(entry["sources"])
+            self.assertTrue(entry["sources"][0]["title"])
+            self.assertGreater(entry["coverage"]["records"], 0)
+            self.assertGreater(entry["coverage"]["cells_with_a_value"], 0)
+        # Record labels are what makes an interpretation checkable: the user said "footpath".
+        self.assertIn("Footpath repair", entries["event_total:mgnrega_work"]["record_labels"])
+
+    def test_catalogue_carries_metrics_effort_and_the_whole_cell_quantities(self):
+        catalogue = self.service.target_catalogue()
+        entries = {item["target_id"]: item for item in catalogue["targets"]}
+        wage = entries["metric_mean:daily_wage"]
+        self.assertEqual(wage["unit"], "INR/day")
+        self.assertEqual(wage["planes"], ["measurements", "cells"])
+        for target_id in (
+            "record_density", "entity_richness", "survey_effort", "effort_normalised_rate",
+        ):
+            self.assertIn(target_id, entries)
+        self.assertIn("household_survey", entries["survey_effort"]["note"])
+        self.assertEqual(catalogue["default_target_id"], "record_density")
+        self.assertEqual(catalogue["target_ids"], list(entries))
+        self.assertEqual(catalogue["index"]["effort_methods"], ["household_survey"])
+
+    def test_catalogue_declares_which_targets_have_too_few_cells_to_fit(self):
+        """A thin target is listed and marked, never hidden: it is an answer in itself."""
+        catalogue = self.service.target_catalogue()
+        entries = {item["target_id"]: item for item in catalogue["targets"]}
+        # 18 of 23 cells carry public-works records; 5 carry the estate census.
+        self.assertTrue(entries["event_total:mgnrega_work"]["estimable"])
+        self.assertFalse(entries["event_total:annual_labour_census"]["estimable"])
+        for entry in entries.values():
+            self.assertEqual(
+                entry["estimable"],
+                entry["coverage"]["cells_with_a_value"] > MIN_TRAINING_CELLS,
+                entry["target_id"],
+            )
+            self.assertIn(
+                str(entry["coverage"]["cells_with_a_value"]), entry["estimable_note"]
+            )
+
+    def test_the_service_never_interprets_a_users_word(self):
+        """'jobs' means something to a person and nothing to this index. It must refuse."""
+        for word in ("jobs", "employment", "how many people work here", "income"):
+            with self.assertRaises(ValueError) as caught:
+                self.service.suggest_approaches(word, SURVEYED_CELL)
+            message = str(caught.exception)
+            # The refusal must hand back the vocabulary that would have worked.
+            self.assertIn("event_total:mgnrega_work", message)
+            self.assertIn("catalogue", message)
+
+    def test_a_catalogued_id_binds_exactly_and_carries_its_semantics(self):
+        target = self.service.resolve_target("event_total:mgnrega_work")
+        self.assertEqual(target["target_id"], "event_total:mgnrega_work")
+        self.assertEqual(target["counts"]["column"], "persondays")
+        self.assertEqual([item["source_id"] for item in target["sources"]], ["syn-mgnrega"])
+        # An unnamed target falls back to the pack's default rather than failing.
+        self.assertEqual(self.service.resolve_target("")["target_id"], "record_density")
+
+    def test_event_targets_are_observed_per_cell_from_their_own_rows(self):
+        with self.service.connect() as connection:
+            table = self.service.cell_table(connection)
+            expected = {
+                row[0]: float(row[1]) for row in connection.execute(
+                    """SELECT cell_id,SUM(count_value) FROM events
+                       WHERE cell_id IS NOT NULL AND event_type='mgnrega_work'
+                       GROUP BY cell_id"""
+                )
+            }
+        observed = self.service._observed(table, "event_total:mgnrega_work")
+        self.assertEqual(observed, expected)
+        self.assertEqual(
+            set(self.service._observed(table, "event_records:mgnrega_work")), set(expected)
+        )
+        # A per-type target must not silently become the undifferentiated record count.
+        self.assertNotEqual(observed, self.service._observed(table, "record_density"))
+
+    def test_a_catalogued_event_target_runs_end_to_end(self):
+        envelope = self.service.run_estimate(
+            "spatial-neighbour-regression", "event_total:mgnrega_work", SURVEYED_CELL,
+            request_id="test-persondays",
+        )
+        self.assertEqual(envelope["status"], "complete")
+        estimate = envelope["audit"]["estimate"]
+        self.assertEqual(estimate["target_id"], "event_total:mgnrega_work")
+        self.assertEqual(estimate["target_counts"]["column"], "persondays")
+        self.assertIn("persondays", estimate["target_unit"])
+        # Only the source that actually carries public-works rows may be named.
+        self.assertEqual(
+            [item["source_id"] for item in envelope["audit"]["source_versions"]],
+            ["syn-mgnrega"],
+        )
+        codes = {item["code"] for item in envelope["limitations"]}
+        self.assertIn("target-count-semantics", codes)
+        self.assertNotIn("target-defaulted", codes)
+
+    def test_the_menu_carries_the_whole_catalogue_for_self_correction(self):
+        menu = self.service.suggest_approaches("event_records:out_migration", SURVEYED_CELL)
+        self.assertEqual(menu["target"]["target_id"], "event_records:out_migration")
+        self.assertIn("event_total:mgnrega_work", menu["target_catalogue"]["target_ids"])
+
     # ------------------------------------------------------------------ the menu
 
     def test_menu_reports_every_approach_with_its_gates(self):
-        menu = self.service.suggest_approaches("likely record density", SURVEYED_CELL)
+        menu = self.service.suggest_approaches("record_density", SURVEYED_CELL)
         self.assertEqual(menu["schema_version"], "idli-estimate-menu/1")
         self.assertGreaterEqual(len(menu["approaches"]), 2)
         self.assertLessEqual(len(menu["approaches"]), 4)
@@ -91,7 +209,7 @@ class EstimateServiceTest(unittest.TestCase):
 
     def test_effort_transfer_is_unsupported_where_the_pack_has_no_effort(self):
         """The synthetic pack indexes effort in three cells only; the gate must say so."""
-        menu = self.service.suggest_approaches("record density", SURVEYED_CELL)
+        menu = self.service.suggest_approaches("record_density", SURVEYED_CELL)
         transfer = next(
             item for item in menu["approaches"]
             if item["approach_id"] == "per-source-rate-transfer"
@@ -100,7 +218,7 @@ class EstimateServiceTest(unittest.TestCase):
         self.assertIn("effort-rows-in-target-cell", transfer["failed_gates"])
         self.assertIn("effort", transfer["blocked_reason"])
         # And it must become supported for a cell that does carry effort.
-        with_effort = self.service.suggest_approaches("record density", EFFORT_CELL)
+        with_effort = self.service.suggest_approaches("record_density", EFFORT_CELL)
         transfer = next(
             item for item in with_effort["approaches"]
             if item["approach_id"] == "per-source-rate-transfer"
@@ -108,7 +226,7 @@ class EstimateServiceTest(unittest.TestCase):
         self.assertTrue(transfer["supported"], transfer["blocked_reason"])
 
     def test_menu_recommends_the_approach_with_the_best_measured_skill(self):
-        menu = self.service.suggest_approaches("record density", SURVEYED_CELL)
+        menu = self.service.suggest_approaches("record_density", SURVEYED_CELL)
         scored = {
             item["approach_id"]: item["measured_skill"]["leave_one_out_r2"]
             for item in menu["approaches"] if item["supported"]
@@ -119,12 +237,12 @@ class EstimateServiceTest(unittest.TestCase):
         )
 
     def test_menu_gates_the_aoi_and_the_training_minimum(self):
-        outside = self.service.suggest_approaches("record density", "at:0.5:0.5")
+        outside = self.service.suggest_approaches("record_density", "at:0.5:0.5")
         for approach in outside["approaches"]:
             self.assertFalse(approach["supported"])
             self.assertIn("target-cell-inside-aoi", approach["failed_gates"])
         # The pack must genuinely clear the training minimum, or the rest of this file is vacuous.
-        inside = self.service.suggest_approaches("record density", SURVEYED_CELL)
+        inside = self.service.suggest_approaches("record_density", SURVEYED_CELL)
         self.assertGreaterEqual(
             inside["pack_evidence"]["training_cells_available"], MIN_TRAINING_CELLS
         )
@@ -133,7 +251,7 @@ class EstimateServiceTest(unittest.TestCase):
 
     def test_run_emits_a_modelled_layer_with_a_declared_interval(self):
         envelope = self.service.run_estimate(
-            "spatial-neighbour-regression", "record density", SURVEYED_CELL,
+            "spatial-neighbour-regression", "record_density", SURVEYED_CELL,
             request_id="test-run", question="Estimate likely record density here.",
         )
         self.assertEqual(envelope["schema_version"], "idli-result/1")
@@ -160,7 +278,7 @@ class EstimateServiceTest(unittest.TestCase):
 
     def test_run_states_the_basis_of_its_own_confidence(self):
         envelope = self.service.run_estimate(
-            "spatial-neighbour-regression", "record density", SURVEYED_CELL,
+            "spatial-neighbour-regression", "record_density", SURVEYED_CELL,
             request_id="test-confidence",
         )
         codes = {item["code"] for item in envelope["limitations"]}
@@ -178,7 +296,7 @@ class EstimateServiceTest(unittest.TestCase):
 
     def test_run_names_exactly_which_sources_and_planes_fed_it(self):
         envelope = self.service.run_estimate(
-            "spatial-neighbour-regression", "record density", SURVEYED_CELL,
+            "spatial-neighbour-regression", "record_density", SURVEYED_CELL,
             request_id="test-sources",
         )
         versions = envelope["audit"]["source_versions"]
@@ -191,7 +309,7 @@ class EstimateServiceTest(unittest.TestCase):
 
     def test_run_suggests_what_data_would_shrink_the_interval(self):
         envelope = self.service.run_estimate(
-            "spatial-neighbour-regression", "record density", SURVEYED_CELL,
+            "spatial-neighbour-regression", "record_density", SURVEYED_CELL,
             request_id="test-requests",
         )
         requests = [item for item in envelope["actions"] if item["kind"] == "data_request"]
@@ -206,7 +324,7 @@ class EstimateServiceTest(unittest.TestCase):
 
     def test_unknown_approach_is_refused(self):
         with self.assertRaises(ValueError):
-            self.service.run_estimate("magic-oracle", "record density", SURVEYED_CELL)
+            self.service.run_estimate("magic-oracle", "record_density", SURVEYED_CELL)
 
     # ------------------------------------------------------------------ leave-one-out truth
 
@@ -220,7 +338,7 @@ class EstimateServiceTest(unittest.TestCase):
         observed = self._surveyed_cells()
         cell_id = "g0.010:10.3000:76.9400"
         envelope = self.service.run_estimate(
-            "spatial-neighbour-regression", "record density", cell_id,
+            "spatial-neighbour-regression", "record_density", cell_id,
             request_id="loo-single",
         )
         estimate = envelope["audit"]["estimate"]
@@ -241,7 +359,7 @@ class EstimateServiceTest(unittest.TestCase):
             covered = attempted = 0
             for cell_id, truth in observed.items():
                 envelope = self.service.run_estimate(
-                    approach_id, "record density", cell_id,
+                    approach_id, "record_density", cell_id,
                     request_id=f"loo-{approach_id}-{cell_id}",
                 )
                 if envelope["status"] != "complete":
@@ -262,7 +380,7 @@ class EstimateServiceTest(unittest.TestCase):
 
     def test_gate_failure_keeps_the_observed_map_and_names_the_gate(self):
         envelope = self.service.run_estimate(
-            "spatial-neighbour-regression", "record density", "at:0.5:0.5",
+            "spatial-neighbour-regression", "record_density", "at:0.5:0.5",
             request_id="blocked-outside-aoi",
         )
         self.assertEqual(envelope["status"], "blocked")
@@ -288,7 +406,7 @@ class EstimateServiceTest(unittest.TestCase):
 
     def test_effort_transfer_blocks_where_the_target_cell_has_no_effort(self):
         envelope = self.service.run_estimate(
-            "per-source-rate-transfer", "record density", SURVEYED_CELL,
+            "per-source-rate-transfer", "record_density", SURVEYED_CELL,
             request_id="blocked-no-effort",
         )
         self.assertEqual(envelope["status"], "blocked")

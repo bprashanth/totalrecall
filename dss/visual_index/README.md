@@ -131,10 +131,42 @@ content into the user message as a `=== File: name.csv ===` block. The bridge st
 into the session's own attachment directory before the turn runs, so one convention reaches this
 module either way. See `dss/sites/valparai_livelihoods/README.md` for the path convention.
 
+## What can be estimated at all
+
+A user asks about "jobs". No index has a column called that. The old behaviour — keyword-match the
+phrase against a fixed list of quantities, and if nothing scores, answer "there is no variable
+called job" — was wrong twice: it made a semantic judgement inside a deterministic service, and
+when the judgement failed it reported the failure as a fact about the world.
+
+`target_catalogue.py` replaces the keyword table with an enumeration. `build_target_catalogue`
+reads the pinned index and the pack's declared adapters and returns `idli-estimate-targets/1`: one
+entry per event type carrying **the raw column that pack counts**, taken verbatim from
+`sources.json` (`mgnrega_work` → `persondays`, `annual_labour_census` → `worker_count`,
+`out_migration` → `persons_moved`), one per measured metric with its declared label and unit, plus
+documented survey effort, record density, entity richness and the effort-normalised rate. Each
+entry states how many cells carry a value, which sources supply it, the years covered, the record
+labels that appear in it (`Footpath repair`, `Check dam construction`) and whether there are enough
+surveyed cells to fit on — a thin target is listed and marked, never hidden.
+
+Nothing in this module matches a user's words against anything: there is no synonym list and no
+scoring. The reading of "jobs" as persondays plus estate worker counts is the dialogue model's, made
+with general knowledge and **stated to the user in plain language before any number**. The service's
+job is to publish the vocabulary and then bind exactly: `resolve_target` accepts a catalogued
+`target_id` and refuses free text, listing what would have worked. Every number still comes from
+the data.
+
+```bash
+python3 dss/visual_index/estimate_service.py \
+  --site-pack dss/sites/valparai_livelihoods \
+  --index /tmp/valparai-livelihoods-index/site_index.sqlite \
+  --state /tmp/valparai-livelihoods-results --targets
+```
+
 ## Estimating a cell that has no observation
 
 `estimate_service.py` answers "what would the value be here?" for one map cell. It is deliberately
-two calls. `suggest_approaches(target, cell)` returns `idli-estimate-menu/1`: 2-4 approach
+two calls after the catalogue. `suggest_approaches(target_id, cell)` returns
+`idli-estimate-menu/1`: 2-4 approach
 descriptors — spatial-neighbour least-squares regression, nearest-cell analogue average,
 effort-normalised rate transfer, AOI baseline mean — each with its required planes, a gate
 precheck that reports **what each gate actually saw**, and `measured_skill`: the approach's own
@@ -143,7 +175,10 @@ whichever supported approach measures best, so the menu cannot promise skill the
 deliver. On the synthetic livelihoods pack the honest answer is the baseline mean: those cells
 carry no spatial structure and no spatial model beats it.
 
-`run_estimate(approach_id, target, cell)` emits an ordinary `idli-result/1` envelope. Three rules
+The menu carries the whole target catalogue back with it, so a caller that bound the wrong quantity
+can see every other one this pack holds and correct itself inside the same turn.
+
+`run_estimate(approach_id, target_id, cell)` emits an ordinary `idli-result/1` envelope. Three rules
 hold throughout: the target cell is never in its own training set and a cell's features never
 include its own value, so every prediction — including for a surveyed cell — is a leave-one-out
 prediction; the interval is the model's own leave-one-out residual quantiles at level 0.8 rather
@@ -163,7 +198,7 @@ python3 dss/visual_index/estimate_service.py \
   --site-pack dss/sites/valparai_livelihoods \
   --index /tmp/valparai-livelihoods-index/site_index.sqlite \
   --state /tmp/valparai-livelihoods-results \
-  --cell at:10.30:76.94 --target 'likely record density'   # add --approach to run one
+  --cell at:10.30:76.94 --target event_total:mgnrega_work   # add --approach to run one
 ```
 
 ## Computed earth layers

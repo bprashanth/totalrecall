@@ -6,9 +6,13 @@ answer: either the cell was never surveyed, or the user wants a held-out check o
 This service answers it the only honest way available offline — by fitting a small, fully
 deterministic model to the cells the pack *does* have, and declaring exactly how weak that is.
 
-Two entry points, deliberately separated:
+Three entry points, deliberately separated:
 
-- `suggest_approaches(target, cell)` inspects the pinned index (per-cell event counts by source,
+- `target_catalogue()` (in `target_catalogue.py`) lists every quantity this index can be asked
+  for — per event type with the raw column it counts, per measured metric, per effort method,
+  plus the whole-cell quantities. It matches no words: the caller reads the list, interprets the
+  user's own phrasing against it in the open, and passes back one `target_id`.
+- `suggest_approaches(target_id, cell)` inspects the pinned index (per-cell event counts by source,
   effort rows, measurements, entity richness, neighbouring values) and returns 2-4 concrete
   approach descriptors. Each descriptor carries its required planes, its gate precheck against
   *this* pack, and the confidence class it can plausibly reach. An approach the pack cannot
@@ -45,10 +49,16 @@ try:
     from dss.visual_index.result_service import (
         SAFE_HANDLE, _atomic_write_once, _digest, _load_json, _percentile, _stable_json,
     )
+    from dss.visual_index.target_catalogue import (
+        TARGET_CATALOGUE_CAPABILITIES, build_target_catalogue, catalogue_index,
+    )
 except ModuleNotFoundError:  # Direct execution: python dss/visual_index/estimate_service.py
     from explain_service import COORDINATE_MARK  # type: ignore[no-redef]
     from result_service import (  # type: ignore[no-redef]
         SAFE_HANDLE, _atomic_write_once, _digest, _load_json, _percentile, _stable_json,
+    )
+    from target_catalogue import (  # type: ignore[no-redef]
+        TARGET_CATALOGUE_CAPABILITIES, build_target_catalogue, catalogue_index,
     )
 
 
@@ -64,41 +74,13 @@ RIDGE = 1e-8
 NEIGHBOUR_SUPPORT_RADIUS = 2
 
 
-TARGETS: list[dict[str, Any]] = [
-    {
-        "target_id": "record_density",
-        "label": "indexed record density",
-        "unit": "indexed event rows per cell",
-        "planes": ["events", "cells"],
-        "keywords": (
-            "record density", "records", "record", "density", "observations", "event",
-            "events", "coverage", "data",
-        ),
-    },
-    {
-        "target_id": "entity_richness",
-        "label": "distinct indexed entities",
-        "unit": "distinct entities per cell",
-        "planes": ["events", "entities", "cells"],
-        "keywords": ("richness", "distinct entit", "how many entit", "diversity", "entities"),
-    },
-    {
-        "target_id": "survey_effort",
-        "label": "documented survey effort",
-        "unit": "summed effort units per cell",
-        "planes": ["effort", "cells"],
-        "keywords": ("effort", "survey effort", "households visited", "enumerator", "sampling"),
-    },
-    {
-        "target_id": "effort_normalised_rate",
-        "label": "records per 100 units of documented effort",
-        "unit": "records per 100 effort units",
-        "planes": ["events", "effort", "cells"],
-        "keywords": ("rate", "per effort", "effort-normalised", "effort normalised", "intensity"),
-    },
-]
+# The default when a caller names no target at all. Every other target this service will run is
+# enumerated from the index itself by `target_catalogue`; there is deliberately no list of
+# synonyms here, because a synonym list is a semantic judgement and this service makes none.
+DEFAULT_TARGET_ID = "record_density"
 
 ESTIMATE_CAPABILITIES: list[dict[str, Any]] = [
+    *TARGET_CATALOGUE_CAPABILITIES,
     {
         "capability_id": "cell-estimate-suggest",
         "version": "1.0.0",
@@ -343,6 +325,7 @@ class EstimateService:
                 "target_role": row["target_role"],
                 "records": 0, "entities": 0, "sources": 0, "per_source": {},
                 "effort_rows": 0, "effort_value": 0.0, "measurements": 0,
+                "event_total": {}, "event_records": {}, "metric_mean": {},
             }
         for row in connection.execute(
             """SELECT cell_id,COUNT(*) AS records,COUNT(DISTINCT entity_id) AS entities,
@@ -375,26 +358,88 @@ class EstimateService:
         ):
             if row["cell_id"] in table:
                 table[row["cell_id"]]["measurements"] = int(row["rows_count"])
+        # Per event type and per metric, so a target the catalogue enumerated — "the persondays
+        # on public works", "the average daily wage" — has an observed per-cell value of its own
+        # rather than being folded into an undifferentiated record count.
+        for row in connection.execute(
+            """SELECT cell_id,event_type,COUNT(*) AS records,
+                      COUNT(count_value) AS valued,
+                      COALESCE(SUM(count_value),0) AS total
+               FROM events WHERE cell_id IS NOT NULL GROUP BY cell_id,event_type"""
+        ):
+            if row["cell_id"] in table:
+                table[row["cell_id"]]["event_records"][row["event_type"]] = int(row["records"])
+                if int(row["valued"]):
+                    table[row["cell_id"]]["event_total"][row["event_type"]] = float(row["total"])
+        for row in connection.execute(
+            """SELECT cell_id,metric,AVG(value) AS mean_value FROM measurements
+               WHERE cell_id IS NOT NULL AND value IS NOT NULL GROUP BY cell_id,metric"""
+        ):
+            if row["cell_id"] in table:
+                table[row["cell_id"]]["metric_mean"][row["metric"]] = float(row["mean_value"])
         return table
 
-    @staticmethod
-    def resolve_target(target_text: str) -> dict[str, Any]:
-        """Map the user's words onto one quantity the index can actually carry."""
-        text = _clean(target_text).casefold()
-        best, best_score = TARGETS[0], 0
-        for candidate in TARGETS:
-            score = sum(len(word) for word in candidate["keywords"] if word in text)
-            if score > best_score:
-                best, best_score = candidate, score
-        return {**best, "requested": _clean(target_text), "matched": best_score > 0}
+    def target_catalogue(self) -> dict[str, Any]:
+        """Everything this index can be asked to estimate, enumerated, never interpreted."""
+        return build_target_catalogue(self, minimum_cells=MIN_TRAINING_CELLS)
+
+    def resolve_target(
+        self, target_text: str, catalogue: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Bind a caller-supplied target to one catalogued id. No words are interpreted here.
+
+        The caller must pass a `target_id` this pack's catalogue prints. Free text is refused
+        rather than guessed at: a service that quietly decided "jobs" meant record density would
+        be making an interpretation the user never saw and could not correct. Interpretation is
+        the model's job, said out loud; binding is this method's job, and it binds exactly.
+        """
+        catalogue = catalogue or self.target_catalogue()
+        entries = catalogue_index(catalogue)
+        requested = _clean(target_text)
+        target_id = requested
+        if not target_id:
+            target_id = catalogue.get("default_target_id") or DEFAULT_TARGET_ID
+        elif target_id not in entries:
+            folded = {key.casefold(): key for key in entries}
+            target_id = folded.get(target_id.casefold(), "")
+        entry = entries.get(target_id)
+        if entry is None:
+            raise ValueError(
+                f"unknown estimate target: {requested!r}. This pack estimates "
+                + ", ".join(entries) + ". Fetch the target catalogue and pass one of those ids."
+            )
+        return {
+            "target_id": entry["target_id"],
+            "label": entry["label"],
+            "unit": entry["unit"],
+            "planes": list(entry["planes"]),
+            "counts": entry.get("counts") or {},
+            "family": entry.get("family"),
+            "sources": entry.get("sources") or [],
+            "record_labels": entry.get("record_labels") or [],
+            "coverage": entry.get("coverage") or {},
+            "requested": requested,
+            # True whenever the caller named the target; the only unnamed case is the default.
+            "matched": bool(requested),
+        }
 
     @staticmethod
     def _observed(
         table: dict[str, dict[str, Any]], target_id: str
     ) -> dict[str, float]:
+        family, _, key = str(target_id or "").partition(":")
         observed: dict[str, float] = {}
         for cell_id, row in table.items():
-            if target_id == "record_density":
+            if family == "event_total":
+                if key in row["event_total"]:
+                    observed[cell_id] = float(row["event_total"][key])
+            elif family == "event_records":
+                if key in row["event_records"]:
+                    observed[cell_id] = float(row["event_records"][key])
+            elif family == "metric_mean":
+                if key in row["metric_mean"]:
+                    observed[cell_id] = float(row["metric_mean"][key])
+            elif target_id == "record_density":
                 if row["records"]:
                     observed[cell_id] = float(row["records"])
             elif target_id == "entity_richness":
@@ -690,7 +735,8 @@ class EstimateService:
     def suggest_approaches(self, target_text: str, cell: Any) -> dict[str, Any]:
         """Return the estimation approaches this pack's data can and cannot support, with gates."""
         resolved_cell = self.resolve_cell(cell)
-        target = self.resolve_target(target_text)
+        catalogue = self.target_catalogue()
+        target = self.resolve_target(target_text, catalogue)
         with self.connect() as connection:
             table = self.cell_table(connection)
             source_rows = [dict(row) for row in connection.execute(
@@ -770,7 +816,13 @@ class EstimateService:
                 "unit": target["unit"], "requested": target["requested"],
                 "matched_user_words": target["matched"],
                 "planes": target["planes"],
+                "counts": target["counts"],
+                "sources": target["sources"],
+                "record_labels": target["record_labels"],
             },
+            # The whole catalogue travels with the menu, so a caller that guessed the target can
+            # see every other quantity this pack carries and correct itself in the same turn.
+            "target_catalogue": catalogue,
             "pack_evidence": {
                 "cells_indexed": len(table),
                 "cells_with_observed_target": len(observed),
@@ -990,7 +1042,12 @@ class EstimateService:
             observed = self._observed(table, target["target_id"])
             training_ids = sorted(key for key in observed if key != target_cell)
             gates = self._gates(approach_id, resolved_cell, observed, table)
+            # The catalogue already knows which sources carry this target; naming those is more
+            # honest than naming every source that happens to touch a training cell.
             source_ids = {
+                _clean(item.get("source_id")) for item in target.get("sources") or []
+                if item.get("source_id")
+            } or {
                 source for cell_id in training_ids
                 for source in table.get(cell_id, {}).get("per_source", {})
             }
@@ -1223,11 +1280,21 @@ class EstimateService:
             limitations.append(self._limitation(
                 "target-defaulted",
                 (
-                    f"The requested target {target['requested']!r} matched no quantity this pack "
-                    f"carries, so {target['label']} was used. Ask again naming one of: "
-                    + ", ".join(item["label"] for item in TARGETS) + "."
+                    f"No target was named, so the pack's default — {target['label']} — was "
+                    "estimated. Name a target from the catalogue to estimate something else."
                 ),
                 severity="warning", affects=["answer"],
+            ))
+        counted = _clean((target.get("counts") or {}).get("column"))
+        if counted:
+            limitations.append(self._limitation(
+                "target-count-semantics",
+                (
+                    f"This target sums the source column {counted!r}: "
+                    + _clean((target.get("counts") or {}).get("aggregation"))
+                    + ". Say what that column counts in the reader's own words."
+                ),
+                severity="info", affects=["answer"],
             ))
         result["limitations"].extend(limitations)
 
@@ -1318,6 +1385,10 @@ class EstimateService:
         result["audit"]["estimate"] = {
             "approach_id": approach_id,
             "target_id": target["target_id"],
+            "target_label": target["label"],
+            "target_unit": target["unit"],
+            "target_counts": target["counts"],
+            "target_requested": target["requested"],
             "cell_id": target_cell,
             "estimate": round(estimate_value, 6),
             "interval": {
@@ -1545,6 +1616,10 @@ class EstimateService:
         result["audit"]["estimate"] = {
             "approach_id": approach["approach_id"],
             "target_id": target["target_id"],
+            "target_label": target["label"],
+            "target_unit": target["unit"],
+            "target_counts": target["counts"],
+            "target_requested": target["requested"],
             "cell_id": target_cell,
             "estimate": None,
             "failed_gates": [item["gate"] for item in failed],
@@ -1563,13 +1638,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--site-pack", type=pathlib.Path, required=True)
     parser.add_argument("--index", type=pathlib.Path, required=True)
     parser.add_argument("--state", type=pathlib.Path, required=True)
-    parser.add_argument("--cell", required=True, help="at:<lat>:<lon> or a cell id")
-    parser.add_argument("--target", default="record density")
+    parser.add_argument("--cell", help="at:<lat>:<lon> or a cell id")
+    parser.add_argument("--target", default="", help="a target_id from --targets")
     parser.add_argument("--approach", help="omit to list approaches instead of running one")
     parser.add_argument("--purpose", default="")
+    parser.add_argument(
+        "--targets", action="store_true",
+        help="list every quantity this index can be asked to estimate, and exit",
+    )
     args = parser.parse_args(argv)
     service = EstimateService(args.site_pack, args.index, args.state)
-    payload = (
+    if args.targets:
+        payload = service.target_catalogue()
+    elif not args.cell:
+        parser.error("--cell is required unless --targets is given")
+    payload = payload if args.targets else (
         service.run_estimate(args.approach, args.target, args.cell, purpose=args.purpose)
         if args.approach else service.suggest_approaches(args.target, args.cell)
     )
