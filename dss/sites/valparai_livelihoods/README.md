@@ -217,6 +217,70 @@ The Codex agent reaches the same paths through two skills beside `visual-result`
   under `<state>/visual-results/uploads/<session>/<content hash>/`, result ids are namespaced
   `result-upl-<session>-<hash>` and the envelope audit carries a `session_binding`.
 
+### Estimates and computed earth layers on the same port
+
+Two further bridge-side capabilities are served here. They are declared by the bridge modules
+rather than by this pack's `capabilities.json`, because they are properties of the serving bridge
+rather than of the pinned data; `GET /v1/capabilities` lists them alongside the pack's own.
+
+`POST /v1/estimate/suggest` (`{cell, target?, purpose?}`) returns an `idli-estimate-menu/1` object:
+the approaches this pack's data can support for one cell, each with its required planes, its gate
+precheck **and what each gate actually saw**, and its `measured_skill` — leave-one-out R², residual
+spread and interval coverage computed on this pack, not assumed. `recommended_approach_id` is the
+supported approach with the best measured held-out skill. On the synthetic pack that is normally
+`aoi-baseline-mean`: the synthetic cells carry no spatial structure, so no spatial model beats the
+mean, and the menu says so instead of flattering the regression.
+
+`POST /v1/estimate/run` (`{approach_id, cell, target?, purpose?, request_id?}`) emits an ordinary
+`idli-result/1` envelope. The estimated cell is a `modelled` layer carrying
+`uncertainty {kind: interval, level: 0.8, ...}` derived from the model's own leave-one-out residual
+quantiles, beside the observed training cells as `derived`. `audit.assurance` is `generated`,
+`audit.estimate` records the fit, and the limitations state the basis of the confidence claim
+(training n, residual spread, held-out R²). **The target cell is never in its own training set**, so
+running it on a surveyed cell is a genuine leave-one-out check — which is exactly how the tests
+verify that the published interval covers held-out truth. A failed gate returns a `blocked`
+envelope that keeps the observed map and names the gate; it never substitutes a number.
+
+`cell` accepts `at:<lat>:<lon>` (the same coordinate convention `explain` uses for a map click) or
+a cell id. Targets: `record_density`, `entity_richness`, `survey_effort`,
+`effort_normalised_rate`.
+
+`POST /v1/earth-layer` (`{layer}`) renders one AOI-clipped raster: free text like "built-up",
+"elevation" or "tree cover" maps to a registered product (GHSL GHS-BUILT-S, SRTM, ESA WorldCover).
+The envelope carries a `raster_image` layer with `bounds = [w, s, e, n]` and a `data_ref` handle
+serving PNG bytes from `GET /v1/results/<id>/data/<handle>`, beside the declared AOI polygon that
+gives the renderer its extent.
+
+**Earth Engine status on this box:** `earthengine-api` is installed for the *system* interpreter
+(v1.7.33) with an authorised-user credential at `~/.config/earthengine/credentials`
+(project `plantwars`), but **not** in the bridge venv, and the box currently has no DNS/egress. The
+service therefore takes its declared fallback: it generates the surface deterministically from the
+pack itself and labels it `modelled` with an **error**-severity `synthetic-raster` limitation, a
+`synthetic:` source id, and the exact reason Earth Engine was unavailable. To get the observed
+path, install `earthengine-api` in the bridge venv and restore egress to
+`earthengine.googleapis.com`; nothing else changes.
+
+```bash
+TOK=$(cat "$SITE_STATE/.api-token")
+curl -sS -X POST http://172.17.0.1:7013/v1/estimate/suggest \
+  -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
+  -d '{"cell":"at:10.30:76.94","target":"likely record density"}'
+curl -sS -X POST http://172.17.0.1:7013/v1/estimate/run \
+  -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
+  -d '{"cell":"at:10.30:76.94","target":"record density","approach_id":"aoi-baseline-mean"}'
+curl -sS -X POST http://172.17.0.1:7013/v1/earth-layer \
+  -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' -d '{"layer":"built-up"}'
+```
+
+Codex reaches both through two more skills:
+
+- `visual-estimate` (`{mode: suggest|run, cell, target?, approach_id?, purpose?}`). Suggest MUST
+  come first and its menu must be relayed with supported/unsupported flags and the failing gate
+  named; the run's answer must state the interval, LOW or HIGH confidence **with the returned
+  reason**, exactly which sources and planes fed it, and the top improvement suggestions.
+- `visual-earth-layer` (`{layer}`). When the response reports `observed: false`, the answer must
+  say plainly that the image is a synthetic stand-in and give the reason.
+
 A turn that carries a table and asks to profile, visualise or check it is routed
 deterministically: `_required_first_skill` returns `visual-upload` and the controller prefetches
 the profile — or the cross-join, when the turn asks to match names against the site — before the

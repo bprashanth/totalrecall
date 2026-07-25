@@ -131,6 +131,67 @@ content into the user message as a `=== File: name.csv ===` block. The bridge st
 into the session's own attachment directory before the turn runs, so one convention reaches this
 module either way. See `dss/sites/valparai_livelihoods/README.md` for the path convention.
 
+## Estimating a cell that has no observation
+
+`estimate_service.py` answers "what would the value be here?" for one map cell. It is deliberately
+two calls. `suggest_approaches(target, cell)` returns `idli-estimate-menu/1`: 2-4 approach
+descriptors — spatial-neighbour least-squares regression, nearest-cell analogue average,
+effort-normalised rate transfer, AOI baseline mean — each with its required planes, a gate
+precheck that reports **what each gate actually saw**, and `measured_skill`: the approach's own
+leave-one-out R², residual spread and interval coverage on this pack. `recommended_approach_id` is
+whichever supported approach measures best, so the menu cannot promise skill the run will not
+deliver. On the synthetic livelihoods pack the honest answer is the baseline mean: those cells
+carry no spatial structure and no spatial model beats it.
+
+`run_estimate(approach_id, target, cell)` emits an ordinary `idli-result/1` envelope. Three rules
+hold throughout: the target cell is never in its own training set and a cell's features never
+include its own value, so every prediction — including for a surveyed cell — is a leave-one-out
+prediction; the interval is the model's own leave-one-out residual quantiles at level 0.8 rather
+than a normality assumption; and a failed gate produces a `blocked` envelope that still draws the
+observed cells and names the gate, because a model that cannot run is not a reason to hide the
+data that exists. The estimated cell is a `modelled` layer with
+`uncertainty {kind: interval, level, low, high, agreement}` beside `derived` training cells;
+`audit.assurance` is `generated`; the limitations state the confidence basis (training n, residual
+spread, held-out R²) and exactly which source versions and planes fed the features; and the
+actions are concrete data requests with their expected effect on the interval. Gates: target cell
+inside the AOI, at least eight training cells, non-zero feature variance, and neighbourhood
+support. The least-squares fit is normal equations solved by Gaussian elimination with partial
+pivoting — standard library only, on a matrix of at most seven columns.
+
+```bash
+python3 dss/visual_index/estimate_service.py \
+  --site-pack dss/sites/valparai_livelihoods \
+  --index /tmp/valparai-livelihoods-index/site_index.sqlite \
+  --state /tmp/valparai-livelihoods-results \
+  --cell at:10.30:76.94 --target 'likely record density'   # add --approach to run one
+```
+
+## Computed earth layers
+
+`earth_layer_service.py` turns "make the map a map of built-up" into one AOI-clipped raster layer:
+a keyword registry maps free text onto a published product (GHSL GHS-BUILT-S, SRTM, ESA
+WorldCover), and the envelope declares a `raster_image` layer with `bounds = [w, s, e, n]` whose
+`data_ref` handle serves PNG bytes. A declared-AOI polygon travels with it because the renderer
+takes its extent from vector geometry.
+
+When Earth Engine imports, initialises and answers, the image is the product thumbnail fetched
+server-side, classed `derived`, with the asset, band, resolution and epoch in `audit.source_versions`
+and a limitation stating the product's resolution and date. When it does not — no
+`earthengine-api` in the interpreter, no credential, or no egress — the same capability still runs
+so the contract stays exercised: the surface is generated from the pack itself (kernel density over
+indexed record and effort locations as a settlement proxy; an analytic relief field for elevation),
+classed `modelled`, and carries an **error**-severity `synthetic-raster` limitation naming it
+synthetic and giving the exact reason. The probe is bounded by `EE_INIT_TIMEOUT` so a dead network
+cannot stall a chat turn. Pixels outside the declared AOI polygon are fully transparent. The PNG is
+written by a minimal stdlib encoder (zlib + CRC), so the bridge needs no imaging dependency.
+
+```bash
+python3 dss/visual_index/earth_layer_service.py \
+  --site-pack dss/sites/valparai_livelihoods \
+  --index /tmp/valparai-livelihoods-index/site_index.sqlite \
+  --state /tmp/valparai-livelihoods-results --layer built-up
+```
+
 `PackSwapContractTest` builds the real Valparai pack and the synthetic Valparai livelihoods pack,
 runs their declared typed question probes through this same service, validates both against the
 shared schema and asserts that matching capabilities return identical renderer grammar.

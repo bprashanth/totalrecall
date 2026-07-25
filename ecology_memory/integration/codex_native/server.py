@@ -660,6 +660,120 @@ def _visual_upload_skill() -> dict | None:
     }
 
 
+def _visual_estimate_skill() -> dict | None:
+    """Declare the two-step estimation skill: list supported approaches, then run one."""
+    if not _visual_capability_lines():
+        return None
+    return {
+        "id": "visual-estimate",
+        "description": (
+            "Estimate a cell-level quantity for one map location when no observation exists "
+            "there: first list the estimation approaches this pack's data can actually support, "
+            "then run the chosen one and return a value with an uncertainty interval."
+        ),
+        "use_for": [
+            "what would the value likely be at this cell / here",
+            "estimating record density, entity richness, effort or an effort-normalised rate "
+            "for a location",
+            "asking how confident an estimate is and what data would improve it",
+        ],
+        "exclude": [
+            "a cell whose observed value the user actually wants (use `visual-result`)",
+            "explaining an existing value (use `visual-explain`)",
+            "presenting a modelled number as an observation",
+        ],
+        "returns": "An approach menu, or an estimate with an interval plus the answer marker",
+        "georeferenced": True,
+        "binding": {"mode": "visual_estimate"},
+        "instructions": (
+            "TWO STEPS, IN ORDER. When the user asks you to estimate something for a location, "
+            "your FIRST call MUST be `mode: \"suggest\"`. Never run an estimate before the menu: "
+            "the menu is what tells you which approaches this pack's data can support.\n\n"
+            "Pass `cell` exactly as the user gave it — `at:<lat>:<lon>` from a map click, or a "
+            "cell id — plus `target` (the quantity in the user's own words) and `purpose` when "
+            "the user gave a reason.\n\n"
+            "```bash\npython3 {skill_call} visual-estimate "
+            "'{\"mode\":\"suggest\",\"cell\":\"at:10.30:76.94\","
+            "\"target\":\"likely record density\",\"purpose\":\"<why the user asked>\"}'\n```\n\n"
+            "RELAY THE MENU. The response lists each approach with `supported` true or false, its "
+            "`expected_confidence`, its `measured_skill` (leave-one-out R², residual spread, "
+            "interval coverage measured on this pack) and, when unsupported, the exact gate that "
+            "failed. Tell the user every approach and mark clearly which are supported and which "
+            "are not, with the failing gate named in plain words. Do not hide an unsupported "
+            "approach: knowing the pack cannot support effort-normalised transfer is itself an "
+            "answer.\n\n"
+            "THEN RUN ONE. If the user already said to pick the best, or asked a single direct "
+            "question, choose `recommended_approach_id` — it is the supported approach with the "
+            "best measured held-out skill, not a guess — and run it in the same turn. Otherwise "
+            "offer the menu and let the user choose. Then call `mode: \"run\"` with the chosen "
+            "`approach_id` and the same `cell` and `target`.\n\n"
+            "```bash\npython3 {skill_call} visual-estimate "
+            "'{\"mode\":\"run\",\"approach_id\":\"spatial-neighbour-regression\","
+            "\"cell\":\"at:10.30:76.94\",\"target\":\"likely record density\"}'\n```\n\n"
+            "REQUIRED ANSWER SHAPE for the run. Put the returned `answer_marker` on its own line, "
+            "then state, in this order and in plain language:\n"
+            "1. the estimate and its interval, said as an interval and never as a point fact;\n"
+            "2. whether confidence is LOW or HIGH **and why**, quoting the returned "
+            "`confidence_basis` (training cells, residual spread, held-out R²) — the word LOW or "
+            "HIGH must appear;\n"
+            "3. exactly which data was used: the named sources and planes from `data_used`;\n"
+            "4. the top one or two `improvements` — what extra data would most shrink the "
+            "interval.\n\n"
+            "HONESTY RULES. The estimate is generated, not observed; say so. If `status` is "
+            "`blocked`, a gate failed: name the gate, say no estimate was produced, and describe "
+            "what the retained observed map does show — do not substitute a number. If the "
+            "response reports that the cell is already surveyed, say the estimate is a held-out "
+            "check and give the observed value precedence. Never widen, narrow or round away the "
+            "interval, and never claim the estimate describes the real world rather than what "
+            "this pack's recording would be expected to show."
+        ),
+    }
+
+
+def _visual_earth_layer_skill() -> dict | None:
+    """Declare the computed basemap-layer skill (built-up, elevation, tree cover)."""
+    if not _visual_capability_lines():
+        return None
+    return {
+        "id": "visual-earth-layer",
+        "description": (
+            "Render one earth-observation layer — built-up surface, elevation and relief, or "
+            "tree/land cover — clipped to this site's declared AOI, as a raster map layer."
+        ),
+        "use_for": [
+            "make the map a map of built-up / elevation / tree cover",
+            "show terrain, settlement or land cover behind the site's data",
+            "adding a computed basemap layer for this AOI",
+        ],
+        "exclude": [
+            "a layer the registry does not carry (the skill will say which it has)",
+            "treating a generated fallback surface as observation",
+            "answering a question about the pack's own indexed records (use `visual-result`)",
+        ],
+        "returns": "A short summary plus the answer marker for one idli-result/1 result",
+        "georeferenced": True,
+        "binding": {"mode": "visual_earth_layer"},
+        "instructions": (
+            "TRIGGER. When the user asks to make the map a map of something physical — built-up, "
+            "settlement, urban, elevation, terrain, relief, tree cover, forest, land cover — call "
+            "this skill with `layer` set to the user's own words.\n\n"
+            "```bash\npython3 {skill_call} visual-earth-layer "
+            "'{\"layer\":\"built-up\"}'\n```\n\n"
+            "The service maps those words onto one registered product, clips it to the pack's "
+            "declared AOI and returns a raster layer with its bounds. Put the returned "
+            "`answer_marker` on its own line, then say in 1-2 sentences what the layer shows.\n\n"
+            "PROVENANCE IS NOT OPTIONAL. The response carries `observed`. When it is true, name "
+            "the product and its resolution and date exactly as returned. When it is FALSE the "
+            "image is a SYNTHETIC stand-in generated locally because Earth Engine was not "
+            "available: you MUST say plainly that the layer is synthetic, that it is not an "
+            "observation of the ground, and give the returned reason. Never present a fallback "
+            "surface as satellite data or as evidence about the site.\n\n"
+            "If the request matches no registered product, the response is blocked and lists the "
+            "products this site does carry; relay that list instead of inventing a layer."
+        ),
+    }
+
+
 def _load_skills() -> list[dict]:
     with SKILLS_PATH.open(encoding="utf-8") as stream:
         payload = json.load(stream)
@@ -706,6 +820,7 @@ def _load_skills() -> list[dict]:
     visual_skills = [
         skill for skill in (
             _visual_result_skill(), _visual_explain_skill(), _visual_upload_skill(),
+            _visual_estimate_skill(), _visual_earth_layer_skill(),
         ) if skill
     ]
     return frozen + OPERATIONAL_SKILLS + visual_skills
@@ -940,6 +1055,8 @@ _VISUAL_MODULES: dict[str, Any] = {}
 _VISUAL_MODULE_LOCK = threading.Lock()
 _EXPLAIN_SERVICE: Any = None
 _UPLOAD_SERVICE: Any = None
+_ESTIMATE_SERVICE: Any = None
+_EARTH_LAYER_SERVICE: Any = None
 _VISUAL_SERVICE_ERRORS: dict[str, str] = {}
 
 
@@ -986,13 +1103,55 @@ def _upload_service() -> Any:
     return _UPLOAD_SERVICE
 
 
+def _estimate_service() -> Any:
+    """Bind the cell-estimation service to the same pinned pack, index and state."""
+    global _ESTIMATE_SERVICE
+    service = _result_service()
+    if service is None:
+        return None
+    if _ESTIMATE_SERVICE is None and "estimate" not in _VISUAL_SERVICE_ERRORS:
+        try:
+            module = _visual_module("estimate_service")
+            _ESTIMATE_SERVICE = module.EstimateService.from_result_service(service)
+        except Exception as exc:
+            _VISUAL_SERVICE_ERRORS["estimate"] = f"{type(exc).__name__}: {exc}"
+    return _ESTIMATE_SERVICE
+
+
+def _earth_layer_service() -> Any:
+    """Bind the computed earth-layer renderer to the same pinned pack, index and state."""
+    global _EARTH_LAYER_SERVICE
+    service = _result_service()
+    if service is None:
+        return None
+    if _EARTH_LAYER_SERVICE is None and "earth_layer" not in _VISUAL_SERVICE_ERRORS:
+        try:
+            module = _visual_module("earth_layer_service")
+            _EARTH_LAYER_SERVICE = module.EarthLayerService.from_result_service(service)
+        except Exception as exc:
+            _VISUAL_SERVICE_ERRORS["earth_layer"] = f"{type(exc).__name__}: {exc}"
+    return _EARTH_LAYER_SERVICE
+
+
 def _upload_capabilities() -> list[dict]:
-    """Session-scoped capability descriptors, declared beside the pack's own registry."""
+    """Session-scoped and bridge-side capability descriptors, beside the pack's own registry.
+
+    These are declared by the bridge modules rather than the pack's `capabilities.json`, because
+    they are properties of this serving bridge (a session's upload, a fitted estimate, a computed
+    basemap) rather than of the pinned data pack. `GET /v1/capabilities` must still list them so a
+    client can see everything this endpoint can actually do.
+    """
     if _result_service() is None:
         return []
-    with contextlib.suppress(Exception):
-        return list(_visual_module("upload_service").UPLOAD_CAPABILITIES)
-    return []
+    listed: list[dict] = []
+    for module_name, attribute in (
+        ("upload_service", "UPLOAD_CAPABILITIES"),
+        ("estimate_service", "ESTIMATE_CAPABILITIES"),
+        ("earth_layer_service", "EARTH_LAYER_CAPABILITIES"),
+    ):
+        with contextlib.suppress(Exception):
+            listed.extend(getattr(_visual_module(module_name), attribute))
+    return listed
 
 
 def _visual_result_marker(result_id: str) -> str:
@@ -1360,6 +1519,266 @@ def _visual_upload_query(args: dict, session: "Session | None") -> dict:
     }
     if status != "answer":
         execution["reason"] = "upload_returned_no_evidence"
+    return execution
+
+
+def _estimate_unavailable(reason_key: str, ask: str) -> dict:
+    return {
+        "status": "data_request", "reason": f"visual_{reason_key}_service_unavailable",
+        "detail": {
+            "error": (
+                _VISUAL_SERVICE_ERRORS.get(reason_key) or _RESULT_SERVICE_ERROR
+                or "no visual site pack is pinned to this bridge"
+            ),
+            "ask": ask,
+        },
+        "provenance": [],
+    }
+
+
+def _visual_estimate_menu_summary(menu: dict) -> dict:
+    """Reduce the approach menu to what the dialogue model must relay, gates included."""
+    return {
+        "kind": "visual_estimate_suggest",
+        "cell_id": (menu.get("cell") or {}).get("cell_id"),
+        "cell_inside_aoi": bool((menu.get("cell") or {}).get("inside_aoi")),
+        "target": menu.get("target") or {},
+        "pack_evidence": menu.get("pack_evidence") or {},
+        "approaches": [{
+            "approach_id": item.get("approach_id"),
+            "label": item.get("label"),
+            "description": item.get("description"),
+            "required_planes": item.get("required_planes") or [],
+            "supported": bool(item.get("supported")),
+            "expected_confidence": item.get("expected_confidence"),
+            "measured_skill": item.get("measured_skill"),
+            "failed_gates": item.get("failed_gates") or [],
+            "blocked_reason": item.get("blocked_reason"),
+        } for item in (menu.get("approaches") or [])],
+        "recommended_approach_id": menu.get("recommended_approach_id"),
+        "instruction": (
+            "Relay EVERY approach to the user with a clear supported / not-supported flag, and "
+            "for each unsupported one name the failing gate in plain words. Do not run an "
+            "estimate yet unless the user already asked you to pick the best; in that case pick "
+            "recommended_approach_id — the supported approach with the best measured held-out "
+            "skill — and call this skill again with mode 'run'. This response contains no "
+            "estimate and no result marker; do not invent one."
+        ),
+        "source": "Totalrecall visual estimate service",
+        "label": "derived",
+    }
+
+
+def _visual_estimate_run_summary(envelope: dict) -> dict:
+    """Reduce one estimate envelope to the number, its interval and why it is weak or strong."""
+    summary = _visual_result_summary(envelope)
+    estimate = (envelope.get("audit") or {}).get("estimate") or {}
+    interval = estimate.get("interval") or {}
+    summary.update({
+        "kind": "visual_estimate_run",
+        "approach_id": estimate.get("approach_id"),
+        "target_id": estimate.get("target_id"),
+        "cell_id": estimate.get("cell_id"),
+        "estimate": estimate.get("estimate"),
+        "interval": interval,
+        "confidence": estimate.get("confidence"),
+        "confidence_basis": estimate.get("confidence_basis"),
+        "training_cells": estimate.get("training_cells"),
+        "leave_one_out_r2": estimate.get("leave_one_out_r2"),
+        "failed_gates": estimate.get("failed_gates") or [],
+        "data_used": {
+            "planes": estimate.get("planes_used") or [],
+            "sources": [{
+                "source_id": item.get("source_id"), "title": item.get("title"),
+                "digest": item.get("digest"), "synthetic": item.get("synthetic"),
+                "planes_used": item.get("planes_used") or [],
+            } for item in ((envelope.get("audit") or {}).get("source_versions") or [])][:8],
+        },
+        "improvements": [{
+            "label": " ".join(str(item.get("label") or "").split()),
+            "expected_effect": " ".join(str(item.get("expected_effect") or "").split()),
+        } for item in (envelope.get("actions") or []) if item.get("kind") == "data_request"][:4],
+        "assurance": (envelope.get("audit") or {}).get("assurance"),
+        "label": "modelled",
+        "source": "Totalrecall visual estimate service",
+        "instruction": (
+            "Put answer_marker on its own line. Then give the estimate AS AN INTERVAL, say "
+            "whether confidence is LOW or HIGH and quote confidence_basis as the reason, list "
+            "exactly which sources and planes data_used names, and give the top one or two "
+            "improvements. The value is generated, not observed — say so. If status is blocked, "
+            "name the failed gate and give no number at all."
+        ),
+    })
+    return summary
+
+
+def _visual_estimate_suggest_query(args: dict, session: "Session | None") -> dict:
+    """List the estimation approaches this pack can support for one cell. Estimates nothing."""
+    service = _estimate_service()
+    if service is None:
+        return _estimate_unavailable(
+            "estimate", "Configure a visual site pack and derived index before estimating.")
+    try:
+        menu = service.suggest_approaches(
+            " ".join(str(args.get("target") or "").split())[:400],
+            args.get("cell") if args.get("cell") not in (None, "") else args.get("mark"),
+        )
+    except ValueError as exc:
+        return {
+            "status": "data_request", "reason": "invalid_estimate_request",
+            "detail": {
+                "error": str(exc), "cell": args.get("cell"),
+                "ask": "Pass the cell as 'at:<lat>:<lon>' exactly as the user gave it, or a cell id.",
+            },
+            "provenance": [],
+        }
+    summary = _visual_estimate_menu_summary(menu)
+    return {
+        "status": "answer", "label": "derived", "value": summary,
+        "provenance": [{
+            "op": "VISUAL_ESTIMATE_SUGGEST",
+            "cell_id": summary["cell_id"],
+            "target_id": (summary["target"] or {}).get("target_id"),
+            "supported": [
+                item["approach_id"] for item in summary["approaches"] if item["supported"]
+            ],
+            "recommended": summary["recommended_approach_id"],
+        }],
+    }
+
+
+def _visual_estimate_run_query(args: dict, session: "Session | None") -> dict:
+    """Run one estimation approach for one cell and return its interval and confidence basis."""
+    service = _estimate_service()
+    if service is None:
+        return _estimate_unavailable(
+            "estimate", "Configure a visual site pack and derived index before estimating.")
+    approach_id = " ".join(str(args.get("approach_id") or args.get("approach") or "").split())
+    request_id = " ".join(str(args.get("request_id") or "").split())[:200]
+    if not request_id:
+        turn = session.turn if session is not None else 0
+        session_id = session.id if session is not None else "bridge"
+        request_id = f"{session_id}-t{turn}-{secrets.token_hex(4)}"
+    try:
+        envelope = service.run_estimate(
+            approach_id,
+            " ".join(str(args.get("target") or "").split())[:400],
+            args.get("cell") if args.get("cell") not in (None, "") else args.get("mark"),
+            request_id=request_id,
+            question=" ".join(str(args.get("question") or "").split())[:1200],
+            purpose=" ".join(str(args.get("purpose") or "").split())[:400],
+        )
+    except ValueError as exc:
+        return {
+            "status": "data_request", "reason": "invalid_estimate_request",
+            "detail": {
+                "error": str(exc), "approach_id": approach_id, "cell": args.get("cell"),
+                "known_approaches": [
+                    item["approach_id"] for item in service.APPROACHES
+                ],
+                "ask": (
+                    "Call this skill with mode 'suggest' first, then run one of the approach ids "
+                    "it reported as supported."
+                ),
+            },
+            "provenance": [],
+        }
+    summary = _visual_estimate_run_summary(envelope)
+    status = "answer" if envelope.get("status") in {"complete", "partial", "working"} \
+        else "data_request"
+    execution = {
+        "status": status, "label": "modelled", "value": summary,
+        "provenance": [{
+            "op": "VISUAL_ESTIMATE_RUN",
+            "approach_id": summary["approach_id"],
+            "cell_id": summary["cell_id"],
+            "result_id": summary["result_id"],
+            "estimate": summary["estimate"],
+            "confidence": summary["confidence"],
+            "request_id": request_id,
+        }],
+    }
+    if status != "answer":
+        # A blocked estimate still carries its observed map and its named gate; the model must
+        # report the gate rather than treat the turn as a failure with nothing to say.
+        execution["reason"] = "estimate_gate_failed"
+    return execution
+
+
+def _visual_earth_layer_summary(envelope: dict) -> dict:
+    """Reduce one earth-layer envelope, keeping the observed/synthetic distinction explicit."""
+    summary = _visual_result_summary(envelope)
+    layer = (envelope.get("audit") or {}).get("earth_layer") or {}
+    summary.update({
+        "kind": "visual_earth_layer",
+        "product_id": layer.get("product_id"),
+        "requested": layer.get("requested"),
+        "observed": bool(layer.get("observed")),
+        "path": layer.get("path"),
+        "reason_not_observed": (
+            None if layer.get("observed") else " ".join(str(layer.get("note") or "").split())
+        ),
+        "bounds": layer.get("bounds"),
+        "product": [{
+            "source_id": item.get("source_id"), "title": item.get("title"),
+            "publisher": item.get("publisher"), "resolution_m": item.get("resolution_m"),
+            "product_date": item.get("product_date"), "synthetic": item.get("synthetic"),
+        } for item in ((envelope.get("audit") or {}).get("source_versions") or [])][:4],
+        "label": "derived" if layer.get("observed") else "modelled",
+        "source": "Totalrecall visual earth-layer service",
+        "instruction": (
+            "Put answer_marker on its own line, then say in 1-2 sentences what the layer shows. "
+            "If observed is true, name the product with its resolution and date. If observed is "
+            "false you MUST say the layer is a SYNTHETIC stand-in generated locally, not an "
+            "observation of the ground, and give reason_not_observed. Never call a fallback "
+            "surface satellite data."
+        ),
+    })
+    return summary
+
+
+def _visual_earth_layer_query(args: dict, session: "Session | None") -> dict:
+    """Render one AOI-clipped earth layer as a raster and return its compact summary."""
+    service = _earth_layer_service()
+    if service is None:
+        return _estimate_unavailable(
+            "earth_layer", "Configure a visual site pack before rendering computed layers.")
+    request_id = " ".join(str(args.get("request_id") or "").split())[:200]
+    if not request_id:
+        turn = session.turn if session is not None else 0
+        session_id = session.id if session is not None else "bridge"
+        request_id = f"{session_id}-t{turn}-{secrets.token_hex(4)}"
+    layer_text = " ".join(str(args.get("layer") or args.get("product") or "").split())[:200]
+    try:
+        envelope = service.build_layer(
+            layer_text, request_id=request_id,
+            question=" ".join(str(args.get("question") or "").split())[:1200],
+        )
+    except (ValueError, KeyError) as exc:
+        return {
+            "status": "data_request", "reason": "invalid_earth_layer_request",
+            "detail": {
+                "error": str(exc), "layer": layer_text,
+                "registered_layers": service.supported_layers(),
+                "ask": "Name one of the registered layers.",
+            },
+            "provenance": [],
+        }
+    summary = _visual_earth_layer_summary(envelope)
+    status = "answer" if envelope.get("status") in {"complete", "partial", "working"} \
+        else "data_request"
+    execution = {
+        "status": status, "label": summary["label"], "value": summary,
+        "provenance": [{
+            "op": "VISUAL_EARTH_LAYER",
+            "product_id": summary["product_id"],
+            "observed": summary["observed"],
+            "result_id": summary["result_id"],
+            "request_id": request_id,
+        }],
+    }
+    if status != "answer":
+        execution["reason"] = "earth_layer_not_registered"
     return execution
 
 
@@ -3695,6 +4114,8 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         "visual-result",
         "visual-explain",
         "visual-upload",
+        "visual-estimate",
+        "visual-earth-layer",
     }
     if _is_visual_site_pack(profile) and skill_id not in visual_pack_allowed:
         execution = {
@@ -3756,6 +4177,50 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
                        "holes": [], "ops": ["VISUAL_UPLOAD"], "has_estimate": False,
                        "unbound": False,
                        "note": "session-scoped user upload; reported evidence, never merged"},
+            "execution": execution,
+        }
+    if mode in {"visual_estimate", "visual_estimate_suggest", "visual_estimate_run"}:
+        # One skill, two modes. Suggest is the default so a model that forgets `mode` still gets
+        # the approach menu rather than an unrequested estimate.
+        wanted = " ".join(str(args.get("mode") or "").split()).lower().replace("_", "-")
+        if mode == "visual_estimate_run":
+            wanted = "run"
+        elif mode == "visual_estimate_suggest":
+            wanted = "suggest"
+        if wanted in {"run", "estimate", "execute"}:
+            wanted = "run"
+        elif wanted in {"suggest", "menu", "approaches", "list", ""}:
+            wanted = "suggest"
+        else:
+            wanted = "run" if args.get("approach_id") or args.get("approach") else "suggest"
+        if wanted == "run":
+            execution = _visual_estimate_run_query(args, session)
+            op = "VISUAL_ESTIMATE_RUN"
+        else:
+            execution = _visual_estimate_suggest_query(args, session)
+            op = "VISUAL_ESTIMATE_SUGGEST"
+        return {
+            "skill": skill_id,
+            "ir": {"op": op, "cell": args.get("cell"), "target": args.get("target"),
+                   "approach_id": args.get("approach_id")},
+            "schema": {"valid": execution.get("status") == "answer", "errors": [],
+                       "holes": [], "ops": [op], "has_estimate": wanted == "run",
+                       "unbound": False,
+                       "note": (
+                           "gated cell estimate over the pinned index; the value is generated, "
+                           "the interval is its own leave-one-out residual band"
+                       )},
+            "execution": execution,
+        }
+    if mode == "visual_earth_layer":
+        execution = _visual_earth_layer_query(args, session)
+        return {
+            "skill": skill_id,
+            "ir": {"op": "VISUAL_EARTH_LAYER", "layer": args.get("layer")},
+            "schema": {"valid": execution.get("status") == "answer", "errors": [],
+                       "holes": [], "ops": ["VISUAL_EARTH_LAYER"], "has_estimate": False,
+                       "unbound": False,
+                       "note": "AOI-clipped raster layer; observed product or declared synthetic"},
             "execution": execution,
         }
     if mode == "algebra_9b_planner":
@@ -5264,7 +5729,22 @@ def _native_prompt(message: str, session: Session) -> str:
             "must be `visual-upload` with `mode: profile`. Never answer from the pasted file "
             "text and never start with `local-site-evidence-search` for such a turn. When the "
             "user also asks to cross-check the file's names against this site, call "
-            "`visual-upload` again with `mode: cross-join`, and emit that result's marker too."
+            "`visual-upload` again with `mode: cross-join`, and emit that result's marker too.\n"
+            "ESTIMATES ARE TWO CALLS. When the user asks you to ESTIMATE a value for a location "
+            "— \"estimate <something> for the cell at at:<lat>:<lon>\" — invoke `visual-estimate` "
+            "with `mode: suggest` FIRST, relay the approach menu marking clearly which approaches "
+            "this pack supports and naming the failing gate for each that it does not, then "
+            "invoke it again with `mode: run` and the chosen `approach_id` (choose "
+            "`recommended_approach_id` yourself when the user already said to pick the best). "
+            "Your answer must carry the run's marker and must state the interval, LOW or HIGH "
+            "confidence WITH the returned reason, exactly which sources and planes were used, and "
+            "the top improvement suggestions. An estimate is generated, never observed; say so, "
+            "and if a gate blocked the run, name the gate and give no number.\n"
+            "COMPUTED MAP LAYERS. When the user asks to make the map a map of built-up, "
+            "settlement, elevation, terrain, tree cover or land cover, invoke "
+            "`visual-earth-layer` with their words as `layer` and emit its marker. If the "
+            "response says `observed: false`, the image is a synthetic stand-in — say that "
+            "plainly and give the reason; never describe it as satellite or observed data."
         )
     compiler = SKILLS_BY_ID["compile-scientific-algebra-9b"]
     invocation_root = (
@@ -6285,6 +6765,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if len(parts) == 3 and parts[1] == "data":
             data = service.load_data(parts[0], parts[2])
             if data is None:
+                # The result service serves the JSON planes. A computed raster layer stores raw
+                # image bytes beside them, so fall through to the service that wrote them rather
+                # than teaching the JSON reader about binary payloads.
+                earth = _earth_layer_service()
+                if earth is not None:
+                    data = earth.load_data(parts[0], parts[2])
+            if data is None:
                 self._send_json(404, {"error": "not found"})
             else:
                 self._send_bytes(200, data[1], data[0], immutable=True)
@@ -6407,6 +6894,69 @@ class Handler(http.server.BaseHTTPRequestHandler):
             except ValueError as exc:
                 self._send_json(400, {"error": str(exc),
                                       "registered_capabilities": sorted(service.capabilities)})
+            except Exception as exc:
+                self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
+            return
+        if parsed.path in {"/v1/estimate/suggest", "/v1/estimate/run"}:
+            if not self._authorized():
+                self._send_json(401, {"error": {"message": "unauthorized"}})
+                return
+            service = _estimate_service()
+            if service is None:
+                self._send_json(404, {
+                    "error": "no visual estimate service is configured",
+                    "detail": _VISUAL_SERVICE_ERRORS.get("estimate") or _RESULT_SERVICE_ERROR
+                    or None})
+                return
+            cell = body.get("cell")
+            if cell in (None, ""):
+                cell = body.get("mark")
+            target = str(body.get("target") or "")
+            try:
+                if parsed.path.endswith("/suggest"):
+                    self._send_json(200, service.suggest_approaches(target, cell))
+                    return
+                request_id = " ".join(str(body.get("request_id") or "").split())[:200]
+                if not request_id:
+                    request_id = "req-" + secrets.token_hex(8)
+                self._send_json(200, service.run_estimate(
+                    str(body.get("approach_id") or ""), target, cell,
+                    request_id=request_id,
+                    question=str(body.get("question") or ""),
+                    purpose=str(body.get("purpose") or ""),
+                ))
+            except ValueError as exc:
+                self._send_json(400, {
+                    "error": str(exc),
+                    "known_approaches": [
+                        item["approach_id"] for item in service.APPROACHES
+                    ],
+                })
+            except Exception as exc:
+                self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
+            return
+        if parsed.path == "/v1/earth-layer":
+            if not self._authorized():
+                self._send_json(401, {"error": {"message": "unauthorized"}})
+                return
+            service = _earth_layer_service()
+            if service is None:
+                self._send_json(404, {
+                    "error": "no visual earth-layer service is configured",
+                    "detail": _VISUAL_SERVICE_ERRORS.get("earth_layer") or _RESULT_SERVICE_ERROR
+                    or None})
+                return
+            try:
+                request_id = " ".join(str(body.get("request_id") or "").split())[:200]
+                if not request_id:
+                    request_id = "req-" + secrets.token_hex(8)
+                self._send_json(200, service.build_layer(
+                    str(body.get("layer") or ""), request_id=request_id,
+                    question=str(body.get("question") or ""),
+                ))
+            except ValueError as exc:
+                self._send_json(400, {"error": str(exc),
+                                      "registered_layers": service.supported_layers()})
             except Exception as exc:
                 self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
             return
