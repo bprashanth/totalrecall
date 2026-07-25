@@ -167,6 +167,37 @@ Model:    idli-insight-valparai-livelihoods
 URL:      http://host.docker.internal:7013/v1
 ```
 
+### Lineage and user uploads on the same port
+
+`GET /v1/results/<result_id>/explain?layer=&mark=` returns the deterministic `idli-explain/1`
+lineage of one mark in a stored result (same bearer token as the other result routes): the
+capability that ran, the resolved question and bindings, the aggregation applied, the exact
+contributing source rows, the source versions with digests and the limitations that affect that
+mark. With no `mark` it explains the layer's largest mark and says so. `GET /v1/capabilities` also
+lists the two session-scoped upload capabilities (`upload-profile`, `upload-cross-join`).
+
+```bash
+TOK=$(cat "$SITE_STATE/.api-token")
+curl -fsS -H "Authorization: Bearer $TOK" \
+  "http://172.17.0.1:7013/v1/results/<result_id>/explain?layer=event-density"
+```
+
+The Codex agent reaches the same paths through two skills beside `visual-result`:
+
+- `visual-explain` (`{result_id, layer?, mark?}`) for why/how questions. Its answer must repeat
+  the marker of the ORIGINAL result id so the UI keeps that chapter in focus.
+- `visual-upload` (`{path | upload_id, mode: profile|cross-join, sheet?, column?}`) for a table
+  the user attached. **Attachment path convention:** Idlisseus posts an attachment manifest with
+  the chat request; `_stage_attachments` copies each authorised file into
+  `<state>/sessions/<session id>/input/attachments/<upload id>-<file name>` and records the
+  relative path `attachments/<upload id>-<file name>`. The system prompt shows Codex the full
+  path under its container mount `/tmp/codex-native/sessions/<session id>/input/`. The skill
+  accepts the container path, the host path, the relative form or the attachment's display name,
+  and refuses anything resolving outside that session's own input directory. Uploads and their
+  results are session-scoped: the bytes live under `<state>/visual-results/uploads/<session>/
+  <content hash>/`, result ids are namespaced `result-upl-<session>-<hash>` and the envelope
+  audit carries a `session_binding`.
+
 The bridge binds to `172.17.0.1:7013` (Docker bridge only, same convention as
 vLLM/ds4 — never `0.0.0.0`), so the odysseus container reaches it via
 `host.docker.internal:7013` while nothing is exposed publicly.

@@ -77,6 +77,43 @@ It exposes `POST /v1/results/query`, `GET /v1/results/{result_id}` and
 `GET /v1/results/{result_id}/data/{handle}`. These are bridge/server endpoints, not public browser
 URLs. Idlisseus should proxy authorised handles through its own same-origin API.
 
+## Lineage for one produced value
+
+`explain_service.py` answers "why is this value what it is" without a model. Given a stored
+`result_id`, an optional `layer` and an optional `mark` (a cell, event, interaction, survey site,
+entity or `YYYY-MM` bucket), it re-reads the immutable envelope and its layer payload, then
+re-queries the same pinned index rows and returns `idli-explain/1`: the capability and version
+that ran, the resolved question and bindings, the aggregation actually applied, the exact
+contributing source rows with their ids, dates and values, the source versions with digests, and
+the declared limitations that affect that mark. With no mark it explains the layer's largest mark
+— the right default for a hotspot question — and says that it auto-selected it. A mark inside a
+user-upload result is attributed to the uploaded rows; the site index is never consulted for it.
+
+```bash
+python3 dss/visual_index/explain_service.py \
+  --site-pack dss/sites/valparai_livelihoods \
+  --index /tmp/valparai-livelihoods-index/site_index.sqlite \
+  --state /tmp/valparai-livelihoods-results \
+  --result-id result-... --layer event-density
+```
+
+## User-supplied tables
+
+`upload_service.py` ingests a CSV or a multi-sheet `.xlsx` that a user attached to one
+conversation. The bytes are stored immutably by content hash under
+`<state>/uploads/<session>/<hash>/`, each sheet is profiled deterministically (column types,
+date-like and lat/lon-like and numeric columns, candidate entity-name columns), and two
+capabilities emit ordinary `idli-result/1` envelopes: `upload-profile` (sample-row table, monthly
+series when a date and a numeric column exist, observed-points map when coordinates exist, and
+count/range tiles) and `upload-cross-join` (uploaded names against the pack's entity aliases,
+exact and case/space-normalised, with match rates, a map of matched names at known entity
+locations, and every unmatched name listed). Uploaded rows are `reported` evidence and always
+carry a `user-supplied-unverified` limitation; a non-match is reported as a gap, never as absence.
+Result ids are namespaced by session and the envelope audit records the session binding, so one
+conversation's upload never becomes another's evidence. Workbooks are read with `openpyxl` when it
+is importable and with a standard-library zip/XML reader (including date-format decoding)
+otherwise, because the bridge interpreter has no `openpyxl`.
+
 `PackSwapContractTest` builds the real Valparai pack and the synthetic Valparai livelihoods pack,
 runs their declared typed question probes through this same service, validates both against the
 shared schema and asserts that matching capabilities return identical renderer grammar.

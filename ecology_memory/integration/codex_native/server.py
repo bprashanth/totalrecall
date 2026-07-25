@@ -520,7 +520,121 @@ def _visual_result_skill() -> dict | None:
             "Then write 1-3 short sentences that reference the visual and keep its stated "
             "limitations. Never paste the envelope, JSON, layer data, coordinates, source rows or "
             "the summary object into your prose, and never invent a number the summary did not "
-            "return."
+            "return.\n\n"
+            "VISUAL VARIETY. Do not answer with the same visual form turn after turn. If the "
+            "previous turn already used a capability or view — a density map, say — and this "
+            "question can be answered by a different ready capability or different arguments "
+            "(`metric-time-series`, `coverage-versus-effort`, `entity-record-map`, a summary "
+            "table), prefer the one the user has not just seen. When the user is drilling deeper "
+            "on the same subject, escalate the form instead of re-emitting the same map: map → "
+            "trend → comparison → drill-down table. When the question names a specific entity, "
+            "prefer `entity-record-map` over `site-orientation`.\n\n"
+            "WHY AND HOW QUESTIONS. When the user asks why or how a value, cell, point or map "
+            "came out as it did — a hotspot, a spike, a gap, \"where does that number come "
+            "from\" — do not re-run this skill and do not reason it out yourself. Invoke the "
+            "`visual-explain` skill with the ORIGINAL `result_id`, answer in plain language from "
+            "the returned lineage, and repeat the marker for that original result id so the "
+            "chapter stays in focus.\n\n"
+            "USER FILES. When the user attaches a CSV or spreadsheet and asks to see it, use the "
+            "`visual-upload` skill instead of this one."
+        ),
+    }
+
+
+def _visual_explain_skill() -> dict | None:
+    """Declare the deterministic lineage skill for one already-produced result."""
+    if not _visual_capability_lines():
+        return None
+    return {
+        "id": "visual-explain",
+        "description": (
+            "Explain how one value in an existing visual result was computed, using the stored "
+            "result and the pinned site index: the exact source rows, the aggregation applied, "
+            "and the limitations that affect it."
+        ),
+        "use_for": [
+            "why a cell, point, bar or map value looks the way it does",
+            "which source rows are behind one mark or hotspot",
+            "how a number in a visual was aggregated",
+            "which sources and versions fed a result",
+        ],
+        "exclude": [
+            "producing a new visual (use `visual-result`)",
+            "explaining a result id this conversation never produced",
+            "inventing a cause the lineage does not contain",
+        ],
+        "returns": "A deterministic lineage object for one result, layer and mark",
+        "georeferenced": False,
+        "binding": {"mode": "visual_explain"},
+        "instructions": (
+            "Pass the `result_id` of a result produced earlier in this conversation. Optionally "
+            "pass `layer` (a layer_id from that result, for example `event-density` or "
+            "`observations`) and `mark` (the id of the specific cell, event, site or time bucket "
+            "the user is asking about, such as `2021-03`). With no `mark`, the service explains "
+            "the largest mark in that layer, which is the right default for a hotspot question, "
+            "and says so.\n\n"
+            "```bash\npython3 {skill_call} visual-explain "
+            "'{\"result_id\":\"result-abc123\",\"layer\":\"event-density\"}'\n```\n\n"
+            "Nothing is recomputed and no model is consulted: the lineage re-reads the stored "
+            "result and the same index rows. Answer in plain language — which capability ran, "
+            "what the mark's value actually counts or averages, how many source rows stand "
+            "behind it and which sources they came from. You may cite a few source ids and row "
+            "numbers exactly as returned. Do not paste coordinates or whole rows, and do not "
+            "assert a cause (effort, sampling, seasonality) that the lineage does not state; a "
+            "concentration of records is a property of the data, not proof of a real-world "
+            "concentration.\n\n"
+            "Your answer MUST still carry the marker for the ORIGINAL result id, on its own "
+            "line, exactly as `answer_marker` returns it, so the user's visual stays in focus."
+        ),
+    }
+
+
+def _visual_upload_skill() -> dict | None:
+    """Declare the session-scoped ingestion skill for user-attached tables."""
+    if not _visual_capability_lines():
+        return None
+    return {
+        "id": "visual-upload",
+        "description": (
+            "Profile and visualise a table the user attached in this conversation (CSV or a "
+            "multi-sheet .xlsx), and optionally match its names against the site's registered "
+            "entities."
+        ),
+        "use_for": [
+            "the user attached a spreadsheet or CSV and wants to see it",
+            "profiling an uploaded sheet: columns, rows, dates, coordinates",
+            "checking whether uploaded names exist in this site pack",
+        ],
+        "exclude": [
+            "treating uploaded rows as admitted site evidence",
+            "a file the user did not attach in this session",
+            "correcting, filling or reinterpreting the user's values",
+        ],
+        "returns": "A short summary plus the answer marker for one idli-result/1 result",
+        "georeferenced": True,
+        "binding": {"mode": "visual_upload"},
+        "instructions": (
+            "Pass `path` — the attachment path given in this session's attachment list — and "
+            "`mode`. Attachments arrive in the session input directory as "
+            "`<session input>/attachments/<upload-id>-<file name>`; the attachment list in your "
+            "instructions gives the full path, and the file's own name also works.\n\n"
+            "Run `mode: \"profile\"` first. It reads the file exactly as supplied and returns a "
+            "table of sample rows, a monthly series when a date and a numeric column exist, a "
+            "map when latitude/longitude columns exist, and count/range tiles. Add `sheet` for a "
+            "specific sheet of a workbook; the summary lists the other sheets.\n\n"
+            "```bash\npython3 {skill_call} visual-upload "
+            "'{\"path\":\"attachments/abc123-estates.xlsx\",\"mode\":\"profile\"}'\n```\n\n"
+            "Then offer the cross-join as the next step rather than running it unasked: "
+            "`mode: \"cross-join\"` (optionally with `sheet` and `column`) matches the uploaded "
+            "names against the pack's registered entity aliases, exactly and after case/space "
+            "normalisation, and returns match rates, a map of matched names at known entity "
+            "locations, and every unmatched name.\n\n"
+            "Uploaded rows are `reported` evidence: user-supplied and not yet verified against "
+            "registered sources. Say so. A name that does not match is not absence — it means "
+            "this pack registers no alias for it. Never merge uploaded values into a site "
+            "statistic, and never claim the file confirms or contradicts pack data.\n\n"
+            "The upload and its results belong to this conversation only. Put the returned "
+            "`answer_marker` on its own line in your answer, exactly as returned."
         ),
     }
 
@@ -568,8 +682,12 @@ def _load_skills() -> list[dict]:
                 "question and the matching `evidence_result_ids`. This prevents a second hidden "
                 "donor retrieval from diverging from the mapped evidence."
             )
-    visual_result = _visual_result_skill()
-    return frozen + OPERATIONAL_SKILLS + ([visual_result] if visual_result else [])
+    visual_skills = [
+        skill for skill in (
+            _visual_result_skill(), _visual_explain_skill(), _visual_upload_skill(),
+        ) if skill
+    ]
+    return frozen + OPERATIONAL_SKILLS + visual_skills
 
 
 SKILLS = _load_skills()
@@ -755,6 +873,19 @@ _RESULT_SERVICE_ERROR = ""
 _RESULT_SERVICE_LOCK = threading.Lock()
 
 
+def _visual_index_path() -> None:
+    """Make dss/visual_index importable, as a package and by module name.
+
+    The visual modules import each other both ways (`dss.visual_index.x` when the repository is
+    on the path, plain `x` when one of them is executed directly). The bridge is started from an
+    arbitrary working directory, so it declares both roots itself rather than relying on the
+    caller's PYTHONPATH.
+    """
+    for candidate in (str(REPO), str(REPO / "dss" / "visual_index")):
+        if candidate not in sys.path:
+            sys.path.insert(0, candidate)
+
+
 def _result_service() -> Any:
     """Bind the typed idli-result/1 producer to this process's pinned site pack.
 
@@ -770,6 +901,7 @@ def _result_service() -> Any:
     with _RESULT_SERVICE_LOCK:
         if _RESULT_SERVICE is None and not _RESULT_SERVICE_ERROR:
             try:
+                _visual_index_path()
                 source = REPO / "dss" / "visual_index" / "result_service.py"
                 spec = importlib.util.spec_from_file_location("idli_result_service", source)
                 if spec is None or spec.loader is None:
@@ -781,6 +913,65 @@ def _result_service() -> Any:
             except Exception as exc:
                 _RESULT_SERVICE_ERROR = f"{type(exc).__name__}: {exc}"
         return _RESULT_SERVICE
+
+
+_VISUAL_MODULES: dict[str, Any] = {}
+_VISUAL_MODULE_LOCK = threading.Lock()
+_EXPLAIN_SERVICE: Any = None
+_UPLOAD_SERVICE: Any = None
+_VISUAL_SERVICE_ERRORS: dict[str, str] = {}
+
+
+def _visual_module(name: str) -> Any:
+    """Import one dss/visual_index module as part of its package, from this repository.
+
+    The modules use ordinary package imports, so the repository root has to be importable. They
+    are loaded lazily: an endpoint without a visual site pack never touches them.
+    """
+    with _VISUAL_MODULE_LOCK:
+        if name not in _VISUAL_MODULES:
+            _visual_index_path()
+            _VISUAL_MODULES[name] = importlib.import_module(f"dss.visual_index.{name}")
+        return _VISUAL_MODULES[name]
+
+
+def _explain_service() -> Any:
+    """Bind the deterministic lineage reader to the same pinned pack, index and state."""
+    global _EXPLAIN_SERVICE
+    service = _result_service()
+    if service is None:
+        return None
+    if _EXPLAIN_SERVICE is None and "explain" not in _VISUAL_SERVICE_ERRORS:
+        try:
+            module = _visual_module("explain_service")
+            _EXPLAIN_SERVICE = module.ExplainService.from_result_service(service)
+        except Exception as exc:
+            _VISUAL_SERVICE_ERRORS["explain"] = f"{type(exc).__name__}: {exc}"
+    return _EXPLAIN_SERVICE
+
+
+def _upload_service() -> Any:
+    """Bind the session-scoped upload ingester to the same pinned pack, index and state."""
+    global _UPLOAD_SERVICE
+    service = _result_service()
+    if service is None:
+        return None
+    if _UPLOAD_SERVICE is None and "upload" not in _VISUAL_SERVICE_ERRORS:
+        try:
+            module = _visual_module("upload_service")
+            _UPLOAD_SERVICE = module.UploadService.from_result_service(service)
+        except Exception as exc:
+            _VISUAL_SERVICE_ERRORS["upload"] = f"{type(exc).__name__}: {exc}"
+    return _UPLOAD_SERVICE
+
+
+def _upload_capabilities() -> list[dict]:
+    """Session-scoped capability descriptors, declared beside the pack's own registry."""
+    if _result_service() is None:
+        return []
+    with contextlib.suppress(Exception):
+        return list(_visual_module("upload_service").UPLOAD_CAPABILITIES)
+    return []
 
 
 def _visual_result_marker(result_id: str) -> str:
@@ -874,6 +1065,264 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
     }
     if status != "answer":
         execution["reason"] = "capability_returned_no_evidence"
+    return execution
+
+
+def _visual_explain_summary(lineage: dict) -> dict:
+    """Reduce one idli-explain/1 object to the lineage the dialogue model may safely retell."""
+    computation = lineage.get("computation") or {}
+    mark = lineage.get("mark") or {}
+    rows = [{
+        key: row.get(key) for key in (
+            "event_id", "interaction_id", "measurement_id", "source_id", "source_row",
+            "event_date", "metric", "value", "count_value", "entity",
+        ) if row.get(key) is not None
+    } for row in (lineage.get("source_rows") or [])[:12]]
+    return {
+        "kind": "visual_explain",
+        "result_id": str(lineage.get("result_id") or ""),
+        "capability_id": (lineage.get("capability") or {}).get("capability_id"),
+        "resolved_question": (lineage.get("question") or {}).get("resolved"),
+        "bindings": (lineage.get("question") or {}).get("bindings") or {},
+        "layer_id": (lineage.get("layer") or {}).get("layer_id"),
+        "mark": {
+            "id": mark.get("id"), "kind": mark.get("kind"),
+            "auto_selected": bool(mark.get("auto_selected")),
+            "stored_value": mark.get("stored_value"),
+        },
+        "computation": {
+            "aggregation": computation.get("aggregation"),
+            "statement": computation.get("statement"),
+            "plane": computation.get("plane"),
+            "contributing_rows": computation.get("contributing_rows"),
+            "rows_shown": len(rows),
+        },
+        "source_rows": rows,
+        "source_versions": [{
+            "source_id": item.get("source_id"), "title": item.get("title"),
+            "digest": item.get("digest"), "synthetic": item.get("synthetic"),
+        } for item in (lineage.get("source_versions") or [])[:8]],
+        "limitations": lineage.get("limitations") or [],
+        "other_marks": lineage.get("top_marks") or [],
+        "answer_marker": _visual_result_marker(str(lineage.get("result_id") or "")),
+        "instruction": (
+            "Answer in plain language using this lineage only. State what the mark counts or "
+            "averages, how many source rows stand behind it and which sources they came from; "
+            "you may cite a few source ids and row numbers exactly as given. Do not assert a "
+            "cause the lineage does not contain. Repeat answer_marker on its own line so the "
+            "original visual stays in focus."
+        ),
+        "source": "Totalrecall visual explain service",
+        "label": "derived",
+    }
+
+
+def _visual_explain_query(args: dict, session: "Session | None") -> dict:
+    """Return the deterministic lineage of one stored result, layer and mark."""
+    service = _explain_service()
+    if service is None:
+        return {
+            "status": "data_request", "reason": "visual_explain_service_unavailable",
+            "detail": {
+                "error": (
+                    _VISUAL_SERVICE_ERRORS.get("explain") or _RESULT_SERVICE_ERROR
+                    or "no visual site pack is pinned to this bridge"
+                ),
+                "ask": "Produce a visual result first, then ask why it looks that way.",
+            },
+            "provenance": [],
+        }
+    result_id = " ".join(str(args.get("result_id") or "").split())
+    layer = " ".join(str(args.get("layer") or args.get("layer_id") or "").split()) or None
+    mark = args.get("mark")
+    if isinstance(mark, (int, float)):
+        mark = str(mark)
+    if not isinstance(mark, (dict, str, type(None))):
+        mark = None
+    try:
+        lineage = service.explain(result_id, layer, mark)
+    except LookupError as exc:
+        known = []
+        if session is not None:
+            known = [
+                call.get("result", {}).get("execution", {}).get("value", {}).get("result_id")
+                for call in session.turn_skill_calls[-20:]
+            ]
+        return {
+            "status": "data_request", "reason": "unknown_result_or_layer",
+            "detail": {
+                "error": str(exc), "result_id": result_id, "layer": layer,
+                "known_result_ids": [item for item in known if item][-5:],
+                "ask": "Pass a result_id produced in this conversation and one of its layer ids.",
+            },
+            "provenance": [],
+        }
+    except ValueError as exc:
+        return {
+            "status": "data_request", "reason": "invalid_explain_request",
+            "detail": {"error": str(exc), "result_id": result_id},
+            "provenance": [],
+        }
+    summary = _visual_explain_summary(lineage)
+    return {
+        "status": "answer", "label": "derived", "value": summary,
+        "provenance": [{
+            "op": "VISUAL_EXPLAIN",
+            "result_id": summary["result_id"],
+            "layer_id": summary["layer_id"],
+            "mark": summary["mark"]["id"],
+            "contributing_rows": summary["computation"]["contributing_rows"],
+        }],
+    }
+
+
+def _session_attachment_path(session: "Session", raw: str) -> pathlib.Path:
+    """Resolve what Codex passes back to the file this session actually received.
+
+    Attachments are staged by `_stage_attachments` into `<session>/input/attachments/`, and Codex
+    sees them through the container mount `/tmp/codex-native/sessions/<id>/input/...`. Accept the
+    container path, the host path, the relative `attachments/<name>` form or the display name,
+    and refuse anything that resolves outside this session's own input directory.
+    """
+    value = str(raw or "").strip()
+    if not value:
+        raise ValueError("path is required and must name a file attached to this session")
+    for item in session.attachments:
+        if value in {item.get("name"), item.get("id"), item.get("path")}:
+            value = item["path"]
+            break
+    container_root = str(CONTAINER_ROOT / "sessions" / session.id / "input")
+    if value.startswith(container_root):
+        value = value[len(container_root):].lstrip("/")
+    candidate = pathlib.Path(value)
+    resolved = (
+        candidate if candidate.is_absolute() else (session.input / candidate)
+    ).resolve()
+    if not _inside(session.input.resolve(), resolved) or not resolved.is_file():
+        raise ValueError(
+            "attachment not found in this session; pass the path shown in the session's "
+            "attachment list"
+        )
+    return resolved
+
+
+def _visual_upload_summary(envelope: dict, manifest: dict, mode: str) -> dict:
+    summary = _visual_result_summary(envelope)
+    summary.update({
+        "kind": "visual_upload",
+        "mode": mode,
+        "upload_id": manifest.get("upload_id"),
+        "file": manifest.get("display_name"),
+        "reader": manifest.get("reader"),
+        "sheets": [{
+            "sheet": item.get("sheet"), "rows": item.get("row_count"),
+            "columns": item.get("column_count"),
+            "entity_columns": [
+                candidate.get("column") for candidate in item.get("entity_candidates") or []
+            ],
+        } for item in manifest.get("sheets") or []][:10],
+        "actions": [{
+            "action_id": item.get("action_id"), "label": item.get("label"),
+            "capability_id": item.get("capability_id"), "arguments": item.get("arguments"),
+        } for item in envelope.get("actions") or []][:6],
+        "label": "reported",
+        "source": "Totalrecall visual upload service",
+        "instruction": (
+            "Put answer_marker on its own line, then say in 1-3 sentences what the file "
+            "contains and that it is user-supplied data, not yet verified against registered "
+            "sources. Offer the listed follow-up action instead of running it unasked. Do not "
+            "paste rows, coordinates or the envelope."
+        ),
+    })
+    return summary
+
+
+def _visual_upload_query(args: dict, session: "Session | None") -> dict:
+    """Ingest one attached table for this session and emit a profile or cross-join result."""
+    service = _upload_service()
+    if service is None:
+        return {
+            "status": "data_request", "reason": "visual_upload_service_unavailable",
+            "detail": {
+                "error": (
+                    _VISUAL_SERVICE_ERRORS.get("upload") or _RESULT_SERVICE_ERROR
+                    or "no visual site pack is pinned to this bridge"
+                ),
+                "ask": "Configure a visual site pack before ingesting user files.",
+            },
+            "provenance": [],
+        }
+    if session is None:
+        return {
+            "status": "data_request", "reason": "upload_requires_session",
+            "detail": {"ask": "Uploads are session-scoped; run this from a conversation."},
+            "provenance": [],
+        }
+    mode = " ".join(str(args.get("mode") or "profile").split()).lower()
+    if mode in {"cross_join", "crossjoin", "cross-join-vs-pack", "upload-cross-join"}:
+        mode = "cross-join"
+    if mode in {"upload-profile", "standalone-profile"}:
+        mode = "profile"
+    if mode not in {"profile", "cross-join"}:
+        return {
+            "status": "data_request", "reason": "invalid_upload_mode",
+            "detail": {"mode": mode, "ask": "Use mode 'profile' or 'cross-join'."},
+            "provenance": [],
+        }
+    question = " ".join(str(args.get("question") or "").split())[:1200]
+    sheet = " ".join(str(args.get("sheet") or "").split()) or None
+    column = " ".join(str(args.get("column") or "").split()) or None
+    upload_id = " ".join(str(args.get("upload_id") or "").split())
+    try:
+        if upload_id:
+            manifest = service.load_manifest(session.id, upload_id)
+            if manifest is None:
+                raise ValueError(f"unknown upload for this session: {upload_id}")
+        else:
+            path = _session_attachment_path(session, args.get("path"))
+            manifest = service.ingest(session.id, path, path.name)
+    except (ValueError, FileNotFoundError) as exc:
+        return {
+            "status": "data_request", "reason": "attachment_not_available",
+            "detail": {
+                "error": str(exc),
+                "attachments": [item.get("path") for item in session.attachments][:12],
+                "ask": "Ask the user to attach the file again, or pass its listed path.",
+            },
+            "provenance": [],
+        }
+    request_id = f"{session.id}-t{session.turn}-{secrets.token_hex(4)}"
+    try:
+        if mode == "profile":
+            envelope = service.profile_result(
+                session.id, manifest["upload_id"], request_id, question, sheet)
+        else:
+            envelope = service.cross_join_result(
+                session.id, manifest["upload_id"], request_id, question, sheet, column)
+    except (ValueError, LookupError) as exc:
+        return {
+            "status": "data_request", "reason": "invalid_upload_request",
+            "detail": {
+                "error": str(exc), "mode": mode,
+                "sheets": [item.get("sheet") for item in manifest.get("sheets") or []],
+                "ask": "Choose one of the file's own sheets and columns.",
+            },
+            "provenance": [],
+        }
+    summary = _visual_upload_summary(envelope, manifest, mode)
+    status = "answer" if envelope.get("status") in {"complete", "partial", "working"} \
+        else "data_request"
+    execution = {
+        "status": status, "label": "reported", "value": summary,
+        "provenance": [{
+            "op": "VISUAL_UPLOAD", "mode": mode, "upload_id": manifest["upload_id"],
+            "session_id": session.id, "request_id": request_id,
+            "result_id": summary["result_id"],
+            "content_sha256": manifest.get("content_sha256"),
+        }],
+    }
+    if status != "answer":
+        execution["reason"] = "upload_returned_no_evidence"
     return execution
 
 
@@ -3207,6 +3656,8 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         "local-site-evidence-search",
         "publish-evidence-dashboard",
         "visual-result",
+        "visual-explain",
+        "visual-upload",
     }
     if _is_visual_site_pack(profile) and skill_id not in visual_pack_allowed:
         execution = {
@@ -3244,6 +3695,30 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
                        "holes": [], "ops": ["VISUAL_RESULT"], "has_estimate": False,
                        "unbound": False,
                        "note": "typed idli-result/1 producer; the model never authors the query"},
+            "execution": execution,
+        }
+    if mode == "visual_explain":
+        execution = _visual_explain_query(args, session)
+        return {
+            "skill": skill_id,
+            "ir": {"op": "VISUAL_EXPLAIN", "result_id": args.get("result_id"),
+                   "layer": args.get("layer"), "mark": args.get("mark")},
+            "schema": {"valid": execution.get("status") == "answer", "errors": [],
+                       "holes": [], "ops": ["VISUAL_EXPLAIN"], "has_estimate": False,
+                       "unbound": False,
+                       "note": "deterministic lineage over stored results; no model in the loop"},
+            "execution": execution,
+        }
+    if mode == "visual_upload":
+        execution = _visual_upload_query(args, session)
+        return {
+            "skill": skill_id,
+            "ir": {"op": "VISUAL_UPLOAD", "mode": args.get("mode") or "profile",
+                   "sheet": args.get("sheet"), "column": args.get("column")},
+            "schema": {"valid": execution.get("status") == "answer", "errors": [],
+                       "holes": [], "ops": ["VISUAL_UPLOAD"], "has_estimate": False,
+                       "unbound": False,
+                       "note": "session-scoped user upload; reported evidence, never merged"},
             "execution": execution,
         }
     if mode == "algebra_9b_planner":
@@ -4585,7 +5060,18 @@ def _native_prompt(message: str, session: Session) -> str:
             "limitations. The marker is how the visual reaches the user; an answer without it is "
             "incomplete. Never paste the result envelope, the skill's JSON, layer data, "
             "coordinates or source rows into prose, and never state a number the summary did not "
-            "return."
+            "return.\n"
+            "Vary the visual form: when a different ready capability answers this question, "
+            "prefer the one the user has not just seen, and escalate map → trend → comparison → "
+            "drill-down table when the user drills deeper on the same subject. Prefer "
+            "`entity-record-map` over `site-orientation` whenever the question names an entity.\n"
+            "When the user asks WHY or HOW a value, cell or map came out that way, invoke the "
+            "`visual-explain` skill with the original `result_id` (optionally `layer` and "
+            "`mark`), answer from the returned lineage — the exact source rows, the aggregation "
+            "and the limitations — and repeat the marker for that ORIGINAL result id. When the "
+            "user attaches a CSV or spreadsheet and asks to see it, invoke the `visual-upload` "
+            "skill with the attachment path and `mode: profile`, then offer its cross-join "
+            "action as the next step."
         )
     compiler = SKILLS_BY_ID["compile-scientific-algebra-9b"]
     invocation_root = (
@@ -5563,7 +6049,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 "pack_digest": service.pack_digest,
                 "site_pack": str(SITE_PACK_PATH),
                 "synthetic": bool(service.synthetic),
-                "capabilities": registry.get("capabilities") or [],
+                "capabilities": (
+                    (registry.get("capabilities") or []) + _upload_capabilities()
+                ),
             })
             return True
         parts = [
@@ -5587,7 +6075,31 @@ class Handler(http.server.BaseHTTPRequestHandler):
             else:
                 self._send_bytes(200, data[1], data[0], immutable=True)
             return True
-        self._send_json(400, {"error": "expected /v1/results/<result_id>[/data/<handle>]"})
+        if len(parts) == 2 and parts[1] == "explain":
+            explain = _explain_service()
+            if explain is None:
+                self._send_json(404, {
+                    "error": "no visual explain service is configured",
+                    "detail": _VISUAL_SERVICE_ERRORS.get("explain") or None})
+                return True
+            query = urllib.parse.parse_qs(parsed.query)
+            layer = (query.get("layer") or [""])[0].strip() or None
+            mark = (query.get("mark") or [""])[0].strip() or None
+            try:
+                lineage = explain.explain(parts[0], layer, mark)
+            except LookupError as exc:
+                self._send_json(404, {"error": str(exc)})
+                return True
+            except ValueError as exc:
+                self._send_json(400, {"error": str(exc)})
+                return True
+            self._send_bytes(
+                200,
+                (json.dumps(lineage, ensure_ascii=False, default=str) + "\n").encode(),
+                "application/json", immutable=False)
+            return True
+        self._send_json(400, {
+            "error": "expected /v1/results/<result_id>[/data/<handle>|/explain]"})
         return True
 
     def _sse(self, payload: Any) -> None:
