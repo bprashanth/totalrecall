@@ -23,6 +23,7 @@ import datetime as dt
 import hashlib
 import html
 import http.server
+import importlib.util
 import json
 import math
 import os
@@ -100,6 +101,14 @@ _SITE_PACK_VALUE = os.environ.get("CODEX_NATIVE_SITE_PACK", "").strip()
 SITE_PACK_PATH = pathlib.Path(_SITE_PACK_VALUE) if _SITE_PACK_VALUE else None
 _VISUAL_INDEX_VALUE = os.environ.get("CODEX_NATIVE_VISUAL_INDEX", "").strip()
 VISUAL_INDEX_PATH = pathlib.Path(_VISUAL_INDEX_VALUE) if _VISUAL_INDEX_VALUE else None
+_VISUAL_RESULTS_VALUE = os.environ.get("CODEX_NATIVE_VISUAL_RESULTS", "").strip()
+# Immutable idli-result/1 objects live beside the derived index, inside the pinned site's own
+# state directory. They are never written into a session directory: one result is site evidence,
+# not conversation state, and other sessions may legitimately reference the same result id.
+VISUAL_RESULTS_STATE = (
+    pathlib.Path(_VISUAL_RESULTS_VALUE) if _VISUAL_RESULTS_VALUE
+    else (VISUAL_INDEX_PATH.parent.parent / "visual-results" if VISUAL_INDEX_PATH else None)
+)
 ALGEBRA_9B_URL = os.environ.get(
     "CODEX_NATIVE_ALGEBRA_9B_URL",
     "http://172.17.0.1:8012/v1/chat/completions",
@@ -426,6 +435,96 @@ OPERATIONAL_SKILLS = [{
 }]
 
 
+def _visual_capability_registry() -> dict:
+    """Read the pinned pack's registered capability descriptors."""
+    if SITE_PACK_PATH is None:
+        return {}
+    with contextlib.suppress(OSError, ValueError, TypeError):
+        value = json.loads((SITE_PACK_PATH / "capabilities.json").read_text(encoding="utf-8"))
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def _visual_capability_lines() -> list[str]:
+    """Describe each registered capability and its declared inputs for the skill text."""
+    lines: list[str] = []
+    for item in _visual_capability_registry().get("capabilities") or []:
+        if not isinstance(item, dict) or not item.get("capability_id"):
+            continue
+        schema = item.get("input_schema") if isinstance(item.get("input_schema"), dict) else {}
+        required = [str(key) for key in (schema.get("required") or [])]
+        properties = schema.get("properties") if isinstance(schema.get("properties"), dict) else {}
+        arguments = ", ".join(
+            f"`{key}`" + ("" if key in required else " (optional)")
+            for key in properties
+        ) or "no arguments"
+        availability = str(item.get("availability") or "unknown")
+        note = ""
+        if availability != "ready":
+            note = f" — {availability.upper()}: " + " ".join(str(item.get("reason") or "").split())
+        lines.append(
+            f"- `{item['capability_id']}` — {item.get('label') or ''}. Arguments: {arguments}."
+            + note
+        )
+    return lines
+
+
+def _visual_result_skill() -> dict | None:
+    """Declare the one skill that turns a resolved request into an idli-result/1 visual."""
+    capability_lines = _visual_capability_lines()
+    if not capability_lines:
+        return None
+    example = (
+        "```bash\npython3 {skill_call} visual-result "
+        "'{\"capability_id\":\"site-orientation\",\"arguments\":{},"
+        "\"question\":\"Show me where records are available\"}'\n```"
+    )
+    return {
+        "id": "visual-result",
+        "description": (
+            "Produce one immutable, source-linked visual result (map, network or chart) for this "
+            "site by running a registered capability through the typed result service."
+        ),
+        "use_for": [
+            "orientation to the site area and indexed evidence coverage",
+            "showing where source-linked records are available for an entity or group",
+            "comparing record coverage with documented survey effort",
+            "plotting an indexed metric through time",
+            "mapping explicitly admitted subject-object associations",
+        ],
+        "exclude": [
+            "questions no registered capability answers",
+            "inventing a capability id, argument, entity, metric or number",
+            "pasting result data, coordinates or source rows into the answer",
+        ],
+        "returns": "A short summary plus the answer marker for one idli-result/1 result",
+        "georeferenced": True,
+        "binding": {"mode": "visual_result"},
+        "instructions": (
+            "This site is served by a typed visual result service. When the user asks anything a "
+            "registered capability answers, invoke this skill instead of describing the data in "
+            "prose.\n\nRegistered capabilities and their declared inputs:\n\n"
+            + "\n".join(capability_lines) +
+            "\n\nPass `capability_id`, an `arguments` object containing only that capability's "
+            "declared inputs, and `question` (the user's own words). Supply no arguments when the "
+            "schema declares none. If the user names no entity, metric or group, use "
+            "`site-orientation`. Do not guess a capability that is not listed, and do not retry a "
+            "blocked capability with invented arguments.\n\n"
+            + example +
+            "\n\nThe skill returns only `result_id`, `status`, `headline`, `limitations`, visual "
+            "titles and an `answer_marker`. It never returns the result payload.\n\n"
+            "REQUIRED ANSWER FORMAT. In your user-facing answer, put the returned `answer_marker` "
+            "on its own line, exactly as returned, for example:\n\n"
+            "<!-- idli-result:{\"result_id\":\"result-abc123\"} -->\n\n"
+            "Then write 1-3 short sentences that reference the visual and keep its stated "
+            "limitations. Never paste the envelope, JSON, layer data, coordinates, source rows or "
+            "the summary object into your prose, and never invent a number the summary did not "
+            "return."
+        ),
+    }
+
+
 def _load_skills() -> list[dict]:
     with SKILLS_PATH.open(encoding="utf-8") as stream:
         payload = json.load(stream)
@@ -469,7 +568,8 @@ def _load_skills() -> list[dict]:
                 "question and the matching `evidence_result_ids`. This prevents a second hidden "
                 "donor retrieval from diverging from the mapped evidence."
             )
-    return frozen + OPERATIONAL_SKILLS
+    visual_result = _visual_result_skill()
+    return frozen + OPERATIONAL_SKILLS + ([visual_result] if visual_result else [])
 
 
 SKILLS = _load_skills()
@@ -604,6 +704,12 @@ def _visual_site_region(profile: dict) -> dict | None:
 
 
 def _resolve_configured_site(site_id: str, profile: dict) -> dict:
+    # A pinned visual site pack owns its own geometry. Resolving through the legacy connector
+    # registry first would silently return another site's declared region for an unknown name.
+    if _is_visual_site_pack(profile):
+        region = _visual_site_region(profile)
+        if region:
+            return region
     try:
         return C.resolve_region(site_id)
     except Exception:
@@ -642,6 +748,133 @@ def _site_pack_sources() -> list[dict]:
         if isinstance(rows, list):
             return [row for row in rows if isinstance(row, dict)]
     return []
+
+
+_RESULT_SERVICE: Any = None
+_RESULT_SERVICE_ERROR = ""
+_RESULT_SERVICE_LOCK = threading.Lock()
+
+
+def _result_service() -> Any:
+    """Bind the typed idli-result/1 producer to this process's pinned site pack.
+
+    The bridge consumes ``dss/visual_index/result_service.py`` as-is: it never reimplements a
+    capability, and it never lets a model author the query. A non-visual profile returns None so
+    the EBTL endpoint is unaffected.
+    """
+    global _RESULT_SERVICE, _RESULT_SERVICE_ERROR
+    if SITE_PACK_PATH is None or VISUAL_INDEX_PATH is None or VISUAL_RESULTS_STATE is None:
+        return None
+    if not _is_visual_site_pack(_load_site_profile()):
+        return None
+    with _RESULT_SERVICE_LOCK:
+        if _RESULT_SERVICE is None and not _RESULT_SERVICE_ERROR:
+            try:
+                source = REPO / "dss" / "visual_index" / "result_service.py"
+                spec = importlib.util.spec_from_file_location("idli_result_service", source)
+                if spec is None or spec.loader is None:
+                    raise ImportError(f"cannot load result service: {source}")
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                _RESULT_SERVICE = module.ResultService(
+                    SITE_PACK_PATH, VISUAL_INDEX_PATH, VISUAL_RESULTS_STATE)
+            except Exception as exc:
+                _RESULT_SERVICE_ERROR = f"{type(exc).__name__}: {exc}"
+        return _RESULT_SERVICE
+
+
+def _visual_result_marker(result_id: str) -> str:
+    return "<!-- idli-result:" + json.dumps(
+        {"result_id": str(result_id)}, separators=(",", ":")) + " -->"
+
+
+def _visual_result_summary(envelope: dict) -> dict:
+    """Reduce one idli-result/1 envelope to what the dialogue model may safely see.
+
+    Codex receives an identifier, a headline, a status and the declared limitations. Layer data,
+    coordinates, source rows and the envelope itself stay behind the result transport, so the
+    model cannot retype evidence into prose or invent a number that no capability returned.
+    """
+    answer = envelope.get("answer") if isinstance(envelope.get("answer"), dict) else {}
+    result_id = str(envelope.get("result_id") or "")
+    return {
+        "kind": "visual_result",
+        "result_id": result_id,
+        "status": str(envelope.get("status") or ""),
+        "capability_id": str((
+            (envelope.get("audit") or {}).get("capability_runs") or [{}]
+        )[0].get("capability_id") or ""),
+        "headline": " ".join(str(answer.get("headline") or "").split()),
+        "detail": " ".join(str(answer.get("detail") or "").split()),
+        "evidence_classes": answer.get("evidence_classes") or [],
+        "limitations": [{
+            "code": str(item.get("code") or ""),
+            "severity": str(item.get("severity") or ""),
+            "message": " ".join(str(item.get("message") or "").split()),
+        } for item in (envelope.get("limitations") or []) if isinstance(item, dict)][:6],
+        "visuals": [{
+            "visual_id": str(item.get("visual_id") or ""),
+            "visual_type": str(item.get("visual_type") or ""),
+            "title": " ".join(str(item.get("title") or "").split()),
+            "status": str(item.get("status") or ""),
+        } for item in (envelope.get("visuals") or []) if isinstance(item, dict)][:6],
+        "answer_marker": _visual_result_marker(result_id),
+        "instruction": (
+            "Put answer_marker on its own line in your final answer, then write 1-3 sentences "
+            "that reference the visual and keep its limitations. Do not paste this JSON, the "
+            "envelope, layer data, coordinates or source rows into the answer."
+        ),
+        "source": "Totalrecall visual result service",
+        "label": "observed",
+    }
+
+
+def _visual_result_query(args: dict, session: "Session | None") -> dict:
+    """Run one registered capability and return only its compact, model-safe summary."""
+    service = _result_service()
+    if service is None:
+        return {
+            "status": "data_request", "reason": "visual_result_service_unavailable",
+            "detail": {
+                "error": _RESULT_SERVICE_ERROR or "no visual site pack is pinned to this bridge",
+                "ask": "Configure a visual site pack and derived index before requesting visuals.",
+            },
+            "provenance": [],
+        }
+    capability_id = " ".join(str(args.get("capability_id") or "").split())
+    arguments = args.get("arguments") if isinstance(args.get("arguments"), dict) else {}
+    question = " ".join(str(args.get("question") or "").split())[:1200]
+    request_id = " ".join(str(args.get("request_id") or "").split())[:200]
+    if not request_id:
+        turn = session.turn if session is not None else 0
+        session_id = session.id if session is not None else "bridge"
+        request_id = f"{session_id}-t{turn}-{secrets.token_hex(4)}"
+    try:
+        envelope = service.query(request_id, capability_id, arguments, question)
+    except ValueError as exc:
+        return {
+            "status": "data_request", "reason": "invalid_capability_request",
+            "detail": {
+                "error": str(exc), "capability_id": capability_id,
+                "registered_capabilities": sorted(service.capabilities),
+                "ask": "Choose one registered capability id and supply only its declared inputs.",
+            },
+            "provenance": [],
+        }
+    summary = _visual_result_summary(envelope)
+    status = "answer" if envelope.get("status") in {"complete", "partial", "working"} \
+        else "data_request"
+    execution = {
+        "status": status, "label": "observed", "value": summary,
+        "provenance": [{
+            "op": "VISUAL_RESULT", "capability_id": capability_id,
+            "request_id": request_id, "result_id": summary["result_id"],
+            "query_hash": (envelope.get("audit") or {}).get("query_hash"),
+        }],
+    }
+    if status != "answer":
+        execution["reason"] = "capability_returned_no_evidence"
+    return execution
 
 
 def _site_overview(args: dict, session: "Session | None") -> dict:
@@ -2973,6 +3206,7 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         "site-overview",
         "local-site-evidence-search",
         "publish-evidence-dashboard",
+        "visual-result",
     }
     if _is_visual_site_pack(profile) and skill_id not in visual_pack_allowed:
         execution = {
@@ -2999,6 +3233,19 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
             "execution": execution,
         }
     mode = (SKILLS_BY_ID[skill_id].get("binding") or {}).get("mode")
+    if mode == "visual_result":
+        execution = _visual_result_query(args, session)
+        return {
+            "skill": skill_id,
+            "ir": {"op": "VISUAL_RESULT",
+                   "capability_id": args.get("capability_id"),
+                   "arguments": args.get("arguments")},
+            "schema": {"valid": execution.get("status") == "answer", "errors": [],
+                       "holes": [], "ops": ["VISUAL_RESULT"], "has_estimate": False,
+                       "unbound": False,
+                       "note": "typed idli-result/1 producer; the model never authors the query"},
+            "execution": execution,
+        }
     if mode == "algebra_9b_planner":
         if session is None:
             raise ValueError(f"{skill_id} requires a session")
@@ -3757,7 +4004,7 @@ class Session:
         (self.input / "SKILLS_INDEX.md").write_text("\n".join(index_lines) + "\n")
         wrapper = (
             "#!/usr/bin/env python3\nimport json,sys,urllib.request\n"
-            f"URL='http://127.0.0.1:{SERVER_PORT}/internal/skill-call'\n"
+            f"URL='http://{_gateway_host()}:{SERVER_PORT}/internal/skill-call'\n"
             f"TOKEN={self.gateway_token!r}\nSESSION={self.id!r}\n"
             "def parse_args():\n"
             " if len(sys.argv)<3:return {}\n"
@@ -3780,7 +4027,7 @@ class Session:
         os.chmod(wrapper_path, 0o700)
         report_wrapper = (
             "#!/usr/bin/env python3\nimport json,sys,urllib.request\n"
-            f"URL='http://127.0.0.1:{SERVER_PORT}/internal/publish-report'\n"
+            f"URL='http://{_gateway_host()}:{SERVER_PORT}/internal/publish-report'\n"
             f"TOKEN={self.gateway_token!r}\nSESSION={self.id!r}\n"
             "args=json.load(sys.stdin) if len(sys.argv)<2 else json.loads(sys.argv[1])\n"
             "payload={'session':SESSION,'args':args}\n"
@@ -4313,6 +4560,33 @@ def _native_prompt(message: str, session: Session) -> str:
             "when that is the most useful next step; invoke scientific Algebra only once there "
             "is an explicit scientific question to compute."
         )
+    visual_note = ""
+    if "visual-result" in SKILLS_BY_ID and _is_visual_site_pack(_load_site_profile()):
+        visual_invocation_root = (
+            CONTAINER_ROOT / "sessions" / session.id / "input"
+            if RUNNER == "hermes-exec" else session.input
+        )
+        visual_note = (
+            "\n\nVISUAL RESULT REQUIREMENT (this site is served by a typed visual result "
+            "service). Whenever the user asks something a registered capability answers — site "
+            "orientation or overview, where records are available for an entity or group, "
+            "coverage versus documented effort, a metric through time, or admitted "
+            "subject-object associations — you MUST invoke the `visual-result` skill with the "
+            "matching capability id and its declared arguments. Use `site-orientation` when the "
+            "user names no entity, group or metric. Its instructions and the registered "
+            "capability list are at "
+            f"{visual_invocation_root / 'skills' / 'visual-result' / 'SKILL.md'}. Example: "
+            f"`python3 {visual_invocation_root / 'skill_call.py'} visual-result "
+            "'{\"capability_id\":\"site-orientation\",\"arguments\":{},"
+            "\"question\":\"<the user's words>\"}'`.\n"
+            "Then your final answer MUST contain the returned `answer_marker` on a line of its "
+            "own, exactly as returned, in the form `<!-- idli-result:{\"result_id\":\"...\"} -->`, "
+            "followed by 1-3 short sentences that reference the visual and keep its stated "
+            "limitations. The marker is how the visual reaches the user; an answer without it is "
+            "incomplete. Never paste the result envelope, the skill's JSON, layer data, "
+            "coordinates or source rows into prose, and never state a number the summary did not "
+            "return."
+        )
     compiler = SKILLS_BY_ID["compile-scientific-algebra-9b"]
     invocation_root = (
         CONTAINER_ROOT / "sessions" / session.id / "input"
@@ -4390,7 +4664,7 @@ def _native_prompt(message: str, session: Session) -> str:
         "panel after your concise answer. Do not mention internal model identifiers. Do not add a "
         "prose menu; the controller renders valid next actions as buttons. Never read credentials "
         "or environment files." +
-        routing_note +
+        routing_note + visual_note +
         "\n\nOPTIONAL SCIENTIFIC COMPILER:\n- " + compiler["id"] + ": " +
         compiler["description"] +
         "\n- Compiler instructions: " + str(compiler_skill_path) +
@@ -5217,6 +5491,16 @@ def _answer_with_actions_marker(final_event: dict, events: list[dict],
 
 
 SERVER_PORT = int(os.environ.get("CODEX_NATIVE_PORT", "7011"))
+SERVER_HOST = os.environ.get("CODEX_NATIVE_HOST", "127.0.0.1").strip() or "127.0.0.1"
+
+
+def _gateway_host() -> str:
+    """Return the address the skill runner must use to reach this bridge's gateway.
+
+    A wildcard bind is reachable on loopback from the host-network runner. A bridge pinned to one
+    Docker-bridge address is not, so the wrapper must call that exact address instead.
+    """
+    return "127.0.0.1" if SERVER_HOST in {"", "0.0.0.0", "::", "127.0.0.1"} else SERVER_HOST
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -5248,6 +5532,64 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_bytes(self, status: int, payload: bytes, media_type: str,
+                    immutable: bool = False) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", media_type)
+        self.send_header("Content-Length", str(len(payload)))
+        self.send_header(
+            "Cache-Control", "private, immutable" if immutable else "no-store")
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def _visual_results(self, parsed: urllib.parse.ParseResult) -> bool:
+        """Serve the immutable idli-result/1 surface for a pinned visual site pack."""
+        if parsed.path != "/v1/capabilities" and not parsed.path.startswith("/v1/results/"):
+            return False
+        if not self._authorized():
+            self._send_json(401, {"error": {"message": "unauthorized"}})
+            return True
+        service = _result_service()
+        if service is None:
+            self._send_json(404, {"error": "no visual result service is configured",
+                                  "detail": _RESULT_SERVICE_ERROR or None})
+            return True
+        if parsed.path == "/v1/capabilities":
+            registry = _visual_capability_registry()
+            self._send_json(200, {
+                "schema_version": registry.get("schema_version"),
+                "site_id": service.site.get("site_id"),
+                "label": service.site.get("label"),
+                "pack_digest": service.pack_digest,
+                "site_pack": str(SITE_PACK_PATH),
+                "synthetic": bool(service.synthetic),
+                "capabilities": registry.get("capabilities") or [],
+            })
+            return True
+        parts = [
+            urllib.parse.unquote(part)
+            for part in parsed.path[len("/v1/results/"):].strip("/").split("/") if part
+        ]
+        if len(parts) == 1:
+            result = service.load_result(parts[0])
+            if result is None:
+                self._send_json(404, {"error": "not found"})
+            else:
+                self._send_bytes(
+                    200,
+                    (json.dumps(result, ensure_ascii=False, default=str) + "\n").encode(),
+                    "application/json", immutable=True)
+            return True
+        if len(parts) == 3 and parts[1] == "data":
+            data = service.load_data(parts[0], parts[2])
+            if data is None:
+                self._send_json(404, {"error": "not found"})
+            else:
+                self._send_bytes(200, data[1], data[0], immutable=True)
+            return True
+        self._send_json(400, {"error": "expected /v1/results/<result_id>[/data/<handle>]"})
+        return True
+
     def _sse(self, payload: Any) -> None:
         raw = payload if isinstance(payload, str) else json.dumps(payload, ensure_ascii=False, default=str)
         self.wfile.write(f"data: {raw}\n\n".encode())
@@ -5268,6 +5610,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     "id": PUBLIC_MODEL, "object": "model",
                     "owned_by": "idli", "actual_model": MODEL,
                 }]})
+            return
+        if self._visual_results(parsed):
             return
         if parsed.path.startswith("/v1/audit/"):
             if not self._authorized():
@@ -5306,6 +5650,33 @@ class Handler(http.server.BaseHTTPRequestHandler):
             body = self._json_body()
         except Exception as exc:
             self._send_json(400, {"error": str(exc)})
+            return
+        if parsed.path == "/v1/results/query":
+            if not self._authorized():
+                self._send_json(401, {"error": {"message": "unauthorized"}})
+                return
+            service = _result_service()
+            if service is None:
+                self._send_json(404, {"error": "no visual result service is configured",
+                                      "detail": _RESULT_SERVICE_ERROR or None})
+                return
+            try:
+                request_id = " ".join(str(body.get("request_id") or "").split())[:200]
+                if not request_id:
+                    request_id = "req-" + secrets.token_hex(8)
+                self._send_json(200, service.query(
+                    request_id=request_id,
+                    capability_id=str(body.get("capability_id") or ""),
+                    arguments=(
+                        body["arguments"] if isinstance(body.get("arguments"), dict) else {}
+                    ),
+                    original=str(body.get("question") or ""),
+                ))
+            except ValueError as exc:
+                self._send_json(400, {"error": str(exc),
+                                      "registered_capabilities": sorted(service.capabilities)})
+            except Exception as exc:
+                self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
             return
         if parsed.path == "/internal/skill-call":
             session = get_session(str(body.get("session") or ""))
@@ -5553,7 +5924,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 
 def main(argv: list[str] | None = None) -> int:
-    global SERVER_PORT
+    global SERVER_PORT, SERVER_HOST
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default=os.environ.get("CODEX_NATIVE_HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=SERVER_PORT)
@@ -5568,6 +5939,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, indent=2))
         return 0 if not missing else 1
     SERVER_PORT = args.port
+    SERVER_HOST = args.host
     STATE_ROOT.mkdir(parents=True, exist_ok=True)
     server = http.server.ThreadingHTTPServer((args.host, args.port), Handler)
     print(json.dumps({"status": "listening", "host": args.host, "port": args.port,

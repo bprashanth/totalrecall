@@ -145,7 +145,7 @@ def _start(state: pathlib.Path, host: str, port: int, python: str, sandbox: str,
     paths["pid"].write_text(str(process.pid) + "\n")
     for _ in range(50):
         try:
-            with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=1) as response:
+            with urllib.request.urlopen(f"http://{host}:{port}/health", timeout=1) as response:
                 if response.status == 200:
                     return
         except Exception:

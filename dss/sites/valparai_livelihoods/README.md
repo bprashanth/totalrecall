@@ -82,3 +82,91 @@ python3 -m unittest dss.visual_index.tests.test_result_service.PackSwapContractT
 reader. The KML is kept in `raw/geometry/` as the immutable authored original
 and is mirrored into `site.json` by hand (`target_aoi.source_geometry_file`
 records the link).
+
+## OPERATIONS — live Idlisseus endpoint (port 7013)
+
+This pack is served through the benchmark-owned launcher
+`ecology_memory/integration/codex_native/setup_idlisseus.py`, in its own state
+directory, on its own port, with its own public model id. It never shares state
+with the EBTL endpoint on 7011.
+
+```bash
+export PY=/home/beeps/src/github.com/bprashanth/idlisseus/chatbots/odysseus/venv/bin/python
+export TR=/home/beeps/src/github.com/bprashanth/totalrecall
+export SITE_LAUNCHER="$TR/ecology_memory/integration/codex_native/setup_idlisseus.py"
+export SITE_PACK="$TR/dss/sites/valparai_livelihoods"
+export SITE_STATE="$TR/runs/insight-valparai-livelihoods"
+```
+
+Start (builds/refreshes the derived index, starts the bridge, registers the endpoint):
+
+```bash
+cd "$TR"
+"$PY" "$SITE_LAUNCHER" start \
+  --idlisseus /home/beeps/src/github.com/bprashanth/idlisseus/chatbots/odysseus \
+  --site-pack "$SITE_PACK" \
+  --state "$SITE_STATE" \
+  --host 172.17.0.1 --port 7013 \
+  --public-model idli-insight-valparai-livelihoods \
+  --endpoint-name "Idli Insight — Valparai Livelihoods"
+```
+
+Status, health and logs:
+
+```bash
+"$PY" "$SITE_LAUNCHER" status --state "$SITE_STATE" --port 7013
+curl -fsS http://172.17.0.1:7013/health
+tail -f "$SITE_STATE/server.stdout.log"
+tail -f "$SITE_STATE/server.stderr.log"
+```
+
+Stop only this site (does not touch 7011, hermes-live, or the Idlisseus UI):
+
+```bash
+"$PY" "$SITE_LAUNCHER" stop --state "$SITE_STATE"
+```
+
+Direct smoke test:
+
+```bash
+TOK=$(cat "$SITE_STATE/.api-token")
+curl -sS http://172.17.0.1:7013/v1/chat/completions \
+  -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
+  -d '{"model":"idli-insight-valparai-livelihoods","messages":[{"role":"user","content":"Tell me about this site"}]}'
+```
+
+### Visual results on the same port
+
+The bridge also serves this pack's typed `idli-result/1` transport, using the same bearer token
+as the chat routes and the same `ResultService` implementation
+(`dss/visual_index/result_service.py`) bound to `$SITE_STATE/visual-index/site_index.sqlite`;
+immutable results are written under `$SITE_STATE/visual-results/results/<result_id>/`.
+`GET /v1/capabilities` returns the pack's registered capability descriptors plus its site id and
+pack digest; `POST /v1/results/query` (`{request_id?, capability_id, arguments, question}`) runs
+one capability and returns the result envelope; `GET /v1/results/<result_id>` and
+`GET /v1/results/<result_id>/data/<handle>` return the stored envelope and its immutable data
+payloads (`Cache-Control: private, immutable`). The Codex agent reaches the same path through the
+`visual-result` skill, which returns only a short summary (`result_id`, headline, status,
+limitations) and requires the answer to carry `<!-- idli-result:{"result_id":"..."} -->` on its
+own line instead of pasting result data into prose.
+
+```bash
+TOK=$(cat "$SITE_STATE/.api-token")
+curl -sS -X POST http://172.17.0.1:7013/v1/results/query \
+  -H "Authorization: Bearer $TOK" -H 'Content-Type: application/json' \
+  -d '{"capability_id":"site-orientation","arguments":{},"question":"Show me where records are available"}'
+curl -fsS -H "Authorization: Bearer $TOK" http://172.17.0.1:7013/v1/results/<result_id>
+curl -fsS -H "Authorization: Bearer $TOK" http://172.17.0.1:7013/v1/results/<result_id>/data/declared-aoi
+```
+
+Registered endpoint row in the Idlisseus DB:
+
+```text
+Endpoint: Idli Insight — Valparai Livelihoods
+Model:    idli-insight-valparai-livelihoods
+URL:      http://host.docker.internal:7013/v1
+```
+
+The bridge binds to `172.17.0.1:7013` (Docker bridge only, same convention as
+vLLM/ds4 — never `0.0.0.0`), so the odysseus container reaches it via
+`host.docker.internal:7013` while nothing is exposed publicly.
