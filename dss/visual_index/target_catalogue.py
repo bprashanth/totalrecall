@@ -182,28 +182,36 @@ def capability_vocabulary(connection: sqlite3.Connection) -> dict[str, Any]:
     A capability list that says `stratified-survey-summary` takes `source_id` and
     `category_property` tells a caller the shape of the call and nothing about which call to
     make. So a question like "which village has the most survey visits?" bounced off the
-    orientation map — the data was there, the argument values were not. This enumerates them from
-    the index: the metrics that can be plotted, the subjects that can be mapped, the hierarchy
-    ranks and groups that exist, and, per source, the row properties that can be summarised as
-    categories. It matches nothing against anybody's words; it lists what would resolve.
+    orientation map — the data was there, the argument values were not.
+
+    Everything here is ordered by HOW MUCH DATA IT HAS, never alphabetically, and every list
+    reports its own total beside the sample. An alphabetical cut is how `Mammalia` and
+    `Magnoliopsida` — the largest group in a taxonomic pack — became invisible behind
+    *Amphibia, Aves, Gnetopsida…*, and how every metric after "adult_m" disappeared. A caller
+    told that a printed list is exhaustive will report absence rather than try the name.
     """
     metrics = [{
         "metric": row["metric"], "label": row["label"], "unit": row["unit"],
+        "readings": int(row["readings"]),
     } for row in connection.execute(
-        """SELECT m.metric AS metric, COALESCE(d.label, m.metric) AS label,
-                  COALESCE(d.unit, m.unit) AS unit
-           FROM (SELECT DISTINCT metric, unit FROM measurements WHERE value IS NOT NULL) m
-           LEFT JOIN metric_definitions d ON d.metric = m.metric
-           ORDER BY m.metric"""
+        """SELECT m.metric AS metric, COUNT(*) AS readings,
+                  COALESCE(MIN(d.label), m.metric) AS label,
+                  COALESCE(MIN(d.unit), MIN(m.unit)) AS unit
+           FROM measurements m LEFT JOIN metric_definitions d ON d.metric = m.metric
+           WHERE m.value IS NOT NULL
+           GROUP BY m.metric ORDER BY readings DESC, m.metric"""
     )]
     subjects = [{
         "entity": row["display_name"], "records": int(row["records"]),
     } for row in connection.execute(
         """SELECT en.display_name AS display_name, COUNT(*) AS records
            FROM events e JOIN entities en ON en.entity_id = e.entity_id
-           GROUP BY en.display_name ORDER BY records DESC, display_name LIMIT 12"""
+           GROUP BY en.display_name ORDER BY records DESC, display_name LIMIT 60"""
     )]
-    ranks: dict[str, set[str]] = {}
+    subject_total = int(connection.execute(
+        "SELECT COUNT(DISTINCT entity_id) FROM events WHERE entity_id IS NOT NULL"
+    ).fetchone()[0] or 0)
+    ranks: dict[str, dict[str, int]] = {}
     for row in connection.execute("SELECT hierarchy_json FROM entities"):
         try:
             hierarchy = json.loads(row[0] or "{}")
@@ -211,40 +219,66 @@ def capability_vocabulary(connection: sqlite3.Connection) -> dict[str, Any]:
             continue
         for rank, group in (hierarchy or {}).items():
             if isinstance(group, str) and group:
-                ranks.setdefault(str(rank), set()).add(group)
-    categories: dict[str, set[str]] = {}
+                bucket = ranks.setdefault(str(rank), {})
+                bucket[group] = bucket.get(group, 0) + 1
+    categories: dict[str, dict[str, int]] = {}
     for table in ("events", "effort"):
-        for row in connection.execute(
-            f"SELECT source_id, properties_json FROM {table}"
-        ):
+        for row in connection.execute(f"SELECT source_id, properties_json FROM {table}"):
             try:
                 properties = json.loads(row["properties_json"] or "{}")
             except (TypeError, ValueError):
                 continue
             for key, value in (properties or {}).items():
                 if isinstance(value, (str, int, float)) and str(value):
-                    categories.setdefault(row["source_id"], set()).add(str(key))
+                    bucket = categories.setdefault(row["source_id"], {})
+                    bucket[str(key)] = bucket.get(str(key), 0) + 1
+    event_types = [{
+        "event_type": row["event_type"], "records": int(row["records"]),
+    } for row in connection.execute(
+        """SELECT event_type, COUNT(*) AS records FROM events
+           GROUP BY event_type ORDER BY records DESC, event_type"""
+    )]
     return {
         "metrics": metrics,
+        "metrics_total": len(metrics),
         "subjects": subjects,
+        "subjects_total": subject_total,
         "hierarchy": [
-            {"rank": rank, "groups": sorted(groups)[:8]}
-            for rank, groups in sorted(ranks.items()) if groups
-        ][:8],
-        "event_types": [
-            row[0] for row in connection.execute(
-                "SELECT DISTINCT event_type FROM events ORDER BY event_type"
-            )
-        ][:12],
+            {
+                "rank": rank,
+                # Biggest group first: the largest group in the pack must never be the one cut.
+                "groups": [
+                    {"group": group, "members": members}
+                    for group, members in sorted(
+                        groups.items(), key=lambda item: (-item[1], item[0])
+                    )
+                ],
+                "groups_total": len(groups),
+            }
+            for rank, groups in sorted(
+                ranks.items(), key=lambda item: (-sum(item[1].values()), item[0])
+            ) if groups
+        ],
+        "event_types": event_types,
         "effort_methods": [
-            row[0] for row in connection.execute(
-                "SELECT DISTINCT method FROM effort ORDER BY method"
+            {"method": row["method"], "rows": int(row["rows_count"])}
+            for row in connection.execute(
+                """SELECT method, COUNT(*) AS rows_count FROM effort
+                   GROUP BY method ORDER BY rows_count DESC, method"""
             )
-        ][:8],
+        ],
         "sources": [
-            {"source_id": source_id, "category_properties": sorted(keys)[:10]}
-            for source_id, keys in sorted(categories.items())
-        ][:12],
+            {
+                "source_id": source_id,
+                "category_properties": [
+                    key for key, _ in sorted(keys.items(), key=lambda item: (-item[1], item[0]))
+                ],
+                "category_properties_total": len(keys),
+            }
+            for source_id, keys in sorted(
+                categories.items(), key=lambda item: (-sum(item[1].values()), item[0])
+            )
+        ],
     }
 
 

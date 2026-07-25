@@ -78,6 +78,32 @@ COOCCURRENCE_CAPABILITIES: list[dict[str, Any]] = [
         ),
     },
     {
+        "capability_id": "interaction-pairs",
+        "version": "1.0.0",
+        "label": "Name the recorded subject-object pairs: who was recorded on or with what",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "interaction_type": {"type": "string", "minLength": 1},
+                "entity": {"type": "string", "minLength": 1},
+                "object": {"type": "string", "minLength": 1},
+                "limit": {"type": "integer", "minimum": 1, "maximum": 60},
+            },
+            "required": [],
+        },
+        "output_views": ["interaction-pairs", "interaction-network"],
+        "required_planes": ["interactions", "entities"],
+        "optional_planes": [],
+        "latency_class": "interactive",
+        "evidence_classes": ["observed"],
+        "availability": "ready",
+        "scope": "site",
+        "reason": (
+            "Reads the stored subject-object rows and names the pairs. Each pair is what a "
+            "source recorded, not a demonstrated ecological function."
+        ),
+    },
+    {
         "capability_id": "entity-activity-profile",
         "version": "1.0.0",
         "label": "Summarise everything recorded for one subject, and who shares its squares",
@@ -1141,6 +1167,255 @@ class CooccurrenceService:
         return self._write(result, {
             "activity-profile": ("application/json", profile_rows),
             "activity-tiles": ("application/json", tiles),
+        })
+
+    # ------------------------------------------------------------------ named pairs
+
+    def named_pairs(
+        self, interaction_type: str = "", entity: str = "", other: str = "",
+        limit: int = 25,
+    ) -> dict[str, Any]:
+        """The recorded subject-object pairs, named and ranked. The pack's richest plane.
+
+        The index holds thousands of rows saying which animal was recorded on which tree, and the
+        answer to "which trees get their seed moved, and by whom" was "there are no recorded rows
+        for seed movement itself". The relation totals were being relayed and the pairs underneath
+        them never were, so the network was described as a shape — "37 things in 72 pairs" — and
+        never named.
+        """
+        clauses: list[str] = []
+        parameters: list[Any] = []
+        with self.connect() as connection:
+            if interaction_type:
+                clauses.append("i.interaction_type = ?")
+                parameters.append(interaction_type)
+            for value, column in ((entity, "subject"), (other, "object")):
+                if not value:
+                    continue
+                resolved = self.resolve_subject(connection, value)
+                if resolved["entity_ids"]:
+                    placeholders = ",".join("?" * len(resolved["entity_ids"]))
+                    clauses.append(
+                        f"(i.subject_entity_id IN ({placeholders}) "
+                        f"OR i.object_entity_id IN ({placeholders}))"
+                        if column == "subject" else
+                        f"i.object_entity_id IN ({placeholders})"
+                    )
+                    parameters.extend(resolved["entity_ids"])
+                    if column == "subject":
+                        parameters.extend(resolved["entity_ids"])
+            where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+            rows = [dict(row) for row in connection.execute(
+                f"""SELECT s.display_name AS subject, o.display_name AS object,
+                           i.interaction_type AS interaction_type,
+                           COUNT(*) AS records,
+                           COALESCE(SUM(i.count_value), 0) AS counted,
+                           COUNT(DISTINCT i.source_id) AS sources,
+                           MIN(i.year) AS first_year, MAX(i.year) AS last_year,
+                           GROUP_CONCAT(DISTINCT i.source_id) AS source_ids
+                    FROM interactions i
+                    JOIN entities s ON s.entity_id = i.subject_entity_id
+                    JOIN entities o ON o.entity_id = i.object_entity_id{where}
+                    GROUP BY s.display_name, o.display_name, i.interaction_type
+                    ORDER BY records DESC, counted DESC, subject, object
+                    LIMIT ?""",
+                [*parameters, max(1, min(int(limit or 25), 60))],
+            )]
+            totals = connection.execute(
+                f"""SELECT COUNT(*) AS rows_count,
+                           COUNT(DISTINCT i.subject_entity_id || '|' || i.object_entity_id)
+                             AS pairs,
+                           COUNT(DISTINCT i.subject_entity_id) AS subjects,
+                           COUNT(DISTINCT i.object_entity_id) AS objects
+                    FROM interactions i{where}""",
+                parameters,
+            ).fetchone()
+            titles = {
+                row["source_id"]: row["title"] for row in connection.execute(
+                    "SELECT source_id,title FROM sources"
+                )
+            }
+        pairs = [{
+            "subject": row["subject"],
+            "object": row["object"],
+            "relation": _clean(row["interaction_type"]).replace("_", " "),
+            "records": int(row["records"]),
+            "counted": (
+                int(row["counted"]) if row["counted"] and float(row["counted"]).is_integer()
+                else row["counted"] or None
+            ),
+            "years": (
+                f"{int(row['first_year'])}–{int(row['last_year'])}"
+                if row["first_year"] and row["last_year"] != row["first_year"]
+                else (str(int(row["first_year"])) if row["first_year"] else None)
+            ),
+            "sources": [
+                titles.get(item, item)
+                for item in str(row["source_ids"] or "").split(",") if item
+            ][:3],
+        } for row in rows]
+        return {
+            "pairs": pairs,
+            "totals": {
+                "rows": int(totals["rows_count"] or 0),
+                "named_pairs": int(totals["pairs"] or 0),
+                "distinct_subjects": int(totals["subjects"] or 0),
+                "distinct_objects": int(totals["objects"] or 0),
+            },
+        }
+
+    def interaction_pairs_result(
+        self, request_id: str, interaction_type: str = "", entity: str = "",
+        other: str = "", limit: int = 25, question: str = "",
+    ) -> dict[str, Any]:
+        """One envelope naming the recorded pairs, with a network and a ranked table."""
+        found = self.named_pairs(interaction_type, entity, other, limit)
+        pairs, totals = found["pairs"], found["totals"]
+        request_id = _clean(request_id)[:200] or "pairs-" + _digest(found).split(":", 1)[1][:12]
+        bindings = {
+            "interaction_type": interaction_type or None, "entity": entity or None,
+            "object": other or None, "limit": limit,
+        }
+        original = _clean(question) or "Which things were recorded with which, and how often?"
+        result_id = "result-pairs-" + _digest({
+            "site": self.site.get("site_id"), "pack": self.pack_digest,
+            "request_id": request_id, **bindings,
+        }).split(":", 1)[1][:20]
+        with self.connect() as connection:
+            source_ids = {
+                row[0] for row in connection.execute(
+                    "SELECT DISTINCT source_id FROM interactions"
+                )
+            }
+            source_versions = self._source_versions(connection, source_ids)
+        if not pairs:
+            result = self._base(
+                result_id, request_id, "interaction-pairs", original,
+                "Name the recorded subject-object pairs.", bindings,
+                "No recorded pairs match that request.", ["missing"], "blocked", source_versions,
+            )
+            result["limitations"].append(self._limitation(
+                "no-pairs-recorded",
+                (
+                    "No stored row pairs those two together. That is a gap in what was written "
+                    "down, not evidence that it does not happen."
+                ),
+                severity="error", affects=["answer"],
+            ))
+            return self._write(result, {})
+
+        top = pairs[0]
+        headline = (
+            f"{totals['named_pairs']:,} named pairs recorded, across "
+            f"{totals['rows']:,} rows. The most recorded is {top['subject']} with "
+            f"{top['object']} ({top['records']:,} records)."
+        )
+        result = self._base(
+            result_id, request_id, "interaction-pairs", original,
+            "Recorded subject-object pairs, ranked by how often each was written down.",
+            bindings, headline, ["observed"], "complete", source_versions,
+        )
+        result["answer"]["detail"] = "; ".join(
+            f"{item['subject']} with {item['object']} ({item['records']:,})"
+            for item in pairs[:6]
+        ) + "."
+        network = {
+            "nodes": sorted(
+                {item["subject"] for item in pairs} | {item["object"] for item in pairs}
+            ),
+            "edges": [{
+                "source": item["subject"], "target": item["object"],
+                "relation": item["relation"], "weight": item["records"],
+            } for item in pairs],
+        }
+        pairs_ref = self._data_ref("interaction-pairs", "application/json", pairs)
+        network_ref = self._data_ref("interaction-network", "application/json", network)
+        limitations = [
+            self._limitation(
+                "recorded-not-demonstrated",
+                (
+                    "Each pair is what a source wrote down — an animal seen at or on a plant, or "
+                    "detected at an experiment. It is a record of being seen together, not proof "
+                    "that seed was moved, eaten or dispersed."
+                ),
+                severity="warning", affects=["answer", "interaction-pairs"],
+            ),
+            self._limitation(
+                "ranked-by-recording",
+                (
+                    "The ranking is by how often each pair was recorded, which follows watching "
+                    "effort as well as behaviour: a heavily watched tree will out-rank a rarely "
+                    "visited one."
+                ),
+                severity="warning", affects=["interaction-pairs"],
+            ),
+        ]
+        result["limitations"].extend(limitations)
+        result["visuals"] = [
+            {
+                "visual_id": "interaction-pairs",
+                "visual_type": "table",
+                "view": "interaction-pairs",
+                "title": "Who was recorded with what, most recorded first",
+                "priority": "primary",
+                "status": "ready",
+                "scope": {"aoi_ids": ["target"], "time": {"start": None, "end": None}},
+                "layers": [{
+                    "layer_id": "interaction-pairs", "evidence_class": "observed",
+                    "geometry_type": "table", "data_ref": pairs_ref,
+                    "legend": {"label": f"{len(pairs)} named pairs"},
+                    "style_hint": {"palette_role": "observed"},
+                }],
+                "summary": {
+                    "headline": headline,
+                    "denominators": {
+                        "pairs_shown": len(pairs), "named_pairs": totals["named_pairs"],
+                        "rows": totals["rows"], "subjects": totals["distinct_subjects"],
+                        "objects": totals["distinct_objects"],
+                    },
+                },
+                "drilldowns": [],
+                "limitations": limitations,
+            },
+            {
+                "visual_id": "interaction-network",
+                "visual_type": "network",
+                "view": "interaction-network",
+                "title": "The recorded network",
+                "priority": "supporting",
+                "status": "ready",
+                "scope": {"aoi_ids": ["target"], "time": {"start": None, "end": None}},
+                "layers": [{
+                    "layer_id": "interaction-network", "evidence_class": "observed",
+                    "geometry_type": "graph", "data_ref": network_ref,
+                    "legend": {"label": "Recorded together"},
+                    "style_hint": {"palette_role": "observed"},
+                }],
+                "summary": {
+                    "headline": headline,
+                    "denominators": {
+                        "nodes": len(network["nodes"]), "edges": len(network["edges"]),
+                    },
+                },
+                "drilldowns": [],
+                "limitations": limitations[:1],
+            },
+        ]
+        for item in pairs[:3]:
+            result["actions"].append({
+                "action_id": f"map-{_key(item['object']).replace(' ', '-')[:40]}",
+                "kind": "run_capability",
+                "label": f"Map where {item['object']} is recorded",
+                "capability_id": "entity-record-map",
+                "arguments": {"entity": item["object"]},
+                "requires_confirmation": True,
+            })
+        result["audit"]["interaction_pairs"] = {
+            "totals": totals, "pairs_shown": len(pairs), "bindings": bindings,
+        }
+        return self._write(result, {
+            "interaction-pairs": ("application/json", pairs),
+            "interaction-network": ("application/json", network),
         })
 
     def _partners(

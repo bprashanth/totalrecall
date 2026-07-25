@@ -236,6 +236,48 @@ python3 dss/visual_index/estimate_service.py \
   --cell at:10.30:76.94 --target event_total:mgnrega_work   # add --approach to run one
 ```
 
+## Looking the name up before refusing it
+
+A field ecologist asked whether the site held anything at all on lantana and was told it did not.
+The pack holds `Lantana camara` in 36 records across three surveys, and the assistant typed the
+correct binomial in its own next sentence — as somewhere else to look. The same failure hit
+`mammal` while `Mammalia` sat in the index as a class with 30 members and three dedicated sources.
+
+Neither was a data problem. The accepted-value lists printed into the skill text were cut
+**alphabetically** and the text called them exhaustive, so `Magnoliopsida` (575 entities, the
+largest group in the pack) and every metric after `adult_m…` were invisible, and absence from a
+printed sample became a statement about the world. Two changes: `capability_vocabulary` now orders
+every list by how much data each value has and reports its own total beside the sample, and
+`name_resolver.py` runs a real lookup before any refusal — exact alias, then genus or first word
+(`Lantana` → `Lantana camara`), then shared words (`grey hornbill` → `Malabar Grey Hornbill`),
+then hierarchy groups at any rank (`mammal` → class `Mammalia`), then metrics and kinds of record.
+
+The bridge calls it before the capability, rewrites the call when the index files the name
+differently, and hands the reading back as `name_resolution` so the answer opens by saying which
+reading it took. An empty result means the lookup ran and found nothing — the only honest basis
+for saying a name is not recorded here.
+
+## Naming the pairs, not counting the relations
+
+The index holds 5,622 source-linked interaction rows with named subjects and objects, and the
+question they exist to answer — which trees get their seed moved, and by which animals — came back
+as "no recorded source-linked rows for seed movement". `interaction-pairs` returns the pairs
+themselves, ranked by how often each was written down, with a table and a network view: *Yellow-
+browed Bulbul on Persea macrantha, 629 records*. Every result says that a pair is a record of
+being seen together, not proof that seed was moved, and that the ranking follows watching effort
+as well as behaviour. `interaction-map` keeps working and now carries `named_pairs` alongside its
+relation totals.
+
+## Where to survey next
+
+Asked to rank the top five places for next season's effort, the assistant argued coverage-gap
+logic for six turns and then ranked by record density — where we have already looked — naming each
+square by its latitude band. `survey_priority.py` computes the ranking instead: squares score on
+the gap between what is recorded in them and how much documented survey work stands behind that
+recording, and each is resolved to the nearest place the pack itself names, with the distance. The
+result says in its own limitations that it ranks where the data is thinnest and **not** where the
+ecology is richest.
+
 ## Two subjects in the same square
 
 "Show me where both hornbills and elephants occur" had no answer here at all. `interaction-map`

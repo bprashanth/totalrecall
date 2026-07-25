@@ -72,6 +72,16 @@ entity retained. It does not collapse mixed protocols into a comparative abundan
 The interaction capability likewise requires a source-declared subject and object. It can render
 the seed-experiment camera detections as a linked map and network, but it does not call every
 detection predation or infer an interaction from two nearby points.
+Three capabilities are declared by the serving bridge rather than by this pack's registry, and
+each exists because a question this pack can answer was being refused. `interaction-pairs` names
+the recorded subject-object pairs and ranks them, so "which trees get their seed moved, and by
+which animals" returns *Yellow-browed Bulbul on Persea macrantha, 629 records* rather than a count
+of relation types; a pair remains a record of being seen together, never proof that seed moved.
+`survey-priority-squares` ranks where to survey next by the gap between what is recorded and the
+documented effort behind it, naming each square by the nearest place this pack holds a coordinate
+for, and says in its own limitations that it ranks thin data rather than rich ecology.
+`co-occurrence-map` intersects the squares two subjects were recorded in, without ever calling
+that an interaction.
 The stratified survey capability maps source-declared sites and compares categories while keeping
 site replication and survey effort visible. Its summaries are descriptive observation-process
 results; they are not silently promoted to treatment effects or population estimates.

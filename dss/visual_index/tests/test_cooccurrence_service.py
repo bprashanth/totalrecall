@@ -199,6 +199,37 @@ class CooccurrenceServiceTest(unittest.TestCase):
             item["capability_id"] == "co-occurrence-map" for item in envelope["actions"]
         ))
 
+    def test_named_pairs_are_named_not_counted(self):
+        """The richest plane in the pack was reported as "37 things in 72 pairs" and never named."""
+        found = self.service.named_pairs(limit=10)
+        self.assertGreater(found["totals"]["rows"], 0)
+        self.assertGreater(found["totals"]["named_pairs"], 0)
+        self.assertTrue(found["pairs"])
+        top = found["pairs"][0]
+        for key in ("subject", "object", "relation", "records", "sources"):
+            self.assertTrue(top[key] not in (None, "", []), key)
+        # Ranked by how often each pair was written down.
+        counts = [item["records"] for item in found["pairs"]]
+        self.assertEqual(counts, sorted(counts, reverse=True))
+
+    def test_the_pairs_envelope_carries_a_network_and_its_caveats(self):
+        envelope = self.service.interaction_pairs_result("test-pairs", limit=10)
+        self.assertEqual(envelope["status"], "complete")
+        views = {visual["view"] for visual in envelope["visuals"]}
+        self.assertIn("interaction-pairs", views)
+        self.assertIn("interaction-network", views)
+        codes = {item["code"] for item in envelope["limitations"]}
+        self.assertIn("recorded-not-demonstrated", codes)
+        self.assertIn("ranked-by-recording", codes)
+        message = next(
+            item["message"] for item in envelope["limitations"]
+            if item["code"] == "recorded-not-demonstrated"
+        )
+        self.assertIn("not proof", message)
+        # A pair names both sides in the prose the model relays.
+        self.assertIn(" with ", envelope["answer"]["detail"])
+        self.assertTrue(envelope["actions"])
+
     def test_the_envelope_is_a_readable_idli_result(self):
         envelope = self.service.co_occurrence_map(
             "test-envelope", ["Footpath repair", "Construction labour"]

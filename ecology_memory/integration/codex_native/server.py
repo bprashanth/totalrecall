@@ -534,6 +534,17 @@ def _visual_capability_lines() -> list[str]:
             "surveys, years, what was measured where it was seen, and which subjects share its "
             "squares. Arguments: `entity`, or `rank` with `group`."
         )
+        lines.append(
+            "- `interaction-pairs` — NAMES the recorded subject-object pairs and ranks them (who "
+            "was recorded on or with what, how often, from which survey). Use this for who "
+            "disperses / eats / visits what. Arguments: `interaction_type` (optional), `entity` "
+            "(optional), `object` (optional), `limit` (optional)."
+        )
+        lines.append(
+            "- `survey-priority-squares` — Ranks where to survey next by the gap between what is "
+            "recorded and the documented survey work behind it, naming each square by its "
+            "nearest recorded place. Arguments: `limit` (optional), `scope` (optional)."
+        )
     return lines
 
 
@@ -543,8 +554,13 @@ def _visual_argument_lines() -> list[str]:
     Declared argument NAMES are not enough to make a call: "which village has the most survey
     visits?" needs `stratified-survey-summary` with a `source_id` and a `category_property`, and
     a model that has never been shown that `syn-household-survey` carries a `village` property
-    cannot make that call. It reaches for the orientation map instead and then reports the
-    orientation map's limitations as though they were the site's.
+    cannot make that call.
+
+    Two rules, both learned the hard way. Order by how much data each value has, never
+    alphabetically — an alphabetical cut is how `Mammalia` and `Magnoliopsida` (the largest group
+    in the pack) ended up behind *Amphibia, Aves, Gnetopsida…*, and how every metric after
+    "adult_m" vanished. And say that the list is a SAMPLE: told the printed list was exhaustive,
+    the model reported that a site holds no lantana while 36 lantana records sat in the index.
     """
     if VISUAL_INDEX_PATH is None or not VISUAL_INDEX_PATH.is_file():
         return []
@@ -561,38 +577,151 @@ def _visual_argument_lines() -> list[str]:
             vocabulary = target_catalogue.capability_vocabulary(connection)
     except Exception:
         return []
+
+    def sample(shown: int, total: int) -> str:
+        return f" (+{total - shown} more not listed)" if total > shown else ""
+
     lines: list[str] = []
     if vocabulary.get("metrics"):
+        metrics = vocabulary["metrics"][:30]
         lines.append(
-            "- `metric-time-series` accepts `metric`: "
+            "- `metric-time-series` accepts `metric`, most-measured first: "
             + "; ".join(
-                f"`{item['metric']}` ({item['label']}, {item['unit']})"
-                for item in vocabulary["metrics"][:10]
+                f"`{item['metric']}` ({item['label']})" for item in metrics
             )
+            + sample(len(metrics), int(vocabulary.get("metrics_total") or len(metrics)))
         )
     if vocabulary.get("subjects"):
+        subjects = vocabulary["subjects"][:30]
         lines.append(
-            "- `entity-record-map` accepts `entity`, and these have the most records: "
-            + ", ".join(f"{item['entity']}" for item in vocabulary["subjects"][:10])
+            "- `entity-record-map` accepts `entity`, most-recorded first: "
+            + ", ".join(item["entity"] for item in subjects)
+            + sample(len(subjects), int(vocabulary.get("subjects_total") or len(subjects)))
         )
-    for item in vocabulary.get("hierarchy") or []:
+    for item in (vocabulary.get("hierarchy") or [])[:10]:
+        groups = item["groups"][:12]
         lines.append(
-            f"- `group-record-map` accepts `rank`: `{item['rank']}` with `group`: "
-            + ", ".join(item["groups"][:6])
+            f"- `group-record-map` accepts `rank`: `{item['rank']}` with `group`, biggest first: "
+            + ", ".join(f"{entry['group']} ({entry['members']})" for entry in groups)
+            + sample(len(groups), int(item.get("groups_total") or len(groups)))
         )
-    for item in vocabulary.get("sources") or []:
-        if item.get("category_properties"):
+    for item in (vocabulary.get("sources") or [])[:12]:
+        properties = (item.get("category_properties") or [])[:10]
+        if properties:
             lines.append(
                 f"- `stratified-survey-summary` accepts `source_id`: `{item['source_id']}` "
                 "with `category_property`: "
-                + ", ".join(f"`{key}`" for key in item["category_properties"][:8])
+                + ", ".join(f"`{key}`" for key in properties)
+                + sample(
+                    len(properties),
+                    int(item.get("category_properties_total") or len(properties)),
+                )
             )
     if vocabulary.get("event_types"):
+        kinds = vocabulary["event_types"][:20]
         lines.append(
-            "- record kinds in this site: "
-            + ", ".join(f"`{name}`" for name in vocabulary["event_types"][:10])
+            "- kinds of record here, most-recorded first: "
+            + ", ".join(f"`{item['event_type']}`" for item in kinds)
+            + sample(len(kinds), len(vocabulary["event_types"]))
         )
     return lines
+
+
+def _visual_name_lookup(text: str, kinds: tuple[str, ...] = (
+    "entity", "group", "metric", "record_kind",
+)) -> dict:
+    """Look a name up in the pinned index. An empty result means the lookup actually ran."""
+    service = _result_service()
+    if service is None or not text:
+        return {}
+    try:
+        module = _visual_module("name_resolver")
+        with service.connect() as connection:
+            connection.row_factory = sqlite3.Row
+            return module.resolve_name(connection, text, kinds=kinds)
+    except Exception as exc:
+        _VISUAL_SERVICE_ERRORS.setdefault("name_resolver", f"{type(exc).__name__}: {exc}")
+        return {}
+
+
+# Which argument each capability resolves names through, and what kinds are worth trying.
+_NAME_ARGUMENTS: dict[str, tuple[str, tuple[str, ...]]] = {
+    "entity-record-map": ("entity", ("entity", "group")),
+    "group-record-map": ("group", ("group", "entity")),
+    "metric-time-series": ("metric", ("metric", "entity")),
+    "interaction-map": ("entity", ("entity", "group")),
+}
+
+
+def _visual_pick_candidate(candidates: list[dict], primary: str) -> dict:
+    """The best-supported reading, preferring the kind this capability takes when it is close.
+
+    Two rules, both from real answers this got wrong. Rank by records, so "mammal" reaches the
+    class with 5,863 records rather than a seed-dispersal group with 3,390 that happens to be
+    spelled exactly. And when the capability's own kind is within reach of the best, prefer it,
+    so "Lantana" reaches the species rather than the one-species genus above it.
+    """
+    top = max(item["records"] for item in candidates)
+    preferred = [
+        item for item in candidates
+        if item["kind"] == primary and item["records"] >= 0.8 * max(top, 1)
+    ]
+    pool = preferred or candidates
+    return max(
+        pool,
+        key=lambda item: (item["records"], item["matched_how"].startswith("exact")),
+    )
+
+
+def _visual_resolve_arguments(capability_id: str, arguments: dict) -> dict:
+    """Try the user's word against the index before the capability can call it a non-match.
+
+    The bug this closes: `entity-record-map` was called with `Lantana`, the bare genus missed the
+    only registered alias (`lantana camara`), and the answer was that the site holds no lantana.
+    A refusal has to be preceded by a lookup that actually ran and actually found nothing. When a
+    lookup does find something, the substitution is reported back — never made silently — so the
+    answer can say which reading it took.
+    """
+    field, kinds = _NAME_ARGUMENTS.get(capability_id, ("", ()))
+    requested = " ".join(str(arguments.get(field) or "").split()) if field else ""
+    if not requested:
+        return {}
+    found = _visual_name_lookup(requested, kinds)
+    candidates = found.get("candidates") or []
+    if not candidates:
+        return {"requested": requested, "looked_up": bool(found), "candidates": []}
+    # Exactness is judged against the kind this capability actually takes. "Lantana" is an exact
+    # GENUS, which does not help `entity-record-map`, and treating it as exact is what let the
+    # call go through unchanged and come back as a non-match.
+    primary = kinds[0]
+    exact = any(
+        item["kind"] == primary and item["value"].casefold() == requested.casefold()
+        for item in candidates
+    )
+    best = _visual_pick_candidate(candidates, primary)
+    resolution = {
+        "requested": requested, "looked_up": True, "exact": exact,
+        "candidates": candidates[:6],
+    }
+    if exact:
+        return resolution
+    # The name as given would not have resolved. Rewrite the call to the best-supported reading
+    # and hand the reading back so it can be said out loud.
+    if capability_id in {"entity-record-map", "interaction-map"} and best["kind"] == "entity":
+        arguments[field] = best["value"]
+    elif capability_id == "entity-record-map" and best["kind"] == "group":
+        resolution["switch_capability"] = "group-record-map"
+        resolution["switch_arguments"] = {"rank": best["rank"], "group": best["value"]}
+    elif capability_id == "group-record-map" and best["kind"] == "group":
+        arguments["rank"] = best.get("rank") or arguments.get("rank")
+        arguments["group"] = best["value"]
+    elif capability_id == "metric-time-series" and best["kind"] == "metric":
+        arguments[field] = best["value"]
+    resolution["used"] = {
+        "kind": best["kind"], "value": best["value"], "label": best["label"],
+        "records": best["records"], "matched_how": best["matched_how"],
+    }
+    return resolution
 
 
 def _visual_result_skill() -> dict | None:
@@ -645,6 +774,57 @@ def _visual_result_skill() -> dict | None:
             + example +
             "\n\nThe skill returns only `result_id`, `status`, `headline`, `limitations`, visual "
             "titles, `actions` and an `answer_marker`. It never returns the result payload.\n\n"
+            "NAMES: LOOK BEFORE YOU REFUSE. The value lists above are a SAMPLE, ordered by how much data "
+            "each has - not the whole vocabulary. A name that is not printed may still be in the index. "
+            "NEVER say a site holds nothing on something because its name is missing from a list: call the "
+            "capability with the user's word first. The bridge looks the word up before the call and, when "
+            "the index files it differently, rewrites the call and returns `name_resolution` - say that "
+            "reading out loud in your first sentence (“I read 'lantana' as Lantana camara, which this site "
+            "has 36 records of”). If `name_resolution.answered_about` is null, the lookup really ran and "
+            "really found nothing: only then may you say the name is not recorded here, and you must add "
+            "that this is a naming gap, not evidence of absence. Try the binomial, the genus, the everyday "
+            "word and the group before concluding anything.\n"
+            "A TOTAL IS NOT A BREAKDOWN. When the user asks for a split - per plot type, per village, per "
+            "year, per class - and the summary comes back with only a total, CALL THE SAME CAPABILITY "
+            "AGAIN with the declared `category_property` before you answer. The declared properties are "
+            "listed above, per source. One silent retry applies to under-resolved answers exactly as it "
+            "applies to unresolved ones: a total where a breakdown was asked for is not an answer.\n"
+            "NAME THE UNIT YOU ANSWERED IN. If the question was about plots and the figure is per map "
+            "square, say so in those words and name the study it came from - “that is at 1.1 km square "
+            "level, from the bird recovery survey, not per vegetation plot” - and offer the plot-level "
+            "route. Silently swapping the unit of analysis is worse than saying you cannot do it.\n"
+            "EVERY FIGURE CARRIES ITS SURVEY. `sources` in the summary gives the datasets behind the "
+            "result. Any number you write must name the survey it came from. Never name a survey from "
+            "memory or from what the conversation was about: a real count attributed to the wrong study "
+            "sends someone to the wrong plots.\n"
+            "WHO EATS OR MOVES WHAT. “Which animals disperse which trees”, “who visits which tree”, “who "
+            "eats what”, “the frugivore network” -> `interaction-pairs`, which names the recorded pairs "
+            "and ranks them. `interaction-map` gives relation totals; when you have called it, the summary "
+            "also carries `named_pairs` - name them. Never answer a question about pairs with the number of "
+            "relation types. Each pair is a record of being seen together, not proof that seed was moved.\n"
+            "WHERE SHOULD I SURVEY. “Where should I fly / walk / send effort”, “rank the places”, “where is "
+            "coverage thinnest” -> `survey-priority-squares`, which ranks by the gap between what is "
+            "recorded and the survey work documented behind it, and names each square by its nearest "
+            "recorded place. NEVER rank by record count - that is where we have already looked - and never "
+            "give a person a latitude band as a destination when the ranking gives a place name.\n"
+            "END ON AN OFFER, IN THE OFFERING REGISTER. Every answer finishes by offering the "
+            "person the next thing, phrased so they can say yes: “If you want, I can pull the "
+            "rows behind that”, “If you want, I can split it by plot type”, “Would you like the "
+            "same for the benchmark plots?”. Do NOT announce a plan instead — “I can next "
+            "check…”, “Open the table next” are not offers a person can accept. One offer, at "
+            "the end, naming the thing you would actually run. Prefer one that matches a "
+            "returned action. An answer that ends on a caveat is a dead end however careful it "
+            "sounds.\n"
+            "WHEN THE QUESTION IS ABOUT WHAT IS MISSING, ANSWER WITH WHAT IS MISSING. “What "
+            "is the weakest link”, “what would a reviewer attack”, “what is missing entirely”, "
+            "“what would you not let me say”, “what would I have to start measuring from "
+            "zero” — each needs one plain sentence naming the thing that is NOT here: “this "
+            "site does not have repeat measurements of X”, “there is no record of Y here”. "
+            "Say it in those words before you offer anything. A caveat about how to read a "
+            "figure is not the same as naming an absence.\n"
+            "GIVE THE FIGURE. If the summary came back with numbers, your answer contains "
+            "numbers. “Substantial”, “many”, “a much smaller subset” are not answers to a how "
+            "much / which / where question when the count was in your hand.\n"
             "TWO SUBJECTS IN ONE QUESTION. \"Where do X and Y both occur\", \"are they seen together\", "
             "\"overlay X with Y\", \"does X occur with Y\" → `co-occurrence-map` with both as "
             "`subjects`. Never eyeball two separate maps, never state an overlap from memory, and never "
@@ -1424,6 +1604,7 @@ def _upload_capabilities() -> list[dict]:
         ("estimate_service", "ESTIMATE_CAPABILITIES"),
         ("earth_layer_service", "EARTH_LAYER_CAPABILITIES"),
         ("cooccurrence_service", "COOCCURRENCE_CAPABILITIES"),
+        ("survey_priority", "SURVEY_PRIORITY_CAPABILITIES"),
     ):
         with contextlib.suppress(Exception):
             listed.extend(getattr(_visual_module(module_name), attribute))
@@ -1478,6 +1659,14 @@ def _visual_result_summary(envelope: dict) -> dict:
             "arguments": item.get("arguments"),
             "expected_effect": " ".join(str(item.get("expected_effect") or "").split()) or None,
         } for item in (envelope.get("actions") or []) if isinstance(item, dict)][:6],
+        # The dataset each figure came from. A number quoted without its survey sent a user to
+        # revisit the wrong plots: the count was real, the study named in the sentence was not
+        # the one it came from.
+        "sources": [{
+            "source_id": item.get("source_id"),
+            "title": " ".join(str(item.get("title") or "").split()),
+        } for item in ((envelope.get("audit") or {}).get("source_versions") or [])
+            if isinstance(item, dict)][:8],
         "answer_marker": _visual_result_marker(result_id),
         "instruction": (
             "Put answer_marker on its own line in your final answer, then write 1-3 sentences "
@@ -1496,13 +1685,126 @@ def _visual_result_summary(envelope: dict) -> dict:
     }
 
 
-_COOCCURRENCE_CAPABILITY_IDS = {"co-occurrence-map", "entity-activity-profile"}
+_COOCCURRENCE_CAPABILITY_IDS = {
+    "co-occurrence-map", "entity-activity-profile", "interaction-pairs",
+    "survey-priority-squares",
+}
+
+
+_SURVEY_PRIORITY_SERVICE: Any = None
+
+
+def _survey_priority_service() -> Any:
+    """Bind the coverage-gap ranker to the same pinned pack, index and state."""
+    global _SURVEY_PRIORITY_SERVICE
+    service = _result_service()
+    if service is None:
+        return None
+    if _SURVEY_PRIORITY_SERVICE is None and "survey_priority" not in _VISUAL_SERVICE_ERRORS:
+        try:
+            module = _visual_module("survey_priority")
+            _SURVEY_PRIORITY_SERVICE = module.SurveyPriorityService.from_result_service(service)
+        except Exception as exc:
+            _VISUAL_SERVICE_ERRORS["survey_priority"] = f"{type(exc).__name__}: {exc}"
+    return _SURVEY_PRIORITY_SERVICE
+
+
+def _survey_priority_query(args: dict, session: "Session | None") -> dict:
+    """Rank where to survey next by the gap between records and documented effort."""
+    service = _survey_priority_service()
+    if service is None:
+        return {
+            "status": "data_request", "reason": "survey_priority_unavailable",
+            "detail": {
+                "error": (
+                    _VISUAL_SERVICE_ERRORS.get("survey_priority") or _RESULT_SERVICE_ERROR
+                    or "no visual site pack is pinned to this bridge"
+                ),
+                "ask": "Configure a visual site pack before ranking survey priorities.",
+            },
+            "provenance": [],
+        }
+    try:
+        ranked = service.rank(
+            int(args.get("limit") or 5),
+            " ".join(str(args.get("scope") or "target").split()),
+        )
+    except Exception as exc:
+        return {
+            "status": "data_request", "reason": "survey_priority_failed",
+            "detail": {"error": f"{type(exc).__name__}: {exc}"}, "provenance": [],
+        }
+    value = {
+        "kind": "survey_priority",
+        "ranked": ranked["ranked"],
+        "totals": ranked["totals"],
+        "method": ranked["method"],
+        "instruction": (
+            "Relay this ranking as written. Each entry is already a place with a reason: use the "
+            "`headline` lines, or rewrite them in your own plain words keeping the place NAME and "
+            "the figures. Never rank by record count and never name a square by its latitude "
+            "band when `place` gives a name. Say plainly that this ranks where the data is "
+            "thinnest — where a survey would tell us most — and NOT where the ecology is "
+            "richest. End on the move: offer to map the top square or pull its records."
+        ),
+        "source": "Totalrecall survey priority service",
+        "label": "derived",
+    }
+    return {
+        "status": "answer", "label": "derived", "value": value,
+        "provenance": [{
+            "op": "SURVEY_PRIORITY",
+            "squares_ranked": len(ranked["ranked"]),
+            "squares_considered": ranked["totals"].get("squares"),
+        }],
+    }
+
+
+def _named_pairs_capability(capability_id: str) -> bool:
+    """`interaction-map` returns relation totals; the pairs underneath them are the answer."""
+    return capability_id == "interaction-map"
+
+
+def _visual_named_pairs(arguments: dict) -> list[dict]:
+    """The top named subject-object pairs for an interaction request, for the summary.
+
+    The capability that runs is the pack's own and is left alone; this rides alongside it, so a
+    question about who disperses what stops being answered with "37 recorded things in 72 pairs".
+    """
+    service = _cooccurrence_service()
+    if service is None:
+        return []
+    with contextlib.suppress(Exception):
+        found = service.named_pairs(
+            " ".join(str(arguments.get("interaction_type") or "").split()),
+            " ".join(str(arguments.get("entity") or "").split()),
+            limit=12,
+        )
+        return [{
+            "subject": item["subject"], "object": item["object"],
+            "relation": item["relation"], "records": item["records"],
+            "years": item["years"], "sources": item["sources"][:2],
+        } for item in found["pairs"]]
+    return []
 
 
 def _cooccurrence_envelope(
     capability_id: str, arguments: dict, question: str, request_id: str
 ) -> dict:
-    """Run one shared-square capability, raising ValueError the way the result service does."""
+    """Run one bridge-side capability, raising ValueError the way the result service does."""
+    if capability_id == "survey-priority-squares":
+        ranker = _survey_priority_service()
+        if ranker is None:
+            raise ValueError(
+                _VISUAL_SERVICE_ERRORS.get("survey_priority")
+                or "the survey-priority service is not available on this bridge"
+            )
+        return ranker.rank_result(
+            request_id,
+            limit=int(arguments.get("limit") or 5),
+            scope=" ".join(str(arguments.get("scope") or "target").split()),
+            question=question,
+        )
     service = _cooccurrence_service()
     if service is None:
         raise ValueError(
@@ -1516,6 +1818,15 @@ def _cooccurrence_envelope(
             question=question,
             time=arguments.get("time"),
             same_year=bool(arguments.get("same_year")),
+        )
+    if capability_id == "interaction-pairs":
+        return service.interaction_pairs_result(
+            request_id,
+            interaction_type=" ".join(str(arguments.get("interaction_type") or "").split()),
+            entity=" ".join(str(arguments.get("entity") or "").split()),
+            other=" ".join(str(arguments.get("object") or "").split()),
+            limit=int(arguments.get("limit") or 25),
+            question=question,
         )
     return service.activity_profile(
         request_id,
@@ -1546,6 +1857,12 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
         turn = session.turn if session is not None else 0
         session_id = session.id if session is not None else "bridge"
         request_id = f"{session_id}-t{turn}-{secrets.token_hex(4)}"
+    # Try the name before the capability can call it a non-match. This rewrites the arguments in
+    # place when the word the user used is not the word the index files it under.
+    resolution = _visual_resolve_arguments(capability_id, arguments)
+    if resolution.get("switch_capability"):
+        capability_id = resolution["switch_capability"]
+        arguments = dict(resolution["switch_arguments"])
     try:
         # Two capabilities are declared by this bridge rather than by the pack's registry, and
         # answer the question the pack could not: where two subjects were recorded in the same
@@ -1567,6 +1884,39 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
             "provenance": [],
         }
     summary = _visual_result_summary(envelope)
+    if resolution.get("used"):
+        # Say which reading was taken, in the words the answer should use.
+        summary["name_resolution"] = {
+            "you_asked_for": resolution["requested"],
+            "answered_about": resolution["used"]["label"],
+            "records": resolution["used"]["records"],
+            "why": resolution["used"]["matched_how"],
+            "other_readings": [
+                item["label"] for item in resolution["candidates"][1:4]
+            ],
+            "say_it": (
+                f"Open by saying you read “{resolution['requested']}” as "
+                f"{resolution['used']['label']} ({resolution['used']['records']} records here), "
+                "because that is what this site files it under."
+            ),
+        }
+    elif resolution.get("looked_up") and not resolution.get("candidates"):
+        summary["name_resolution"] = {
+            "you_asked_for": resolution.get("requested"),
+            "answered_about": None,
+            "why": (
+                "The full index was searched for this word across recorded names, groups, "
+                "measured quantities and kinds of record, and nothing matched."
+            ),
+            "say_it": (
+                "This lookup really ran and really found nothing, so you may say the name is not "
+                "recorded here — and must add that this is a naming gap, not evidence of absence."
+            ),
+        }
+    if _named_pairs_capability(capability_id):
+        pairs = _visual_named_pairs(arguments)
+        if pairs:
+            summary["named_pairs"] = pairs
     status = "answer" if envelope.get("status") in {"complete", "partial", "working"} \
         else "data_request"
     execution = {
@@ -4655,9 +5005,17 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
                 "site_id": profile.get("site_id"),
                 "allowed_skills": sorted(visual_pack_allowed),
                 "ask": (
-                    "Parameterise this capability with explicit site/result handles before "
-                    "running it against this site pack."
+                    "Point this at specific records from this conversation before running it."
                 ),
+                # Structure for the interface, so a failure can be rendered rather than pasted.
+                "limitation": {
+                    "code": "route-needs-specific-records",
+                    "severity": "warning",
+                    "message": (
+                        "I could not run that route yet because it needs specific records to "
+                        "point at."
+                    ),
+                },
             },
             "provenance": [],
         }
@@ -6252,6 +6610,57 @@ def _native_prompt(message: str, session: Session) -> str:
             "prefer the one the user has not just seen, and escalate map → trend → comparison → "
             "drill-down table when the user drills deeper on the same subject. Prefer "
             "`entity-record-map` over `site-orientation` whenever the question names an entity.\n"
+            "NAMES: LOOK BEFORE YOU REFUSE. The value lists above are a SAMPLE, ordered by how much data "
+            "each has - not the whole vocabulary. A name that is not printed may still be in the index. "
+            "NEVER say a site holds nothing on something because its name is missing from a list: call the "
+            "capability with the user's word first. The bridge looks the word up before the call and, when "
+            "the index files it differently, rewrites the call and returns `name_resolution` - say that "
+            "reading out loud in your first sentence (“I read 'lantana' as Lantana camara, which this site "
+            "has 36 records of”). If `name_resolution.answered_about` is null, the lookup really ran and "
+            "really found nothing: only then may you say the name is not recorded here, and you must add "
+            "that this is a naming gap, not evidence of absence. Try the binomial, the genus, the everyday "
+            "word and the group before concluding anything.\n"
+            "A TOTAL IS NOT A BREAKDOWN. When the user asks for a split - per plot type, per village, per "
+            "year, per class - and the summary comes back with only a total, CALL THE SAME CAPABILITY "
+            "AGAIN with the declared `category_property` before you answer. The declared properties are "
+            "listed above, per source. One silent retry applies to under-resolved answers exactly as it "
+            "applies to unresolved ones: a total where a breakdown was asked for is not an answer.\n"
+            "NAME THE UNIT YOU ANSWERED IN. If the question was about plots and the figure is per map "
+            "square, say so in those words and name the study it came from - “that is at 1.1 km square "
+            "level, from the bird recovery survey, not per vegetation plot” - and offer the plot-level "
+            "route. Silently swapping the unit of analysis is worse than saying you cannot do it.\n"
+            "EVERY FIGURE CARRIES ITS SURVEY. `sources` in the summary gives the datasets behind the "
+            "result. Any number you write must name the survey it came from. Never name a survey from "
+            "memory or from what the conversation was about: a real count attributed to the wrong study "
+            "sends someone to the wrong plots.\n"
+            "WHO EATS OR MOVES WHAT. “Which animals disperse which trees”, “who visits which tree”, “who "
+            "eats what”, “the frugivore network” -> `interaction-pairs`, which names the recorded pairs "
+            "and ranks them. `interaction-map` gives relation totals; when you have called it, the summary "
+            "also carries `named_pairs` - name them. Never answer a question about pairs with the number of "
+            "relation types. Each pair is a record of being seen together, not proof that seed was moved.\n"
+            "WHERE SHOULD I SURVEY. “Where should I fly / walk / send effort”, “rank the places”, “where is "
+            "coverage thinnest” -> `survey-priority-squares`, which ranks by the gap between what is "
+            "recorded and the survey work documented behind it, and names each square by its nearest "
+            "recorded place. NEVER rank by record count - that is where we have already looked - and never "
+            "give a person a latitude band as a destination when the ranking gives a place name.\n"
+            "END ON AN OFFER, IN THE OFFERING REGISTER. Every answer finishes by offering the "
+            "person the next thing, phrased so they can say yes: “If you want, I can pull the "
+            "rows behind that”, “If you want, I can split it by plot type”, “Would you like the "
+            "same for the benchmark plots?”. Do NOT announce a plan instead — “I can next "
+            "check…”, “Open the table next” are not offers a person can accept. One offer, at "
+            "the end, naming the thing you would actually run. Prefer one that matches a "
+            "returned action. An answer that ends on a caveat is a dead end however careful it "
+            "sounds.\n"
+            "WHEN THE QUESTION IS ABOUT WHAT IS MISSING, ANSWER WITH WHAT IS MISSING. “What "
+            "is the weakest link”, “what would a reviewer attack”, “what is missing entirely”, "
+            "“what would you not let me say”, “what would I have to start measuring from "
+            "zero” — each needs one plain sentence naming the thing that is NOT here: “this "
+            "site does not have repeat measurements of X”, “there is no record of Y here”. "
+            "Say it in those words before you offer anything. A caveat about how to read a "
+            "figure is not the same as naming an absence.\n"
+            "GIVE THE FIGURE. If the summary came back with numbers, your answer contains "
+            "numbers. “Substantial”, “many”, “a much smaller subset” are not answers to a how "
+            "much / which / where question when the count was in your hand.\n"
             "TWO SUBJECTS IN ONE QUESTION. \"Where do X and Y both occur\", \"are they seen together\", "
             "\"overlay X with Y\", \"does X occur with Y\" → `co-occurrence-map` with both as "
             "`subjects`. Never eyeball two separate maps, never state an overlap from memory, and never "
@@ -6338,7 +6747,9 @@ def _native_prompt(message: str, session: Session) -> str:
         "follow-up when the scientific scope is genuinely ambiguous.\n\n"
         "OUTER DIALOGUE AND DISCOVERY. You own the conversation, clarification, site orientation "
         "and evidence discovery. You may give 2-4 sentences of general ecological background from "
-        "model knowledge. Present it naturally as `General ecological context:` rather than using "
+        "model knowledge. Label it `From general knowledge:` — say where it came from rather than "
+        "titling it — and keep it to one or two sentences, separate from what the site holds, "
+        "rather than using "
         "square-bracket labels. When a native web-search tool is actually available, you may use "
         "it and cite exact URLs; never invent a search result. General knowledge may suggest "
         "untrusted query seeds, but it is not site evidence and cannot fill a data gap. Use the "
@@ -6395,8 +6806,11 @@ def _native_prompt(message: str, session: Session) -> str:
         "single-quoted JSON. Do not "
         "manually reproduce the scientific question, Algebra 9B response, raw IR or bound "
         "execution: the controller appends those in a consistent, auditable scientific-analysis "
-        "panel after your concise answer. Do not mention internal model identifiers. Do not add a "
-        "prose menu; the controller renders valid next actions as buttons. Never read credentials "
+        "panel after your concise answer. Do not mention internal model identifiers. END EVERY "
+        "ANSWER BY OFFERING THE NEXT THING, phrased so the person can say yes: \u201cIf you want, "
+        "I can \u2026\u201d, \u201cWould you like \u2026?\u201d. Not \u201cI can next \u2026\u201d and not \u201cOpen the table "
+        "next\u201d \u2014 those announce a plan instead of offering a move. The interface may also "
+        "render buttons, but it often does not. Never read credentials "
         "or environment files." +
         routing_note + visual_note +
         "\n\nOPTIONAL SCIENTIFIC COMPILER:\n- " + compiler["id"] + ": " +
@@ -6491,6 +6905,15 @@ def _prepare_hermes_session(session: Session) -> tuple[str, str, str, str]:
     return home, work, output, binary
 
 
+def _machine_wording(text: str) -> bool:
+    """Does this sentence carry vocabulary that belongs to the plumbing, not to a reader?"""
+    lowered = str(text or "").casefold()
+    return any(word in lowered for word in (
+        "capability", "site pack", "parameterise", "parameterize", "handle", "algebra",
+        "envelope", "schema", "result_id", "endpoint",
+    ))
+
+
 def _execution_plain_text(execution: dict) -> str:
     status = str(execution.get("status") or "unknown")
     if status == "answer":
@@ -6515,17 +6938,49 @@ def _execution_plain_text(execution: dict) -> str:
             "The bound occurrence search returned no records in the selected region. "
             "This is a data gap, not evidence of absence."
         )
+    plain = {
+        "site_pack_capability_not_parameterised": (
+            "That route needs to be pointed at specific records before it can run."
+        ),
+        "invalid_capability_request": "That request did not name something this site can answer.",
+        "unknown_result_or_layer": "That view is no longer in this conversation.",
+    }.get(str(execution.get("reason") or ""))
+    if plain:
+        # A user does not need to know an Algebra tree was not returned. The machine wording
+        # stays in the audit trail, which already records it.
+        return plain + (f" {ask}" if ask and not _machine_wording(ask) else "")
     return (
         f"Execution stopped with {reason}." +
         (f" The next required input is: {ask}." if ask else "")
     )
 
 
+def _scientific_call_produced_something(call: dict) -> bool:
+    """Did this compiler call return an Algebra tree that can actually be audited?"""
+    result = call.get("result") if isinstance(call.get("result"), dict) else {}
+    outer = result.get("execution") if isinstance(result.get("execution"), dict) else {}
+    value = outer.get("value") if isinstance(outer.get("value"), dict) else {}
+    ir = value.get("ir") if isinstance(value.get("ir"), dict) else (
+        (result.get("algebra") or {}).get("ir")
+        if isinstance(result.get("algebra"), dict) else None
+    )
+    return isinstance(ir, dict) and bool(ir)
+
+
 def _scientific_response_block(session: Session) -> str:
+    """The audit panel, shown only when there is something audited to show.
+
+    When the compiler produced nothing, this panel used to staple a raw failure onto the end of
+    the user's answer — "Execution stopped with site pack capability not parameterised" and an
+    empty JSON block — in the two longest planning answers of a benchmark run, which are exactly
+    the answers a funder sees. The model's own prose in both was clean. A failed step belongs in
+    the audit trail, which already records it, not in the reply.
+    """
     calls = [
         call for call in session.turn_skill_calls
         if call.get("skill") == "compile-scientific-algebra-9b"
     ]
+    calls = [call for call in calls if _scientific_call_produced_something(call)]
     if not calls:
         return ""
     sections = []
@@ -6543,7 +6998,8 @@ def _scientific_response_block(session: Session) -> str:
         )
         actual = value.get("execution") if isinstance(value.get("execution"), dict) else outer
         human = str(value.get("human_reading") or (
-            _format_ir_human(ir) if isinstance(ir, dict) else "No valid Algebra tree was returned."
+            _format_ir_human(ir) if isinstance(ir, dict)
+            else "This step did not produce a computed result."
         ))
         raw = json.dumps(ir, indent=2, ensure_ascii=False) if isinstance(ir, dict) else "{}"
         sections.append(
@@ -6560,7 +7016,7 @@ def _scientific_response_block(session: Session) -> str:
 
 def _replace_provenance_brackets(text: str) -> str:
     replacements = {
-        "Model background": "General ecological context:",
+        "Model background": "From general knowledge:",
         "Web": "From the web:",
         "Local asset": "From local records:",
         "Public connector": "From public data:",
@@ -6588,7 +7044,7 @@ def _insight_evidence(session: Session, raw_answer: str) -> dict:
             item["skills"].append(skill)
 
     if re.search(r"(?im)^\s*(?:[-*]\s+)?(?:\[Model background\]|"
-                 r"General ecological context:)", raw_answer or ""):
+                 r"General ecological context:|From general knowledge:)", raw_answer or ""):
         add("model_background", "Model background",
             "General context from the dialogue model; not site evidence.")
 
@@ -7473,17 +7929,39 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 request_id = " ".join(str(body.get("request_id") or "").split())[:200]
                 if not request_id:
                     request_id = "req-" + secrets.token_hex(8)
-                self._send_json(200, service.query(
-                    request_id=request_id,
-                    capability_id=str(body.get("capability_id") or ""),
-                    arguments=(
-                        body["arguments"] if isinstance(body.get("arguments"), dict) else {}
-                    ),
-                    original=str(body.get("question") or ""),
-                ))
+                capability_id = str(body.get("capability_id") or "")
+                arguments = (
+                    dict(body["arguments"]) if isinstance(body.get("arguments"), dict) else {}
+                )
+                question = str(body.get("question") or "")
+                # The same name lookup and the same bridge-side capabilities the skill path uses,
+                # so a direct caller and the dialogue model never see different answers.
+                resolution = _visual_resolve_arguments(capability_id, arguments)
+                if resolution.get("switch_capability"):
+                    capability_id = resolution["switch_capability"]
+                    arguments = dict(resolution["switch_arguments"])
+                if capability_id in _COOCCURRENCE_CAPABILITY_IDS:
+                    envelope = _cooccurrence_envelope(
+                        capability_id, arguments, question, request_id)
+                else:
+                    envelope = service.query(
+                        request_id=request_id, capability_id=capability_id,
+                        arguments=arguments, original=question,
+                    )
+                if resolution.get("used"):
+                    envelope = dict(envelope)
+                    envelope["name_resolution"] = {
+                        "you_asked_for": resolution["requested"],
+                        "answered_about": resolution["used"]["label"],
+                        "records": resolution["used"]["records"],
+                        "why": resolution["used"]["matched_how"],
+                    }
+                self._send_json(200, envelope)
             except ValueError as exc:
                 self._send_json(400, {"error": str(exc),
-                                      "registered_capabilities": sorted(service.capabilities)})
+                                      "registered_capabilities": sorted(
+                                          set(service.capabilities)
+                                          | _COOCCURRENCE_CAPABILITY_IDS)})
             except Exception as exc:
                 self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
             return
