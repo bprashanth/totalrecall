@@ -7,193 +7,161 @@ bridge holds the resumable Codex thread, not the client).
 
 ```bash
 cd benchmarks/visual_conversation
-python3 bench.py --run-id <tag>                       # full run, 30 turns, ~11 min
+python3 bench.py --run-id <tag>                       # full run, 30 turns, ~9 min
 python3 bench.py --only c4-estimate --run-id spot     # one conversation
 python3 bench.py --grade-only runs/<tag>/transcript.json --run-id <tag>   # re-grade, no cost
 ```
 
 Grading is deterministic (regex and counts, no judge model), so a rerun after a skill-text change
-is directly comparable to the run before it. Per-run artefacts land in `runs/<run-id>/`.
+is directly comparable to the run before it. Per-run artefacts land in `runs/<run-id>/`. Both runs
+below are graded by the same final grader.
 
-## Baseline: run `run1-908663a` (30 turns, 2026-07-25)
+## Two runs, before and after the plain-language skill rule
 
-**1/30 turns pass (3%).** Conversations clean: 0/7. Median latency 13.9 s, max 36.1 s. The
-readability heuristic is fine (93% of turns) - sentences are short and well formed. The failures
-are not fluency failures. They are vocabulary, routing and number-suppression failures.
-
-| Category | Turn pass rate |
-| --- | --- |
-| orientation | 0% |
-| graph_comprehension | 0% |
-| vocabulary | 0% |
-| drilldown | 0% |
-| estimate | 0% |
-| honest_limits | 25% |
-| gk_usage | 0% |
-
-| Check | Pass rate | Reading |
+| | run1-908663a | run2-plainskill |
 | --- | --- | --- |
-| `visual_marker` | 100% | markers are never dropped; the transport side is healthy |
-| `rows` / `brevity` / `translates` | 100% | format instructions land when they are asked for |
-| `non_match_is_not_absence` | 100% | the "not recorded is not the same as not happening" habit is real |
-| `numbers_attributed` | 50% | half the numeric claims are tied to neither data nor general context |
-| `honest_gap` | 50% | gaps are stated, but not always in words a person recognises as "no" |
-| `offers_alternative` | 50% | a gap is often stated without saying what data does exist |
-| `no_keyword_refusal` | 73% | 8 of 30 turns bounce the user's own word back as an unknown name |
-| `numbers` | 20% | **the answers almost never contain a figure** |
-| `jargon` | 13% | **26 of 30 turns use build-side vocabulary** |
+| Turns passing every check | **1/30 (3%)** | **18/30 (60%)** |
+| `jargon` | 13% | 73% |
+| `numbers` (any figure in the answer) | 20% | 60% |
+| `no_keyword_refusal` | 73% | 97% |
+| `numbers_attributed` | 50% | 100% |
+| `vocab` (user's own word comes back) | 80% | 100% |
+| `honest_gap` / `offers_alternative` | 50% / 50% | 100% / 100% |
+| `confidence_in_plain_words` | 100% | 50% |
+| `visual_marker` | 100% | 100% |
+| Median latency | 13.9 s | 18.0 s |
 
-Jargon frequency across the run: `pack` 17, `indexed` 14, `onboarded` 13, `site records` 9,
-`this visual` 7, `lineage` 4, `site pack` 4, `AOI` 1, `normalised` 1.
+| Category | run1 | run2 |
+| --- | --- | --- |
+| orientation | 0% | 64% |
+| graph_comprehension | 0% | 25% |
+| vocabulary | 0% | 80% |
+| drilldown | 0% | 67% |
+| estimate | 0% | 25% |
+| honest_limits | 25% | 75% |
+| gk_usage | 0% | 75% |
 
-## The five failures worth fixing, ranked by impact
+The plain-language rule works, and it works on the axis it was aimed at. The stock opener changed
+from *"From the onboarded site records, this visual shows..."* to *"This map shows the Valparai area
+boundary and where the data this site holds is concentrated"*, and figures started appearing in
+prose. What remains is mostly **retrieval**, not wording.
 
-### 1. The registry bounce: the user's word is rejected and no menu is offered
+Run-2 caveat: the bridge was restarted mid-run by the concurrent skill-text work, so c1-c4 ran
+against the first plain-language build and c5-c7 against the next one (`server.py` c2bdc69c9fab,
+the tree that became commit eeb9cf6, "Read the user's own words onto what the index actually
+holds"). Turn counts and grading are unaffected. Run 1 is commit 908663a.
 
-Eight turns ended in a keyword refusal wearing a polite coat.
+## Top 5 recommendations, ranked by impact
+
+### 1. Forward `actions` into the model-safe result summary, so a menu can be offered
+
+`result_service` already returns the real option list in an action (`choose-metric` with
+`available_metrics`, `dss/visual_index/result_service.py:2576`), but `_visual_result_summary`
+(`server.py:1162`) does not forward `actions` to the dialogue model - `_visual_upload_summary`
+(`server.py:1491`) does. The model cannot see the menu it is being asked to offer, so it either
+refuses or invents one. Run 1:
 
 > I could not plot the trend yet because the indexed metric does not recognise `mnrega works` as a
 > registered measure here. [...] Which one do you want: number of works, sanctioned amount,
 > expenditure, or persondays?
 
-> I cannot say increasing or decreasing yet, because the local trend registry still does not
-> recognise `job work` or `works` as a valid metric here.
+Those four options are invented; the site's measurement registry holds `daily_wage`,
+`overtime_rate` and `paid_days_per_month`. Run 2 is politer but still the same dead end - the only
+surviving `no_keyword_refusal` failure in the whole run:
 
-> I could not confirm a women-workers trend yet, because the local registry does not recognise
-> `women workers` as a valid metric name here.
+> I could not pull a year-wise trend yet because this site does not recognise "MGNREGA works" as a
+> named time-series. [...] Do you mean number of works, or persondays, meaning days of paid work?
 
-Two turns later the conversation is still stuck on naming, and the four options offered
-(`number of works`, `sanctioned amount`, `expenditure`, `persondays`) are **invented** - the site's
-actual measurement registry holds only `daily_wage`, `overtime_rate` and `paid_days_per_month`.
-So the model both refused and hallucinated the menu.
+Fix the passthrough, then add the skill rule: **options offered to the user must come from the
+returned action arguments; never compose a plausible list.** And never say *recognise, registered,
+registry, named time-series* to a person - say what is there: "For wages I have the daily rate,
+overtime rate and paid days per month. Which of these?"
 
-The structural cause is on the server side: `result_service` already returns the real option list
-in an action (`choose-metric` with `available_metrics`, `dss/visual_index/result_service.py:2576`),
-but `_visual_result_summary` in `server.py:1162` does **not** forward `actions` to the dialogue
-model - `_visual_upload_summary` (`server.py:1491`) does. The model cannot see the menu it is being
-asked to offer, so it improvises one.
+### 2. Stop answering "how many / which is most / show rows" from the orientation map
 
-Recommendations:
-- Forward `actions` (label plus the `available_*` arguments) into `_visual_result_summary`, the
-  same shape the upload summary already passes.
-- Skill text: on an unresolved request, never say *recognise, registered, registry, metric, match*.
-  Say what is there, in the user's frame: "For wages I have the daily wage rate, the overtime rate
-  and paid days per month. Which of these are you asking about?"
-- Skill text: options offered to the user must come from the returned action arguments. Never
-  compose a plausible list.
+12 of 30 turns in run 2 still contain no figure, and they are the turns that most needed one:
+which village was visited least, which occupation is leaving most, how many public works, what
+are tea wages here.
 
-### 2. Nothing routes past the orientation map, so no number ever reaches the user
+> This map only shows where livelihood records exist across the area; it does not split people
+> leaving by occupation. So, from this view, I cannot say which occupation is leaving most.
 
-Only 6 of 30 turns contain any figure at all. "Which villages have the most survey visits?",
-"which occupation is leaving most?", "how many works in the last few years?" - each one came back
-as the same site-orientation coverage map:
+> This map can show where documented survey work is lowest, but not name the least-visited village
+> from this view alone.
 
-> From the onboarded site records, this visual shows where record coverage exists and where
-> explicit survey effort is documented. It does not support row-level village rankings from the
-> summary alone, and this pack is using synthetic test data rather than a real place.
+The data is right there: 48 effort rows carrying `village` and `village_population` (Thonimalai,
+Perumpallam, Kadamparai), 164 georeferenced events including the MGNREGA-style public works source,
+out-migration events by occupation, and `daily_wage` in INR/day across 2017-2024. So are the
+capabilities: `coverage-versus-effort`, `stratified-survey-summary`, `entity-record-map`,
+`group-record-map`, `metric-time-series`. The model reaches for `site-orientation` first and treats
+its limitations as the answer's limitations.
 
-The site index holds exactly what was asked: 48 effort rows carrying `village` and
-`village_population` (Thonimalai, Perumpallam, Kadamparai), 164 georeferenced events including the
-MGNREGA-style public works source, and out-migration events by occupation. The capabilities exist
-too - `coverage-versus-effort`, `stratified-survey-summary`, `entity-record-map`,
-`group-record-map`, `metric-time-series`. The dialogue model reached for `site-orientation`, or for
-`metric-time-series` with the user's raw words, and when that bounced it stopped.
+Skill rule: a "how many / which is most / show rows" question is **never** answered from the
+orientation map. Route counts of things that happened to the event and effort capabilities;
+route measured quantities to the metric series. If the first capability comes back unresolved, try
+the other route **before** writing anything to the user - one silent retry, then speak.
 
-The producer's headline does carry the figures - *"164 source-linked records representing 13
-entities are mapped across 22 cells"* - and the model receives it, yet never speaks a number. The
-current instruction ("1-3 sentences that reference the visual and keep its limitations") reads as
-permission to describe the picture instead of answering the question.
+### 3. Name the two stock phrases that survived the plain-language rule
 
-Recommendations:
-- Skill text: a "how many / which is most / show rows" question is never answered from the
-  orientation map. Route counts of things that happened to the event and effort capabilities;
-  route measured quantities to the metric series.
-- Skill text: if the first capability returns unresolved, try the other route **before** writing
-  anything to the user. One silent retry, then speak.
-- Skill text: if the returned headline contains a figure, say that figure in the answer, in
-  everyday units. An answer to a "how many" question that contains no number is a failed answer.
-- The migration turns produced "no onboarded method or admitted migration analysis here" while the
-  migration source is indexed with 42 interactions. Worth checking whether that capability is
-  genuinely unavailable for this pack or whether the model picked the method catalog by mistake.
+Eight run-2 turns still trip the jargon scan, and almost all of it is two phrases plus two words:
+`onboarded` (6), `site records` (6), `indexed` (2), `this visual` (1). "From the onboarded site
+records," is still the default opener on turns where the model is being careful.
 
-### 3. Every answer opens in build-side vocabulary
+Skill rule: name them explicitly with their replacements - *onboarded site records* -> "the data I
+have for this place"; *indexed* -> "recorded"; *this visual* -> "this map" / "this chart";
+*grid squares* is good and should stay. A banned list works better than a principle here, because
+the model already believes it is writing plainly.
 
-26 of 30 turns. The stock openers are "From the onboarded site records," and "From the available
-site pack,", and the stock closer is "this pack is using synthetic test data, so it is not evidence
-about a real place" - repeated on nearly every turn of every conversation, including the turn where
-the user asked for one line for a monthly report.
+### 4. The estimate conversation now clarifies forever and never estimates
 
-The producer's own headline is jargon too ("source-linked records", "entities", "cells"), so a
-model that faithfully quotes the headline still fails a plain-language reading.
+This is the one place where run 2 is worse than run 1. Run 1 produced an estimate on turn 2, with
+machine wrapping. Run 2 spent all four turns asking:
 
-Recommendations:
-- Skill text: an explicit banned list - *pack, site pack, onboarded, indexed, lineage, registry,
-  metric, capability, evidence class, denominator, normalised, AOI, cells, "this visual"* - with
-  the everyday replacement beside each: *the data I have for this place, records, the map, map
-  squares, the survey data*.
-- Skill text: say the caveat once per conversation, when it changes the meaning of the answer, not
-  on every turn. The synthetic-data warning consumed roughly a third of the words in this run.
-- Consider plain-language headlines at the producer, or an explicit instruction to translate the
-  headline rather than quote it.
+> t1: To estimate jobs for that empty square, I need the exact square reference from the map.
+> Please send the map click as `at:<lat>:<lon>` for that Kadamparai square [...]
+>
+> t2 (after the user supplied 10.255, 76.965): I can estimate it, but "jobs" has two different
+> meanings in this site's data: public-works workdays, or estate payroll jobs. Which one do you
+> want for `10.255, 76.965`?
+>
+> t3 (asked how much to trust the number): I have not given a number yet, so I cannot honestly
+> rate its trust level.
 
-### 4. The estimate flow asks the user to type machine syntax and silently swaps the target
+Each question is individually reasonable and the estimate-semantics work is visible in it, but the
+user asked once and never got a number. Two rules would fix it: (a) resolve a named place plus a
+direction yourself - Kadamparai Village is in the site at 10.261, 76.966 - and never ask a person
+to type `at:<lat>:<lon>`; (b) **one clarifying question per conversation, not per turn**: after
+that, pick the more likely reading, say which one you picked in plain words, run it, and offer the
+other as a follow-up.
 
-> Please send the empty square as `at:<lat>:<lon>` or share the map/link with that square selected.
+### 5. Keep the general-knowledge wall standing on comparison turns
 
-The user had already said "the empty square near Kadamparai", and the site holds Kadamparai Village
-at 10.261, 76.966. Once coordinates were supplied, the target was swapped without a plain-language
-handshake:
+Number attribution is now perfect (100%), and the opening general-knowledge turn is the best turn
+in the bench. But the comparison turn dropped its label:
 
-> Estimate menu: supported `AOI baseline mean` (recommended, LOW confidence), `nearest surveyed
-> cells` (LOW), and `spatial-neighbour regression` (LOW). Not supported: `effort-normalised rate
-> transfer` because the target cell has no indexed effort rows. Also, this pack did not match
-> `jobs`; it defaulted to `indexed record density`.
+> Low, from a general India tea-worker point of view. From the onboarded site records, we still
+> cannot compare properly because this site does not show tea wage data [...]
 
-To the user's credit-check question the system was admirably frank ("Frankly, I would trust it very
-little"), but expressed it as `R^2 -0.10` and "21 training cells".
-
-Recommendations:
-- Skill text: resolve a named place plus a direction into a cell yourself; ask for coordinates only
-  if the place name is genuinely unknown, and ask in words ("do you mean the square just south of
-  Kadamparai village?").
-- Skill text: never substitute the quantity silently. "I do not have a count of jobs for that
-  square; the closest I can estimate is how many records fall there. Shall I do that?" - and that
-  is the ONE clarifying question the turn is allowed.
-- Skill text: method names and fit statistics are internal. Say "a rough average of the surrounding
-  area" and "I would not put this in a proposal without calling it a rough guess".
-
-### 5. General knowledge is used well, but the wall leaks when retrieval fails
-
-The opening general-knowledge turn was the single best turn in the run - it framed Rs 10,000/month
-as generally low, labelled it as general, and invented no site figure. But when the wage data
-failed to resolve (failure 1 again), the donor-facing line ended up presenting the general
-benchmark as the finding, with no data figure anywhere:
-
-> From the available site pack, we do not yet have a verified wage metric for tea workers, so a
-> firm evidence-based wage conclusion is not possible. On general comparison, `Rs 10,000` per month
-> appears low, but this should be treated as a provisional benchmark, not a site-confirmed finding.
-
-The site holds `daily_wage` in INR/day across 2017-2024. The honesty is real; the retrieval is what
-failed.
-
-Recommendations:
-- Keep the existing general-context labelling behaviour; it works.
-- Skill text: before answering a "what does the data say" turn with general knowledge, the wage
-  route must have been tried by its registered name (see failure 1).
-- Skill text: for donor- or report-facing lines, one sentence of data and one of context, each
-  labelled. The current output labels the context but has no data sentence at all.
+"from a general India tea-worker point of view" is doing the work of a label, but a reader skimming
+sees "Low" as the finding. Skill rule: on a comparison turn, the general half and the data half get
+one sentence each, each labelled - and if the data half is empty, say so first, before the verdict.
+Also note this turn only happened because the wage retrieval failed (see recommendation 2); the
+site holds the wage series it says it cannot see.
 
 ## What is already working, and should not regress
 
-- The `<!-- idli-result:... -->` marker is present on every turn that warrants a visual (30/30).
-- Non-match-is-not-absence framing is genuinely good: *"I am not saying school data is absent
-  everywhere."*
-- Brevity holds when it is asked for; the three-point team-meeting summary was three points.
-- Frankness under a direct challenge ("Be frank with me") is excellent.
-- Latency is not a problem: median 13.9 s per turn.
+- The `<!-- idli-result:... -->` marker is present on every turn that warrants a visual (30/30, both
+  runs). The transport side is healthy.
+- The user's own vocabulary comes back in run 2 on every turn that was checked for it (100%),
+  including "mnrega", "job work" and "tea plucker".
+- Honest gaps now offer alternatives every time (100%), and the non-match-is-not-absence framing is
+  genuinely good: *"From the data this site holds, it looks like a true gap, not just a naming
+  mismatch. I checked the full site records and the estimate catalogue..."*
+- Brevity holds when asked for; the three-point team-meeting summary was three points.
+- Latency is not a problem: median 18 s per turn.
 
-## Re-running after a skill-text change
+## Re-running
 
-`python3 bench.py --run-id run2-<sha>`, then diff the `check_pass_rate` block against
-`runs/run1-908663a/graded.json`. Watch `jargon`, `numbers` and `no_keyword_refusal` first; they
-carry most of the signal in this bench.
+`python3 bench.py --run-id run3-<tag>`, then diff the `check_pass_rate` block against
+`runs/run2-plainskill/graded.json`. Watch `numbers`, `jargon` and `estimate` first; they carry most
+of the remaining signal.

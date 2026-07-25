@@ -81,8 +81,9 @@ GAP_RE = re.compile(
     r"|not (?:available|present|covered|included)"
     r"|no (?:data|records?|information|figures?)|nothing (?:on|about)|isn'?t (?:covered|there)"
     r"|not something (?:i|this data) (?:have|has|covers?)|outside what (?:i|this) hold"
-    r"|not a direct (?:count|measure|figure)|cannot give you a (?:number|count)"
-    r"|can'?t give you a (?:number|count)|there is nothing here (?:on|about))",
+    r"|not a direct (?:count|measure|figure)"
+    r"|(?:cannot|can'?t) give (?:you )?(?:a|an|any)[^.]{0,40}(?:count|number|figure)"
+    r"|(?:could|can)(?:\s?not|n'?t) find (?:a|any)|there is nothing here (?:on|about))",
     re.IGNORECASE,
 )
 
@@ -92,7 +93,9 @@ NON_ABSENCE_RE = re.compile(
     r"|only that (?:it|this) (?:was|is) not (?:recorded|collected)"
     r"|means (?:it )?(?:was )?not (?:recorded|collected|surveyed)"
     r"|cannot conclude|can'?t conclude|no one (?:has )?(?:looked|measured)"
-    r"|(?:i am|i'?m) not saying[^.]{0,80}(?:absent|does not exist|doesn'?t exist|no \w+ data))",
+    r"|(?:i am|i'?m) not saying[^.]{0,80}(?:absent|does not exist|doesn'?t exist|no \w+ data)"
+    r"|(?:true|real|genuine) gap|not (?:just )?(?:a )?(?:naming|keyword|wording|spelling)"
+    r" (?:mismatch|problem|issue))",
     re.IGNORECASE,
 )
 
