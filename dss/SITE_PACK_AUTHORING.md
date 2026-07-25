@@ -210,6 +210,11 @@ capabilities. Most source, adapter, index, connector, embedding or model changes
 Idlisseus change. Coordinate only for a breaking result-contract change, a new renderer grammar,
 or a new access-control/reference interaction.
 
+Producer-to-consumer changes are proposed through
+[`integration/`](integration/README.md). Totalrecall writes proposals there; the Idlisseus owner
+writes responses in its own repository. Do not patch consumer renderers from a pack-development
+branch.
+
 ## 4. Build and verify
 
 ```bash

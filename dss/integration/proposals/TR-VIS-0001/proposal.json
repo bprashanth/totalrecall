@@ -1,0 +1,31 @@
+{
+  "schema_version": "producer-consumer-proposal/1",
+  "proposal_id": "TR-VIS-0001",
+  "title": "Render field-declared matrix dimensions",
+  "producer": "totalrecall",
+  "consumer": "idlisseus",
+  "created_at": "2026-07-25",
+  "status": "proposed",
+  "contract_version": "idli-result/1",
+  "compatibility": "additive",
+  "problem": "A generic matrix result declares facet_field, x_field, y_field, value_field and coverage_field in style_hint, but the current consumer matrix renderer recognises only payload columns named row/entity and col/place/time. Valid producer matrices therefore fall back to a summary card.",
+  "requested_outcome": [
+    "Read matrix dimension and value field names from layer.style_hint.",
+    "Retain the current row/col conventions as a backwards-compatible fallback.",
+    "Support a declared facet as small multiples, a selector, or another responsive generic treatment.",
+    "Use no site, sector or source-specific vocabulary in renderer dispatch."
+  ],
+  "producer_evidence": [
+    "dss/visual_index/result_service.py matrix-profile emits category, x, y, value, series and unit.",
+    "The matrix layer declares facet_field=category, x_field=x, y_field=y, value_field=value and coverage_field=series.",
+    "The producer integration suite validates the result against idli-result/1."
+  ],
+  "acceptance": [
+    "A fixture whose fields are category/x/y/value renders as a matrix rather than a summary card.",
+    "Two or more facets remain distinguishable on desktop and mobile.",
+    "Missing cells, value scale, unit and contributing-series coverage remain inspectable.",
+    "Existing row/col matrix fixtures continue to render.",
+    "The accepted fixture contains no organisation or sector data."
+  ],
+  "notes": "This proposal asks only for generic consumer interpretation of already-declared fields. It does not ask Idlisseus to know how the matrix was scientifically produced."
+}

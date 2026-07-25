@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://totalrecall.local/schemas/producer-consumer-proposal-1.json",
+  "title": "Totalrecall producer proposal",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "proposal_id",
+    "title",
+    "producer",
+    "consumer",
+    "created_at",
+    "status",
+    "contract_version",
+    "compatibility",
+    "problem",
+    "requested_outcome",
+    "acceptance"
+  ],
+  "properties": {
+    "schema_version": {"const": "producer-consumer-proposal/1"},
+    "proposal_id": {"type": "string", "pattern": "^TR-[A-Z]+-[0-9]{4}$"},
+    "title": {"type": "string", "minLength": 1},
+    "producer": {"const": "totalrecall"},
+    "consumer": {"const": "idlisseus"},
+    "created_at": {"type": "string", "format": "date"},
+    "status": {"enum": ["proposed", "superseded", "withdrawn"]},
+    "contract_version": {"type": "string", "minLength": 1},
+    "compatibility": {"enum": ["additive", "clarification", "breaking"]},
+    "problem": {"type": "string", "minLength": 1},
+    "requested_outcome": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "producer_evidence": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "acceptance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": false
+}
