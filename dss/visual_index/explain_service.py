@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import pathlib
 import re
 import sqlite3
@@ -33,6 +34,12 @@ MAX_ROWS = 60
 MAX_MARKS = 5
 YEAR_MONTH = re.compile(r"^(\d{4})[-/](\d{1,2})$")
 YEAR_ONLY = re.compile(r"^(\d{4})$")
+COORDINATE_MARK = re.compile(
+    r"^at:\s*(-?\d{1,3}(?:\.\d+)?)\s*[:,]\s*(-?\d{1,3}(?:\.\d+)?)$"
+)
+# A click on a point layer counts as that point only when it lands close by: about 250 m,
+# expressed in degrees of latitude (longitude is scaled by cos(latitude) in the distance).
+POINT_HIT_RADIUS_DEG = 0.00225
 
 
 def _row(row: sqlite3.Row) -> dict[str, Any]:
@@ -174,6 +181,134 @@ class ExplainService:
                 if properties.get(key) is not None and str(properties[key]) in wanted:
                     return feature
         return None
+
+    # ------------------------------------------------------------------ coordinate marks
+
+    @staticmethod
+    def _mark_coordinate(mark: dict[str, Any]) -> tuple[float, float] | None:
+        """Extract (lat, lon) when the mark identifies a map location, not a feature id."""
+        for key in ("mark", "id", "at", "coordinate"):
+            value = mark.get(key)
+            if isinstance(value, str):
+                match = COORDINATE_MARK.match(value.strip())
+                if match:
+                    lat, lon = float(match.group(1)), float(match.group(2))
+                    if -90 <= lat <= 90 and -180 <= lon <= 180:
+                        return lat, lon
+        lat_value = mark.get("lat", mark.get("latitude"))
+        lon_value = mark.get("lon", mark.get("lng", mark.get("longitude")))
+        if lat_value in (None, "") or lon_value in (None, ""):
+            return None
+        try:
+            lat, lon = float(lat_value), float(lon_value)
+        except (TypeError, ValueError):
+            return None
+        if -90 <= lat <= 90 and -180 <= lon <= 180:
+            return lat, lon
+        return None
+
+    @staticmethod
+    def _ring_contains(lat: float, lon: float, ring: list[Any]) -> bool:
+        """Even-odd ray cast over one GeoJSON ring of [lon, lat] pairs."""
+        inside = False
+        count = len(ring)
+        for index in range(count):
+            x1, y1 = float(ring[index][0]), float(ring[index][1])
+            x2, y2 = float(ring[(index + 1) % count][0]), float(ring[(index + 1) % count][1])
+            if (y1 > lat) != (y2 > lat):
+                crossing = (x2 - x1) * (lat - y1) / (y2 - y1) + x1
+                if lon < crossing:
+                    inside = not inside
+        return inside
+
+    @classmethod
+    def _geometry_contains(cls, lat: float, lon: float, geometry: dict[str, Any]) -> bool:
+        kind = geometry.get("type")
+        coordinates = geometry.get("coordinates")
+        if not isinstance(coordinates, list):
+            return False
+        try:
+            if kind == "Polygon":
+                rings = coordinates
+            elif kind == "MultiPolygon":
+                return any(
+                    cls._geometry_contains(lat, lon, {"type": "Polygon", "coordinates": part})
+                    for part in coordinates
+                )
+            else:
+                return False
+            if not rings or not cls._ring_contains(lat, lon, rings[0]):
+                return False
+            return not any(cls._ring_contains(lat, lon, hole) for hole in rings[1:])
+        except (TypeError, ValueError, IndexError):
+            # Malformed geometry: fall back to its bounding box below via _geometry_bbox.
+            return False
+
+    @staticmethod
+    def _geometry_bbox(geometry: dict[str, Any]) -> tuple[float, float, float, float] | None:
+        points: list[tuple[float, float]] = []
+
+        def collect(node: Any) -> None:
+            if (
+                isinstance(node, list) and len(node) >= 2
+                and all(isinstance(value, (int, float)) for value in node[:2])
+            ):
+                points.append((float(node[0]), float(node[1])))
+            elif isinstance(node, list):
+                for child in node:
+                    collect(child)
+
+        collect(geometry.get("coordinates"))
+        if not points:
+            return None
+        xs = [point[0] for point in points]
+        ys = [point[1] for point in points]
+        return min(xs), min(ys), max(xs), max(ys)
+
+    @classmethod
+    def _feature_at(
+        cls, features: list[dict[str, Any]], lat: float, lon: float
+    ) -> dict[str, Any] | None:
+        """Resolve a coordinate against the stored layer geometry, exactly as rendered.
+
+        Area features (cells, polygons) win by containment, with a bounding-box fallback for
+        geometry the ray cast cannot parse. Point features win by proximity within a small
+        radius. Nothing outside the stored payload is consulted, so the answer names the same
+        feature the user saw.
+        """
+        fallback: dict[str, Any] | None = None
+        nearest: tuple[float, dict[str, Any]] | None = None
+        scale = max(math.cos(math.radians(lat)), 0.01)
+        for feature in features:
+            geometry = feature.get("geometry")
+            if not isinstance(geometry, dict):
+                continue
+            kind = geometry.get("type")
+            if kind in {"Polygon", "MultiPolygon"}:
+                if cls._geometry_contains(lat, lon, geometry):
+                    return feature
+                if fallback is None:
+                    bbox = cls._geometry_bbox(geometry)
+                    if bbox and bbox[0] <= lon <= bbox[2] and bbox[1] <= lat <= bbox[3]:
+                        fallback = feature
+            elif kind == "Point":
+                coordinates = geometry.get("coordinates")
+                try:
+                    point_lon, point_lat = float(coordinates[0]), float(coordinates[1])
+                except (TypeError, ValueError, IndexError):
+                    continue
+                distance = math.hypot((point_lon - lon) * scale, point_lat - lat)
+                if distance <= POINT_HIT_RADIUS_DEG and (
+                    nearest is None or distance < nearest[0]
+                ):
+                    nearest = (distance, feature)
+            elif kind in {"LineString", "MultiLineString"} and fallback is None:
+                bbox = cls._geometry_bbox(geometry)
+                if bbox and bbox[0] <= lon <= bbox[2] and bbox[1] <= lat <= bbox[3]:
+                    fallback = feature
+        if nearest is not None:
+            return nearest[1]
+        return fallback
 
     # ------------------------------------------------------------------ mark identity
 
@@ -601,12 +736,29 @@ class ExplainService:
         descriptor = self.capabilities.get(capability_id, {})
         bindings = (envelope.get("question") or {}).get("bindings") or {}
         top_marks = self._top_marks(features, resolved_layer)
+        requested_mark = dict(mark)
         auto_selected = False
-        if not mark and top_marks:
-            # "Why is there a hotspot?" arrives without a mark. Explaining the largest stored
-            # mark is the deterministic, useful default; it is flagged so the caller can say so.
+        resolution = "identity" if mark else "none"
+        coordinate = self._mark_coordinate(mark) if mark else None
+        coordinate_missed = False
+        if coordinate is not None:
+            # The caller pointed at a place, not a feature id. Resolve it against the stored
+            # geometry the user actually saw. When nothing is there, say so — never substitute
+            # a different mark for a location the user explicitly chose.
+            hit = self._feature_at(features, coordinate[0], coordinate[1])
+            if hit is not None:
+                mark = {"mark": self._feature_identity(hit)}
+                resolution = "coordinate"
+            else:
+                coordinate_missed = True
+                resolution = "coordinate"
+        elif not mark and top_marks:
+            # "Why is there a hotspot?" arrives with no mark of any kind. Explaining the largest
+            # stored mark is the deterministic, useful default; the flag below obliges the
+            # caller to say that this is what happened.
             mark = {"mark": top_marks[0]["mark"]}
             auto_selected = True
+            resolution = "auto-largest"
         user_supplied = bool(
             ((envelope.get("audit") or {}).get("session_binding"))
             or any(
@@ -616,19 +768,35 @@ class ExplainService:
             )
         )
         with self.connect() as connection:
-            identity = self._classify(connection, mark) if not user_supplied else {
-                "kind": "upload_mark" if mark else "none",
-                "id": str(next(iter(mark.values()), "")) if mark else "",
-            }
-            feature = self._find_feature(features, mark) if mark else None
-            if feature is None and identity.get("kind") not in {"none", "unresolved"}:
-                feature = self._find_feature(features, {"mark": identity.get("id")})
-            lineage = (
-                self._upload_lineage(envelope, feature, identity) if user_supplied
-                else self._lineage_for(
-                    connection, identity, bindings, resolved_layer, feature
+            if coordinate_missed:
+                lat, lon = coordinate
+                identity = {"kind": "no_mark_at_location", "id": f"at:{lat:g}:{lon:g}"}
+                feature = None
+                lineage = {
+                    "aggregation": "none",
+                    "statement": (
+                        f"No mark exists at latitude {lat:g}, longitude {lon:g} in layer "
+                        f"{resolved_layer or '(none)'}: none of the layer's "
+                        f"{len(features):,} stored marks covers that location. This is a miss, "
+                        "not evidence of absence; ask about a location the layer covers or "
+                        "name a mark id."
+                    ),
+                    "plane": None, "rows": [], "row_count": 0,
+                }
+            else:
+                identity = self._classify(connection, mark) if not user_supplied else {
+                    "kind": "upload_mark" if mark else "none",
+                    "id": str(next(iter(mark.values()), "")) if mark else "",
+                }
+                feature = self._find_feature(features, mark) if mark else None
+                if feature is None and identity.get("kind") not in {"none", "unresolved"}:
+                    feature = self._find_feature(features, {"mark": identity.get("id")})
+                lineage = (
+                    self._upload_lineage(envelope, feature, identity) if user_supplied
+                    else self._lineage_for(
+                        connection, identity, bindings, resolved_layer, feature
+                    )
                 )
-            )
             source_ids = {
                 str(row.get("source_id")) for row in lineage["rows"] if row.get("source_id")
             }
@@ -673,7 +841,8 @@ class ExplainService:
                 "marks_in_layer": len(features),
             },
             "mark": {
-                "requested": mark,
+                "requested": requested_mark,
+                "resolution": resolution,
                 "auto_selected": auto_selected,
                 "kind": identity.get("kind"),
                 "id": identity.get("id"),
@@ -685,7 +854,13 @@ class ExplainService:
             },
             "computation": {
                 "aggregation": lineage["aggregation"],
-                "statement": _clean(lineage["statement"]),
+                "statement": _clean(
+                    (
+                        "AUTO-SELECTED: no specific mark was identified, so this lineage is "
+                        "for the layer's largest mark. " if auto_selected else ""
+                    )
+                    + str(lineage["statement"])
+                ),
                 "plane": lineage["plane"],
                 "contributing_rows": lineage["row_count"],
                 "rows_returned": len(lineage["rows"]),

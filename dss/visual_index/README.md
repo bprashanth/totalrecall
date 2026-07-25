@@ -85,8 +85,15 @@ entity or `YYYY-MM` bucket), it re-reads the immutable envelope and its layer pa
 re-queries the same pinned index rows and returns `idli-explain/1`: the capability and version
 that ran, the resolved question and bindings, the aggregation actually applied, the exact
 contributing source rows with their ids, dates and values, the source versions with digests, and
-the declared limitations that affect that mark. With no mark it explains the layer's largest mark
-— the right default for a hotspot question — and says that it auto-selected it. A mark inside a
+the declared limitations that affect that mark. A mark may also be a coordinate
+(`at:<lat>:<lon>`, or separate `lat`/`lon` values), resolved against the stored layer geometry:
+polygon and cell layers by containment with a bounding-box fallback, point layers by the nearest
+point within about 250 m — so a UI click can be explained even when the payload feature's id
+never reached the browser. `mark.resolution` reports how the mark was identified (`identity`,
+`coordinate`, `auto-largest`, `none`). Only with no mark of any kind does it explain the layer's
+largest mark — the right default for a hotspot question — flagged `auto_selected: true` and
+prefixed `AUTO-SELECTED:` in the statement; a coordinate that hits nothing returns an explicit
+`no_mark_at_location` payload, never a silently substituted mark. A mark inside a
 user-upload result is attributed to the uploaded rows; the site index is never consulted for it.
 
 ```bash

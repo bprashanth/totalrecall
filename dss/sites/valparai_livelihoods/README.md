@@ -173,19 +173,28 @@ URL:      http://host.docker.internal:7013/v1
 lineage of one mark in a stored result (same bearer token as the other result routes): the
 capability that ran, the resolved question and bindings, the aggregation applied, the exact
 contributing source rows, the source versions with digests and the limitations that affect that
-mark. With no `mark` it explains the layer's largest mark and says so. `GET /v1/capabilities` also
+mark. The mark may be a feature id, a time bucket (`2021-03`), or a **coordinate** — either
+`mark=at:<lat>:<lon>` or `lat=&lon=` query parameters — resolved against the stored layer
+geometry itself: polygon/cell layers by containment (bounding-box fallback), point layers by the
+nearest point within about 250 m. `mark.resolution` reports how the mark was identified
+(`identity`, `coordinate`, `auto-largest`, `none`). Only when no mark of any kind is supplied
+does the service explain the layer's largest mark, flagged `mark.auto_selected: true` and
+prefixed `AUTO-SELECTED:` in the statement; a coordinate that hits nothing returns an explicit
+`no_mark_at_location` payload instead of a substituted mark. `GET /v1/capabilities` also
 lists the two session-scoped upload capabilities (`upload-profile`, `upload-cross-join`).
 
 ```bash
 TOK=$(cat "$SITE_STATE/.api-token")
 curl -fsS -H "Authorization: Bearer $TOK" \
-  "http://172.17.0.1:7013/v1/results/<result_id>/explain?layer=event-density"
+  "http://172.17.0.1:7013/v1/results/<result_id>/explain?layer=event-density&mark=at:10.255:76.965"
 ```
 
 The Codex agent reaches the same paths through two skills beside `visual-result`:
 
-- `visual-explain` (`{result_id, layer?, mark?}`) for why/how questions. Its answer must repeat
-  the marker of the ORIGINAL result id so the UI keeps that chapter in focus.
+- `visual-explain` (`{result_id, layer?, mark?}`; `mark` accepts `at:<lat>:<lon>`, and `lat`/
+  `lon` arguments also work) for why/how questions. Its answer must repeat the marker of the
+  ORIGINAL result id so the UI keeps that chapter in focus, must say when the lineage is for the
+  auto-selected largest mark, and must report a coordinate miss as a miss.
 - `visual-upload` (`{path | upload_id, mode: profile|cross-join, sheet?, column?}`) for a table
   the user attached. **Attachment path convention — two ways a file arrives:**
   1. *Staged upload.* Idlisseus posts an attachment manifest with the chat request;

@@ -113,6 +113,82 @@ class ExplainServiceTest(unittest.TestCase):
             self.assertEqual(row["metric"], "daily_wage")
             self.assertEqual(row["year"], point["year"])
 
+    def test_coordinate_mark_resolves_the_containing_cell_not_the_largest(self):
+        """A clicked location must explain the cell under the click, never the hotspot."""
+        result = self.service.query(
+            "explain-coordinate-1", "site-orientation", {}, "Where is the data?"
+        )
+        payload = self.explain.load_payload(result["result_id"], "event-density")
+        top = self.explain.explain(result["result_id"], "event-density")["top_marks"]
+        # Pick a NON-largest cell and click its centre.
+        target = next(
+            feature for feature in payload["features"]
+            if feature["id"] == top[2]["mark"]
+        )
+        ring = target["geometry"]["coordinates"][0]
+        lon = sum(point[0] for point in ring[:4]) / 4
+        lat = sum(point[1] for point in ring[:4]) / 4
+        for mark in (f"at:{lat}:{lon}", {"lat": lat, "lon": lon}):
+            lineage = self.explain.explain(result["result_id"], "event-density", mark)
+            self.assertEqual(lineage["mark"]["resolution"], "coordinate")
+            self.assertFalse(lineage["mark"]["auto_selected"])
+            self.assertEqual(lineage["mark"]["id"], target["id"])
+            self.assertNotEqual(lineage["mark"]["id"], top[0]["mark"])
+            self.assertEqual(
+                lineage["computation"]["contributing_rows"],
+                target["properties"]["records"],
+            )
+            for row in lineage["source_rows"]:
+                self.assertEqual(row["cell_id"], target["id"])
+
+    def test_coordinate_mark_resolves_the_nearest_point_within_radius(self):
+        result = self.service.query(
+            "explain-coordinate-2", "entity-record-map", {"entity": "Karumalai Estate"},
+            "Where are Karumalai Estate records?",
+        )
+        payload = self.explain.load_payload(result["result_id"], "observations")
+        # Click slightly off one record, inside the hit radius (~250 m). Records cluster, so
+        # the correct answer is whichever stored point is nearest to the click.
+        lon, lat = payload["features"][1]["geometry"]["coordinates"]
+        click_lat, click_lon = lat + 0.0008, lon - 0.0008
+        expected = min(
+            payload["features"],
+            key=lambda feature: (
+                (feature["geometry"]["coordinates"][0] - click_lon) ** 2
+                + (feature["geometry"]["coordinates"][1] - click_lat) ** 2
+            ),
+        )
+        lineage = self.explain.explain(
+            result["result_id"], "observations", f"at:{click_lat}:{click_lon}"
+        )
+        self.assertEqual(lineage["mark"]["resolution"], "coordinate")
+        self.assertEqual(lineage["mark"]["kind"], "event")
+        self.assertEqual(lineage["mark"]["id"], expected["id"])
+        self.assertEqual(lineage["computation"]["contributing_rows"], 1)
+        self.assertEqual(lineage["source_rows"][0]["event_id"], expected["id"])
+
+    def test_coordinate_miss_is_reported_never_swapped_for_the_largest_mark(self):
+        result = self.service.query(
+            "explain-coordinate-3", "site-orientation", {}, "Orientation please."
+        )
+        lineage = self.explain.explain(
+            result["result_id"], "event-density", "at:0.0:0.0"
+        )
+        self.assertEqual(lineage["mark"]["resolution"], "coordinate")
+        self.assertEqual(lineage["mark"]["kind"], "no_mark_at_location")
+        self.assertFalse(lineage["mark"]["auto_selected"])
+        self.assertEqual(lineage["source_rows"], [])
+        self.assertEqual(lineage["computation"]["contributing_rows"], 0)
+        self.assertIn("No mark exists at", lineage["computation"]["statement"])
+        self.assertIn("not evidence of absence", lineage["computation"]["statement"])
+        # The auto-largest default remains only for the truly mark-less question.
+        bare = self.explain.explain(result["result_id"], "event-density")
+        self.assertTrue(bare["mark"]["auto_selected"])
+        self.assertEqual(bare["mark"]["resolution"], "auto-largest")
+        self.assertTrue(
+            bare["computation"]["statement"].startswith("AUTO-SELECTED:")
+        )
+
     def test_unknown_layer_is_refused_and_unresolved_mark_is_explicit(self):
         result = self.service.query(
             "explain-orientation-3", "site-orientation", {}, "Orientation please."

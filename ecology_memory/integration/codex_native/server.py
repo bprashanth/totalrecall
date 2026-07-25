@@ -532,9 +532,10 @@ def _visual_result_skill() -> dict | None:
             "WHY AND HOW QUESTIONS. When the user asks why or how a value, cell, point or map "
             "came out as it did — a hotspot, a spike, a gap, \"where does that number come "
             "from\" — do not re-run this skill and do not reason it out yourself. Invoke the "
-            "`visual-explain` skill with the ORIGINAL `result_id`, answer in plain language from "
-            "the returned lineage, and repeat the marker for that original result id so the "
-            "chapter stays in focus.\n\n"
+            "`visual-explain` skill with the ORIGINAL `result_id`; when the question carries "
+            "map coordinates or an `at:<lat>:<lon>` reference, pass that through as its `mark`. "
+            "Answer in plain language from the returned lineage, and repeat the marker for that "
+            "original result id so the chapter stays in focus.\n\n"
             "USER FILES. When the user attaches a CSV or spreadsheet and asks to see it, use the "
             "`visual-upload` skill instead of this one."
         ),
@@ -569,12 +570,21 @@ def _visual_explain_skill() -> dict | None:
         "instructions": (
             "Pass the `result_id` of a result produced earlier in this conversation. Optionally "
             "pass `layer` (a layer_id from that result, for example `event-density` or "
-            "`observations`) and `mark` (the id of the specific cell, event, site or time bucket "
-            "the user is asking about, such as `2021-03`). With no `mark`, the service explains "
-            "the largest mark in that layer, which is the right default for a hotspot question, "
-            "and says so.\n\n"
+            "`observations`) and `mark` — either the id of the specific cell, event, site or "
+            "time bucket the user is asking about (such as `2021-03`), or a map location as "
+            "`at:<lat>:<lon>`. When the user's question carries coordinates or an `at:` "
+            "reference — from clicking the map — pass them through verbatim as the mark; the "
+            "service resolves them against the stored layer geometry and names the feature at "
+            "that location. Only when NO mark of any kind is available does the service explain "
+            "the layer's largest mark, and it flags that with `mark.auto_selected: true`.\n\n"
             "```bash\npython3 {skill_call} visual-explain "
-            "'{\"result_id\":\"result-abc123\",\"layer\":\"event-density\"}'\n```\n\n"
+            "'{\"result_id\":\"result-abc123\",\"layer\":\"event-density\","
+            "\"mark\":\"at:10.335:76.975\"}'\n```\n\n"
+            "REQUIRED HONESTY ABOUT THE MARK. If the response has `mark.auto_selected: true`, "
+            "your answer MUST say the lineage is for the layer's largest mark because no "
+            "specific mark was identified — never present it as the mark the user pointed at. "
+            "If `mark.kind` is `no_mark_at_location`, say that no mark exists at that location "
+            "in this layer and stop; do not substitute another mark.\n\n"
             "Nothing is recomputed and no model is consulted: the lineage re-reads the stored "
             "result and the same index rows. Answer in plain language — which capability ran, "
             "what the mark's value actually counts or averages, how many source rows stand "
@@ -1098,6 +1108,7 @@ def _visual_explain_summary(lineage: dict) -> dict:
         "layer_id": (lineage.get("layer") or {}).get("layer_id"),
         "mark": {
             "id": mark.get("id"), "kind": mark.get("kind"),
+            "resolution": mark.get("resolution"),
             "auto_selected": bool(mark.get("auto_selected")),
             "stored_value": mark.get("stored_value"),
         },
@@ -1120,8 +1131,11 @@ def _visual_explain_summary(lineage: dict) -> dict:
             "Answer in plain language using this lineage only. State what the mark counts or "
             "averages, how many source rows stand behind it and which sources they came from; "
             "you may cite a few source ids and row numbers exactly as given. Do not assert a "
-            "cause the lineage does not contain. Repeat answer_marker on its own line so the "
-            "original visual stays in focus."
+            "cause the lineage does not contain. If mark.auto_selected is true, your answer "
+            "MUST say the lineage is for the layer's largest mark because no specific mark was "
+            "identified. If mark.kind is no_mark_at_location, say plainly that no mark exists "
+            "at that location in this layer, and do not explain any other mark instead. Repeat "
+            "answer_marker on its own line so the original visual stays in focus."
         ),
         "source": "Totalrecall visual explain service",
         "label": "derived",
@@ -1150,6 +1164,10 @@ def _visual_explain_query(args: dict, session: "Session | None") -> dict:
         mark = str(mark)
     if not isinstance(mark, (dict, str, type(None))):
         mark = None
+    lat = args.get("lat", args.get("latitude"))
+    lon = args.get("lon", args.get("lng", args.get("longitude")))
+    if not mark and lat not in (None, "") and lon not in (None, ""):
+        mark = {"lat": lat, "lon": lon}
     try:
         lineage = service.explain(result_id, layer, mark)
     except LookupError as exc:
@@ -5236,7 +5254,9 @@ def _native_prompt(message: str, session: Session) -> str:
             "`entity-record-map` over `site-orientation` whenever the question names an entity.\n"
             "When the user asks WHY or HOW a value, cell or map came out that way, invoke the "
             "`visual-explain` skill with the original `result_id` (optionally `layer` and "
-            "`mark`), answer from the returned lineage — the exact source rows, the aggregation "
+            "`mark`; pass map coordinates from the question through as `at:<lat>:<lon>`), "
+            "answer from the returned lineage — saying so when it reports `auto_selected` "
+            "(largest mark) or `no_mark_at_location` — the exact source rows, the aggregation "
             "and the limitations — and repeat the marker for that ORIGINAL result id.\n"
             "USER FILES OUTRANK SEARCH. When the turn carries a table — an attachment named "
             "`.csv`/`.tsv`/`.xlsx`, or a pasted `=== File: ... ===` block — and the user asks to "
@@ -6278,7 +6298,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return True
             query = urllib.parse.parse_qs(parsed.query)
             layer = (query.get("layer") or [""])[0].strip() or None
-            mark = (query.get("mark") or [""])[0].strip() or None
+            mark: Any = (query.get("mark") or [""])[0].strip() or None
+            lat = (query.get("lat") or [""])[0].strip()
+            lon = ((query.get("lon") or query.get("lng") or [""])[0]).strip()
+            if not mark and lat and lon:
+                # The UI knows where the user clicked even when the payload feature carries no
+                # usable id: a coordinate is a first-class mark.
+                mark = {"lat": lat, "lon": lon}
             try:
                 lineage = explain.explain(parts[0], layer, mark)
             except LookupError as exc:
