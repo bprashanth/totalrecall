@@ -3,6 +3,10 @@
 This directory is a reversible integration candidate. It does not modify the origin repository or
 restart the shared Hermes container/model server.
 
+The end-to-end source-ingestion, canonical-data, analytical-capability and visual-result strategy
+is documented in [`../DATA_AND_ANALYSIS_STRATEGY.md`](../DATA_AND_ANALYSIS_STRATEGY.md). Read it
+before treating a connector, adapter, capability, skill or renderer as interchangeable.
+
 All normal comparison modes use the Hermes conversation shell:
 
 ```text
