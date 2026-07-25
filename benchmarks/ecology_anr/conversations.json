@@ -1,0 +1,655 @@
+{
+  "site": "insight-valparai",
+  "note": "Eight lines of inquiry by an ecologist working on assisted natural regeneration in the Anamalai rainforest fragments. Each conversation is one chat session: only the current user turn is posted, the bridge holds the thread. Turns escalate orientation -> pattern -> relationship -> mechanism -> design.",
+  "conversations": [
+    {
+      "id": "c1-what-is-here",
+      "title": "What is even here, and what can I trust for a trend",
+      "categories": ["orientation", "trust", "traceability"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "I have just taken over restoration monitoring for the Anamalai rainforest fragments. Before I plan anything I need to know what long-term monitoring actually exists here, and how far back it goes.",
+          "checks": {
+            "expect_visual": true,
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "capabilities_any": ["site-orientation", "coverage-versus-effort", "method-catalog"]
+          }
+        },
+        {
+          "id": "t2",
+          "user": "Which of those has been repeated often enough that I could look at a trend, rather than just a snapshot?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["monitoring", "survey", "records", "years"],
+            "capabilities_any": ["coverage-versus-effort", "metric-time-series", "method-catalog", "stratified-survey-summary"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t3",
+          "user": "Show me how the survey effort is spread across the years. I want to know whether the later years just had more people looking.",
+          "checks": {
+            "expect_visual": true,
+            "expect_numbers": true,
+            "expect_next_step": true,
+            "carry_any": ["effort", "year", "survey"],
+            "capabilities_any": ["coverage-versus-effort", "metric-time-series", "seasonal-surface-profile"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t4",
+          "user": "So if I wanted to claim that something changed between 2015 and 2024, which of these would you actually stand behind, and why?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "carry_any": ["2015", "2024", "effort", "trend"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t5",
+          "user": "Where is the weakest link in that? Where would a reviewer poke holes?",
+          "checks": {
+            "expect_gap": true,
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "carry_any": ["effort", "survey", "records", "trend"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t6",
+          "user": "Show me the actual records behind the mammal counts for one year, so I can see what a single row looks like.",
+          "checks": {
+            "expect_rows": true,
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["mammal"],
+            "capabilities_any": ["entity-record-map", "group-record-map", "coverage-versus-effort", "matrix-profile"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2-does-restoration-work",
+      "title": "Does restoration work: birds in restored, regenerating and benchmark plots",
+      "categories": ["comparison", "denominators", "trust"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "We have been doing assisted natural regeneration in these fragments for years. Is there anything here that compares restored plots against ones we left to regrow on their own?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "capabilities_any": ["stratified-survey-summary", "plot-indicator-profile", "site-orientation", "method-catalog"]
+          }
+        },
+        {
+          "id": "t2",
+          "user": "Good. How do the birds compare across restored, naturally regenerating and benchmark plots?",
+          "checks": {
+            "expect_visual": true,
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["restored", "regenerating", "benchmark"],
+            "capabilities_any": ["stratified-survey-summary", "matrix-profile", "plot-indicator-profile", "group-record-map"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t3",
+          "user": "How many plots in each of those three, and how many times was each visited?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_rows": true,
+            "expect_next_step": true,
+            "carry_any": ["restored", "regenerating", "benchmark", "plot"],
+            "capabilities_any": ["stratified-survey-summary", "coverage-versus-effort", "plot-indicator-profile", "matrix-profile"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t4",
+          "user": "Is that difference real, or could it just be that people spent more time in the benchmark plots?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "carry_any": ["benchmark", "effort", "visit"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t5",
+          "user": "Which bird species are driving the gap? I care about the rainforest specialists, not the generalists.",
+          "checks": {
+            "expect_rows": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["bird", "restored", "benchmark"],
+            "capabilities_any": ["group-record-map", "entity-record-map", "matrix-profile", "stratified-survey-summary"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t6",
+          "user": "If I had to put one sentence in a report about whether restoration is working here, what would you let me say?",
+          "checks": {
+            "expect_confidence": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["restored", "bird", "plot"],
+            "max_sentences": 12
+          }
+        },
+        {
+          "id": "t7",
+          "user": "And what would you not let me say?",
+          "checks": {
+            "expect_gap": true,
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "carry_any": ["restored", "bird", "plot", "effort"],
+            "max_questions": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3-lantana",
+      "title": "Lantana keeps coming back: an honest gap and how to test it",
+      "categories": ["gap-honesty", "study-design", "traceability"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Why does lantana keep coming back after we weed it?",
+          "checks": {
+            "expect_gap_or_answer": true,
+            "expect_alternatives": true,
+            "expect_next_step": true,
+            "expect_no_invention": true,
+            "max_questions": 2
+          }
+        },
+        {
+          "id": "t2",
+          "user": "Do you have anything at all on lantana at this site? Even just where it has been recorded?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["lantana"],
+            "capabilities_any": ["entity-record-map", "group-record-map", "co-occurrence-map", "plot-indicator-profile"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t3",
+          "user": "So what could I use as a stand-in? I was thinking canopy cover, or the plant community plots.",
+          "checks": {
+            "expect_alternatives": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["canopy", "plant community", "plot", "lantana"],
+            "capabilities_any": ["cell-feature-map", "plot-indicator-profile", "matrix-profile", "earth-layer", "group-record-map"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t4",
+          "user": "If I wanted to test whether shade suppresses lantana, what would I actually have to go and measure, given what is already here?",
+          "checks": {
+            "expect_gap": true,
+            "expect_next_step": true,
+            "expect_rows": true,
+            "carry_any": ["shade", "lantana", "canopy"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t5",
+          "user": "How many of the plant community plots could I revisit, and where are they?",
+          "checks": {
+            "expect_visual": true,
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["plot", "plant community"],
+            "capabilities_any": ["plot-indicator-profile", "group-record-map", "entity-record-map", "stratified-survey-summary", "coverage-versus-effort"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t6",
+          "user": "Draft the data request for me: exactly what I would ask my field team to bring back.",
+          "checks": {
+            "expect_rows": true,
+            "expect_next_step": true,
+            "carry_any": ["lantana", "canopy", "plot", "shade"],
+            "max_questions": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4-natives-suppress",
+      "title": "Which natives sit where the invasives do not: co-occurrence and the join rule",
+      "categories": ["relationship", "method-disclosure", "mechanism"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Different angle. Are there native species here that turn up where lantana does not?",
+          "checks": {
+            "expect_gap_or_answer": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["lantana", "native"],
+            "capabilities_any": ["co-occurrence-map", "matrix-profile", "interaction-map", "group-record-map", "entity-record-map"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t2",
+          "user": "How exactly did you match those two things up? Same plot and same year, or just the same general area?",
+          "checks": {
+            "expect_method_disclosure": true,
+            "expect_next_step": true,
+            "carry_any": ["lantana", "plot", "square", "area", "year"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t3",
+          "user": "That is a coarse join. Can you do it at the plot level instead, and tell me how many plots that leaves me with?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_gap_or_answer": true,
+            "expect_next_step": true,
+            "carry_any": ["plot"],
+            "capabilities_any": ["co-occurrence-map", "plot-indicator-profile", "matrix-profile", "group-record-map", "stratified-survey-summary"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t4",
+          "user": "What is the mechanism you would bet on here - shade, leaf litter, root competition?",
+          "checks": {
+            "expect_confidence": true,
+            "expect_gk_label": true,
+            "expect_next_step": true,
+            "carry_any": ["shade", "litter", "lantana"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t5",
+          "user": "Is there anything in the canopy or tree structure data that supports the shade story?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["canopy", "shade", "tree"],
+            "capabilities_any": ["cell-feature-map", "matrix-profile", "plot-indicator-profile", "metric-time-series", "earth-layer", "group-record-map"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t6",
+          "user": "Give me three native species to trial as a shade crop, and say how confident you are in each one.",
+          "checks": {
+            "expect_rows": true,
+            "expect_confidence": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["shade", "native"],
+            "max_questions": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5-what-to-replant",
+      "title": "What to replant for a forest that keeps itself going",
+      "categories": ["design", "network", "seed-fate"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "I am putting together a planting list for a two hectare gap. I want a forest that regenerates on its own in thirty years, not a plantation. Where do I start?",
+          "checks": {
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "max_questions": 2
+          }
+        },
+        {
+          "id": "t2",
+          "user": "Which trees here actually get their seed moved by animals, and by which animals?",
+          "checks": {
+            "expect_visual": true,
+            "expect_rows": true,
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["tree", "seed", "planting"],
+            "capabilities_any": ["interaction-map", "matrix-profile", "group-record-map", "entity-record-map", "co-occurrence-map"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t3",
+          "user": "Of those, which lose most of their seed to predators? I do not want to plant something that never recruits.",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["seed", "tree"],
+            "capabilities_any": ["interaction-map", "matrix-profile", "group-record-map", "entity-record-map", "stratified-survey-summary"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t4",
+          "user": "Are any threatened species in that list worth including?",
+          "checks": {
+            "expect_rows": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["threatened", "tree", "seed"],
+            "capabilities_any": ["entity-record-map", "group-record-map", "matrix-profile", "plot-indicator-profile"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t5",
+          "user": "Now give me a shortlist of eight to ten species, and be explicit about which ones come from this site's own records and which come from general knowledge.",
+          "checks": {
+            "expect_rows": true,
+            "expect_gk_label": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["species", "seed", "tree"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t6",
+          "user": "Which of those would fail if the hornbills do not come back?",
+          "checks": {
+            "expect_rows": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["hornbill"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t7",
+          "user": "What should I plant first to bring the hornbills in?",
+          "checks": {
+            "expect_rows": true,
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "carry_any": ["hornbill"],
+            "max_questions": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6-what-grows-where",
+      "title": "What is growing where: plots on a map, then one plot in detail",
+      "categories": ["place", "drill-down", "traceability"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Show me what is growing where across the fragments. I want to see the plots on a map.",
+          "checks": {
+            "expect_visual": true,
+            "expect_numbers": true,
+            "expect_next_step": true,
+            "capabilities_any": ["plot-indicator-profile", "group-record-map", "entity-record-map", "matrix-profile", "site-orientation"]
+          }
+        },
+        {
+          "id": "t2",
+          "user": "Which plot has the highest share of rainforest species?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["plot"],
+            "capabilities_any": ["plot-indicator-profile", "matrix-profile", "group-record-map", "stratified-survey-summary"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t3",
+          "user": "Tell me more about that one. What is the stem density there, and what does the canopy look like?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "expect_no_reask": true,
+            "carry_any": ["plot", "stem", "canopy"],
+            "capabilities_any": ["plot-indicator-profile", "cell-feature-map", "matrix-profile", "metric-time-series", "group-record-map"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t4",
+          "user": "Where does that number come from? Show me the rows.",
+          "checks": {
+            "expect_rows": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "expect_no_reask": true,
+            "carry_any": ["plot", "stem", "record", "survey"]
+          }
+        },
+        {
+          "id": "t5",
+          "user": "How does it compare against the benchmark plots?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "expect_no_reask": true,
+            "carry_any": ["benchmark", "plot"],
+            "capabilities_any": ["stratified-survey-summary", "plot-indicator-profile", "matrix-profile", "group-record-map"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t6",
+          "user": "Is that plot an outlier, or is it typical of the restored ones?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "expect_no_reask": true,
+            "carry_any": ["plot", "restored"],
+            "max_questions": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "c7-survey-budget",
+      "title": "Where to spend a survey budget: drone days, hyperspectral, boots",
+      "categories": ["value-of-information", "coverage-gap", "uncertainty"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Say I get twenty drone days next season. Where should I fly to learn the most?",
+          "checks": {
+            "expect_visual": true,
+            "expect_numbers": true,
+            "expect_next_step": true,
+            "capabilities_any": ["cell-estimate-suggest", "cell-estimate-targets", "coverage-versus-effort", "cell-feature-map", "cell-estimate-run", "earth-layer"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t2",
+          "user": "What are you basing that on? Places we have never looked, or places where you think something is happening?",
+          "checks": {
+            "expect_method_disclosure": true,
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "carry_any": ["fly", "drone", "coverage", "square", "area"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t3",
+          "user": "If it were a hyperspectral sensor instead, would the answer change? I would be looking for invasive cover.",
+          "checks": {
+            "expect_gap": true,
+            "expect_alternatives": true,
+            "expect_next_step": true,
+            "carry_any": ["invasive", "lantana", "cover"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t4",
+          "user": "And if it is just me and two field assistants for thirty days on foot?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_next_step": true,
+            "carry_any": ["day", "walk", "foot", "plot"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t5",
+          "user": "Which of the three buys me the most for a restoration decision in the next two years?",
+          "checks": {
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "carry_any": ["drone", "foot", "hyperspectral", "restoration"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t6",
+          "user": "Show me the gap map. Where is coverage thinnest relative to how much is going on there?",
+          "checks": {
+            "expect_visual": true,
+            "expect_numbers": true,
+            "expect_next_step": true,
+            "carry_any": ["coverage", "gap"],
+            "capabilities_any": ["coverage-versus-effort", "cell-estimate-suggest", "cell-feature-map", "cell-estimate-targets", "earth-layer"],
+            "capabilities_not_only": ["site-orientation"]
+          }
+        },
+        {
+          "id": "t7",
+          "user": "Rank the top five places, with a reason for each that I could put in a proposal.",
+          "checks": {
+            "expect_rows": true,
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["coverage", "place", "square", "area"],
+            "max_questions": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "c8-monitoring-plan",
+      "title": "A three year monitoring plan: does ANR beat active planting here",
+      "categories": ["design", "data-request", "gap-honesty"],
+      "turns": [
+        {
+          "id": "t1",
+          "user": "Help me design three years of monitoring to answer whether assisted natural regeneration beats active planting here.",
+          "checks": {
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "max_questions": 2
+          }
+        },
+        {
+          "id": "t2",
+          "user": "What can I reuse as a baseline instead of starting from scratch?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_traceable": true,
+            "expect_next_step": true,
+            "carry_any": ["baseline", "plot", "survey", "monitoring"],
+            "capabilities_any": ["stratified-survey-summary", "plot-indicator-profile", "coverage-versus-effort", "method-catalog", "matrix-profile", "site-orientation"]
+          }
+        },
+        {
+          "id": "t3",
+          "user": "What is the minimum I have to keep collecting so the old data stays comparable?",
+          "checks": {
+            "expect_rows": true,
+            "expect_method_disclosure": true,
+            "expect_next_step": true,
+            "carry_any": ["plot", "survey", "count", "baseline"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t4",
+          "user": "What is missing entirely, that I would have to start measuring from zero?",
+          "checks": {
+            "expect_gap": true,
+            "expect_alternatives": true,
+            "expect_next_step": true,
+            "carry_any": ["plant", "regeneration", "plot", "monitoring"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t5",
+          "user": "How many plots, and how many visits a year, to have a real chance of detecting a difference?",
+          "checks": {
+            "expect_numbers": true,
+            "expect_confidence": true,
+            "expect_next_step": true,
+            "carry_any": ["plot", "visit"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t6",
+          "user": "Write it up as a one page plan I can hand to my team.",
+          "checks": {
+            "expect_rows": true,
+            "expect_numbers": true,
+            "expect_next_step": true,
+            "carry_any": ["plot", "year", "visit"],
+            "max_questions": 1
+          }
+        },
+        {
+          "id": "t7",
+          "user": "And a list of the data I would need to request from the other groups working here.",
+          "checks": {
+            "expect_rows": true,
+            "expect_gap": true,
+            "expect_next_step": true,
+            "carry_any": ["data", "plot", "request"],
+            "max_questions": 1
+          }
+        }
+      ]
+    }
+  ]
+}
