@@ -169,27 +169,63 @@ python3 dss/visual_index/estimate_service.py \
 ## Computed earth layers
 
 `earth_layer_service.py` turns "make the map a map of built-up" into one AOI-clipped raster layer:
-a keyword registry maps free text onto a published product (GHSL GHS-BUILT-S, SRTM, ESA
-WorldCover), and the envelope declares a `raster_image` layer with `bounds = [w, s, e, n]` whose
-`data_ref` handle serves PNG bytes. A declared-AOI polygon travels with it because the renderer
-takes its extent from vector geometry.
+a keyword registry maps free text onto a published Earth Engine product, and the envelope declares
+a `raster_image` layer with `bounds = [w, s, e, n]` whose `data_ref` handle serves PNG bytes. A
+declared-AOI polygon travels with it because the renderer takes its extent from vector geometry.
 
-When Earth Engine imports, initialises and answers, the image is the product thumbnail fetched
-server-side, classed `derived`, with the asset, band, resolution and epoch in `audit.source_versions`
-and a limitation stating the product's resolution and date. When it does not — no
-`earthengine-api` in the interpreter, no credential, or no egress — the same capability still runs
-so the contract stays exercised: the surface is generated from the pack itself (kernel density over
-indexed record and effort locations as a settlement proxy; an analytic relief field for elevation),
-classed `modelled`, and carries an **error**-severity `synthetic-raster` limitation naming it
-synthetic and giving the exact reason. The probe is bounded by `EE_INIT_TIMEOUT` so a dead network
-cannot stall a chat turn. Pixels outside the declared AOI polygon are fully transparent. The PNG is
-written by a minimal stdlib encoder (zlib + CRC), so the bridge needs no imaging dependency.
+| request words | Earth Engine asset | band | native scale | epoch |
+|---|---|---|---|---|
+| built-up, settlement, urban | `JRC/GHSL/P2023A/GHS_BUILT_S/2020` | `built_surface` | 100 m | 2020 |
+| elevation, terrain, relief | `USGS/SRTMGL1_003` via `ee.Terrain.hillshade` | `elevation` | 30 m | Feb 2000 |
+| tree cover, forest, land cover | `ESA/WorldCover/v200/2021` | `Map` | 10 m | 2021 |
+
+Those scales were read back from Earth Engine (`projection().nominalScale()`), not assumed.
+GHS-BUILT-S P2023A is a **100 m** product measuring built surface area in m² per cell (0-10,000);
+it is not the 10 m variant, and the limitation text says so.
+
+**Earth Engine runs in a child process**, under whichever interpreter actually has
+`earthengine-api` (`EE_PYTHON`, else this interpreter, else `/usr/bin/python3`). The bridge venv is
+shared with another site's bridge, so installing a cloud SDK into it would change a runtime this
+module has no business changing — the repo already re-execs into a different interpreter for the
+same reason (`integration/origin/connectors/_base.py`). The child takes one JSON request on stdin,
+writes PNG bytes to a temp file and reports one JSON line, so image bytes never share a stream with
+diagnostics. Credentials are a per-user file, so both interpreters authenticate identically.
+
+Two thumbnail parameters decide whether the layer is placed correctly at all:
+
+- **`crs: EPSG:4326` is mandatory.** A thumbnail renders in the image's native projection unless
+  told otherwise, and GHSL is Mollweide — the AOI comes back as a rotated parallelogram whose pixel
+  grid does not line up with the declared lat/lon bounds. Pinning EPSG:4326 makes the raster
+  axis-aligned in degrees, the only form `bounds` can honestly place.
+- **`format: png` is mandatory**, because the default encoding is JPEG.
+
+Clipping to the declared polygon is what makes everything outside the AOI transparent: Earth Engine
+masks it and the PNG carries the mask as alpha. Colour type varies by product (RGB for a fully
+covered palette render, grey for a hillshade, RGBA where a clip masks the frame), so the envelope
+reads the real size back from the returned header instead of assuming what it asked for.
+
+When Earth Engine cannot be reached — no `earthengine-api` anywhere, no credential, or no egress —
+the same capability still runs so the contract stays exercised: the surface is generated from the
+pack itself (kernel density over indexed record and effort locations as a settlement proxy; an
+analytic relief field for elevation), classed `modelled` with a `synthetic:` source id and an
+**error**-severity `synthetic-raster` limitation naming it synthetic and giving the exact reason.
+That is a labelled fallback for a genuine outage, never a default. Probe and fetch are both bounded
+(`EE_INIT_TIMEOUT`, `EE_THUMBNAIL_TIMEOUT`) so a dead network cannot stall a chat turn, and the
+fallback PNG is written by a minimal stdlib encoder (zlib + CRC) so the bridge needs no imaging
+dependency.
 
 ```bash
 python3 dss/visual_index/earth_layer_service.py \
   --site-pack dss/sites/valparai_livelihoods \
   --index /tmp/valparai-livelihoods-index/site_index.sqlite \
   --state /tmp/valparai-livelihoods-results --layer built-up
+```
+
+The default test suite forces Earth Engine off, so the fallback contract is hermetic on any
+machine. Exercise the live path explicitly:
+
+```bash
+IDLI_TEST_EARTH_ENGINE=1 python3 -m unittest dss.visual_index.tests.test_earth_layer_service
 ```
 
 `PackSwapContractTest` builds the real Valparai pack and the synthetic Valparai livelihoods pack,

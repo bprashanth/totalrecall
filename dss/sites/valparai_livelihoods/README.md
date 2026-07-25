@@ -245,20 +245,24 @@ envelope that keeps the observed map and names the gate; it never substitutes a 
 a cell id. Targets: `record_density`, `entity_richness`, `survey_effort`,
 `effort_normalised_rate`.
 
-`POST /v1/earth-layer` (`{layer}`) renders one AOI-clipped raster: free text like "built-up",
-"elevation" or "tree cover" maps to a registered product (GHSL GHS-BUILT-S, SRTM, ESA WorldCover).
-The envelope carries a `raster_image` layer with `bounds = [w, s, e, n]` and a `data_ref` handle
-serving PNG bytes from `GET /v1/results/<id>/data/<handle>`, beside the declared AOI polygon that
-gives the renderer its extent.
+`POST /v1/earth-layer` (`{layer}`) renders one AOI-clipped raster from a real Earth Engine
+product: "built-up" → `JRC/GHSL/P2023A/GHS_BUILT_S/2020` (100 m, 2020), "elevation"/"terrain" →
+`USGS/SRTMGL1_003` hillshaded (30 m, Feb 2000), "tree cover"/"land cover" →
+`ESA/WorldCover/v200/2021` (10 m, 2021). The envelope carries a `raster_image` layer with
+`bounds = [w, s, e, n]` and a `data_ref` handle serving PNG bytes from
+`GET /v1/results/<id>/data/<handle>`, beside the declared AOI polygon that gives the renderer its
+extent. See `dss/visual_index/README.md` for why the thumbnail must pin `crs: EPSG:4326` and
+`format: png`.
 
-**Earth Engine status on this box:** `earthengine-api` is installed for the *system* interpreter
-(v1.7.33) with an authorised-user credential at `~/.config/earthengine/credentials`
-(project `plantwars`), but **not** in the bridge venv, and the box currently has no DNS/egress. The
-service therefore takes its declared fallback: it generates the surface deterministically from the
-pack itself and labels it `modelled` with an **error**-severity `synthetic-raster` limitation, a
-`synthetic:` source id, and the exact reason Earth Engine was unavailable. To get the observed
-path, install `earthengine-api` in the bridge venv and restore egress to
-`earthengine.googleapis.com`; nothing else changes.
+**Earth Engine on this box: live and in use.** `earthengine-api` (v1.7.33) is installed for the
+*system* interpreter, with an authorised-user credential at `~/.config/earthengine/credentials`
+(project `plantwars`). It is deliberately **not** installed in the bridge venv, which is shared
+with the 7011 EBTL bridge; the service runs Earth Engine as a child process under the interpreter
+that has it (`EE_PYTHON` overrides the search). Retrieved layers are `derived` evidence with
+`assurance: retrieved`, the asset id in `audit.source_versions`, and a limitation carrying the
+product's real resolution and epoch. The synthetic surface remains only as a labelled fallback for
+a genuine outage — never the default — and when it runs the envelope says so with an
+error-severity `synthetic-raster` limitation naming the exact reason.
 
 ```bash
 TOK=$(cat "$SITE_STATE/.api-token")

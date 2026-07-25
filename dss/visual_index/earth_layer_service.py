@@ -29,12 +29,16 @@ computed layer must never paint outside the area the pack declares.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import math
 import os
 import pathlib
 import struct
-import threading
+import subprocess
+import sys
+import tempfile
+import urllib.parse
 import zlib
 from typing import Any
 
@@ -48,11 +52,24 @@ except ModuleNotFoundError:  # Direct execution: python dss/visual_index/earth_l
     )
 
 
-MAX_PIXELS = 320
+MAX_PIXELS = 512
 MIN_PIXELS = 64
 EE_PROJECT = os.environ.get("EE_PROJECT", "plantwars")
 EE_TIMEOUT = int(os.environ.get("EE_THUMBNAIL_TIMEOUT", "60"))
 EE_INIT_TIMEOUT = int(os.environ.get("EE_INIT_TIMEOUT", "8"))
+# Earth Engine runs in whichever interpreter actually has `earthengine-api`, reached as a
+# subprocess. The bridge venv is shared with another site's bridge, so installing a cloud SDK
+# into it would change a runtime this module has no business changing; the repo already re-execs
+# into a different interpreter for the same reason (see integration/origin/connectors/_base.py).
+# Credentials are a per-user file, so both interpreters authenticate identically.
+EE_PYTHON_CANDIDATES = [
+    path for path in (
+        os.environ.get("EE_PYTHON", "").strip(),
+        sys.executable,
+        "/usr/bin/python3",
+        "python3",
+    ) if path
+]
 
 
 EARTH_LAYER_CAPABILITIES: list[dict[str, Any]] = [
@@ -89,11 +106,15 @@ PRODUCTS: list[dict[str, Any]] = [
             "buildings", "impervious", "development", "developed",
         ),
         "earth_engine": {
-            "asset": "JRC/GHSL/P2023A/GHS_BUILT_S",
-            "asset_kind": "collection",
-            "epoch_filter": "2020",
+            # Addressed as the epoch image directly: the collection carries 1975-2030 epochs, and
+            # naming the one we mean is honester than mosaicking a filter and hoping.
+            "asset": "JRC/GHSL/P2023A/GHS_BUILT_S/2020",
+            "asset_kind": "image",
             "band": "built_surface",
-            "vis": {"min": 0, "max": 8000,
+            "terrain": None,
+            # built_surface is square metres of built surface within each 100 m cell, so the cell
+            # area is the true maximum rather than a chosen stretch.
+            "vis": {"min": 0, "max": 10000,
                     "palette": ["000004", "51127c", "b63679", "fb8861", "fcfdbf"]},
         },
         "product_name": "GHSL Built-up Surface (GHS-BUILT-S), epoch 2020",
@@ -101,6 +122,9 @@ PRODUCTS: list[dict[str, Any]] = [
         "publisher": "European Commission Joint Research Centre",
         "resolution_m": 100,
         "product_date": "2020",
+        "measures": (
+            "built-up surface area in square metres within each 100 m cell (0-10,000)"
+        ),
         "fallback": {
             "kind": "density",
             "legend": "Modelled settlement proxy (record and effort density)",
@@ -122,16 +146,20 @@ PRODUCTS: list[dict[str, Any]] = [
         "earth_engine": {
             "asset": "USGS/SRTMGL1_003",
             "asset_kind": "image",
-            "epoch_filter": None,
             "band": "elevation",
-            "vis": {"min": 0, "max": 2500,
-                    "palette": ["0b3d2e", "3b7a57", "b8b06a", "9c6b3f", "efefef"]},
+            # Relief reads as terrain only when it is shaded; ee.Terrain.hillshade does that on
+            # the real DEM rather than on a stretch of raw metres.
+            "terrain": "hillshade",
+            "vis": {"min": 0, "max": 255},
         },
-        "product_name": "SRTM Digital Elevation Model, 1 arc-second",
+        "product_name": "SRTM Digital Elevation Model, 1 arc-second (hillshaded)",
         "product_version": "SRTMGL1 v003",
         "publisher": "NASA / USGS",
         "resolution_m": 30,
-        "product_date": "2000-02 (single acquisition campaign)",
+        "product_date": "2000-02 (single 11-day acquisition campaign)",
+        "measures": (
+            "shaded relief computed from ground elevation, lit from the north-west by convention"
+        ),
         "fallback": {
             "kind": "relief",
             "legend": "Synthetic relief field (not a measured terrain surface)",
@@ -151,10 +179,12 @@ PRODUCTS: list[dict[str, Any]] = [
             "green", "worldcover",
         ),
         "earth_engine": {
-            "asset": "ESA/WorldCover/v200",
-            "asset_kind": "collection",
-            "epoch_filter": None,
+            "asset": "ESA/WorldCover/v200/2021",
+            "asset_kind": "image",
             "band": "Map",
+            "terrain": None,
+            # The official WorldCover class palette, in class order 10..95, so the rendered
+            # colours are the product's own rather than a ramp invented here.
             "vis": {"min": 10, "max": 95,
                     "palette": ["006400", "ffbb22", "ffff4c", "f096ff", "fa0000",
                                 "b4b4b4", "f0f0f0", "0064c8", "0096a0", "00cf75",
@@ -165,6 +195,10 @@ PRODUCTS: list[dict[str, Any]] = [
         "publisher": "European Space Agency",
         "resolution_m": 10,
         "product_date": "2021",
+        "measures": (
+            "a discrete land-cover class per pixel (tree cover, shrubland, cropland, built-up, "
+            "water and others), not a continuous tree-cover percentage"
+        ),
         "fallback": {
             "kind": "inverse_density",
             "legend": "Modelled vegetation proxy (inverse of recorded activity density)",
@@ -200,6 +234,62 @@ def encode_png(width: int, height: int, rows: list[bytes]) -> bytes:
         + chunk(b"IDAT", zlib.compress(raw, 9))
         + chunk(b"IEND", b"")
     )
+
+
+def png_size(payload: bytes) -> tuple[int, int] | None:
+    """Width and height from a PNG header, whatever its colour type.
+
+    Earth Engine returns whichever encoding suits the product — RGBA for a clipped palette
+    image, grey+alpha for a hillshade, RGB where the render covers the whole region — so the
+    envelope must read the real size back rather than assume the one it asked for.
+    """
+    if not payload.startswith(b"\x89PNG\r\n\x1a\n") or len(payload) < 24:
+        return None
+    if payload[12:16] != b"IHDR":
+        return None
+    width, height = struct.unpack(">II", payload[16:24])
+    return int(width), int(height)
+
+
+def _ee_fetch(request: dict[str, Any]) -> dict[str, Any]:
+    """Child-process worker: initialise Earth Engine, render one thumbnail, save the bytes.
+
+    This runs under whichever interpreter carries `earthengine-api`, which is generally not the
+    one serving the bridge. It writes no diagnostics to stdout except its single JSON result.
+    """
+    import urllib.request
+
+    import ee  # type: ignore
+
+    ee.Initialize(project=request["project"])
+    region = ee.Geometry.Polygon([request["ring"]])
+    image = (
+        ee.ImageCollection(request["asset"]).mosaic()
+        if request.get("asset_kind") == "collection" else ee.Image(request["asset"])
+    )
+    image = image.select(request["band"])
+    if request.get("terrain") == "hillshade":
+        image = ee.Terrain.hillshade(image)
+    # Clipping to the declared polygon is what makes everything outside the AOI transparent;
+    # Earth Engine masks it and the PNG carries the mask as alpha.
+    #
+    # `crs` is not optional. A thumbnail renders in the image's native projection unless told
+    # otherwise, and several of these products are not in geographic coordinates — GHSL is
+    # Mollweide — so the AOI rectangle comes back as a rotated parallelogram whose pixel grid
+    # does not line up with the lat/lon bounds the envelope declares. Pinning EPSG:4326 makes
+    # the raster axis-aligned in degrees, which is the only form that can be honestly placed
+    # with `bounds = [w, s, e, n]`.
+    url = image.clip(region).getThumbURL({
+        **(request.get("vis") or {}),
+        "region": region,
+        "dimensions": request["dimensions"],
+        "crs": "EPSG:4326",
+        "format": "png",
+    })
+    with urllib.request.urlopen(url, timeout=request.get("timeout", 60)) as response:
+        payload = response.read()
+    pathlib.Path(request["output"]).write_bytes(payload)
+    return {"ok": True, "bytes": len(payload), "url_host": urllib.parse.urlparse(url).netloc}
 
 
 def _ramp(palette: tuple[tuple[int, int, int], ...], fraction: float) -> tuple[int, int, int]:
@@ -321,88 +411,100 @@ class EarthLayerService:
     # ------------------------------------------------------------------ earth engine
 
     def engine_status(self) -> dict[str, Any]:
-        """Probe Earth Engine once per process. A probe never raises; it reports."""
+        """Find an interpreter that carries earthengine-api. A probe never raises; it reports."""
         if self._engine is not None:
             return self._engine
         status: dict[str, Any] = {
-            "available": False, "project": EE_PROJECT, "reason": "", "module": None,
+            "available": False, "project": EE_PROJECT, "reason": "", "python": None,
         }
-        try:
-            import ee  # type: ignore
-        except Exception as exc:
-            status["reason"] = (
-                f"earthengine-api is not importable in this interpreter ({type(exc).__name__}). "
-                "Install earthengine-api in the bridge venv to enable the observed path."
-            )
-            self._engine = status
-            return status
-        # Initialisation reaches the token endpoint, and an unreachable network fails it by DNS
-        # timeout rather than promptly. A chat turn must not sit on that, so the probe is bounded
-        # and a probe that has not finished in time counts as unavailable.
-        outcome: dict[str, Any] = {}
-
-        def initialise() -> None:
+        tried: list[str] = []
+        for candidate in EE_PYTHON_CANDIDATES:
             try:
-                ee.Initialize(project=EE_PROJECT)
-                outcome["ok"] = True
-            except Exception as exc:  # pragma: no cover - depends on host credentials
-                outcome["error"] = f"{type(exc).__name__}: {str(exc)[:200]}"
-
-        worker = threading.Thread(target=initialise, daemon=True)
-        worker.start()
-        worker.join(EE_INIT_TIMEOUT)
-        if worker.is_alive():
-            status["reason"] = (
-                f"ee.Initialize(project={EE_PROJECT!r}) did not complete within "
-                f"{EE_INIT_TIMEOUT}s; treating Earth Engine as unavailable rather than stalling "
-                "the request."
-            )
-        elif not outcome.get("ok"):
-            status["reason"] = (
-                f"ee.Initialize(project={EE_PROJECT!r}) failed: "
-                f"{outcome.get('error') or 'unknown error'}"
-            )
-        else:
-            status.update({"available": True, "module": ee, "reason": "initialised"})
+                probe = subprocess.run(
+                    [candidate, "-c", "import ee; print(ee.__version__)"],
+                    capture_output=True, text=True, timeout=EE_INIT_TIMEOUT,
+                )
+            except (OSError, subprocess.SubprocessError) as exc:
+                tried.append(f"{candidate}: {type(exc).__name__}")
+                continue
+            if probe.returncode == 0:
+                status.update({
+                    "available": True, "python": candidate,
+                    "version": probe.stdout.strip(),
+                    "reason": f"earthengine-api {probe.stdout.strip()} via {candidate}",
+                })
+                self._engine = status
+                return status
+            tried.append(f"{candidate}: {(probe.stderr or '').strip().splitlines()[-1:]}")
+        status["reason"] = (
+            "no interpreter on this host can import earthengine-api "
+            f"(tried {', '.join(EE_PYTHON_CANDIDATES)}). Set EE_PYTHON to an interpreter that "
+            f"has it, or install earthengine-api. Detail: {tried}"
+        )
         self._engine = status
         return status
 
     def _earth_engine_png(
         self, product: dict[str, Any], width: int, height: int
     ) -> tuple[bytes | None, str]:
-        """Fetch the AOI-clipped thumbnail server-side. Returns (png_bytes, note)."""
+        """Fetch the AOI-clipped product thumbnail through the interpreter that has `ee`.
+
+        The work runs in a child process because the interpreter serving this bridge is shared
+        with another site's bridge and must not grow a cloud SDK. The child writes PNG bytes to a
+        temporary file and reports status as one JSON line, so image bytes never share a stream
+        with diagnostics.
+        """
         status = self.engine_status()
         if not status["available"]:
             return None, status["reason"]
-        ee = status["module"]
-        spec = product["earth_engine"]
-        try:
-            region = ee.Geometry.Polygon([self.aoi_ring()])
-            if spec["asset_kind"] == "collection":
-                collection = ee.ImageCollection(spec["asset"])
-                if spec.get("epoch_filter"):
-                    collection = collection.filter(
-                        ee.Filter.stringContains("system:index", spec["epoch_filter"])
-                    )
-                image = collection.mosaic()
-            else:
-                image = ee.Image(spec["asset"])
-            image = image.select(spec["band"]).clip(region)
-            url = image.getThumbURL({
-                **spec["vis"],
-                "region": region,
-                "dimensions": f"{width}x{height}",
-                "format": "png",
-            })
-            import urllib.request
-
-            with urllib.request.urlopen(url, timeout=EE_TIMEOUT) as response:
-                payload = response.read()
-            if not payload.startswith(b"\x89PNG"):
-                return None, "Earth Engine returned a non-PNG body for the thumbnail request"
-            return payload, f"{product['product_name']} via Earth Engine getThumbURL"
-        except Exception as exc:
-            return None, f"Earth Engine request failed: {type(exc).__name__}: {str(exc)[:200]}"
+        request = {
+            "project": EE_PROJECT,
+            "asset": product["earth_engine"]["asset"],
+            "asset_kind": product["earth_engine"]["asset_kind"],
+            "band": product["earth_engine"]["band"],
+            "terrain": product["earth_engine"].get("terrain"),
+            "vis": product["earth_engine"]["vis"],
+            "ring": self.aoi_ring(),
+            "dimensions": f"{width}x{height}",
+            "timeout": EE_TIMEOUT,
+        }
+        with tempfile.TemporaryDirectory(prefix="idli-ee-") as work:
+            target = pathlib.Path(work) / "thumb.png"
+            request["output"] = str(target)
+            try:
+                completed = subprocess.run(
+                    [status["python"], str(pathlib.Path(__file__).resolve()), "--ee-fetch"],
+                    input=json.dumps(request), capture_output=True, text=True,
+                    timeout=EE_INIT_TIMEOUT + EE_TIMEOUT,
+                )
+            except subprocess.TimeoutExpired:
+                return None, (
+                    f"Earth Engine fetch exceeded {EE_INIT_TIMEOUT + EE_TIMEOUT}s and was "
+                    "abandoned rather than stalling the request."
+                )
+            except (OSError, subprocess.SubprocessError) as exc:
+                return None, f"Earth Engine subprocess failed: {type(exc).__name__}: {exc}"
+            outcome: dict[str, Any] = {}
+            for line in (completed.stdout or "").splitlines():
+                with contextlib.suppress(json.JSONDecodeError):
+                    parsed = json.loads(line)
+                    if isinstance(parsed, dict) and "ok" in parsed:
+                        outcome = parsed
+            if not outcome.get("ok"):
+                detail = (
+                    outcome.get("error")
+                    or (completed.stderr or "").strip().splitlines()[-1:] or "no output"
+                )
+                return None, f"Earth Engine request failed: {detail}"
+            if not target.is_file():
+                return None, "Earth Engine reported success but wrote no image"
+            payload = target.read_bytes()
+        if not payload.startswith(b"\x89PNG"):
+            return None, "Earth Engine returned a non-PNG body for the thumbnail request"
+        return payload, (
+            f"{product['product_name']} retrieved from Earth Engine asset "
+            f"{product['earth_engine']['asset']} via getThumbURL"
+        )
 
     # ------------------------------------------------------------------ fallback surfaces
 
@@ -678,6 +780,9 @@ class EarthLayerService:
             observed = False
             png, field_detail = self._fallback_png(product, width, height)
             detail = {"path": "deterministic_fallback", "note": note, **field_detail}
+        # Earth Engine may return a slightly different size than requested to preserve the
+        # region's aspect, so the envelope reports the image that actually exists.
+        width, height = png_size(png) or (width, height)
 
         aoi = {
             "type": "FeatureCollection",
@@ -759,10 +864,13 @@ class EarthLayerService:
                 "product-resolution-and-date",
                 (
                     f"{product['product_name']} ({product['product_version']}, "
-                    f"{product['publisher']}) has a native resolution of "
+                    f"{product['publisher']}, Earth Engine asset "
+                    f"{product['earth_engine']['asset']}) has a native resolution of "
                     f"{product['resolution_m']} m and represents {product['product_date']}. "
-                    "It is resampled here to fit the AOI, so pixel edges in this view are display "
-                    "artefacts, not product boundaries, and nothing later than its epoch is shown."
+                    f"It shows {product['measures']}. It is resampled to "
+                    f"{width}×{height} px to fit the AOI, so pixel edges in this view are "
+                    "display artefacts, not product boundaries, and nothing after its epoch is "
+                    "shown — this is not a current image of the site."
                 ),
                 severity="info", affects=["answer", "earth-layer-raster"],
             ) if observed else self._limitation(
@@ -911,6 +1019,18 @@ class EarthLayerService:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if "--ee-fetch" in argv:
+        # Child mode. One JSON request on stdin, one JSON result on stdout, image bytes on disk.
+        try:
+            print(json.dumps(_ee_fetch(json.loads(sys.stdin.read()))), flush=True)
+        except Exception as exc:
+            print(
+                json.dumps({"ok": False, "error": f"{type(exc).__name__}: {str(exc)[:400]}"}),
+                flush=True,
+            )
+            return 1
+        return 0
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--site-pack", type=pathlib.Path, required=True)
     parser.add_argument("--index", type=pathlib.Path, required=True)
