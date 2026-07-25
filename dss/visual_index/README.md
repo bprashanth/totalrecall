@@ -236,6 +236,33 @@ python3 dss/visual_index/estimate_service.py \
   --cell at:10.30:76.94 --target event_total:mgnrega_work   # add --approach to run one
 ```
 
+## Requirements live in the data, not in the prompt
+
+Four benchmark rounds settled an architectural question. Every rule added to the dialogue prompt
+displaced one already there: adding the join rule took the confidence statement from 92% to 50%;
+cutting sentences to 14 words took the alternative and the join rule; restoring those cost the
+sentence length again. The graded dimensions took turns failing while the prompt grew. The only
+fixes that never regressed were the ones that changed the data the model was given.
+
+`answer_contract.py` moves the requirements onto the results. A result declares what must be said
+about it — `required_statements: [{id, statement, why}]` — and each statement is the producing
+capability's own sentence, promoted from a limitation it already declared. A shared-square map
+carries its join rule; an estimate carries its confidence basis and that it is modelled; a
+priority ranking carries "this is where the data is thinnest, not where the ecology is richest";
+any result with figures carries the surveys they came from. They are attached to the model-safe
+summary and served on the result itself, so the renderer can show them verbatim (proposal
+TR-VIS-0002).
+
+`review_answer` then enforces, on the way out, the invariants that need no judgement: it
+substitutes wording that belongs to the plumbing, splits an over-long sentence at a join already
+present in the text, and reports a missing required statement or a missing next step. It never
+writes prose — a missing statement is reported, because supplying it would be authorship. The
+bridge records the result as an `answer_check` audit event and emits it for the interface.
+
+The prompt shrank as this grew: the banned-phrase list, the square-id rule, the "every figure
+names its survey" rule, the join-rule reminder and the sentence-length guidance were all deleted
+from the global text once the data or the outgoing check carried them.
+
 ## A route that cannot express something is not a site that lacks it
 
 The round-1 fix taught the system to stop saying "your word does not exist here". Round 2 found

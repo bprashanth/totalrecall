@@ -458,29 +458,12 @@ PLAIN_ANSWER_RULE = (
     "TRANSLATE THE DATA'S OWN JARGON TOO. Column, metric and record names come from whoever "
     "collected the data and are often opaque. The first time you use one, gloss it: "
     "\"persondays — days of paid work\", \"worker_count — people on the estate payroll\", "
-    "\"persons_moved — people who left the village\". Never make the reader guess.\n"
-    "THESE EXACT PHRASES ARE BANNED, with their replacements. They survive because they sound "
-    "careful, and they are the last of our vocabulary still reaching users:\n"
-    "  \"onboarded\" / \"onboarded site records\" → \"the data this site has\"\n"
-    "  \"entities\" / \"named entities\" → name them: \"villages\", \"estates\", \"kinds of "
-    "work\", or \"different things the records are about\"\n"
-    "  \"site records\" → \"the records\" or name them: \"the household survey\"\n"
-    "  \"indexed\" (of the user's data) → \"recorded\", or drop the word entirely\n"
-    "  \"this visual\" → \"this map\", \"this chart\", \"this table\"\n"
-    "  \"target cells\" / \"target cell\" → \"squares inside this site's boundary\"\n"
-    "\"grid squares\", \"map squares\" and \"the square you clicked\" are good; keep them.\n"
-    "OFFER OPTIONS BY THEIR LABEL, NOT THEIR COLUMN NAME. When you list what the user can "
-    "choose from, write \"the daily wage rate, the overtime rate, or paid days per month\" — "
-    "never `daily_wage`, `overtime_rate`, `paid_days_per_month`. A column name in backticks is "
-    "something to type, and the user should never have to type anything.\n"
-    "NEVER PRINT A SQUARE'S ID. Strings shaped like `g0.010:10.3000:76.9900` are internal names "
-    "for a square, and to a user they read as if the system silently changed the coordinates "
-    "they gave. Describe a square by its extent instead, exactly as the response's "
-    "`description` / `cell_description` field gives it: \"the 1.1 km square covering your point "
-    "(10.305 N, 76.995 E), spanning 10.300–10.310 N and 76.990–77.000 E\". Confirm in plain "
-    "words that it covers the point they asked about — \"that point falls inside the square "
-    "covering 10.300–10.310 N, 76.990–77.000 E, so here is the estimate for that square\". "
-    "Never ask a user to type `at:<lat>:<lon>`: resolve the place they named yourself.\n"
+    "\"persons_moved — people who left the village\". Never make the reader guess. Offer options "
+    "by their label rather than their column name: \"the daily wage rate\", never `daily_wage`.\n"
+    "SAY WHAT EACH RESULT REQUIRES. A result that carries `required_statements` is telling you "
+    "what must be said about it — the join rule, the confidence basis, which square, what a "
+    "ranking is not. Say each one, in your own words. Those are the requirements that matter "
+    "here; they travel with the result, so there is no list to memorise.\n"
     "COMPARISON AND GENERAL KNOWLEDGE. When a turn compares this place against the wider world, "
     "give EXACTLY ONE clearly-labelled sentence of each, and lead with the data: one sentence "
     "beginning \"From the data here...\" with the figure, and one beginning \"In general...\" "
@@ -794,10 +777,6 @@ def _visual_result_skill() -> dict | None:
             "square, say so in those words and name the study it came from - “that is at 1.1 km square "
             "level, from the bird recovery survey, not per vegetation plot” - and offer the plot-level "
             "route. Silently swapping the unit of analysis is worse than saying you cannot do it.\n"
-            "EVERY FIGURE CARRIES ITS SURVEY. `sources` in the summary gives the datasets behind the "
-            "result. Any number you write must name the survey it came from. Never name a survey from "
-            "memory or from what the conversation was about: a real count attributed to the wrong study "
-            "sends someone to the wrong plots.\n"
             "WHO EATS OR MOVES WHAT. “Which animals disperse which trees”, “who visits which tree”, “who "
             "eats what”, “the frugivore network” -> `interaction-pairs`, which names the recorded pairs "
             "and ranks them. `interaction-map` gives relation totals; when you have called it, the summary "
@@ -841,8 +820,7 @@ def _visual_result_skill() -> dict | None:
             "absence. The rule above bans that sentence only when the records DO exist and a "
             "route could not reach them.\n"
             "IF A BREAKDOWN CAME BACK, QUOTE IT. `breakdown` carries the per-category figures "
-            "this run computed. When the user asked for a split, those numbers ARE the answer: "
-            "give them, one per line, with the survey named.\n"
+            "this run computed. When the user asked for a split, those numbers ARE the answer.\n"
             "EXPLAIN WHAT THEY ASKED ABOUT. Pass the subject this conversation is already about — "
             "the plot, species, category or place named in recent turns — to `visual-explain` as "
             "its `mark`; `marks_you_could_ask_about` lists what the view holds. If you fall back "
@@ -850,16 +828,7 @@ def _visual_result_skill() -> dict | None:
             "WHAT TO RECORD IS A NUMBERED LIST. “What should I record / collect / measure / bring "
             "back”, “draft the data request” → numbered items, each naming what, where, how often "
             "and by which method, grounded in the survey methods this site already uses.\n"
-            "SPLIT SENTENCES, NEVER DROP FACTS. Shorter prose means one claim per sentence, "
-            "around 22 words, not less said. Everything that was going to be in the answer still "
-            "is — the figure, the survey it came from, how far to trust it, what does exist when "
-            "something is missing, how two things were matched — each in its own short sentence. "
-            "Never stack five surveys, two counts and a confidence judgement into one sentence, "
-            "and never solve that by deleting the confidence or the alternative.\n"
-            "KEEP SAYING HOW THINGS WERE MATCHED, AND WHERE THEY ARE. When two things are "
-            "compared, give the join in one sentence: same plot, same square, same year, or only "
-            "the same landscape. When you name places, use the site's own place names, never a "
-            "latitude band.\n"
+            "ONE CLAIM PER SENTENCE. Say everything you were going to say, in shorter sentences.\n"
             "GIVE THE FIGURE. If the summary came back with numbers, your answer contains "
             "numbers. “Substantial”, “many”, “a much smaller subset” are not answers to a how "
             "much / which / where question when the count was in your hand.\n"
@@ -1829,6 +1798,36 @@ _ROUTE_SHAPE_CODES = {
 }
 
 
+def _with_required_statements(envelope: dict) -> dict:
+    """Serve a result with the statements it requires, derived from the result itself.
+
+    Derived at serve time rather than written into the file: stored envelopes are write-once and
+    digested, and this derivation is deterministic, so the same result always carries the same
+    requirements without touching what was stored.
+    """
+    if not isinstance(envelope, dict) or envelope.get("required_statements"):
+        return envelope
+    statements = _visual_required_statements(envelope)
+    if not statements:
+        return envelope
+    served = dict(envelope)
+    served["required_statements"] = statements
+    return served
+
+
+def _visual_required_statements(envelope: dict) -> list[dict]:
+    """What must be said about this one result, carried by the result.
+
+    A requirement written into the global prompt displaces one already living there — four
+    benchmark rounds showed the dimensions taking turns failing as the prompt grew. A requirement
+    attached to the result it belongs to competes with nothing.
+    """
+    with contextlib.suppress(Exception):
+        module = _visual_module("answer_contract")
+        return module.required_statements(envelope)
+    return []
+
+
 def _visual_breakdown(envelope: dict, result_service: Any) -> list[dict]:
     """The per-category rows a capability computed but its summary does not carry.
 
@@ -2050,6 +2049,13 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
         pairs = _visual_named_pairs(arguments)
         if pairs:
             summary["named_pairs"] = pairs
+    statements = _visual_required_statements(envelope)
+    if statements:
+        summary["required_statements"] = statements
+        summary["required_statements_note"] = (
+            "Each of these must be said in your answer about this result, in your own words. "
+            "They are not optional context: they are what makes the figures honest."
+        )
     breakdown = _visual_breakdown(envelope, service)
     if breakdown:
         summary["breakdown"] = breakdown
@@ -6789,10 +6795,6 @@ def _native_prompt(message: str, session: Session) -> str:
             "square, say so in those words and name the study it came from - “that is at 1.1 km square "
             "level, from the bird recovery survey, not per vegetation plot” - and offer the plot-level "
             "route. Silently swapping the unit of analysis is worse than saying you cannot do it.\n"
-            "EVERY FIGURE CARRIES ITS SURVEY. `sources` in the summary gives the datasets behind the "
-            "result. Any number you write must name the survey it came from. Never name a survey from "
-            "memory or from what the conversation was about: a real count attributed to the wrong study "
-            "sends someone to the wrong plots.\n"
             "WHO EATS OR MOVES WHAT. “Which animals disperse which trees”, “who visits which tree”, “who "
             "eats what”, “the frugivore network” -> `interaction-pairs`, which names the recorded pairs "
             "and ranks them. `interaction-map` gives relation totals; when you have called it, the summary "
@@ -6836,8 +6838,7 @@ def _native_prompt(message: str, session: Session) -> str:
             "absence. The rule above bans that sentence only when the records DO exist and a "
             "route could not reach them.\n"
             "IF A BREAKDOWN CAME BACK, QUOTE IT. `breakdown` carries the per-category figures "
-            "this run computed. When the user asked for a split, those numbers ARE the answer: "
-            "give them, one per line, with the survey named.\n"
+            "this run computed. When the user asked for a split, those numbers ARE the answer.\n"
             "EXPLAIN WHAT THEY ASKED ABOUT. Pass the subject this conversation is already about — "
             "the plot, species, category or place named in recent turns — to `visual-explain` as "
             "its `mark`; `marks_you_could_ask_about` lists what the view holds. If you fall back "
@@ -6845,16 +6846,7 @@ def _native_prompt(message: str, session: Session) -> str:
             "WHAT TO RECORD IS A NUMBERED LIST. “What should I record / collect / measure / bring "
             "back”, “draft the data request” → numbered items, each naming what, where, how often "
             "and by which method, grounded in the survey methods this site already uses.\n"
-            "SPLIT SENTENCES, NEVER DROP FACTS. Shorter prose means one claim per sentence, "
-            "around 22 words, not less said. Everything that was going to be in the answer still "
-            "is — the figure, the survey it came from, how far to trust it, what does exist when "
-            "something is missing, how two things were matched — each in its own short sentence. "
-            "Never stack five surveys, two counts and a confidence judgement into one sentence, "
-            "and never solve that by deleting the confidence or the alternative.\n"
-            "KEEP SAYING HOW THINGS WERE MATCHED, AND WHERE THEY ARE. When two things are "
-            "compared, give the join in one sentence: same plot, same square, same year, or only "
-            "the same landscape. When you name places, use the site's own place names, never a "
-            "latitude band.\n"
+            "ONE CLAIM PER SENTENCE. Say everything you were going to say, in shorter sentences.\n"
             "GIVE THE FIGURE. If the summary came back with numbers, your answer contains "
             "numbers. “Substantial”, “many”, “a much smaller subset” are not answers to a how "
             "much / which / where question when the count was in your hand.\n"
@@ -7150,6 +7142,46 @@ def _execution_plain_text(execution: dict) -> str:
         f"Execution stopped with {reason}." +
         (f" The next required input is: {ask}." if ask else "")
     )
+
+
+def _turn_required_statements(session: Session) -> tuple[list[dict], str]:
+    """Every required statement produced by this turn's results, and the square they name."""
+    statements: list[dict] = []
+    seen: set[str] = set()
+    description = ""
+    for call in session.turn_skill_calls:
+        result = call.get("result") if isinstance(call.get("result"), dict) else {}
+        execution = result.get("execution") if isinstance(result.get("execution"), dict) else {}
+        value = execution.get("value") if isinstance(execution.get("value"), dict) else {}
+        description = description or str(
+            value.get("cell_description_short") or value.get("cell_description") or ""
+        )
+        for item in value.get("required_statements") or []:
+            if isinstance(item, dict) and item.get("id") not in seen:
+                seen.add(item.get("id"))
+                statements.append(item)
+    return statements, description
+
+
+def _review_final_answer(session: Session, final: str) -> dict:
+    """Enforce on the way out what no longer has to be hoped for on the way in.
+
+    Wording substitutions and sentence splits are applied; a missing required statement or a
+    missing next step is reported rather than written, because writing it would be authorship
+    and this pass is not allowed to invent content.
+    """
+    if not final:
+        return {}
+    statements, description = _turn_required_statements(session)
+    with contextlib.suppress(Exception):
+        module = _visual_module("answer_contract")
+        review = module.review_answer(
+            final, statements, cell_description=description,
+            expect_next_step=bool(session.turn_skill_calls),
+        )
+        review["required_statements"] = [item.get("id") for item in statements]
+        return review
+    return {}
 
 
 def _scientific_call_produced_something(call: dict) -> bool:
@@ -7627,6 +7659,12 @@ def run_turn(session: Session, message: str, emit: Callable[[dict], None]) -> di
                 stderr += "\nCould not copy final answer: " + copied.stderr
         final = final_path.read_text().strip() if final_path.exists() else (pending_message or "")
         final = _replace_provenance_brackets(final)
+        answer_check = _review_final_answer(session, final)
+        if answer_check:
+            final = answer_check.pop("text", final)
+            session.append_audit({"type": "answer_check", **answer_check})
+            if answer_check.get("issues") or answer_check.get("missing_statements"):
+                emit({"type": "insight_answer_check", **answer_check})
         scientific_block = _scientific_response_block(session)
         if scientific_block and "### Scientific analysis" not in final:
             final = final.rstrip() + scientific_block
@@ -7987,7 +8025,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             else:
                 self._send_bytes(
                     200,
-                    (json.dumps(result, ensure_ascii=False, default=str) + "\n").encode(),
+                    (json.dumps(
+                        _with_required_statements(result), ensure_ascii=False, default=str
+                    ) + "\n").encode(),
                     "application/json", immutable=True)
             return True
         if len(parts) == 3 and parts[1] == "data":
@@ -8145,6 +8185,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         request_id=request_id, capability_id=capability_id,
                         arguments=arguments, original=question,
                     )
+                envelope = _with_required_statements(envelope)
                 if resolution.get("used"):
                     envelope = dict(envelope)
                     envelope["name_resolution"] = {

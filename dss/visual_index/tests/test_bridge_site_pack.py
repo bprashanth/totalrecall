@@ -270,6 +270,50 @@ class BridgeEstimateTargetsTest(unittest.TestCase):
             for word in ("entit", "cell", "adapter", "plane", "source_id", "event_total"):
                 self.assertNotIn(word, item["label"].casefold(), item["label"])
 
+    def test_a_result_carries_what_must_be_said_about_it(self):
+        """The requirement travels with the result, so it competes with nothing in the prompt."""
+        with self.configured_bridge():
+            result = server._execute_skill("visual-result", {
+                "capability_id": "co-occurrence-map",
+                "arguments": {"subjects": ["Footpath repair", "Construction labour"]},
+                "question": "Where are both recorded?",
+            }, None)
+            summary = result["execution"]["value"]
+        statements = {item["id"]: item for item in summary["required_statements"]}
+        self.assertIn("join-rule", statements)
+        self.assertTrue(statements["join-rule"]["statement"])
+        self.assertTrue(statements["join-rule"]["must_include"])
+        self.assertIn("must be said", summary["required_statements_note"])
+
+    def test_the_outgoing_check_repairs_wording_and_reports_what_it_may_not_write(self):
+        class _Session:
+            def __init__(self, statements):
+                self.turn_skill_calls = [{
+                    "skill": "visual-result",
+                    "result": {"execution": {"value": {"required_statements": statements}}},
+                }]
+
+        with self.configured_bridge():
+            result = server._execute_skill("visual-result", {
+                "capability_id": "co-occurrence-map",
+                "arguments": {"subjects": ["Footpath repair", "Construction labour"]},
+                "question": "Where are both recorded?",
+            }, None)
+            statements = result["execution"]["value"]["required_statements"]
+            session = _Session(statements)
+            review = server._review_final_answer(
+                session, "Six squares hold both, in the target cells."
+            )
+        # Wording that belongs to the plumbing is substituted, not asked for.
+        self.assertNotIn("target cells", review["text"])
+        self.assertIn("squares inside this site's boundary", review["text"])
+        # A missing required statement is reported and never written into the answer.
+        missing = {item["id"] for item in review["missing_statements"]}
+        self.assertIn("join-rule", missing)
+        for item in review["missing_statements"]:
+            self.assertNotIn(item["statement"], review["text"])
+        self.assertIn("no-next-step", {item["code"] for item in review["issues"]})
+
     def test_the_relay_instructions_never_ask_the_model_to_speak_in_ids(self):
         """What the model is told to say is what it says. The instruction must be plain."""
         with self.configured_bridge():

@@ -1,0 +1,32 @@
+{
+  "schema_version": "producer-consumer-proposal/1",
+  "proposal_id": "TR-VIS-0002",
+  "title": "Render the statements a result requires, and the check that they were made",
+  "producer": "totalrecall",
+  "consumer": "idlisseus",
+  "created_at": "2026-07-26",
+  "status": "proposed",
+  "contract_version": "idli-result/1",
+  "compatibility": "additive",
+  "problem": "Four benchmark rounds showed that a requirement written into the dialogue prompt displaces a requirement already living there: adding the join rule cost the confidence statement, adding sentence-length guidance cost the alternative, and the graded dimensions took turns failing while the prompt grew. Requirements that travel with the result they belong to compete with nothing. A result already knows what must be said about it - a shared-square map knows that a shared square is not an interaction, an estimate knows its own confidence basis - but there is no field that says so, and no way for a renderer to show it or for a reader to see that it was omitted.",
+  "requested_outcome": [
+    "Read `required_statements` from a result: a list of {id, statement, why}, each a sentence the producing capability itself wrote, ordered by how badly the answer misleads without it.",
+    "Render them near the visual as short verbatim lines, in the producer's wording, distinct from the model's prose.",
+    "Optionally consume the turn-level `insight_answer_check` event {issues, missing_statements, substitutions, sentences_split, mean_sentence_words} to mark which required statements the prose did not make.",
+    "Treat both as additive: a result without `required_statements` renders exactly as it does today.",
+    "Use no site, sector or source-specific vocabulary in the renderer."
+  ],
+  "producer_evidence": [
+    "dss/visual_index/answer_contract.py derives required_statements from the envelope's own declared limitations and audit, and never writes new prose.",
+    "The bridge attaches them to the model-safe summary and emits an answer_check event after each turn.",
+    "dss/visual_index/tests/test_answer_contract.py covers derivation, the missing-statement report and the deterministic repairs."
+  ],
+  "acceptance": [
+    "A co-occurrence result shows its join rule verbatim without the model having to repeat it.",
+    "An estimate result shows its confidence basis and that the value is modelled.",
+    "A result with no required_statements renders unchanged.",
+    "The rendered statements are visibly the producer's, not the assistant's prose.",
+    "No fixture contains organisation or sector data."
+  ],
+  "notes": "This asks the consumer to show what the producer already guarantees, so the requirement no longer depends on the dialogue model remembering it. The producer continues to ask the model to say these things in its own words; the rendered block is the floor, not the replacement."
+}
