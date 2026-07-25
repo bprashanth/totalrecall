@@ -135,3 +135,57 @@ mapping is blocked because there is no versioned uncertainty surface or action-c
   unresolved rather than being guessed.
 
 See [`raw/README.md`](raw/README.md) for source attribution and licence details.
+
+## Idlisseus operations
+
+The proof-of-concept deployment is one site-pinned bridge. It reads this pack in Totalrecall,
+builds disposable serving state under `runs/insight-valparai/`, and registers the public model
+`idli-insight-valparai` as **Idli Insight — Valparai**. It does not copy pack data into
+Idlisseus.
+
+Use Idlisseus's virtual-environment Python for the launcher: endpoint registration imports the
+Idlisseus database package and its dependencies.
+
+```bash
+TOTALRECALL_REPO=/home/beeps/src/github.com/bprashanth/totalrecall
+IDLISSEUS_REPO=/home/beeps/src/github.com/bprashanth/idlisseus
+IDLISSEUS_PY="$IDLISSEUS_REPO/chatbots/odysseus/venv/bin/python"
+VALPARAI_LAUNCHER="$TOTALRECALL_REPO/ecology_memory/integration/codex_native/setup_idlisseus.py"
+VALPARAI_PACK="$TOTALRECALL_REPO/dss/sites/valparai"
+VALPARAI_STATE="$TOTALRECALL_REPO/runs/insight-valparai"
+```
+
+Start or register only the Valparai endpoint:
+
+```bash
+"$IDLISSEUS_PY" "$VALPARAI_LAUNCHER" start \
+  --idlisseus "$IDLISSEUS_REPO/chatbots/odysseus" \
+  --site-pack "$VALPARAI_PACK" \
+  --state "$VALPARAI_STATE" \
+  --host 172.17.0.1 \
+  --port 7012 \
+  --public-model idli-insight-valparai \
+  --endpoint-name "Idli Insight — Valparai"
+```
+
+`172.17.0.1` exposes the bridge to the existing Idlisseus container without opening a new public
+listener. Port 7011 is the separate live EBTL endpoint and must not be restarted by these commands.
+
+Status and health:
+
+```bash
+"$IDLISSEUS_PY" "$VALPARAI_LAUNCHER" status \
+  --state "$VALPARAI_STATE" --port 7012
+
+curl -fsS http://172.17.0.1:7012/health
+```
+
+Stop only this endpoint:
+
+```bash
+"$IDLISSEUS_PY" "$VALPARAI_LAUNCHER" stop --state "$VALPARAI_STATE"
+```
+
+After a pack or producer-code update, stop and start this endpoint with the same state directory.
+The start command rebuilds the serving index and updates the existing Idlisseus endpoint record.
+Refresh Idlisseus and select **Idli Insight — Valparai** for a new chat.
