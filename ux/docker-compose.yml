@@ -15,10 +15,12 @@ services:
       VALPARAI_BRIDGE_URL: http://host.docker.internal:7012
       VALPARAI_BRIDGE_TOKEN_FILE: /run/secrets/valparai-bridge-token
       R_SIDECAR_URL: http://r-sidecar:7331
+      PAPER_INTAKE_DIR: /var/lib/fieldnote-paper-intake
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - ../runs/insight-valparai/.api-token:/run/secrets/valparai-bridge-token:ro
+      - ../runs/fieldnote-paper-intake:/var/lib/fieldnote-paper-intake
     ports:
       - "127.0.0.1:7300:3000"
     restart: unless-stopped

@@ -120,6 +120,32 @@ A camera-trap workbook, for example, normally produces locations, deployment eff
 events and media references. It does not need a `camera_trap_excel` table. Occupancy modelling
 would be a separate capability because it requires repeat occasions and detection histories.
 
+An adapter is not created for each destination column. It is a reviewed mapping for one source
+layout, and one adapter can emit several canonical fact types. A phenology workbook may emit:
+
+- tree or plot `locations`;
+- visits as `events` and `effort`;
+- flowering, fruiting and leaf-state values as long-form `measurements`; and
+- stable source-row and individual-tree identifiers needed to reconnect those facts.
+
+The metric name and value become rows, not a new nullable SQL column added to every record. A site
+with no phenology source therefore has no matching measurement rows; it does not need a divergent
+database schema. If repeated measurements of an individual tree cannot be represented without
+losing identity, that is evidence for a reviewed extension to the shared subject-link model—not
+for adding pack-specific columns.
+
+Profiling happens before that semantic mapping. It inventories files and sheets, reads codebooks,
+measures missingness and ranges, detects coordinate/date/unit conventions, tests candidate keys,
+and exposes repeated identifiers and join paths. It proposes what an adapter must preserve and
+also identifies ambiguous or invalid rows. Profiling does not admit the data and does not decide
+scientific meaning by itself.
+
+Cross-subject questions use stable identifiers and common analytical support rather than raw-name
+joins. For example, “elephant and leopard overlap” resolves both names through `entity_aliases`,
+selects events by the resulting `entity_id` values, aggregates them to comparable spatial cells
+and time rules, then finds shared cells. That output remains co-occurrence evidence, not an
+interaction. An explicit source-reported relation belongs in `interactions`.
+
 ## What is special about conservation data
 
 The pipeline itself is general. Conservation changes the validity rules and common factual
@@ -192,3 +218,10 @@ capability is warranted only for a genuinely new reproducible analysis.
 
 That boundary lets the system learn new sources without turning every live answer into improvised
 ETL.
+
+The paper workbench now starts this lifecycle without bypassing it. It accepts a bounded upload or
+article DOI, reads the method, finds exact registered relations through Crossref and DataCite, and
+separately labels dataset DOIs merely mentioned in a PDF. It can write a
+`paper-source-candidate/1` request to the local intake queue. The request records the source
+identity and required next steps. It is not admitted evidence until acquisition, profiling,
+adapter review, rebuild and capability probes succeed.

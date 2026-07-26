@@ -90,6 +90,28 @@ if (process.env.FIELDNOTE_PAPER === "1") {
   await page.close();
 }
 
+if (process.env.FIELDNOTE_PAPER_REFERENCE === "1") {
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 1000 },
+    deviceScaleFactor: 1,
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(`paper-reference: ${message.text()}`);
+  });
+  page.on("pageerror", (error) => errors.push(`paper-reference: ${error.message}`));
+  await page.goto(`${base}/#methods`, { waitUntil: "networkidle" });
+  await page.getByLabel("Use an article DOI").fill("10.1002/ecs2.2860");
+  await page.getByRole("button", { name: "Read", exact: true }).click();
+  await page.getByText("10.5061/dryad.g7j45sn").waitFor({ timeout: 60_000 });
+  await page.locator(".method-result").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  await page.screenshot({
+    path: `${output}/desktop-paper-reference.png`,
+    fullPage: false,
+  });
+  await page.close();
+}
+
 await browser.close();
 
 if (errors.length) {

@@ -91,3 +91,25 @@ Rebuild the aggregate preview after the Valparai serving index changes:
 ```bash
 npm run export:demo
 ```
+
+## Paper intake
+
+The method workbench accepts a PDF or plain-text file up to 25 MB, or an article DOI. A DOI lookup
+uses Crossref for the article record and DataCite for registered related datasets. A PDF can also
+surface dataset DOIs mentioned in its text; those are labelled separately because a citation does
+not prove that the dataset is this paper's supplement. This means a publisher page blocked by a
+login or bot check does not prevent method and dataset candidates from being identified.
+
+Reading and admission are deliberately separate:
+
+```text
+paper or DOI
+  -> method reading + linked dataset discovery
+  -> "Queue for source review"
+  -> immutable acquisition, profiling, adapter proposal and review
+  -> admitted source + rebuilt site index
+```
+
+The queue is written under `../runs/fieldnote-paper-intake/` by the local Docker deployment. A
+queued record is only an intake request; it does not change any source, fact or visual. The public
+Sites deployment can prepare the same candidate but does not claim to persist or admit it.
