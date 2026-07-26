@@ -1,0 +1,33 @@
+{
+  "schema_version": "producer-consumer-proposal/1",
+  "proposal_id": "TR-VIS-0003",
+  "title": "Show and correct model-selected subject membership",
+  "producer": "totalrecall",
+  "consumer": "idlisseus",
+  "created_at": "2026-07-27",
+  "status": "proposed",
+  "contract_version": "idli-result/1",
+  "compatibility": "additive",
+  "problem": "A reader may use an open collective phrase which no source declares as a group. The producer can now give the dialogue model the bounded site entity catalogue, verify the ids it selects, and record that binding. If the consumer shows only the resulting map, a model judgement looks indistinguishable from a source-declared category and the reader has no obvious way to correct its members.",
+  "requested_outcome": [
+    "When question.bindings.subjects contains resolution_method=model_selected or cached_model_selection, show a compact 'Read as' disclosure listing member_labels.",
+    "Label that disclosure as an assistant interpretation, distinct from an exact stored name or source-declared group; do not encode this distinction by colour alone.",
+    "Render the existing choice action whose action_id begins correct-subject- as 'Change this reading'. Invoking its capability_id and arguments reopens the bounded choice through the conversation agent.",
+    "Keep binding_id and selector details in the audit or expanded lineage view rather than the primary prose.",
+    "Treat the fields and action as additive: results without them render unchanged, and use no site or sector vocabulary."
+  ],
+  "producer_evidence": [
+    "dss/visual_index/subject_resolver.py verifies selected ids, versions bindings and caches them against the catalogue, model and prompt.",
+    "dss/visual_index/cooccurrence_service.py emits member_labels, resolution_method, selector and binding_id in question.bindings.subjects, plus a model-selected-subject-group limitation and executable correction action.",
+    "dss/visual_index/tests/test_subject_resolver.py covers plural widening, ambiguous substrings, bounded selection, id rejection, cache identity and correction.",
+    "dss/visual_index/tests/test_bridge_site_pack.py covers the two-pass bridge flow and reopening a cached reading."
+  ],
+  "acceptance": [
+    "A fixture with a model-selected group names every selected member beside the visual.",
+    "The fixture makes clear that the member list is an assistant interpretation rather than a source category.",
+    "The correction action invokes the supplied capability and arguments and reaches a new bounded choice.",
+    "Exact entity and source-declared group fixtures do not acquire an interpretation warning.",
+    "A result with none of the additive binding fields renders unchanged."
+  ],
+  "notes": "The producer never asks the renderer to infer membership or understand a taxonomy. It supplies the chosen labels and a runnable correction action. The immutable earlier result and binding remain available after a correction."
+}

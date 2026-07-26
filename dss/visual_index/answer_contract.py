@@ -14,11 +14,12 @@ a cell answer knows how big its square is — and each of those travels with tha
 with nothing. The producer already writes these sentences into its limitations; this module lifts
 them into an explicit contract:
 
-    required_statements: [{id, statement, must_include, why}]
+    required_statements: [{id, statement, must_include, why, audience}]
 
 `must_include` is what a deterministic check looks for, so "was it actually said" is a test rather
 than a hope. Nothing here invents prose: every statement is one the producing capability already
-wrote, and the check either finds it or reports that it is missing.
+wrote, and the check either finds it or reports that it is missing. `audience` distinguishes a
+reader-facing sentence from an instruction the answering model must satisfy.
 
 The second half is `review_answer`, which enforces the invariants that need no judgement at all —
 banned wording, sentence length, a figure without its survey, a missing required statement, a
@@ -82,8 +83,11 @@ def _clean(value: Any) -> str:
 
 
 def _statement(
-    statement_id: str, statement: str, must_include: list[str], why: str
+    statement_id: str, statement: str, must_include: list[str], why: str,
+    audience: str = "reader",
 ) -> dict[str, Any]:
+    if audience not in {"reader", "model"}:
+        raise ValueError(f"unknown required-statement audience: {audience}")
     return {
         "id": statement_id,
         "statement": _clean(statement),
@@ -91,6 +95,9 @@ def _statement(
         # loosely on purpose: this checks that the point was made, not that it was copied.
         "must_include": [item.casefold() for item in must_include if item],
         "why": _clean(why),
+        # Reader statements are safe to show verbatim beside a visual. Model statements are
+        # instructions the answer must satisfy, and should stay in the answer-check/audit view.
+        "audience": audience,
     }
 
 
@@ -145,6 +152,7 @@ def required_statements(envelope: dict[str, Any]) -> list[dict[str, Any]]:
                 ["rough", "reasonably solid", "confiden", "trust", "wide", "narrow",
                  "learned from", "learnt from", "surveyed squares"],
                 "A range without its basis invites the reader to treat it as precise.",
+                audience="model",
             ))
     # 3. Which square, said as an extent rather than an id.
     description = _clean(estimate.get("cell_description_short"))
@@ -154,6 +162,7 @@ def required_statements(envelope: dict[str, Any]) -> list[dict[str, Any]]:
             ["km square", "square covering", "spanning"],
             "The grid labels squares by their south-west corner, so an id reads as a "
             "changed coordinate.",
+            audience="model",
         ))
 
     # 4. Pairs, priority rankings and record counts each carry one claim they must not overstate.
@@ -194,6 +203,7 @@ def required_statements(envelope: dict[str, Any]) -> list[dict[str, Any]]:
             "Name the survey each figure came from: " + "; ".join(sources[:4]) + ".",
             [word for title in sources[:4] for word in _significant_words(title)],
             "A real count attributed to the wrong survey sends someone to the wrong plots.",
+            audience="model",
         ))
     return statements
 

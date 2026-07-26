@@ -119,6 +119,16 @@ class BridgeSitePackTest(unittest.TestCase):
                 ]},
                 "question": "Show me squares where elephants and hornbills were both recorded.",
             }, None)
+            correction = next(
+                item for item in second["value"]["actions"]
+                if item["action_id"].startswith("correct-subject-")
+            )
+            reopened = server._visual_result_query({
+                "capability_id": correction["capability_id"],
+                "arguments": correction["arguments"],
+                "question": "Change what hornbills includes.",
+            }, None)
+            self.assertEqual(reopened["reason"], "subject_selection_required")
         self.assertEqual(second["status"], "answer")
         summary = second["value"]
         readings = {item["you_asked_for"]: item for item in summary["subject_resolution"]}

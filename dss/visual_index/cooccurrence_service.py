@@ -645,6 +645,26 @@ class CooccurrenceService:
             members = ", ".join(item.get("member_labels") or [])
             selector = item.get("selector") or {}
             selector_name = selector.get("model") or "the dialogue model"
+            rerun_subjects: list[Any] = []
+            for candidate in resolved:
+                if candidate is item:
+                    rerun_subjects.append({
+                        "requested": candidate["requested"],
+                        "refresh_selection": True,
+                    })
+                elif candidate.get("resolution_method"):
+                    rerun_subjects.append({
+                        "requested": candidate["requested"],
+                        "entity_ids": candidate["entity_ids"],
+                        "label": candidate["label"],
+                    })
+                elif candidate["kind"] == "group":
+                    rerun_subjects.append({
+                        "kind": "group", "rank": candidate["rank"],
+                        "value": candidate["requested"],
+                    })
+                else:
+                    rerun_subjects.append(candidate["requested"])
             result["limitations"].append(self._limitation(
                 "model-selected-subject-group",
                 (
@@ -660,9 +680,9 @@ class CooccurrenceService:
                 "label": f"Change what “{item['requested']}” includes",
                 "capability_id": "co-occurrence-map",
                 "arguments": {
-                    "requested": item["requested"],
-                    "current_entity_ids": item["entity_ids"],
-                    "current_members": item.get("member_labels") or [],
+                    "subjects": rerun_subjects,
+                    "time": {"from": window[0], "to": window[1]},
+                    "same_year": bool(same_year),
                 },
                 "expected_effect": (
                     "Re-run this map after choosing a different set of recorded names."

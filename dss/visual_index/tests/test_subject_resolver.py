@@ -74,6 +74,8 @@ class SubjectResolverTest(unittest.TestCase):
         cached = self.resolver.inspect("hornbills", self.selector)["binding"]
         self.assertEqual(cached["resolution_method"], "cached_model_selection")
         self.assertEqual(cached["entity_ids"], binding["entity_ids"])
+        correction = self.resolver.inspect("hornbills", self.selector, use_cache=False)
+        self.assertEqual(correction["status"], "selection_required")
 
     def test_an_id_outside_the_catalogue_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "outside the supplied site catalogue"):

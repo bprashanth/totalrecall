@@ -172,7 +172,9 @@ class CooccurrenceServiceTest(unittest.TestCase):
             if item["action_id"].startswith("correct-subject-")
         )
         self.assertEqual(correction["kind"], "choice")
-        self.assertEqual(correction["arguments"]["current_entity_ids"], ids)
+        refresh = correction["arguments"]["subjects"][0]
+        self.assertEqual(refresh["requested"], "public works")
+        self.assertTrue(refresh["refresh_selection"])
 
     def test_an_unverified_entity_id_is_rejected_by_the_analytical_service_too(self):
         with self.assertRaisesRegex(ValueError, "unknown entity ids"):

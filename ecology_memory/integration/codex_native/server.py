@@ -2070,7 +2070,12 @@ def _prepare_cooccurrence_subjects(arguments: dict) -> dict[str, Any]:
                 subject.get("requested") or subject.get("value") or subject.get("name")
                 if isinstance(subject, dict) else subject
             )
-            inspected = resolver.inspect(requested, selector)
+            inspected = resolver.inspect(
+                requested, selector,
+                use_cache=not (
+                    isinstance(subject, dict) and bool(subject.get("refresh_selection"))
+                ),
+            )
             if inspected["status"] == "resolved":
                 prepared.append(inspected["binding"])
                 continue

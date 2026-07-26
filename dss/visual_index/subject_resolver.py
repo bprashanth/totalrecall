@@ -217,13 +217,16 @@ class SubjectResolver:
         cached["resolution_method"] = "cached_model_selection"
         return cached
 
-    def inspect(self, requested: Any, selector: dict[str, str] | None = None) -> dict[str, Any]:
+    def inspect(
+        self, requested: Any, selector: dict[str, str] | None = None,
+        use_cache: bool = True,
+    ) -> dict[str, Any]:
         """Resolve a unique alias or return the bounded evidence needed for a semantic choice."""
         requested = _clean(requested)
         if not requested:
             raise ValueError("a subject name is required")
         selector = dict(selector or {})
-        if selector:
+        if selector and use_cache:
             cached = self._read_cache(requested, selector)
             if cached is not None:
                 return {"status": "resolved", "binding": cached}
@@ -353,4 +356,3 @@ class SubjectResolver:
         if replace_cache or not cache_path.exists():
             self._atomic_replace(cache_path, binding)
         return binding
-
