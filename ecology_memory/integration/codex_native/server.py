@@ -510,7 +510,11 @@ def _visual_capability_lines() -> list[str]:
         lines.append(
             "- `co-occurrence-map` — Map the squares where two or more subjects were both "
             "recorded. Arguments: `subjects` (a list of 2-4 names, or "
-            "`{\"kind\":\"group\",\"rank\":\"family\",\"value\":\"Bucerotidae\"}`), "
+            "`{\"kind\":\"group\",\"rank\":\"family\",\"value\":\"Bucerotidae\"}`). A loose "
+            "collective name may return `subject_selection_required` with this site's bounded "
+            "entity catalogue. Select only ids from that catalogue and call again with "
+            "`{\"requested\":\"the original phrase\",\"entity_ids\":[\"ent-...\"]}`; never "
+            "invent or silently broaden members. "
             "`time` (optional), `same_year` (optional)."
         )
         lines.append(
@@ -874,9 +878,12 @@ def _visual_result_skill() -> dict | None:
             "leave the user with a route that failed: this capability answers it directly. "
             "`interaction-map` is NOT the same thing — it maps only the associations a source "
             "explicitly declared, so it comes back empty for a question about sharing a place. When the "
-            "user names a loose group (\"hornbills\"), pass it as a group subject, or ask ONE short "
-            "question about which they mean; when they say \"all of them together\", use the family or "
-            "group name. \"What else is X doing\", \"tell me everything about X\" → "
+            "user names a loose group, pass their own words first. If the call returns "
+            "`subject_selection_required`, read the bounded entity catalogue it returned, choose "
+            "only ids that the phrase denotes, and IMMEDIATELY call `co-occurrence-map` again with "
+            "`{\"requested\":\"their words\",\"entity_ids\":[...]}`. Do not make the user know a "
+            "Latin group and do not invent an id. If the phrase is genuinely ambiguous, ask ONE "
+            "short question. \"What else is X doing\", \"tell me everything about X\" → "
             "`entity-activity-profile`.\n"
             "Two records in one square is NOT interaction, association or contact — it is two records "
             "written down inside the same square, and the returned limitations say so in the words to "
@@ -1691,6 +1698,18 @@ def _visual_result_summary(envelope: dict) -> dict:
     """
     answer = envelope.get("answer") if isinstance(envelope.get("answer"), dict) else {}
     result_id = str(envelope.get("result_id") or "")
+    question = envelope.get("question") if isinstance(envelope.get("question"), dict) else {}
+    bindings = question.get("bindings") if isinstance(question.get("bindings"), dict) else {}
+    subject_resolution = [{
+        "you_asked_for": item.get("requested"),
+        "read_as": item.get("member_labels") or [item.get("label")],
+        "method": item.get("resolution_method"),
+        "shared_hierarchy": item.get("shared_hierarchy"),
+        "selected_by": (item.get("selector") or {}).get("model")
+        if isinstance(item.get("selector"), dict) else None,
+        "binding_id": item.get("binding_id"),
+    } for item in (bindings.get("subjects") or []) if isinstance(item, dict)
+        and item.get("resolution_method")]
     return {
         "kind": "visual_result",
         "result_id": result_id,
@@ -1731,6 +1750,7 @@ def _visual_result_summary(envelope: dict) -> dict:
             "title": " ".join(str(item.get("title") or "").split()),
         } for item in ((envelope.get("audit") or {}).get("source_versions") or [])
             if isinstance(item, dict)][:8],
+        **({"subject_resolution": subject_resolution} if subject_resolution else {}),
         "answer_marker": _visual_result_marker(result_id),
         "instruction": (
             "Put answer_marker on its own line in your final answer, then write 1-3 sentences "
@@ -2005,6 +2025,95 @@ def _cooccurrence_envelope(
     )
 
 
+def _prepare_cooccurrence_subjects(arguments: dict) -> dict[str, Any]:
+    """Bind loose collective words through Codex without putting a model in the data service.
+
+    Exact stored names, explicit hierarchy groups and record kinds remain deterministic. A
+    singular/plural mismatch is widened deterministically. An open collective word is returned
+    to this outer Codex turn with the complete bounded entity catalogue; Codex chooses ids and
+    retries. On that retry this function verifies every id and records the model and prompt
+    version before the analytical service sees the selection.
+    """
+    subjects = arguments.get("subjects") or arguments.get("entities") or []
+    if not isinstance(subjects, list) or not subjects:
+        return {"status": "ready"}
+    service = _cooccurrence_service()
+    if service is None or VISUAL_RESULTS_STATE is None:
+        return {"status": "ready"}
+    module = _visual_module("subject_resolver")
+    selector = {"model": MODEL, "prompt_version": module.DEFAULT_PROMPT_VERSION}
+    prepared: list[Any] = []
+    selections: list[dict[str, Any]] = []
+    catalogue: list[dict[str, Any]] = []
+    with service.connect() as connection:
+        resolver = module.SubjectResolver(connection, VISUAL_RESULTS_STATE)
+        for subject in subjects:
+            if isinstance(subject, dict) and subject.get("entity_ids") is not None:
+                binding = resolver.verify(
+                    subject.get("requested") or subject.get("value") or subject.get("name"),
+                    subject.get("entity_ids"),
+                    selector,
+                    label=subject.get("label"),
+                    # An explicit verified selection is also how a reader corrects an older
+                    # interpretation. Keep every binding immutable, but advance this cache key.
+                    replace_cache=bool(subject.get("replace_cache", True)),
+                )
+                prepared.append(binding)
+                continue
+            # Preserve already valid explicit groups, exact aliases and kinds of record. Their
+            # source-backed definition is stronger than a model-selected membership list.
+            native = service.resolve_subject(connection, subject)
+            if native.get("resolved"):
+                prepared.append(subject)
+                continue
+            requested = (
+                subject.get("requested") or subject.get("value") or subject.get("name")
+                if isinstance(subject, dict) else subject
+            )
+            inspected = resolver.inspect(requested, selector)
+            if inspected["status"] == "resolved":
+                prepared.append(inspected["binding"])
+                continue
+            selections.append({
+                "requested": inspected["requested"],
+                "reason": inspected["reason"],
+                "candidate_entities": [{
+                    "entity_id": item["entity_id"],
+                    "name": item["name"],
+                    "canonical_name": item["canonical_name"],
+                    "records": item["records"],
+                } for item in inspected["candidates"]],
+            })
+            if not catalogue:
+                catalogue = [{
+                    "entity_id": item["entity_id"],
+                    "name": item["name"],
+                    **({"canonical_name": item["canonical_name"]}
+                       if item["canonical_name"] != item["name"] else {}),
+                } for item in inspected["catalogue"]]
+    if selections:
+        return {
+            "status": "selection_required",
+            "detail": {
+                "requests": selections,
+                "entity_catalogue": catalogue,
+                "selector": selector,
+                "selection_schema": {
+                    "requested": "copy the original phrase exactly",
+                    "entity_ids": ["choose one or more ids from entity_catalogue only"],
+                },
+                "ask": (
+                    "Choose the recorded names that each phrase denotes, then call "
+                    "co-occurrence-map again immediately with those verified ids. Ask the user "
+                    "one short question only if more than one reading is genuinely plausible."
+                ),
+            },
+        }
+    arguments["subjects"] = prepared
+    arguments.pop("entities", None)
+    return {"status": "ready"}
+
+
 def _visual_result_query(args: dict, session: "Session | None") -> dict:
     """Run one registered capability and return only its compact, model-safe summary."""
     service = _result_service()
@@ -2032,6 +2141,15 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
         capability_id = resolution["switch_capability"]
         arguments = dict(resolution["switch_arguments"])
     try:
+        if capability_id == "co-occurrence-map":
+            prepared = _prepare_cooccurrence_subjects(arguments)
+            if prepared["status"] == "selection_required":
+                return {
+                    "status": "data_request",
+                    "reason": "subject_selection_required",
+                    "detail": prepared["detail"],
+                    "provenance": [],
+                }
         # Two capabilities are declared by this bridge rather than by the pack's registry, and
         # answer the question the pack could not: where two subjects were recorded in the same
         # square, and what else is recorded for one of them. Everything else is the pack's own.
@@ -6892,9 +7010,12 @@ def _native_prompt(message: str, session: Session) -> str:
             "leave the user with a route that failed: this capability answers it directly. "
             "`interaction-map` is NOT the same thing — it maps only the associations a source "
             "explicitly declared, so it comes back empty for a question about sharing a place. When the "
-            "user names a loose group (\"hornbills\"), pass it as a group subject, or ask ONE short "
-            "question about which they mean; when they say \"all of them together\", use the family or "
-            "group name. \"What else is X doing\", \"tell me everything about X\" → "
+            "user names a loose group, pass their own words first. If the call returns "
+            "`subject_selection_required`, read the bounded entity catalogue it returned, choose "
+            "only ids that the phrase denotes, and IMMEDIATELY call `co-occurrence-map` again with "
+            "`{\"requested\":\"their words\",\"entity_ids\":[...]}`. Do not make the user know a "
+            "formal group and do not invent an id. If the phrase is genuinely ambiguous, ask ONE "
+            "short question. \"What else is X doing\", \"tell me everything about X\" → "
             "`entity-activity-profile`.\n"
             "Two records in one square is NOT interaction, association or contact — it is two records "
             "written down inside the same square, and the returned limitations say so in the words to "

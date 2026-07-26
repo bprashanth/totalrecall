@@ -192,9 +192,52 @@ class CooccurrenceService:
             kind = _key(subject.get("kind"))
             rank = _key(subject.get("rank"))
             value = _clean(
-                subject.get("value") or subject.get("entity") or subject.get("group")
+                subject.get("requested") or subject.get("value")
+                or subject.get("entity") or subject.get("group")
                 or subject.get("name")
             )
+            selected_ids = subject.get("entity_ids")
+            if selected_ids is not None:
+                if not isinstance(selected_ids, list) or not selected_ids:
+                    raise ValueError("an explicit subject selection needs entity_ids")
+                selected_ids = list(dict.fromkeys(_clean(item) for item in selected_ids))
+                placeholders = ",".join("?" * len(selected_ids))
+                rows = [
+                    dict(row) for row in connection.execute(
+                        f"""SELECT entity_id,display_name,hierarchy_json FROM entities
+                            WHERE entity_id IN ({placeholders})""",
+                        selected_ids,
+                    )
+                ]
+                by_id = {row["entity_id"]: row for row in rows}
+                unknown = [entity_id for entity_id in selected_ids if entity_id not in by_id]
+                if unknown:
+                    raise ValueError(
+                        "subject selection contains unknown entity ids: " + ", ".join(unknown)
+                    )
+                ordered = [by_id[entity_id] for entity_id in selected_ids]
+                return {
+                    "requested": value or _clean(subject.get("label")) or "selected subjects",
+                    "kind": "entity" if len(ordered) == 1 else "selected_group",
+                    "rank": rank or None,
+                    "label": _clean(subject.get("label")) or (
+                        ordered[0]["display_name"] if len(ordered) == 1
+                        else value or "selected subjects"
+                    ),
+                    "entity_ids": selected_ids,
+                    "event_types": [],
+                    "members": len(ordered),
+                    "member_labels": [row["display_name"] for row in ordered],
+                    "resolved": True,
+                    "resolution_method": _clean(subject.get("resolution_method"))
+                    or "explicit_entity_ids",
+                    "selector": subject.get("selector")
+                    if isinstance(subject.get("selector"), dict) else None,
+                    "binding_id": _clean(subject.get("binding_id")) or None,
+                    "catalogue_digest": _clean(subject.get("catalogue_digest")) or None,
+                    "shared_hierarchy": subject.get("shared_hierarchy")
+                    if isinstance(subject.get("shared_hierarchy"), dict) else None,
+                }
         else:
             value = _clean(subject)
         if not value:
@@ -529,6 +572,15 @@ class CooccurrenceService:
                 "subjects": [{
                     "requested": item["requested"], "kind": item["kind"],
                     "rank": item["rank"], "label": item["label"],
+                    **({
+                        "entity_ids": item["entity_ids"],
+                        "member_labels": item.get("member_labels") or [],
+                        "resolution_method": item.get("resolution_method"),
+                        "selector": item.get("selector"),
+                        "binding_id": item.get("binding_id"),
+                        "catalogue_digest": item.get("catalogue_digest"),
+                        "shared_hierarchy": item.get("shared_hierarchy"),
+                    } if item.get("resolution_method") else {}),
                 } for item in resolved],
                 "time": {"from": window[0], "to": window[1]},
                 "same_year": bool(same_year),
@@ -585,6 +637,37 @@ class CooccurrenceService:
             result_id, request_id, "co-occurrence-map", original, resolved_question,
             bindings, headline, ["observed", "derived"], status, source_versions,
         )
+        selected_groups = [
+            item for item in resolved
+            if item.get("resolution_method") in {"model_selected", "cached_model_selection"}
+        ]
+        for item in selected_groups:
+            members = ", ".join(item.get("member_labels") or [])
+            selector = item.get("selector") or {}
+            selector_name = selector.get("model") or "the dialogue model"
+            result["limitations"].append(self._limitation(
+                "model-selected-subject-group",
+                (
+                    f"“{item['requested']}” was read as {members}. This member list was selected "
+                    f"from this site's recorded names by {selector_name}; it is an "
+                    "interpretation, not a category supplied by the source."
+                ),
+                severity="warning", affects=["answer", "shared-squares"],
+            ))
+            result["actions"].append({
+                "action_id": "correct-subject-" + _key(item["requested"]).replace(" ", "-")[:40],
+                "kind": "choice",
+                "label": f"Change what “{item['requested']}” includes",
+                "capability_id": "co-occurrence-map",
+                "arguments": {
+                    "requested": item["requested"],
+                    "current_entity_ids": item["entity_ids"],
+                    "current_members": item.get("member_labels") or [],
+                },
+                "expected_effect": (
+                    "Re-run this map after choosing a different set of recorded names."
+                ),
+            })
         result["answer"]["detail"] = (
             "Each square counts records that fall inside it. "
             + "; ".join(

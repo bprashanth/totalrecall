@@ -6,6 +6,8 @@ import unittest
 from unittest import mock
 
 from dss.visual_index.build import Builder
+from dss.visual_index.cooccurrence_service import CooccurrenceService
+from dss.visual_index.result_service import ResultService
 from ecology_memory.integration.codex_native import server
 from ecology_memory.integration.codex_native import setup_idlisseus
 
@@ -81,6 +83,52 @@ class BridgeSitePackTest(unittest.TestCase):
         self.assertEqual(config["site_id"], "valparai")
         self.assertEqual(config["pack"], PACK.resolve())
         self.assertEqual(config["aliases"], ["valparai", "Valparai Plateau"])
+
+    def test_loose_groups_return_a_bounded_choice_then_verified_ids_make_the_map(self):
+        state = self.output / "subject-selection-state"
+        result_service = ResultService(PACK, self.output / "site_index.sqlite", state)
+        cooccurrence = CooccurrenceService(PACK, self.output / "site_index.sqlite", state)
+        patches = (
+            mock.patch.object(server, "_result_service", return_value=result_service),
+            mock.patch.object(server, "_cooccurrence_service", return_value=cooccurrence),
+            mock.patch.object(server, "VISUAL_RESULTS_STATE", state),
+            mock.patch.object(server, "MODEL", "test-dialogue-model"),
+        )
+        with contextlib.ExitStack() as stack:
+            for patch in patches:
+                stack.enter_context(patch)
+            first = server._visual_result_query({
+                "capability_id": "co-occurrence-map",
+                "arguments": {"subjects": ["elephants", "hornbills"]},
+                "question": "Show me squares where elephants and hornbills were both recorded.",
+            }, None)
+            self.assertEqual(first["reason"], "subject_selection_required")
+            request = first["detail"]["requests"][0]
+            self.assertEqual(request["requested"], "hornbills")
+            self.assertEqual(
+                {item["name"] for item in request["candidate_entities"]},
+                {"Great Hornbill", "Malabar Grey Hornbill"},
+            )
+            self.assertEqual(len(first["detail"]["entity_catalogue"]), 1_144)
+            ids = [item["entity_id"] for item in request["candidate_entities"]]
+            second = server._visual_result_query({
+                "capability_id": "co-occurrence-map",
+                "arguments": {"subjects": [
+                    "elephants",
+                    {"requested": "hornbills", "entity_ids": ids},
+                ]},
+                "question": "Show me squares where elephants and hornbills were both recorded.",
+            }, None)
+        self.assertEqual(second["status"], "answer")
+        summary = second["value"]
+        readings = {item["you_asked_for"]: item for item in summary["subject_resolution"]}
+        self.assertEqual(readings["elephants"]["read_as"], ["Elephant"])
+        self.assertEqual(
+            set(readings["hornbills"]["read_as"]),
+            {"Great Hornbill", "Malabar Grey Hornbill"},
+        )
+        self.assertEqual(readings["hornbills"]["selected_by"], "test-dialogue-model")
+        self.assertTrue(summary["answer_marker"].startswith("<!-- idli-result:"))
 
 
 class BridgeEstimateTargetsTest(unittest.TestCase):
