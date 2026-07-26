@@ -3421,15 +3421,23 @@ def _map_intent(question: object) -> str | None:
     return "modelled"
 
 
+MAX_PLAN_ARGUMENT_DEPTH = 8
+MAX_PLAN_ARGUMENT_LIST_ITEMS = 512
+
+
 def _clean_plan_args(value: Any, depth: int = 0) -> Any:
-    if depth > 4:
+    if depth > MAX_PLAN_ARGUMENT_DEPTH:
         raise ValueError("plan arguments are too deeply nested")
     if value is None or isinstance(value, (bool, int, float)):
         return value
     if isinstance(value, str):
         return " ".join(value.split())[:1000]
     if isinstance(value, list):
-        return [_clean_plan_args(item, depth + 1) for item in value[:12]]
+        if len(value) > MAX_PLAN_ARGUMENT_LIST_ITEMS:
+            raise ValueError(
+                f"plan argument list exceeds {MAX_PLAN_ARGUMENT_LIST_ITEMS} items"
+            )
+        return [_clean_plan_args(item, depth + 1) for item in value]
     if isinstance(value, dict):
         cleaned = {}
         for key, item in list(value.items())[:24]:

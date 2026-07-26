@@ -84,6 +84,21 @@ class BridgeSitePackTest(unittest.TestCase):
         self.assertEqual(config["pack"], PACK.resolve())
         self.assertEqual(config["aliases"], ["valparai", "Valparai Plateau"])
 
+    def test_verified_subject_shape_passes_the_shared_argument_sanitizer_intact(self):
+        ids = [f"ent-{index:03d}" for index in range(20)]
+        supplied = {
+            "capability_id": "co-occurrence-map",
+            "arguments": {
+                "subjects": [
+                    "Elephant",
+                    {"requested": "recorded group", "entity_ids": ids},
+                ],
+            },
+        }
+        self.assertEqual(server._clean_plan_args(supplied), supplied)
+        with self.assertRaisesRegex(ValueError, "exceeds 512"):
+            server._clean_plan_args({"entity_ids": ["ent-x"] * 513})
+
     def test_loose_groups_return_a_bounded_choice_then_verified_ids_make_the_map(self):
         state = self.output / "subject-selection-state"
         result_service = ResultService(PACK, self.output / "site_index.sqlite", state)
