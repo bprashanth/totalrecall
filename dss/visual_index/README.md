@@ -103,7 +103,10 @@ Taxonomy is used only after selection to say, for example, that every selected m
 family. It never chooses the members. The correction action reopens the bounded catalogue and
 creates a new immutable binding; it does not mutate the earlier audit record. The resolver itself
 calls no model. In the current deployment the outer Codex turn performs the semantic choice and
-retries the same typed capability with verified ids.
+retries the same typed capability with verified ids. The thin bridge controller may repair one
+mechanical error — valid selected ids placed beside, rather than inside, their subject object —
+when the destination slot is unambiguous. It records that repair, never changes an id, and never
+infers a missing subject from prose.
 
 ## Lineage for one produced value
 

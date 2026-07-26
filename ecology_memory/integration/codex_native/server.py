@@ -513,8 +513,10 @@ def _visual_capability_lines() -> list[str]:
             "`{\"kind\":\"group\",\"rank\":\"family\",\"value\":\"Bucerotidae\"}`). A loose "
             "collective name may return `subject_selection_required` with this site's bounded "
             "entity catalogue. Select only ids from that catalogue and call again with "
-            "`{\"requested\":\"the original phrase\",\"entity_ids\":[\"ent-...\"]}`; never "
-            "invent or silently broaden members. "
+            "`subjects:[\"the other subject\",{\"requested\":\"the original phrase\","
+            "\"entity_ids\":[\"ent-...\"]}]`. `requested` and `entity_ids` belong INSIDE that "
+            "one subject object, never beside the `subjects` array. Never invent or silently "
+            "broaden members. "
             "`time` (optional), `same_year` (optional)."
         )
         lines.append(
@@ -881,7 +883,8 @@ def _visual_result_skill() -> dict | None:
             "user names a loose group, pass their own words first. If the call returns "
             "`subject_selection_required`, read the bounded entity catalogue it returned, choose "
             "only ids that the phrase denotes, and IMMEDIATELY call `co-occurrence-map` again with "
-            "`{\"requested\":\"their words\",\"entity_ids\":[...]}`. Do not make the user know a "
+            "`subjects:[\"the other subject\",{\"requested\":\"their words\","
+            "\"entity_ids\":[...]}]`. Keep the ids INSIDE that subject object. Do not make the user know a "
             "Latin group and do not invent an id. If the phrase is genuinely ambiguous, ask ONE "
             "short question. \"What else is X doing\", \"tell me everything about X\" → "
             "`entity-activity-profile`.\n"
@@ -2122,6 +2125,52 @@ def _prepare_cooccurrence_subjects(arguments: dict) -> dict[str, Any]:
     return {"status": "ready"}
 
 
+def _normalise_cooccurrence_selection(arguments: dict) -> dict[str, Any] | None:
+    """Repair one common JSON nesting error without making a semantic decision.
+
+    Codex sometimes returns valid catalogue ids as top-level `requested`/`entity_ids` siblings of
+    `subjects`. The analytical contract needs those fields inside one subject object. When the
+    intended slot is mechanically unambiguous, move them there. Never infer a missing other
+    subject from prose and never choose or alter an id.
+    """
+    entity_ids = arguments.get("entity_ids")
+    requested = " ".join(str(arguments.get("requested") or "").split())
+    subjects = arguments.get("subjects")
+    if not isinstance(entity_ids, list) or not entity_ids or not requested:
+        return None
+    if not isinstance(subjects, list) or not subjects:
+        return None
+    repaired = list(subjects)
+    target = None
+    for index, subject in enumerate(repaired):
+        if (
+            isinstance(subject, dict)
+            and subject.get("entity_ids") is None
+            and " ".join(str(
+                subject.get("requested") or subject.get("value") or subject.get("name") or ""
+            ).split()).casefold() == requested.casefold()
+        ):
+            target = index
+            break
+    if target is not None:
+        selected = dict(repaired[target])
+        selected["requested"] = requested
+        selected["entity_ids"] = list(entity_ids)
+        repaired[target] = selected
+    elif len(repaired) < 4:
+        repaired.append({"requested": requested, "entity_ids": list(entity_ids)})
+    else:
+        return None
+    arguments["subjects"] = repaired
+    for key in ("requested", "entity_ids", "label", "replace_cache"):
+        arguments.pop(key, None)
+    return {
+        "repair": "nested_selected_subject",
+        "requested": requested,
+        "entity_ids": list(entity_ids),
+    }
+
+
 def _visual_result_query(args: dict, session: "Session | None") -> dict:
     """Run one registered capability and return only its compact, model-safe summary."""
     service = _result_service()
@@ -2148,8 +2197,10 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
     if resolution.get("switch_capability"):
         capability_id = resolution["switch_capability"]
         arguments = dict(resolution["switch_arguments"])
+    argument_repair = None
     try:
         if capability_id == "co-occurrence-map":
+            argument_repair = _normalise_cooccurrence_selection(arguments)
             prepared = _prepare_cooccurrence_subjects(arguments)
             if prepared["status"] == "selection_required":
                 return {
@@ -2178,6 +2229,8 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
             "provenance": [],
         }
     summary = _visual_result_summary(envelope)
+    if argument_repair:
+        summary["argument_repair"] = argument_repair
     if resolution.get("used"):
         # Say which reading was taken, in the words the answer should use.
         summary["name_resolution"] = {
@@ -7021,7 +7074,8 @@ def _native_prompt(message: str, session: Session) -> str:
             "user names a loose group, pass their own words first. If the call returns "
             "`subject_selection_required`, read the bounded entity catalogue it returned, choose "
             "only ids that the phrase denotes, and IMMEDIATELY call `co-occurrence-map` again with "
-            "`{\"requested\":\"their words\",\"entity_ids\":[...]}`. Do not make the user know a "
+            "`subjects:[\"the other subject\",{\"requested\":\"their words\","
+            "\"entity_ids\":[...]}]`. Keep the ids INSIDE that subject object. Do not make the user know a "
             "formal group and do not invent an id. If the phrase is genuinely ambiguous, ask ONE "
             "short question. \"What else is X doing\", \"tell me everything about X\" → "
             "`entity-activity-profile`.\n"
@@ -8342,7 +8396,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 if resolution.get("switch_capability"):
                     capability_id = resolution["switch_capability"]
                     arguments = dict(resolution["switch_arguments"])
+                argument_repair = None
                 if capability_id == "co-occurrence-map":
+                    argument_repair = _normalise_cooccurrence_selection(arguments)
                     prepared = _prepare_cooccurrence_subjects(arguments)
                     if prepared["status"] == "selection_required":
                         self._send_json(409, {
@@ -8360,6 +8416,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         arguments=arguments, original=question,
                     )
                 envelope = _with_required_statements(envelope)
+                if argument_repair:
+                    envelope = dict(envelope)
+                    envelope["argument_repair"] = argument_repair
                 if resolution.get("used"):
                     envelope = dict(envelope)
                     envelope["name_resolution"] = {

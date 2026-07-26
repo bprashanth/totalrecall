@@ -118,10 +118,13 @@ class BridgeSitePackTest(unittest.TestCase):
             ids = [item["entity_id"] for item in request["candidate_entities"]]
             second = server._visual_result_query({
                 "capability_id": "co-occurrence-map",
-                "arguments": {"subjects": [
-                    "elephants",
-                    {"requested": "hornbills", "entity_ids": ids},
-                ]},
+                # The controller repairs this common model-authored nesting error without
+                # changing the selected ids or guessing the other subject.
+                "arguments": {
+                    "subjects": ["elephants"],
+                    "requested": "hornbills",
+                    "entity_ids": ids,
+                },
                 "question": "Show me squares where elephants and hornbills were both recorded.",
             }, None)
             correction = next(
@@ -136,6 +139,7 @@ class BridgeSitePackTest(unittest.TestCase):
             self.assertEqual(reopened["reason"], "subject_selection_required")
         self.assertEqual(second["status"], "answer")
         summary = second["value"]
+        self.assertEqual(summary["argument_repair"]["repair"], "nested_selected_subject")
         readings = {item["you_asked_for"]: item for item in summary["subject_resolution"]}
         self.assertEqual(readings["elephants"]["read_as"], ["Elephant"])
         self.assertEqual(
