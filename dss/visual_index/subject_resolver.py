@@ -30,7 +30,7 @@ from typing import Any
 
 
 RESOLVER_VERSION = "site-subject-resolver/1"
-DEFAULT_PROMPT_VERSION = "site-subject-selection/1"
+DEFAULT_PROMPT_VERSION = "site-subject-selection/2"
 
 
 def _clean(value: Any) -> str:

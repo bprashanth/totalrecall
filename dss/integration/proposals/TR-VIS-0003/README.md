@@ -14,7 +14,7 @@ The producer now returns a model-selected subject in the ordinary result binding
   "resolution_method": "model_selected",
   "selector": {
     "model": "configured-dialogue-model",
-    "prompt_version": "site-subject-selection/1"
+    "prompt_version": "site-subject-selection/2"
   },
   "binding_id": "binding-…"
 }

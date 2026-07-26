@@ -2028,7 +2028,9 @@ def _cooccurrence_envelope(
     )
 
 
-def _prepare_cooccurrence_subjects(arguments: dict) -> dict[str, Any]:
+def _prepare_cooccurrence_subjects(
+    arguments: dict, selector_override: dict[str, str] | None = None,
+) -> dict[str, Any]:
     """Bind loose collective words through Codex without putting a model in the data service.
 
     Exact stored names, explicit hierarchy groups and record kinds remain deterministic. A
@@ -2044,7 +2046,9 @@ def _prepare_cooccurrence_subjects(arguments: dict) -> dict[str, Any]:
     if service is None or VISUAL_RESULTS_STATE is None:
         return {"status": "ready"}
     module = _visual_module("subject_resolver")
-    selector = {"model": MODEL, "prompt_version": module.DEFAULT_PROMPT_VERSION}
+    selector = dict(selector_override or {
+        "model": MODEL, "prompt_version": module.DEFAULT_PROMPT_VERSION,
+    })
     prepared: list[Any] = []
     selections: list[dict[str, Any]] = []
     catalogue: list[list[str]] = []
@@ -8407,7 +8411,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 argument_repair = None
                 if capability_id == "co-occurrence-map":
                     argument_repair = _normalise_cooccurrence_selection(arguments)
-                    prepared = _prepare_cooccurrence_subjects(arguments)
+                    prepared = _prepare_cooccurrence_subjects(arguments, {
+                        "model": "direct-results-client",
+                        "prompt_version": "explicit-subject-selection/1",
+                    })
                     if prepared["status"] == "selection_required":
                         self._send_json(409, {
                             "status": "data_request",

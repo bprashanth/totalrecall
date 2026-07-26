@@ -131,6 +131,21 @@ class BridgeSitePackTest(unittest.TestCase):
             self.assertEqual(len(first["detail"]["entity_catalogue"]), 1_143)
             self.assertTrue(all(len(row) == 2 for row in first["detail"]["entity_catalogue"]))
             ids = [item["entity_id"] for item in request["candidate_entities"]]
+            direct_arguments = {
+                "subjects": [
+                    "elephants",
+                    {"requested": "hornbills", "entity_ids": ids},
+                ],
+            }
+            prepared = server._prepare_cooccurrence_subjects(direct_arguments, {
+                "model": "direct-results-client",
+                "prompt_version": "explicit-subject-selection/1",
+            })
+            self.assertEqual(prepared["status"], "ready")
+            self.assertEqual(
+                direct_arguments["subjects"][1]["selector"]["model"],
+                "direct-results-client",
+            )
             second = server._visual_result_query({
                 "capability_id": "co-occurrence-map",
                 # The controller repairs this common model-authored nesting error without
