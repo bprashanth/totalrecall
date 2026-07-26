@@ -2044,7 +2044,7 @@ def _prepare_cooccurrence_subjects(arguments: dict) -> dict[str, Any]:
     selector = {"model": MODEL, "prompt_version": module.DEFAULT_PROMPT_VERSION}
     prepared: list[Any] = []
     selections: list[dict[str, Any]] = []
-    catalogue: list[dict[str, Any]] = []
+    catalogue: list[list[str]] = []
     with service.connect() as connection:
         resolver = module.SubjectResolver(connection, VISUAL_RESULTS_STATE)
         for subject in subjects:
@@ -2090,22 +2090,25 @@ def _prepare_cooccurrence_subjects(arguments: dict) -> dict[str, Any]:
                 } for item in inspected["candidates"]],
             })
             if not catalogue:
-                catalogue = [{
-                    "entity_id": item["entity_id"],
-                    "name": item["name"],
-                    **({"canonical_name": item["canonical_name"]}
-                       if item["canonical_name"] != item["name"] else {}),
-                } for item in inspected["catalogue"]]
+                # This list may contain more than a thousand choices. Column-oriented rows avoid
+                # repeating JSON keys and scientific aliases the selector does not need, cutting
+                # the uncached turn context substantially while preserving the exact verified id.
+                catalogue = [
+                    [item["entity_id"], item["name"]] for item in inspected["catalogue"]
+                ]
     if selections:
         return {
             "status": "selection_required",
             "detail": {
                 "requests": selections,
+                "entity_catalogue_columns": ["entity_id", "recorded_name"],
                 "entity_catalogue": catalogue,
                 "selector": selector,
                 "selection_schema": {
                     "requested": "copy the original phrase exactly",
-                    "entity_ids": ["choose one or more ids from entity_catalogue only"],
+                    "entity_ids": [
+                        "choose one or more entity_id values from entity_catalogue rows only"
+                    ],
                 },
                 "ask": (
                     "Choose the recorded names that each phrase denotes, then call "

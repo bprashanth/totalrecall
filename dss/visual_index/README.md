@@ -88,7 +88,9 @@ does not belong in SQL, and a guessed taxonomy must not become a source-backed f
 
 1. It resolves a unique registered alias after conservative singular/plural widening.
 2. If that is insufficient, it returns the complete entity catalogue for the pinned index. The
-   dialogue model chooses only entity ids from this bounded list.
+   dialogue model chooses only entity ids from this bounded list. The bridge transports the large
+   catalogue as compact `[entity_id, recorded_name]` rows with explicit column names; this is a
+   wire optimisation, not a different evidence set.
 3. It rejects any id outside the supplied catalogue, records the selector model and prompt
    version, and writes an immutable binding under the visual-result state directory.
 4. The cache key includes the catalogue digest, original phrase, model and prompt version. A pack
