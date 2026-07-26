@@ -48,7 +48,7 @@ class SubjectResolverTest(unittest.TestCase):
         found = self.resolver.inspect("raptors", self.selector)
         self.assertEqual(found["status"], "selection_required")
         self.assertEqual(found["reason"], "open_group_or_unknown_name")
-        self.assertEqual(len(found["catalogue"]), 1_144)
+        self.assertEqual(len(found["catalogue"]), 1_143)
         self.assertTrue(all(item["entity_id"] for item in found["catalogue"]))
 
     def test_substring_widening_does_not_silently_choose_a_false_positive(self):

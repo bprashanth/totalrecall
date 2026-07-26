@@ -41,7 +41,7 @@ class ValparaiVisualIndexTest(unittest.TestCase):
         self.assertEqual(report["interactions"], 5_622)
         self.assertEqual(report["cell_features"], 28_764)
         self.assertEqual(report["matrix_values"], 132_096)
-        self.assertEqual(report["entities"], 1_144)
+        self.assertEqual(report["entities"], 1_143)
         self.assertEqual(report["cells"], 302)
         self.assertGreaterEqual(report["ready_views"], 8)
         self.assertLess(self.elapsed, 5.0)
@@ -62,6 +62,12 @@ class ValparaiVisualIndexTest(unittest.TestCase):
                WHERE a.alias='Great Hornbill (Great Pied Hornbill)'"""
         ).fetchone()
         self.assertEqual(source_alias, ("Buceros bicornis",))
+        honey_buzzard = self.db.execute(
+            """SELECT e.canonical_name
+               FROM entity_aliases a JOIN entities e USING(entity_id)
+               WHERE a.alias='Oriental Honey-buzzard (Crested Honey Buzzard)'"""
+        ).fetchone()
+        self.assertEqual(honey_buzzard, ("Pernis ptilorhynchus",))
 
     def test_feature_cube_retains_units_support_and_evidence_class(self):
         count, features, cells = self.db.execute(

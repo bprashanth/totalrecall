@@ -53,7 +53,7 @@ The current build indexes:
 - 45,328 source-linked events, including 3,199 regeneration rows and 10,752
   restoration-study bird/tree records;
 - 42,348 georeferenced events;
-- 1,144 resolved or retained broad entities and 1,893 aliases;
+- 1,143 resolved or retained broad entities and 1,893 aliases;
 - 205 named/source locations, including 44 acoustic-recorder sites;
 - 974 explicit effort rows, including 460 fifteen-minute bird point counts and 264
   declared 0.04-hectare adult-tree or regeneration plots;
@@ -124,6 +124,8 @@ mapping is blocked because there is no versioned uncertainty surface or action-c
 - The restoration bird source's `Great Hornbill (Great Pied Hornbill)` label is a reviewed alias
   of the existing `Buceros bicornis` identity. Its source row and verbatim label remain intact,
   while the analytical catalogue contains two recorded Hornbill taxa rather than three entities.
+- The same source's `Oriental Honey-buzzard (Crested Honey Buzzard)` label is likewise retained as
+  an alias of the existing `Pernis ptilorhynchus` identity, rather than becoming a second raptor.
 - Several source rows use broad labels at different hierarchy levels. The index retains them
   rather than pretending every row is at the same rank.
 - The GBIF frugivory archive contains visitor and focal-tree occurrences but does not retain the

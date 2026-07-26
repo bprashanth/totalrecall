@@ -14,6 +14,8 @@ reported treatment/category; causal claims still require the published compariso
 uncertainty.
 
 `entity_crosswalk.csv` is a locally reviewed adapter input, not one of the six Dryad files. It
-maps the source's verbatim `Great Hornbill (Great Pied Hornbill)` label to the already registered
-`Buceros bicornis` identity. The verbatim source label remains an alias and every event retains
-its original source row; the crosswalk prevents one taxon from becoming two analytical entities.
+maps the source's verbatim `Great Hornbill (Great Pied Hornbill)` and
+`Oriental Honey-buzzard (Crested Honey Buzzard)` labels to the already registered
+`Buceros bicornis` and `Pernis ptilorhynchus` identities. The verbatim source labels remain
+aliases and every event retains its original source row; the crosswalk prevents one taxon from
+becoming two analytical entities.

@@ -128,7 +128,7 @@ class BridgeSitePackTest(unittest.TestCase):
                 first["detail"]["entity_catalogue_columns"],
                 ["entity_id", "recorded_name"],
             )
-            self.assertEqual(len(first["detail"]["entity_catalogue"]), 1_144)
+            self.assertEqual(len(first["detail"]["entity_catalogue"]), 1_143)
             self.assertTrue(all(len(row) == 2 for row in first["detail"]["entity_catalogue"]))
             ids = [item["entity_id"] for item in request["candidate_entities"]]
             second = server._visual_result_query({
