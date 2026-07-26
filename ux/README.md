@@ -6,6 +6,9 @@ explains every figure in plain language. The same interface can read a paper met
 requirements with the admitted site data, and ask an R sidecar for a reproducible first-look
 figure.
 
+For the product model, current deployment modes, verified flows and known integration boundaries,
+read [PLATFORM_GUIDE.md](./PLATFORM_GUIDE.md).
+
 ## Runtime shape
 
 ```text
