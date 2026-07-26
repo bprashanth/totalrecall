@@ -10,6 +10,7 @@ result and data payloads immutably, and returns the result envelope.
 from __future__ import annotations
 
 import argparse
+import csv
 import contextlib
 import hashlib
 import http.server
@@ -30,6 +31,8 @@ except ModuleNotFoundError:  # Direct execution: python dss/visual_index/result_
 
 
 MAX_REQUEST_BYTES = 64 * 1024
+MAX_SOURCE_RESULT_ROWS = 100
+MAX_SOURCE_SCAN_ROWS = 1_000_000
 SAFE_HANDLE = re.compile(r"^[A-Za-z0-9_.-]{1,240}$")
 
 
@@ -130,11 +133,18 @@ class ResultService:
         self, connection: sqlite3.Connection, source_ids: set[str] | None = None
     ) -> list[dict[str, Any]]:
         rows = connection.execute(
-            "SELECT source_id,content_sha256,capabilities_json FROM sources ORDER BY source_id"
+            """SELECT source_id,title,doi,url,publisher,license,content_sha256,
+                      capabilities_json
+               FROM sources ORDER BY source_id"""
         ).fetchall()
         return [
             {
                 "source_id": row["source_id"],
+                "title": row["title"],
+                "doi": row["doi"],
+                "url": row["url"],
+                "publisher": row["publisher"],
+                "license": row["license"],
                 "version": None,
                 "digest": "sha256:" + row["content_sha256"],
                 "synthetic": "synthetic" in json.loads(row["capabilities_json"]),
@@ -142,6 +152,105 @@ class ResultService:
             for row in rows
             if source_ids is None or row["source_id"] in source_ids
         ]
+
+    def _source_entry(self, source_id: str) -> dict[str, Any] | None:
+        for source in self.source_registry.get("sources", []):
+            if isinstance(source, dict) and source.get("source_id") == source_id:
+                return source
+        return None
+
+    def _source_tabular_files(self, source: dict[str, Any]) -> list[dict[str, Any]]:
+        """List bounded, admitted tabular files for one source.
+
+        Explicit adapter/crosswalk/hierarchy paths come first. Other CSV/TSV files are visible
+        only when they live beside the source's registered provenance record. This permits a
+        reader to inspect an admitted supplementary table without turning the service into an
+        arbitrary filesystem browser.
+        """
+        metadata = (self.site_pack / str(source.get("local_metadata") or "")).resolve()
+        if self.site_pack not in metadata.parents or not metadata.is_file():
+            return []
+        source_root = metadata.parent
+        declared: list[tuple[str, str, str | None]] = []
+        for adapter in source.get("adapters", []):
+            if isinstance(adapter, dict) and adapter.get("path"):
+                declared.append((
+                    str(adapter["path"]), f"adapter:{adapter.get('kind') or 'unknown'}",
+                    adapter.get("delimiter"),
+                ))
+        for crosswalk in source.get("crosswalks", []):
+            if isinstance(crosswalk, dict) and crosswalk.get("path"):
+                declared.append((
+                    str(crosswalk["path"]), "entity-crosswalk", crosswalk.get("delimiter"),
+                ))
+        hierarchy = source.get("hierarchy")
+        if isinstance(hierarchy, dict) and hierarchy.get("path"):
+            declared.append((
+                str(hierarchy["path"]), "entity-hierarchy", hierarchy.get("delimiter"),
+            ))
+
+        files: dict[pathlib.Path, dict[str, Any]] = {}
+
+        def admit(path: pathlib.Path, role: str, delimiter: str | None = None) -> None:
+            resolved = path.resolve()
+            if self.site_pack not in resolved.parents or not resolved.is_file():
+                return
+            if resolved.suffix.casefold() not in {".csv", ".tsv", ".tab", ".txt"}:
+                return
+            item = files.setdefault(resolved, {
+                "path": resolved,
+                "file": (
+                    str(resolved.relative_to(source_root))
+                    if source_root in resolved.parents else resolved.name
+                ),
+                "pack_path": str(resolved.relative_to(self.site_pack)),
+                "bytes": resolved.stat().st_size,
+                "roles": [],
+                "delimiter": delimiter,
+            })
+            if role not in item["roles"]:
+                item["roles"].append(role)
+            if item.get("delimiter") is None and delimiter is not None:
+                item["delimiter"] = delimiter
+
+        for relative, role, delimiter in declared:
+            admit(self.site_pack / relative, role, delimiter)
+        for path in sorted(source_root.rglob("*")):
+            if path.suffix.casefold() in {".csv", ".tsv", ".tab"}:
+                admit(path, "admitted-supplement")
+        return list(files.values())
+
+    @staticmethod
+    def _source_file_delimiter(file_info: dict[str, Any]) -> str:
+        configured = file_info.get("delimiter")
+        if configured == "\\t":
+            return "\t"
+        if isinstance(configured, str) and len(configured) == 1:
+            return configured
+        if pathlib.Path(file_info["path"]).suffix.casefold() in {".tsv", ".tab"}:
+            return "\t"
+        sample = pathlib.Path(file_info["path"]).read_text(
+            encoding="utf-8-sig", errors="replace"
+        )[:8192]
+        with contextlib.suppress(csv.Error):
+            return csv.Sniffer().sniff(sample, delimiters=",;\t|").delimiter
+        return ","
+
+    def _source_file_schema(
+        self, file_info: dict[str, Any]
+    ) -> tuple[list[dict[str, Any]], str]:
+        delimiter = self._source_file_delimiter(file_info)
+        with pathlib.Path(file_info["path"]).open(
+            encoding="utf-8-sig", errors="replace", newline=""
+        ) as handle:
+            reader = csv.reader(handle, delimiter=delimiter)
+            header = next(reader, [])
+        columns = [{
+            "index": index,
+            "name": name,
+            "label": re.sub(r"[_-]+", " ", name).strip() or f"Column {index + 1}",
+        } for index, name in enumerate(header)]
+        return columns, delimiter
 
     @staticmethod
     def _data_ref(
@@ -299,6 +408,7 @@ class ResultService:
             )
         dispatch = {
             "site-orientation": self._site_orientation,
+            "source-rows": self._source_rows,
             "entity-record-map": self._entity_records,
             "group-record-map": self._group_records,
             "interaction-map": self._interaction_map,
@@ -334,6 +444,375 @@ class ResultService:
         )
         result["limitations"].append(gap)
         return self._write_result(result, {})
+
+    def _source_rows(
+        self, request_id: str, arguments: dict[str, Any], original: str
+    ) -> dict[str, Any]:
+        allowed = {"source_id", "file", "start_row", "limit", "filters"}
+        if "source_id" not in arguments or not set(arguments).issubset(allowed):
+            raise ValueError(
+                "source-rows requires source_id and accepts file, start_row, limit and filters"
+            )
+        source_id = str(arguments.get("source_id") or "").strip()
+        requested_file = str(arguments.get("file") or "").strip()
+        start_row = arguments.get("start_row", 1)
+        limit = arguments.get("limit", 25)
+        filters = arguments.get("filters") or {}
+        if (
+            not SAFE_HANDLE.fullmatch(source_id)
+            or not isinstance(start_row, int) or isinstance(start_row, bool) or start_row < 1
+            or not isinstance(limit, int) or isinstance(limit, bool)
+            or not 1 <= limit <= MAX_SOURCE_RESULT_ROWS
+            or not isinstance(filters, dict)
+            or any(
+                not isinstance(key, str)
+                or not key
+                or isinstance(value, (dict, list))
+                for key, value in filters.items()
+            )
+        ):
+            raise ValueError("source-rows arguments are invalid or exceed their safe bounds")
+        source = self._source_entry(source_id)
+        with self.connect() as connection:
+            sources = self._source_versions(connection, {source_id})
+            all_sources = self._source_versions(connection)
+        if source is None or not sources:
+            result = self._base_result(
+                request_id, "source-rows", original,
+                "Read rows from an admitted local source before attempting a network fetch.",
+                arguments, "That source is not registered in this site.", ["missing"],
+                "blocked", [],
+            )
+            result["limitations"].append(self._limitation(
+                "source-not-registered",
+                "Choose a source registered in this site before requesting its rows.",
+                severity="error", affects=["answer"],
+            ))
+            result["actions"] = [self._action(
+                "choose-registered-source", "filter", "Choose a registered source",
+                "source-rows",
+                {"available_source_ids": [
+                    item["source_id"] for item in all_sources[:50]
+                ]},
+            )]
+            return self._write_result(result, {})
+
+        files = self._source_tabular_files(source)
+        policy = source.get("row_access") if isinstance(source.get("row_access"), dict) else {}
+        row_policy = str(policy.get("policy") or "metadata_only")
+        if (
+            not policy
+            and "synthetic" in source.get("capabilities", [])
+            and str(source.get("license") or "").casefold().startswith("cc0")
+        ):
+            row_policy = "allow"
+            policy = {
+                "basis": "The source is declared synthetic test data under CC0.",
+                "attribution": source.get("title"),
+            }
+        if row_policy not in {"allow", "metadata_only"}:
+            row_policy = "metadata_only"
+        provenance = {
+            "source_id": source_id,
+            "title": source.get("title"),
+            "doi": source.get("doi"),
+            "url": source.get("url"),
+            "publisher": source.get("publisher"),
+            "license": source.get("license"),
+            "digest": sources[0]["digest"],
+            "local_copy": bool(files),
+            "row_access": {
+                "policy": row_policy,
+                "basis": policy.get("basis"),
+                "attribution": policy.get("attribution"),
+            },
+            "files": [{
+                "file": item["file"],
+                "bytes": item["bytes"],
+                "roles": item["roles"],
+            } for item in files],
+        }
+        provenance_ref = self._data_ref(
+            "source-provenance", "application/json", provenance
+        )
+        if not files:
+            result = self._base_result(
+                request_id, "source-rows", original,
+                "Read rows from an admitted local source before attempting a network fetch.",
+                arguments,
+                f"{source.get('title') or source_id} has no admitted local tabular file.",
+                ["reported", "missing"], "blocked", sources,
+            )
+            result["answer"]["detail"] = (
+                "The source identity and provenance are available, but this pack does not hold "
+                "a CSV or TSV whose rows can be shown."
+            )
+            result["limitations"].append(self._limitation(
+                "local-source-rows-unavailable",
+                "No admitted local tabular file is available; only source provenance can be shown.",
+                severity="error", affects=["answer", "source-provenance"],
+            ))
+            inventory_ref = self._data_ref(
+                "source-file-inventory", "application/json", provenance["files"]
+            )
+            result["visuals"] = [{
+                "visual_id": "source-file-inventory",
+                "visual_type": "table",
+                "view": "source-file-inventory",
+                "title": "Locally held files for this source",
+                "priority": "primary",
+                "status": "blocked",
+                "scope": {"aoi_ids": [], "time": {"start": None, "end": None}},
+                "layers": [{
+                    "layer_id": "source-file-inventory",
+                    "evidence_class": "missing",
+                    "geometry_type": "table",
+                    "data_ref": inventory_ref,
+                    "legend": {"label": "Admitted local tabular files"},
+                    "style_hint": {"palette_role": "missing"},
+                }],
+                "summary": {
+                    "headline": result["answer"]["headline"],
+                    "denominators": {"local_tabular_files": 0},
+                },
+                "drilldowns": [{
+                    "action_id": "inspect-source-provenance",
+                    "label": "Inspect source provenance",
+                    "data_ref": provenance_ref,
+                }],
+                "limitations": result["limitations"],
+            }]
+            return self._write_result(result, {
+                "source-file-inventory": ("application/json", provenance["files"]),
+                "source-provenance": ("application/json", provenance),
+            })
+
+        selected: dict[str, Any] | None = None
+        if requested_file:
+            matches = [
+                item for item in files
+                if requested_file in {
+                    item["file"], item["pack_path"], pathlib.Path(item["file"]).name
+                }
+            ]
+            if len(matches) > 1:
+                raise ValueError("file is ambiguous; use the source-relative file name")
+            selected = matches[0] if matches else None
+            if selected is None:
+                raise ValueError(
+                    "file is not an admitted tabular file for this source; choose one returned "
+                    "by the source-rows capability"
+                )
+        else:
+            selected = files[0]
+        columns, delimiter = self._source_file_schema(selected)
+        column_names = [item["name"] for item in columns]
+        unknown_filters = sorted(set(filters) - set(column_names))
+        if unknown_filters:
+            raise ValueError(
+                "filters name columns not present in this file: "
+                + ", ".join(unknown_filters)
+            )
+        schema_payload = {
+            "file": selected["file"],
+            "columns": columns,
+            "delimiter": "\\t" if delimiter == "\t" else delimiter,
+            "roles": selected["roles"],
+        }
+        schema_ref = self._data_ref(
+            "source-file-schema", "application/json", schema_payload
+        )
+
+        limitations = [self._limitation(
+            "local-admitted-copy",
+            "Rows and schema come from the admitted local copy; no publisher or repository "
+            "request was made.",
+            severity="info", affects=["source-rows", "source-provenance"],
+        )]
+        if row_policy != "allow":
+            limitations.append(self._limitation(
+                "source-row-redistribution-restricted",
+                "This source has not been explicitly cleared for row redistribution. Its schema "
+                "and provenance are shown, but row values are withheld.",
+                severity="error", affects=["source-rows"],
+            ))
+            headline = (
+                f"{source.get('title') or source_id} is held locally with "
+                f"{len(columns):,} columns; row values are not cleared for redistribution."
+            )
+            result = self._base_result(
+                request_id, "source-rows", original,
+                "Inspect the admitted local source schema and rows when redistribution allows.",
+                arguments, headline, ["reported", "missing"], "partial", sources,
+            )
+            result["answer"]["detail"] = (
+                f"The local file is {selected['file']}. Its DOI and licence remain attached to "
+                "the schema."
+            )
+            result["limitations"].extend(limitations)
+            result["visuals"] = [{
+                "visual_id": "source-schema",
+                "visual_type": "table",
+                "view": "source-schema",
+                "title": f"Columns in {selected['file']}",
+                "priority": "primary",
+                "status": "partial",
+                "scope": {"aoi_ids": [], "time": {"start": None, "end": None}},
+                "layers": [{
+                    "layer_id": "source-file-schema",
+                    "evidence_class": "reported",
+                    "geometry_type": "table",
+                    "data_ref": schema_ref,
+                    "legend": {"label": "Original source columns"},
+                    "style_hint": {
+                        "palette_role": "reported",
+                        "category_field": "name",
+                    },
+                }],
+                "summary": {
+                    "headline": headline,
+                    "denominators": {
+                        "columns": len(columns), "local_tabular_files": len(files),
+                        "rows_returned": 0,
+                    },
+                },
+                "drilldowns": [{
+                    "action_id": "inspect-source-provenance",
+                    "label": "Inspect DOI, licence and local-copy provenance",
+                    "data_ref": provenance_ref,
+                }],
+                "limitations": limitations,
+            }]
+            return self._write_result(result, {
+                "source-file-schema": ("application/json", schema_payload),
+                "source-provenance": ("application/json", provenance),
+            })
+
+        rows: list[dict[str, Any]] = []
+        scanned = 0
+        with pathlib.Path(selected["path"]).open(
+            encoding="utf-8-sig", errors="replace", newline=""
+        ) as handle:
+            reader = csv.DictReader(handle, delimiter=delimiter)
+            for source_row, row in enumerate(reader, 1):
+                scanned = source_row
+                if source_row > MAX_SOURCE_SCAN_ROWS:
+                    break
+                if source_row < start_row:
+                    continue
+                if any(
+                    str(row.get(key) or "").strip().casefold()
+                    != str(value if value is not None else "").strip().casefold()
+                    for key, value in filters.items()
+                ):
+                    continue
+                visible = {
+                    "_source_row": source_row,
+                    "_file_line": reader.line_num,
+                }
+                visible.update({str(key): value for key, value in row.items()})
+                rows.append(visible)
+                if len(rows) >= limit:
+                    break
+        rows_ref = self._data_ref("source-rows", "application/json", rows)
+        headline = (
+            f"{len(rows):,} row{'s' if len(rows) != 1 else ''} from the admitted local "
+            f"copy of {source.get('title') or source_id}."
+        )
+        result = self._base_result(
+            request_id, "source-rows", original,
+            "Read the admitted local source before attempting a publisher or repository fetch.",
+            {
+                "source_id": source_id, "file": selected["file"],
+                "start_row": start_row, "limit": limit,
+                **({"filters": filters} if filters else {}),
+            },
+            headline, ["reported"], "complete", sources,
+        )
+        result["answer"]["detail"] = (
+            f"Original column names are preserved from {selected['file']}. `_source_row` is the "
+            "logical data-row number used by the index; `_file_line` is the ending physical "
+            "line in the delimited file."
+        )
+        limitations.append(self._limitation(
+            "bounded-source-row-sample",
+            "This is a bounded row sample, not the complete dataset.",
+            affects=["source-rows", "answer"],
+        ))
+        if scanned >= MAX_SOURCE_SCAN_ROWS and len(rows) < limit:
+            limitations.append(self._limitation(
+                "source-row-scan-limit",
+                f"The scan stopped after {MAX_SOURCE_SCAN_ROWS:,} source rows.",
+                affects=["source-rows"],
+            ))
+        result["limitations"].extend(limitations)
+        result["visuals"] = [{
+            "visual_id": "source-rows",
+            "visual_type": "table",
+            "view": "source-rows",
+            "title": f"Rows from {selected['file']}",
+            "priority": "primary",
+            "status": "ready",
+            "scope": {"aoi_ids": [], "time": {"start": None, "end": None}},
+            "layers": [{
+                "layer_id": "source-rows",
+                "evidence_class": "reported",
+                "geometry_type": "table",
+                "data_ref": rows_ref,
+                "legend": {"label": "Verbatim local source rows"},
+                "style_hint": {
+                    "palette_role": "reported",
+                    "row_id_field": "_source_row",
+                    "original_columns": column_names,
+                },
+            }],
+            "summary": {
+                "headline": headline,
+                "denominators": {
+                    "rows_returned": len(rows), "start_row": start_row,
+                    "rows_scanned": scanned, "columns": len(columns),
+                    "local_tabular_files": len(files),
+                },
+            },
+            "drilldowns": [
+                {
+                    "action_id": "inspect-source-file-schema",
+                    "label": "Inspect original column names",
+                    "data_ref": schema_ref,
+                },
+                {
+                    "action_id": "inspect-source-provenance",
+                    "label": "Inspect DOI, licence and local-copy provenance",
+                    "data_ref": provenance_ref,
+                },
+            ],
+            "limitations": limitations,
+        }]
+        actions = []
+        if rows and len(rows) == limit:
+            actions.append(self._action(
+                "next-source-rows", "drilldown", "Show the next rows",
+                "source-rows", {
+                    "source_id": source_id, "file": selected["file"],
+                    "start_row": rows[-1]["_source_row"] + 1, "limit": limit,
+                    **({"filters": filters} if filters else {}),
+                },
+            ))
+        for item in files:
+            if item["file"] != selected["file"] and len(actions) < 6:
+                actions.append(self._action(
+                    "choose-source-file-" + hashlib.sha256(
+                        item["file"].encode()
+                    ).hexdigest()[:8],
+                    "filter", f"Show rows from {item['file']}", "source-rows",
+                    {"source_id": source_id, "file": item["file"], "limit": limit},
+                ))
+        result["actions"] = actions
+        return self._write_result(result, {
+            "source-rows": ("application/json", rows),
+            "source-file-schema": ("application/json", schema_payload),
+            "source-provenance": ("application/json", provenance),
+        })
 
     def _site_orientation(
         self, request_id: str, arguments: dict[str, Any], original: str

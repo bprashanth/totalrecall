@@ -185,6 +185,33 @@ class BridgeEstimateTargetsTest(unittest.TestCase):
             for word in self.JARGON:
                 self.assertIn(word, instructions.casefold(), f"{skill_id} must ban {word!r}")
 
+    def test_source_rows_uses_the_local_copy_through_the_existing_visual_skill(self):
+        with self.configured_bridge():
+            skills = {item["id"]: item for item in server._load_skills()}
+            instructions = skills["visual-result"]["instructions"]
+            self.assertIn("READ THE LOCAL COPY FIRST", instructions)
+            result = server._execute_skill(
+                "visual-result",
+                {
+                    "capability_id": "source-rows",
+                    "arguments": {
+                        "source_id": "syn-estate-labour",
+                        "file": "estates.csv",
+                        "limit": 2,
+                    },
+                    "question": "Show me two rows from the estate source.",
+                },
+                None,
+            )
+            value = result["execution"]["value"]
+            service = server._result_service()
+            stored = service.load_data(value["result_id"], "source-rows")
+        self.assertEqual(result["execution"]["status"], "answer")
+        self.assertEqual(value["capability_id"], "source-rows")
+        self.assertTrue(value["answer_marker"].startswith("<!-- idli-result:"))
+        self.assertIsNotNone(stored)
+        self.assertIn(b"_source_row", stored[1])
+
     def test_a_resolved_square_is_relayed_as_an_extent_that_covers_the_point(self):
         """The complaint this fixes: a user clicked 10.305 and was answered about a cell id.
 

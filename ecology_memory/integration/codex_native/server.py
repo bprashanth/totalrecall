@@ -601,6 +601,35 @@ def _visual_argument_lines() -> list[str]:
                     int(item.get("category_properties_total") or len(properties)),
                 )
             )
+    try:
+        connection = sqlite3.connect(f"file:{VISUAL_INDEX_PATH}?mode=ro", uri=True)
+        connection.row_factory = sqlite3.Row
+        with contextlib.closing(connection):
+            source_rows = [
+                dict(row) for row in connection.execute(
+                    """SELECT s.source_id,s.title,
+                              (SELECT COUNT(*) FROM events e
+                               WHERE e.source_id=s.source_id) AS event_rows,
+                              (SELECT COUNT(*) FROM measurements m
+                               WHERE m.source_id=s.source_id) AS measurement_rows,
+                              (SELECT COUNT(*) FROM interactions i
+                               WHERE i.source_id=s.source_id) AS interaction_rows
+                       FROM sources s
+                       ORDER BY event_rows + measurement_rows + interaction_rows DESC,
+                                s.source_id
+                       LIMIT 30"""
+                )
+            ]
+        if source_rows:
+            lines.append(
+                "- `source-rows` accepts these `source_id` values, largest indexed sources "
+                "first: "
+                + "; ".join(
+                    f"`{item['source_id']}` ({item['title']})" for item in source_rows
+                )
+            )
+    except Exception:
+        pass
     if vocabulary.get("event_types"):
         kinds = vocabulary["event_types"][:20]
         lines.append(
@@ -728,6 +757,7 @@ def _visual_result_skill() -> dict | None:
         "use_for": [
             "orientation to the site area and indexed evidence coverage",
             "showing where source-linked records are available for an entity or group",
+            "showing a registered source's own locally held rows, columns and provenance",
             "comparing record coverage with documented survey effort",
             "plotting an indexed metric through time",
             "mapping explicitly admitted subject-object associations",
@@ -773,6 +803,12 @@ def _visual_result_skill() -> dict | None:
             "AGAIN with the declared `category_property` before you answer. The declared properties are "
             "listed above, per source. One silent retry applies to under-resolved answers exactly as it "
             "applies to unresolved ones: a total where a breakdown was asked for is not an answer.\n"
+            "READ THE LOCAL COPY FIRST. When the user asks to see a study's rows, columns, "
+            "spreadsheet contents or stored data, call `source-rows` for the registered source. "
+            "Do not visit the publisher or repository first. The result will say whether a local "
+            "tabular copy exists and whether its licence policy permits row values; if values are "
+            "withheld, show the returned schema and boundary. Only attempt a network source when "
+            "the result explicitly says no local copy is held, and say which copy was used.\n"
             "NAME THE UNIT YOU ANSWERED IN. If the question was about plots and the figure is per map "
             "square, say so in those words and name the study it came from - “that is at 1.1 km square "
             "level, from the bird recovery survey, not per vegetation plot” - and offer the plot-level "

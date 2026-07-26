@@ -17,6 +17,34 @@
       "availability": "ready"
     },
     {
+      "capability_id": "source-rows",
+      "version": "1.0.0",
+      "label": "Inspect an admitted source's local rows, schema and provenance",
+      "input_schema": {
+        "type": "object",
+        "required": ["source_id"],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1},
+          "file": {"type": "string", "minLength": 1},
+          "start_row": {"type": "integer", "minimum": 1},
+          "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+          "filters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": ["string", "number", "boolean", "null"]
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "output_views": ["source-rows", "source-schema", "source-file-inventory"],
+      "required_planes": ["sources"],
+      "optional_planes": ["events", "effort", "measurements", "interactions"],
+      "latency_class": "interactive",
+      "evidence_classes": ["reported", "missing"],
+      "availability": "ready"
+    },
+    {
       "capability_id": "entity-record-map",
       "version": "1.0.0",
       "label": "Map source-linked records for a resolved entity",

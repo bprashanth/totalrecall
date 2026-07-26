@@ -83,6 +83,11 @@ One entry per immutable source version:
   "source_id": "my-source",
   "title": "…", "doi": null, "url": "…", "publisher": "…",
   "license": "…",                       // real licence; synthetic data → CC0 + say synthetic
+  "row_access": {                       // optional; omission safely means schema-only
+    "policy": "allow",                  // allow | metadata_only
+    "basis": "Why showing source rows is permitted",
+    "attribution": "Text that must travel with displayed rows"
+  },
   "capabilities": ["inspectable", "mappable", "has_events", …],
   "local_metadata": "raw/my-source/README.txt",
   "adapters": [ … ],
@@ -99,6 +104,12 @@ One entry per immutable source version:
   by `local_metadata`, adapters, lookups, crosswalks and hierarchy, then stores that computed
   digest in `index.sqlite`. Until manifest validation is implemented, test the declared and
   computed file sets explicitly; `integrity: "ok"` does not prove they match.
+- **Declare row redistribution explicitly.** The generic `source-rows` capability reads only
+  tabular files beside a source's registered local provenance record. It defaults to
+  `metadata_only`, showing file names, original columns, DOI, licence and checksum but no row
+  values. Set `row_access.policy` to `allow` only after checking the admitted version's terms;
+  retain the basis and attribution in the source registry. Synthetic CC0 fixtures are readable
+  by default. This policy is independent of whether the builder can index the source.
 
 ### Adapter kinds the builder ingests
 

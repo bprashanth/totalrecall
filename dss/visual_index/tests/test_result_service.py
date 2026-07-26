@@ -84,6 +84,85 @@ class ValparaiResultServiceTest(unittest.TestCase):
         decoded = json.loads(rows[1])
         self.assertTrue(all(row["source_id"] and row["source_row"] for row in decoded))
 
+    def test_source_rows_reads_the_admitted_local_copy_with_provenance(self):
+        result = self.service.query(
+            "source-rows-1",
+            "source-rows",
+            {
+                "source_id": "dryad-b2rbnzsff-shade-birds",
+                "file": "dat_with_guilds.csv",
+                "start_row": 1,
+                "limit": 3,
+            },
+            "Show me three raw rows from the shade-tree bird study.",
+        )
+        self.assert_contract(result)
+        self.assertEqual(result["status"], "complete")
+        self.assertEqual(result["visuals"][0]["visual_type"], "table")
+        self.assertEqual(result["visuals"][0]["view"], "source-rows")
+        rows = json.loads(
+            self.service.load_data(result["result_id"], "source-rows")[1]
+        )
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(rows[0]["_source_row"], 1)
+        self.assertGreaterEqual(rows[0]["_file_line"], 2)
+        self.assertIn("Species", rows[0])
+        schema = json.loads(
+            self.service.load_data(result["result_id"], "source-file-schema")[1]
+        )
+        self.assertIn("Species", {item["name"] for item in schema["columns"]})
+        provenance = json.loads(
+            self.service.load_data(result["result_id"], "source-provenance")[1]
+        )
+        self.assertTrue(provenance["local_copy"])
+        self.assertEqual(provenance["doi"], "10.5061/dryad.b2rbnzsff")
+        self.assertEqual(provenance["license"], "CC0-1.0")
+        self.assertEqual(provenance["row_access"]["policy"], "allow")
+        audited = result["audit"]["source_versions"][0]
+        self.assertEqual(audited["title"], provenance["title"])
+        self.assertEqual(audited["doi"], provenance["doi"])
+        self.assertEqual(audited["license"], provenance["license"])
+        self.assertIn(
+            "local-admitted-copy",
+            {item["code"] for item in result["limitations"]},
+        )
+
+    def test_source_rows_withholds_values_without_explicit_redistribution_policy(self):
+        source = self.service._source_entry("dryad-b2rbnzsff-shade-birds")
+        self.assertIsNotNone(source)
+        original_policy = source.get("row_access")
+        source["row_access"] = {
+            "policy": "metadata_only",
+            "basis": "Test policy: schema may be shown but rows may not.",
+        }
+        try:
+            result = self.service.query(
+                "source-rows-restricted-1",
+                "source-rows",
+                {
+                    "source_id": "dryad-b2rbnzsff-shade-birds",
+                    "file": "dat_with_guilds.csv",
+                    "limit": 3,
+                },
+                "Show me raw rows from this source.",
+            )
+        finally:
+            if original_policy is None:
+                source.pop("row_access", None)
+            else:
+                source["row_access"] = original_policy
+        self.assert_contract(result)
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["visuals"][0]["view"], "source-schema")
+        self.assertIsNone(self.service.load_data(result["result_id"], "source-rows"))
+        self.assertIsNotNone(
+            self.service.load_data(result["result_id"], "source-file-schema")
+        )
+        self.assertIn(
+            "source-row-redistribution-restricted",
+            {item["code"] for item in result["limitations"]},
+        )
+
     def test_empty_target_keeps_surrounding_data_and_offers_transfer(self):
         result = self.service.query(
             "surrounding-1",
