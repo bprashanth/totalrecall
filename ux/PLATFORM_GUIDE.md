@@ -66,15 +66,12 @@ The local live path returned:
 - observed and derived GeoJSON layers, source lineage and an immutable audit;
 - the necessary warning that a shared square is neither an interaction nor simultaneous presence.
 
-This confirms that the bridge and `co-occurrence-map` capability answer the question. It also
-exposes two separate presentation boundaries:
+This confirms that the bridge and `co-occurrence-map` capability answer the question. Fieldnote
+now renders the returned point, line, cell and polygon layers, shows evidence and limitation
+labels, and can execute the returned “same year” action without another language-model turn.
 
-1. The hosted Sites worker cannot currently reach the bridge, so it returns preview mode.
-2. The first generic live-result renderer draws point overlays but does not yet draw returned
-   polygon/cell layers. The co-occurrence payload exists even when its cells are not rendered by
-   Fieldnote.
-
-These are deployment and rendering gaps, not missing data or a failed analytical capability.
+The remaining boundary is deployment: the hosted Sites worker cannot currently reach the bridge,
+so it returns preview mode. That is not missing data or a failed analytical capability.
 
 ## Intended production topology
 
@@ -132,6 +129,9 @@ new chat interface or species-specific UI.
 - R 4.5.1 sidecar produces ggplot SVGs for seasonal, restoration and acoustic views.
 - Paper-to-method flow distinguishes a first-look analogue from a true replication.
 - Live occurrence and co-occurrence questions verified against audited result payloads.
+- Generic result maps now draw point, line, cell and polygon payloads and execute typed actions.
+- Browser sessions now receive separate bridge session ids rather than accumulating in one shared
+  Codex context.
 - Production dependency audit reports no production vulnerabilities.
 - Sites version 1 deployed owner-only; local live containers remain on ports 7300 and 7331.
 

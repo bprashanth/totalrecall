@@ -104,6 +104,40 @@ export type ResultEnvelope = {
   };
 };
 
+export type ResultAction = NonNullable<ResultEnvelope["actions"]>[number];
+
+export type GeoJsonGeometry = {
+  type:
+    | "Point"
+    | "MultiPoint"
+    | "LineString"
+    | "MultiLineString"
+    | "Polygon"
+    | "MultiPolygon";
+  coordinates: unknown;
+};
+
+export type GeoJsonFeature = {
+  type: "Feature";
+  id?: string | number;
+  geometry: GeoJsonGeometry | null;
+  properties?: Record<string, unknown> | null;
+};
+
+export type GeoJsonFeatureCollection = {
+  type: "FeatureCollection";
+  features: GeoJsonFeature[];
+};
+
+export type MapResultLayer = {
+  layerId: string;
+  label: string;
+  evidenceClass: string;
+  geometryType?: string;
+  styleHint: Record<string, unknown>;
+  data: GeoJsonFeatureCollection;
+};
+
 export type VisualSpec = {
   visual_id?: string;
   view?: string;
@@ -113,10 +147,14 @@ export type VisualSpec = {
   layers?: Array<{
     layer_id?: string;
     evidence_class?: string;
+    geometry_type?: string;
     data_ref?: {
       handle?: string;
       media_type?: string;
       digest?: string;
+    };
+    legend?: {
+      label?: string;
     };
     style_hint?: Record<string, unknown>;
   }>;

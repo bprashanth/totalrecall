@@ -1,36 +1,69 @@
 "use client";
 
-import { CircleCheck, ExternalLink, FlaskConical } from "lucide-react";
-import type { AnalysisResponse, DemoData } from "@/lib/types";
+import { useState } from "react";
+import { CircleCheck, ExternalLink, FlaskConical, MoveRight, TriangleAlert } from "lucide-react";
+import type {
+  AnalysisResponse,
+  DemoData,
+  GeoJsonFeatureCollection,
+  MapResultLayer,
+  ResultAction,
+} from "@/lib/types";
 import { SiteMap } from "./SiteMap";
 
-function geoPoints(result: AnalysisResponse) {
-  const points: Array<{ longitude: number; latitude: number; label?: string }> = [];
+function mapLayers(result: AnalysisResponse): MapResultLayer[] {
+  const layers: MapResultLayer[] = [];
   for (const item of result.results) {
-    for (const payload of Object.values(item.payloads)) {
-      if (
-        payload &&
-        typeof payload === "object" &&
-        (payload as { type?: string }).type === "FeatureCollection"
-      ) {
-        for (const feature of (payload as { features?: Array<Record<string, unknown>> }).features || []) {
-          const geometry = feature.geometry as { type?: string; coordinates?: number[] } | undefined;
-          if (geometry?.type === "Point" && geometry.coordinates?.length === 2) {
-            points.push({
-              longitude: geometry.coordinates[0],
-              latitude: geometry.coordinates[1],
-              label: String((feature.properties as { label?: string } | undefined)?.label || ""),
-            });
-          }
+    for (const visual of item.envelope.visuals || []) {
+      if (visual.visual_type !== "map") continue;
+      for (const layer of visual.layers || []) {
+        const handle = layer.data_ref?.handle;
+        const payload = handle ? item.payloads[handle] : undefined;
+        if (
+          handle &&
+          payload &&
+          typeof payload === "object" &&
+          (payload as { type?: string }).type === "FeatureCollection"
+        ) {
+          layers.push({
+            layerId: layer.layer_id || handle,
+            label: layer.legend?.label || layer.layer_id || "Result layer",
+            evidenceClass: layer.evidence_class || "unknown",
+            geometryType: layer.geometry_type,
+            styleHint: layer.style_hint || {},
+            data: payload as GeoJsonFeatureCollection,
+          });
         }
       }
     }
   }
-  return points;
+  return layers;
 }
 
-export function LiveFinding({ response, data }: { response: AnalysisResponse; data: DemoData }) {
-  const points = geoPoints(response);
+export function LiveFinding({
+  response,
+  data,
+  busy = false,
+  onAction,
+}: {
+  response: AnalysisResponse;
+  data: DemoData;
+  busy?: boolean;
+  onAction?: (action: ResultAction) => void;
+}) {
+  const [showWhy, setShowWhy] = useState(false);
+  const layers = mapLayers(response);
+  const actions = response.results.flatMap((item) => item.envelope.actions || []).slice(0, 4);
+  const limitations = response.results
+    .flatMap((item) => item.envelope.limitations || [])
+    .filter((limitation, index, all) => {
+      const key = limitation.code || limitation.message;
+      return all.findIndex((item) => (item.code || item.message) === key) === index;
+    })
+    .slice(0, 3);
+  const sourceVersions = response.results.flatMap(
+    (item) => item.envelope.audit?.source_versions || [],
+  );
   return (
     <section className="live-finding" aria-live="polite">
       <header>
@@ -45,18 +78,62 @@ export function LiveFinding({ response, data }: { response: AnalysisResponse; da
           {response.mode === "live" ? "Audited result" : "Preview"}
         </span>
       </header>
-      {points.length > 0 && (
-        <SiteMap cells={data.cells} aoi={data.site.target_aoi.geometry} livePoints={points} />
+      {layers.length > 0 && (
+        <SiteMap cells={data.cells} aoi={data.site.target_aoi.geometry} liveLayers={layers} />
       )}
       <div className="finding-copy">
         <p>{response.answer}</p>
         {response.note && <small>{response.note}</small>}
       </div>
+      {limitations.length > 0 && (
+        <aside className="finding-limitations">
+          <TriangleAlert size={17} />
+          <div>
+            <strong>Read this map with care</strong>
+            {limitations.map((limitation) => (
+              <p key={limitation.code || limitation.message}>{limitation.message}</p>
+            ))}
+          </div>
+        </aside>
+      )}
+      {actions.length > 0 && onAction && (
+        <div className="finding-actions" aria-label="Refine this finding">
+          <p>Follow the finding</p>
+          <div>
+            {actions.map((action) => (
+              <button
+                key={action.action_id}
+                type="button"
+                disabled={busy}
+                onClick={() => onAction(action)}
+              >
+                {action.label}
+                <MoveRight size={15} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {showWhy && (
+        <div className="finding-audit">
+          <strong>Why this figure</strong>
+          <p>
+            {sourceVersions.length
+              ? `${sourceVersions.length} versioned source${sourceVersions.length === 1 ? "" : "s"} contributed to this result.`
+              : "This result retains its source and capability lineage."}
+          </p>
+          {sourceVersions.slice(0, 6).map((source, index) => (
+            <span key={`${source.source_id || source.title}-${index}`}>
+              {source.title || source.source_id || "Versioned source"}
+            </span>
+          ))}
+        </div>
+      )}
       <footer>
         <span>{response.audit_id ? `Audit ${response.audit_id}` : "Aggregated public preview"}</span>
         {response.results[0]?.envelope.audit?.audit_id && (
-          <button type="button">
-            Why this figure
+          <button type="button" onClick={() => setShowWhy(!showWhy)} aria-expanded={showWhy}>
+            {showWhy ? "Hide figure audit" : "Why this figure"}
             <ExternalLink size={14} />
           </button>
         )}

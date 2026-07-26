@@ -8,6 +8,8 @@ figure.
 
 For the product model, current deployment modes, verified flows and known integration boundaries,
 read [PLATFORM_GUIDE.md](./PLATFORM_GUIDE.md).
+For the source-to-visual path, current skills and the ingestion roadmap, read
+[DATA_PIPELINE.md](./DATA_PIPELINE.md).
 
 ## Runtime shape
 

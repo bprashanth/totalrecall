@@ -39,6 +39,39 @@ if (process.env.FIELDNOTE_LIVE === "1") {
   await page.close();
 }
 
+if (process.env.FIELDNOTE_OVERLAP === "1") {
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 1000 },
+    deviceScaleFactor: 1,
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(`overlap: ${message.text()}`);
+  });
+  page.on("pageerror", (error) => errors.push(`overlap: ${error.message}`));
+  await page.goto(base, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Ask this landscape" }).click();
+  await page
+    .getByPlaceholder("Where is there evidence—and where is there only silence?")
+    .fill("Give me the squares where elephant and leopard records overlap, and show them on a map.");
+  await page.locator(".send-button").click();
+  await page.locator(".result-layer-legend").waitFor({ timeout: 240_000 });
+  await page.locator("#new-finding").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: `${output}/desktop-overlap.png`, fullPage: false });
+  const sameYear = page.getByRole("button", {
+    name: /Show only the .* squares where both were recorded in the same year/i,
+  });
+  await sameYear.waitFor({ timeout: 30_000 });
+  await sameYear.click();
+  await page.getByText(/15 1\.1 km squares hold records of both Elephant and Leopard\./).waitFor({
+    timeout: 120_000,
+  });
+  await page.locator("#new-finding").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(700);
+  await page.screenshot({ path: `${output}/desktop-overlap-same-year.png`, fullPage: false });
+  await page.close();
+}
+
 if (process.env.FIELDNOTE_PAPER === "1") {
   const page = await browser.newPage({
     viewport: { width: 1440, height: 1000 },

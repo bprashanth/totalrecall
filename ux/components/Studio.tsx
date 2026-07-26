@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AudioLines,
   BookOpenText,
@@ -19,7 +19,7 @@ import {
   Sprout,
   X,
 } from "lucide-react";
-import type { AnalysisResponse, DemoData, MethodReading } from "@/lib/types";
+import type { AnalysisResponse, DemoData, MethodReading, ResultAction } from "@/lib/types";
 import { AcousticPlot } from "./AcousticPlot";
 import { FigureCard } from "./FigureCard";
 import { LiveFinding } from "./LiveFinding";
@@ -49,7 +49,15 @@ export function Studio({ data }: { data: DemoData }) {
   const [busy, setBusy] = useState(false);
   const [live, setLive] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const sessionId = `fieldnote-${useId()}`;
+  const sessionId = useRef("");
+
+  function activeSessionId() {
+    if (sessionId.current) return sessionId.current;
+    const existing = window.sessionStorage.getItem("fieldnote-session");
+    sessionId.current = existing || `fieldnote-${crypto.randomUUID()}`;
+    window.sessionStorage.setItem("fieldnote-session", sessionId.current);
+    return sessionId.current;
+  }
 
   useEffect(() => {
     fetch("/api/status")
@@ -76,7 +84,30 @@ export function Studio({ data }: { data: DemoData }) {
       const response = await fetch("/api/analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, session_id: sessionId }),
+        body: JSON.stringify({ question, session_id: activeSessionId() }),
+      });
+      const body = (await response.json()) as AnalysisResponse;
+      setFinding(body);
+      window.setTimeout(() => {
+        document.getElementById("new-finding")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function runResultAction(action: ResultAction) {
+    setBusy(true);
+    try {
+      const response = await fetch("/api/analysis", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          capability_id: action.capability_id,
+          arguments: action.arguments,
+          question: action.label,
+          request_id: `${activeSessionId()}-${action.action_id}-${crypto.randomUUID()}`,
+        }),
       });
       const body = (await response.json()) as AnalysisResponse;
       setFinding(body);
@@ -182,7 +213,12 @@ export function Studio({ data }: { data: DemoData }) {
 
         {finding && (
           <div id="new-finding" className="finding-anchor">
-            <LiveFinding response={finding} data={data} />
+            <LiveFinding
+              response={finding}
+              data={data}
+              busy={busy}
+              onAction={(action) => void runResultAction(action)}
+            />
           </div>
         )}
 
