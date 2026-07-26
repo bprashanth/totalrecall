@@ -8339,6 +8339,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 if resolution.get("switch_capability"):
                     capability_id = resolution["switch_capability"]
                     arguments = dict(resolution["switch_arguments"])
+                if capability_id == "co-occurrence-map":
+                    prepared = _prepare_cooccurrence_subjects(arguments)
+                    if prepared["status"] == "selection_required":
+                        self._send_json(409, {
+                            "status": "data_request",
+                            "reason": "subject_selection_required",
+                            "detail": prepared["detail"],
+                        })
+                        return
                 if capability_id in _COOCCURRENCE_CAPABILITY_IDS:
                     envelope = _cooccurrence_envelope(
                         capability_id, arguments, question, request_id)
