@@ -2,7 +2,12 @@
 
 Status: contract guide for agents building a `visual-site-pack/0.1` pack.
 
-Last checked: 2026-07-25
+Last checked: 2026-07-26
+
+For the end-to-end entry point, including site onboarding, dataset admission, adapter execution
+and schema-change decisions, start with
+[`ingestion/ON_BOARDING.md`](ingestion/ON_BOARDING.md). This document remains the detailed
+site-pack file contract.
 
 This is the checklist an agent must follow to make a new-sector site pack (health, education,
 infrastructure, conservation, livelihoods, …) build with the generic

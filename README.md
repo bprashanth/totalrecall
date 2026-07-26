@@ -11,6 +11,7 @@ both applications can use the same site-pack service and `idli-result/1` contrac
 totalrecall/
 ├── dss/
 │   ├── sites/             admitted site packs: identity, sources, adapters and capabilities
+│   ├── ingestion/         site onboarding, dataset admission, adapters and schema evolution
 │   ├── connectors/        reusable acquisition connectors
 │   ├── visual_index/      canonical index builder, typed capabilities and result services
 │   └── integration/       Totalrecall-owned proposals to consumer repositories
@@ -47,6 +48,8 @@ immutable source + reviewed adapter
 ## DSS site packs
 
 Place-specific source data and visual indexes live under [`dss/`](dss/). See
+[`dss/ingestion/ON_BOARDING.md`](dss/ingestion/ON_BOARDING.md) for the entry point to site
+onboarding, dataset admission, adapters and schema evolution,
 [`dss/SITE_PACK_DEPLOYMENT.md`](dss/SITE_PACK_DEPLOYMENT.md) for the deployment-pinned Idlisseus
 POC, [`dss/SITE_PACK_AUTHORING.md`](dss/SITE_PACK_AUTHORING.md) for the authoring contract, and
 [`dss/sites/registry.json`](dss/sites/registry.json) for the current site inventory.
