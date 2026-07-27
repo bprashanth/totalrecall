@@ -5,13 +5,13 @@
 Fieldnote is a visual field notebook for practitioners who begin with a place and a question.
 The intended loop is:
 
-1. **Orient** — start with a map, coverage and survey effort rather than an empty chat.
-2. **Ask** — use ordinary ecological language: a species, season, interaction, restoration
+1. **Orient** - start with a map, coverage and survey effort rather than an empty chat.
+2. **Ask** - use ordinary ecological language: a species, season, interaction, restoration
    question or paper method.
-3. **See** — return the most useful map or figure before a long explanation.
-4. **Read responsibly** — keep provenance, denominators and limitations beside the visual.
-5. **Refine** — narrow time, place, species or evidence conditions with a short follow-up.
-6. **Act** — inspect source records, reproduce a plot in R, plan data collection, or carry a
+3. **See** - return the most useful map or figure before a long explanation.
+4. **Read responsibly** - keep provenance, denominators and limitations beside the visual.
+5. **Refine** - narrow time, place, species or evidence conditions with a short follow-up.
+6. **Act** - inspect source records, reproduce a plot in R, plan data collection, or carry a
    collection of findings into a report.
 
 It is not intended to be a general chat window with charts attached. Conversation chooses and
@@ -137,6 +137,6 @@ new chat interface or species-specific UI.
 
 Source checkpoints:
 
-- `77b4ba1` — Fieldnote visual ecology studio
-- `374e7e2` — Sites build adapter
-- `f102b05` — tracked runtime libraries
+- `77b4ba1` - Fieldnote visual ecology studio
+- `374e7e2` - Sites build adapter
+- `f102b05` - tracked runtime libraries

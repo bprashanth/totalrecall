@@ -50,7 +50,7 @@ REPO = MEMORY.parent
 BENCH = MEMORY / "narrative" / "benchmarks" / "late-bound-skills"
 HARNESS = MEMORY / "harness"
 HERMES_BENCH = MEMORY / "hermes_bench"
-sys.path[:0] = [str(HERE), str(HARNESS), str(HERMES_BENCH)]
+sys.path[:0] = [str(REPO), str(HERE), str(HARNESS), str(HERMES_BENCH)]
 
 import engine as E  # noqa: E402
 import executor as X  # noqa: E402
