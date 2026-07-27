@@ -77,6 +77,37 @@ It exposes `POST /v1/results/query`, `GET /v1/results/{result_id}` and
 `GET /v1/results/{result_id}/data/{handle}`. These are bridge/server endpoints, not public browser
 URLs. Idlisseus should proxy authorised handles through its own same-origin API.
 
+## Reading an open subject name
+
+Typed operations accept entity ids, exact registered names or source-declared hierarchy groups.
+People also ask for open groups that no source has declared: a phrase such as “raptors” may refer
+to several recorded names whose rows contain no common hierarchy at all. That semantic judgement
+does not belong in SQL, and a guessed taxonomy must not become a source-backed fact.
+
+`subject_resolver.py` keeps that boundary explicit:
+
+1. It resolves a unique registered alias after conservative singular/plural widening.
+2. If that is insufficient, it returns the complete entity catalogue for the pinned index. The
+   dialogue model chooses only entity ids from this bounded list. The bridge transports the large
+   catalogue as compact `[entity_id, recorded_name]` rows with explicit column names; this is a
+   wire optimisation, not a different evidence set.
+3. It rejects any id outside the supplied catalogue, records the selector model and prompt
+   version, and writes an immutable binding under the visual-result state directory.
+4. The cache key includes the catalogue digest, original phrase, model and prompt version. A pack
+   rebuild or selector change cannot silently reuse an old interpretation.
+5. The result carries `member_labels`, `resolution_method`, `selector` and `binding_id` in
+   `question.bindings.subjects`. A `model-selected-subject-group` limitation distinguishes that
+   interpretation from a group declared by a source.
+
+Taxonomy is used only after selection to say, for example, that every selected member shares a
+family. It never chooses the members. The correction action reopens the bounded catalogue and
+creates a new immutable binding; it does not mutate the earlier audit record. The resolver itself
+calls no model. In the current deployment the outer Codex turn performs the semantic choice and
+retries the same typed capability with verified ids. The thin bridge controller may repair one
+mechanical error — valid selected ids placed beside, rather than inside, their subject object —
+when the destination slot is unambiguous. It records that repair, never changes an id, and never
+infers a missing subject from prose.
+
 ## Lineage for one produced value
 
 `explain_service.py` answers "why is this value what it is" without a model. Given a stored
@@ -245,13 +276,15 @@ sentence length again. The graded dimensions took turns failing while the prompt
 fixes that never regressed were the ones that changed the data the model was given.
 
 `answer_contract.py` moves the requirements onto the results. A result declares what must be said
-about it — `required_statements: [{id, statement, why}]` — and each statement is the producing
-capability's own sentence, promoted from a limitation it already declared. A shared-square map
+about it — `required_statements: [{id, statement, why, audience}]` — and each statement is the
+producing capability's own sentence, promoted from a limitation it already declared. `audience`
+is `reader` for a sentence safe to show beside the visual and `model` for an instruction that
+belongs only in the answer check. A shared-square map
 carries its join rule; an estimate carries its confidence basis and that it is modelled; a
 priority ranking carries "this is where the data is thinnest, not where the ecology is richest";
 any result with figures carries the surveys they came from. They are attached to the model-safe
-summary and served on the result itself, so the renderer can show them verbatim (proposal
-TR-VIS-0002).
+summary and served on the result itself, so the renderer can show reader statements verbatim
+(proposal TR-VIS-0002).
 
 `review_answer` then enforces, on the way out, the invariants that need no judgement: it
 substitutes wording that belongs to the plumbing, splits an over-long sentence at a join already

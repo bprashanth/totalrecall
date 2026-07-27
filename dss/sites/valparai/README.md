@@ -53,7 +53,7 @@ The current build indexes:
 - 45,328 source-linked events, including 3,199 regeneration rows and 10,752
   restoration-study bird/tree records;
 - 42,348 georeferenced events;
-- 1,145 resolved or retained broad entities and 1,893 aliases;
+- 1,143 resolved or retained broad entities and 1,893 aliases;
 - 205 named/source locations, including 44 acoustic-recorder sites;
 - 974 explicit effort rows, including 460 fifteen-minute bird point counts and 264
   declared 0.04-hectare adult-tree or regeneration plots;
@@ -81,7 +81,10 @@ of relation types; a pair remains a record of being seen together, never proof t
 documented effort behind it, naming each square by the nearest place this pack holds a coordinate
 for, and says in its own limitations that it ranks thin data rather than rich ecology.
 `co-occurrence-map` intersects the squares two subjects were recorded in, without ever calling
-that an interaction.
+that an interaction. Exact stored names and source-declared groups remain deterministic. For an
+open phrase not declared by a source, the bridge gives Codex this pack's bounded entity catalogue,
+verifies the selected ids, and exposes the chosen members and selector in the result. The
+selection is a visible, correctable judgement rather than a hidden taxonomy guess.
 The stratified survey capability maps source-declared sites and compares categories while keeping
 site replication and survey effort visible. Its summaries are descriptive observation-process
 results; they are not silently promoted to treatment effects or population estimates.
@@ -118,6 +121,11 @@ mapping is blocked because there is no versioned uncertainty surface or action-c
 - The three presence datasets use scientific names, underscored common names and spaced common
   names. Explicit crosswalks and aliases are required; simple string grouping splits the same
   entity.
+- The restoration bird source's `Great Hornbill (Great Pied Hornbill)` label is a reviewed alias
+  of the existing `Buceros bicornis` identity. Its source row and verbatim label remain intact,
+  while the analytical catalogue contains two recorded Hornbill taxa rather than three entities.
+- The same source's `Oriental Honey-buzzard (Crested Honey Buzzard)` label is likewise retained as
+  an alias of the existing `Pernis ptilorhynchus` identity, rather than becoming a second raptor.
 - Several source rows use broad labels at different hierarchy levels. The index retains them
   rather than pretending every row is at the same rank.
 - The GBIF frugivory archive contains visitor and focal-tree occurrences but does not retain the

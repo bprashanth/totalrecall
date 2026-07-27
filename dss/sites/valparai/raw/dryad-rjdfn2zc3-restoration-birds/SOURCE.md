@@ -12,3 +12,10 @@ counts distributed across restored, naturally regenerating, and benchmark plots,
 coordinates, bird habitat guilds, vegetation structure, and tree-quadrat data. Site type is a
 reported treatment/category; causal claims still require the published comparison design and
 uncertainty.
+
+`entity_crosswalk.csv` is a locally reviewed adapter input, not one of the six Dryad files. It
+maps the source's verbatim `Great Hornbill (Great Pied Hornbill)` and
+`Oriental Honey-buzzard (Crested Honey Buzzard)` labels to the already registered
+`Buceros bicornis` and `Pernis ptilorhynchus` identities. The verbatim source labels remain
+aliases and every event retains its original source row; the crosswalk prevents one taxon from
+becoming two analytical entities.

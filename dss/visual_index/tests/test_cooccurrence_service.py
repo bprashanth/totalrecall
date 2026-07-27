@@ -142,6 +142,48 @@ class CooccurrenceServiceTest(unittest.TestCase):
         self.assertEqual(subjects[1]["kind"], "group")
         self.assertEqual(subjects[1]["rank"], "division")
 
+    def test_a_verified_model_group_is_visible_auditable_and_correctable(self):
+        with self.service.connect() as connection:
+            ids = [
+                self.service.resolve_subject(connection, name)["entity_ids"][0]
+                for name in ("Footpath repair", "Check dam construction")
+            ]
+        envelope = self.service.co_occurrence_map(
+            "test-selected-group",
+            [{
+                "requested": "public works",
+                "entity_ids": ids,
+                "resolution_method": "model_selected",
+                "selector": {"model": "test-model", "prompt_version": "test-prompt/1"},
+                "binding_id": "binding-test",
+            }, "Construction labour"],
+        )
+        binding = envelope["question"]["bindings"]["subjects"][0]
+        self.assertEqual(binding["resolution_method"], "model_selected")
+        self.assertEqual(
+            set(binding["member_labels"]), {"Footpath repair", "Check dam construction"}
+        )
+        self.assertIn(
+            "model-selected-subject-group",
+            {item["code"] for item in envelope["limitations"]},
+        )
+        correction = next(
+            item for item in envelope["actions"]
+            if item["action_id"].startswith("correct-subject-")
+        )
+        self.assertEqual(correction["kind"], "choice")
+        refresh = correction["arguments"]["subjects"][0]
+        self.assertEqual(refresh["requested"], "public works")
+        self.assertTrue(refresh["refresh_selection"])
+
+    def test_an_unverified_entity_id_is_rejected_by_the_analytical_service_too(self):
+        with self.assertRaisesRegex(ValueError, "unknown entity ids"):
+            self.service.co_occurrence_map(
+                "test-invented-id",
+                [{"requested": "anything", "entity_ids": ["ent-invented"]},
+                 "Construction labour"],
+            )
+
     def test_a_kind_of_record_is_a_subject_too(self):
         """"Where are both public works and people leaving recorded" names no entity at all."""
         envelope = self.service.co_occurrence_map(

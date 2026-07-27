@@ -48,6 +48,25 @@ class RequiredStatementTest(unittest.TestCase):
         self.assertEqual(statements["join-rule"]["statement"], join)
         self.assertTrue(statements["join-rule"]["must_include"])
         self.assertTrue(statements["join-rule"]["why"])
+        self.assertEqual(statements["join-rule"]["audience"], "reader")
+
+    def test_instructions_are_marked_for_the_model_not_rendered_as_reader_prose(self):
+        envelope = {
+            "answer": {"headline": "12 records"},
+            "audit": {
+                "estimate": {
+                    "estimate": 12,
+                    "confidence_basis": "wide held-out residuals",
+                    "cell_description_short": "the 1 km square around the village",
+                },
+                "source_versions": [{"title": "Household panel 2024"}],
+            },
+        }
+        statements = {item["id"]: item for item in required_statements(envelope)}
+        self.assertEqual(statements["estimate-is-modelled"]["audience"], "reader")
+        self.assertEqual(statements["estimate-confidence"]["audience"], "model")
+        self.assertEqual(statements["which-square"]["audience"], "model")
+        self.assertEqual(statements["name-the-survey"]["audience"], "model")
 
     def test_a_result_with_nothing_to_require_requires_nothing(self):
         self.assertEqual(required_statements({}), [])

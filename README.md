@@ -9,23 +9,23 @@ both applications can use the same site-pack service and `idli-result/1` contrac
 
 ```text
 totalrecall/
-├── dss/
-│   ├── sites/             admitted site packs: identity, sources, adapters and capabilities
-│   ├── ingestion/         site onboarding, dataset admission, adapters and schema evolution
-│   ├── connectors/        reusable acquisition connectors
-│   ├── visual_index/      canonical index builder, typed capabilities and result services
-│   └── integration/       Totalrecall-owned proposals to consumer repositories
-├── ux/                    Fieldnote application, server routes and R visualisation sidecar
-├── kit/                   reusable onboarding, conformance and benchmark-authoring machinery
-├── benchmarks/            cross-model and multi-turn acceptance scenarios
-├── ecology_memory/        domain memory, experiments and evaluation history
-├── livelihoods_memory/    domain memory, experiments and evaluation history
-├── transport_memory/      domain memory, experiments and evaluation history
-├── runs/                  generated serving indexes and local runtime state
-├── tests/                 repository-level tests
-├── governance/            decisions, evidence and reviews
-├── handoff/               bounded hand-off material for follow-on work
-└── scripts/               repository operations and validation helpers
+|--- dss/
+|   |--- sites/             admitted site packs: identity, sources, adapters and capabilities
+|   |--- ingestion/         site onboarding, dataset admission, adapters and schema evolution
+|   |--- connectors/        reusable acquisition connectors
+|   |--- visual_index/      canonical index builder, typed capabilities and result services
+|   |--- integration/       Totalrecall-owned proposals to consumer repositories
+|--- ux/                    Fieldnote application, server routes and R visualisation sidecar
+|--- kit/                   reusable onboarding, conformance and benchmark-authoring machinery
+|--- benchmarks/            cross-model and multi-turn acceptance scenarios
+|--- ecology_memory/        domain memory, experiments and evaluation history
+|--- livelihoods_memory/    domain memory, experiments and evaluation history
+|--- transport_memory/      domain memory, experiments and evaluation history
+|--- runs/                  generated serving indexes and local runtime state
+|--- tests/                 repository-level tests
+|--- governance/            decisions, evidence and reviews
+|--- handoff/               bounded hand-off material for follow-on work
+|--- scripts/               repository operations and validation helpers
 ```
 
 The durable product boundary is:

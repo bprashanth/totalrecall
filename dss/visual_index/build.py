@@ -494,6 +494,11 @@ class Builder:
                 self._ensure_entity(canonical, label, source_id, hierarchy)
             elif label:
                 self._alias(label, entity_id, source_id)
+            # A reviewed lookup may replace a source's verbatim name with a canonical identity.
+            # Keep that original spelling as an alias: it is how a reader will search for the
+            # row, and preserving it does not create a second analytical entity.
+            if entity_id and entity_raw:
+                self._alias(str(entity_raw), entity_id, source_id)
             date_value = _configured(row, spec, "date") or spec.get("date_value")
             event_date, year, month = _date_parts(date_value, spec.get("date_format"))
             original_id = _row_id(row, spec.get("record_id"), row_number)
