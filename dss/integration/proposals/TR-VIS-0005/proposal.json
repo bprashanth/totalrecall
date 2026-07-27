@@ -1,0 +1,36 @@
+{
+  "schema_version": "producer-consumer-proposal/1",
+  "proposal_id": "TR-VIS-0005",
+  "title": "Add a reviewable public problem-report action",
+  "producer": "totalrecall",
+  "consumer": "idlisseus",
+  "created_at": "2026-07-27",
+  "status": "proposed",
+  "contract_version": "idli-result/1",
+  "compatibility": "additive",
+  "problem": "A person who spots a wrong interpretation or failed visual has no obvious way to describe it and preserve the conversation needed to reproduce it. The producer now has configurable draft and submit endpoints and a conversational report-problem skill, but publication must remain an explicit, reviewable user action because the destination is public.",
+  "requested_outcome": [
+    "Add a persistent 'Report a problem' action, with stronger visibility beside blocked, contradictory or error states.",
+    "Open a form with a required free-form description and an 'Include this conversation' checkbox switched on by default.",
+    "State clearly that the issue is public and identify the configured repository before drafting.",
+    "POST the visible user/assistant transcript to /v1/feedback/draft, then render the returned title and full body as an editable or reviewable preview.",
+    "Only POST report_id with confirmed=true to /v1/feedback/submit after a separate confirmation action.",
+    "If submit returns ready_for_browser_confirmation, open its pre-filled issue URL; if it returns submitted, show the returned issue URL.",
+    "Never include hidden prompts, progress events, raw tool output, credentials or private bridge context."
+  ],
+  "producer_evidence": [
+    "dss/feedback/report_service.py creates immutable redacted drafts, limits transcript roles to user and assistant, and separates draft from submit.",
+    "ecology_memory/integration/codex_native/server.py exposes /v1/feedback/draft and /v1/feedback/submit and adds report_action metadata to visual summaries.",
+    "The report-problem bridge skill creates a draft only and reports that confirmation is still required.",
+    "dss/feedback/tests/test_report_service.py covers transcript filtering, default inclusion, exclusion and the confirmation boundary."
+  ],
+  "acceptance": [
+    "The action is discoverable on an ordinary answer and visually prominent on a blocked or erroneous answer.",
+    "The form cannot draft without free-form text and defaults transcript inclusion to on.",
+    "The person sees the public warning, repository and complete issue preview before submission.",
+    "Cancelling or declining confirmation creates no public issue.",
+    "Turning transcript inclusion off removes the conversation from the draft.",
+    "A submitted or pre-filled issue contains visible chat only and links back through the audit id without exposing hidden execution context."
+  ],
+  "notes": "The repository is producer configuration, not a consumer constant. The default is bprashanth/totalrecall, and a deployment may move it without a UI release."
+}

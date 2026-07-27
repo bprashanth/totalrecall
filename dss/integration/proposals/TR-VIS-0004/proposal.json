@@ -1,0 +1,33 @@
+{
+  "schema_version": "producer-consumer-proposal/1",
+  "proposal_id": "TR-VIS-0004",
+  "title": "Render one grounded clarification before a verified broad subject selection",
+  "producer": "totalrecall",
+  "consumer": "idlisseus",
+  "created_at": "2026-07-27",
+  "status": "proposed",
+  "contract_version": "idli-result/1",
+  "compatibility": "additive",
+  "problem": "An open subject phrase may match no stored alias even though several recorded names are relevant. Silently replacing it with one formal category loses the user's meaning, while rendering the attempted category as a successful visual makes a blocked lookup look like evidence. The producer now distinguishes subject_clarification_required from an explicitly broad subject_selection_required and verifies every selected entity id against the bounded site catalogue.",
+  "requested_outcome": [
+    "When the bridge returns subject_clarification_required, keep the answer compact and show one grounded clarification using candidate_entities; do not render the attempted binding as a successful result.",
+    "Offer a clear broad option such as 'All applicable recorded names' beside named candidates. If chosen, send that guided reply back through the conversation agent; the renderer must not decide which catalogue ids the phrase denotes.",
+    "When the bridge returns subject_selection_required after the user has already said all, go wide or equivalent, show selection progress while the conversation agent chooses ids from the bounded catalogue rather than asking the same clarification again.",
+    "For a completed subject-record-map, render the member disclosure and correction action already described by TR-VIS-0003.",
+    "Visually distinguish attempted or unresolved bindings from resolved bindings without relying on colour, and use no site or sector vocabulary."
+  ],
+  "producer_evidence": [
+    "ecology_memory/integration/codex_native/server.py emits separate subject_clarification_required and subject_selection_required states and supplies a bounded entity catalogue.",
+    "dss/visual_index/subject_resolver.py verifies and versions the model-selected ids.",
+    "dss/visual_index/cooccurrence_service.py emits subject-record-map results with visible member labels, provenance and a correction action.",
+    "dss/visual_index/tests/test_bridge_site_pack.py exercises clarification, explicit widening, verified selection and rendering metadata."
+  ],
+  "acceptance": [
+    "A vague unmatched subject shows one short grounded clarification and no successful visual.",
+    "Selecting the broad option produces one verified request without another clarification loop.",
+    "A completed visual says which recorded names were included and allows that reading to be changed.",
+    "A blocked attempted formal category is labelled unresolved and cannot be mistaken for returned evidence.",
+    "Existing exact-name and exact source-declared group flows render unchanged."
+  ],
+  "notes": "The consumer does not infer membership. It renders producer-supplied candidates and forwards a person's clarification to the conversation agent. The agent selects from the bounded catalogue and the producer remains the id-verification boundary."
+}

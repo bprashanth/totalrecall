@@ -179,6 +179,65 @@ class BridgeSitePackTest(unittest.TestCase):
         self.assertEqual(readings["hornbills"]["selected_by"], "test-dialogue-model")
         self.assertTrue(summary["answer_marker"].startswith("<!-- idli-result:"))
 
+    def test_single_open_subject_clarifies_once_then_a_broad_selection_maps(self):
+        state = self.output / "single-subject-selection-state"
+        result_service = ResultService(PACK, self.output / "site_index.sqlite", state)
+        cooccurrence = CooccurrenceService(PACK, self.output / "site_index.sqlite", state)
+        patches = (
+            mock.patch.object(server, "_result_service", return_value=result_service),
+            mock.patch.object(server, "_cooccurrence_service", return_value=cooccurrence),
+            mock.patch.object(server, "VISUAL_RESULTS_STATE", state),
+            mock.patch.object(server, "MODEL", "test-dialogue-model"),
+        )
+        session = type("SubjectSession", (), {
+            "id": "subject-session", "turn": 1, "pending_subject": None,
+        })()
+        with contextlib.ExitStack() as stack:
+            for patch in patches:
+                stack.enter_context(patch)
+            first = server._visual_result_query({
+                "capability_id": "entity-record-map",
+                "arguments": {"entity": "raptors"},
+                "question": "Show me raptors here.",
+            }, session)
+            self.assertEqual(first["reason"], "subject_clarification_required")
+            self.assertEqual(first["detail"]["scope"], "ambiguous")
+            self.assertEqual(session.pending_subject["requested"], "raptors")
+            session.turn = 2
+            broad = server._visual_result_query({
+                # Even if the model guesses a formal group on the reply, the pending open phrase
+                # wins and the bridge reopens its bounded catalogue.
+                "capability_id": "group-record-map",
+                "arguments": {"rank": "order", "group": "Accipitriformes"},
+                "question": "No, all raptors. Go wide.",
+            }, session)
+            self.assertEqual(broad["reason"], "subject_selection_required")
+            catalogue = broad["detail"]["entity_catalogue"]
+            selected = [
+                entity_id for entity_id, name in catalogue
+                if name in {"Black Eagle", "Crested Serpent-Eagle"}
+            ]
+            mapped = server._visual_result_query({
+                "capability_id": "subject-record-map",
+                "arguments": {
+                    "requested": "raptors",
+                    "entity_ids": selected,
+                    "label": "all recorded raptors",
+                },
+                "question": "Show all recorded raptors.",
+            }, session)
+        self.assertEqual(mapped["status"], "answer")
+        self.assertEqual(mapped["value"]["capability_id"], "subject-record-map")
+        reading = mapped["value"]["subject_resolution"][0]
+        self.assertEqual(reading["you_asked_for"], "raptors")
+        self.assertEqual(
+            set(reading["read_as"]), {"Black Eagle", "Crested Serpent-Eagle"}
+        )
+        self.assertEqual(
+            mapped["value"]["report_action"]["include_conversation_default"], True
+        )
+        self.assertIsNone(session.pending_subject)
+
 
 class BridgeEstimateTargetsTest(unittest.TestCase):
     """The bridge must publish the estimable vocabulary, and must never speak our own."""

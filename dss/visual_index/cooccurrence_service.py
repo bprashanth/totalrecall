@@ -53,6 +53,36 @@ SAFE_RANK = re.compile(r"^[a-z][a-z0-9_]{0,63}$")
 
 COOCCURRENCE_CAPABILITIES: list[dict[str, Any]] = [
     {
+        "capability_id": "subject-record-map",
+        "version": "1.0.0",
+        "label": "Map source-linked records for a verified selection of recorded subjects",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "requested": {"type": "string", "minLength": 1},
+                "entity_ids": {
+                    "type": "array", "minItems": 1, "maxItems": 512,
+                    "items": {"type": "string", "minLength": 1},
+                },
+                "label": {"type": "string"},
+                "replace_cache": {"type": "boolean"},
+            },
+            "required": ["requested", "entity_ids"],
+            "additionalProperties": False,
+        },
+        "output_views": ["subject-observed-points", "subject-member-summary"],
+        "required_planes": ["events", "cells", "entities"],
+        "optional_planes": ["effort"],
+        "latency_class": "interactive",
+        "evidence_classes": ["observed", "missing"],
+        "availability": "ready",
+        "scope": "site",
+        "reason": (
+            "The dialogue model may interpret an open phrase only by choosing ids from the "
+            "bounded site catalogue. The producer verifies those ids before reading any rows."
+        ),
+    },
+    {
         "capability_id": "co-occurrence-map",
         "version": "1.0.0",
         "label": "Map the squares where two or more subjects were both recorded",
@@ -554,6 +584,186 @@ class CooccurrenceService:
         return "map square"
 
     # ------------------------------------------------------------------ co-occurrence
+
+    def subject_record_map(
+        self, request_id: str, subject: Any, question: str = "",
+    ) -> dict[str, Any]:
+        """Map records for one already verified open-phrase binding.
+
+        The semantic decision happened outside this analytical service. This method accepts the
+        resulting ids, checks them against the index again, and makes the selected membership
+        visible in the result rather than silently presenting it as a source-declared group.
+        """
+        request_id = _clean(request_id)[:200] or (
+            "subject-" + _digest(subject).split(":", 1)[1][:12]
+        )
+        with self.connect() as connection:
+            resolved = self.resolve_subject(connection, subject)
+            if not resolved.get("resolved") or not resolved.get("entity_ids"):
+                raise ValueError("subject-record-map needs a verified non-empty entity selection")
+            entity_ids = list(resolved["entity_ids"])
+            placeholders = ",".join("?" * len(entity_ids))
+            rows = [
+                dict(row) for row in connection.execute(
+                    f"""SELECT v.event_id,v.source_id,v.source_row,v.event_date,
+                               v.latitude,v.longitude,v.uncertainty_m,v.count_value,
+                               e.entity_id,e.canonical_name,e.display_name,
+                               COALESCE(c.target_role,'unlocated') AS target_role
+                        FROM events v JOIN entities e ON e.entity_id=v.entity_id
+                        LEFT JOIN cells c ON c.cell_id=v.cell_id
+                        WHERE v.entity_id IN ({placeholders})
+                          AND v.latitude IS NOT NULL AND v.longitude IS NOT NULL
+                        ORDER BY v.event_date,v.source_id,v.source_row""",
+                    entity_ids,
+                )
+            ]
+            source_ids = {str(row["source_id"]) for row in rows}
+            sources = self._source_versions(connection, source_ids)
+        target_count = sum(row["target_role"] == "target" for row in rows)
+        context_count = len(rows) - target_count
+        members = []
+        for entity_id, member_label in zip(
+            entity_ids, resolved.get("member_labels") or []
+        ):
+            member_rows = [row for row in rows if row["entity_id"] == entity_id]
+            members.append({
+                "entity_id": entity_id,
+                "label": member_label,
+                "records": len(member_rows),
+                "target_records": sum(
+                    row["target_role"] == "target" for row in member_rows
+                ),
+            })
+        points = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "id": row["event_id"],
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [row["longitude"], row["latitude"]],
+                },
+                "properties": {
+                    "entity_id": row["entity_id"],
+                    "entity": row["display_name"],
+                    "canonical_name": row["canonical_name"],
+                    "source_id": row["source_id"],
+                    "source_row": row["source_row"],
+                    "event_date": row["event_date"],
+                    "coordinate_uncertainty_m": row["uncertainty_m"],
+                    "count": row["count_value"],
+                    "scope_role": row["target_role"],
+                },
+            } for row in rows],
+        }
+        label = resolved.get("label") or resolved.get("requested")
+        headline = (
+            f"{len(rows):,} source-linked records for {len(entity_ids):,} recorded names "
+            f"read as “{label}” are mapped; {target_count:,} fall in target cells."
+        )
+        binding = {
+            key: resolved.get(key) for key in (
+                "requested", "kind", "rank", "label", "entity_ids", "member_labels",
+                "resolution_method", "selector", "binding_id", "catalogue_digest",
+                "shared_hierarchy",
+            ) if resolved.get(key) is not None
+        }
+        result_id = "result-subject-" + _digest({
+            "site": self.site.get("site_id"), "pack": self.pack_digest,
+            "request_id": request_id, "subject": binding,
+        }).split(":", 1)[1][:20]
+        result = self._base(
+            result_id, request_id, "subject-record-map", _clean(question),
+            "Map admitted records for a verified selection from the bounded site catalogue.",
+            {"subject": binding, "aoi_ids": ["target", "context"]},
+            headline, ["observed", "missing"], "partial", sources,
+        )
+        result["answer"]["detail"] = (
+            "The selected member list is an assistant interpretation of the user's phrase, "
+            "not a category declared by a source. Points show recorded rows, not abundance or "
+            "evidence that unmarked places lack the subject."
+        )
+        result["limitations"].extend([
+            self._limitation(
+                "model-selected-subject-group",
+                (
+                    f"“{resolved['requested']}” was read as "
+                    + ", ".join(resolved.get("member_labels") or [])
+                    + ". This member list was selected from recorded names, not supplied as a "
+                    "group by a source."
+                ),
+                affects=["answer", "subject-records"],
+            ),
+            self._limitation(
+                "records-not-abundance",
+                "Record totals reflect admitted sources and their effort; they are not abundance.",
+                affects=["answer", "subject-records"],
+            ),
+        ])
+        if not target_count:
+            result["limitations"].append(self._limitation(
+                "no-target-records",
+                "No selected records fall inside target cells; this is not evidence of absence.",
+                affects=["answer", "subject-records"],
+            ))
+        points_ref = self._data_ref(
+            "subject-observations", "application/geo+json", points
+        )
+        members_ref = self._data_ref(
+            "subject-members", "application/json", members
+        )
+        result["visuals"] = [{
+            "visual_id": "subject-records",
+            "visual_type": "map",
+            "view": "subject-observed-points",
+            "title": f"Where records read as {label} are available",
+            "priority": "primary",
+            "status": "partial",
+            "scope": {
+                "aoi_ids": ["target", "context"],
+                "time": {"start": None, "end": None},
+            },
+            "layers": [{
+                "layer_id": "subject-observations",
+                "evidence_class": "observed",
+                "geometry_type": "point",
+                "data_ref": points_ref,
+                "legend": {"label": f"Recorded {label}"},
+                "style_hint": {
+                    "palette_role": "observed", "category_field": "entity",
+                },
+            }],
+            "summary": {
+                "headline": headline,
+                "denominators": {
+                    "records": len(rows), "members": len(entity_ids),
+                    "target_records": target_count, "context_records": context_count,
+                    "sources": len(sources),
+                },
+            },
+            "drilldowns": [{
+                "action_id": "inspect-subject-members",
+                "label": "See which recorded names were included",
+                "data_ref": members_ref,
+            }],
+            "limitations": list(result["limitations"]),
+        }]
+        result["actions"] = [{
+            "action_id": "correct-subject-" + _key(resolved["requested"]).replace(" ", "-")[:40],
+            "kind": "choice",
+            "label": f"Change what “{resolved['requested']}” includes",
+            "capability_id": "subject-record-map",
+            "arguments": {
+                "requested": resolved["requested"],
+                "refresh_selection": True,
+            },
+            "requires_confirmation": True,
+            "expected_effect": "Choose a different verified set of recorded names and re-run.",
+        }]
+        return self._write(result, {
+            "subject-observations": ("application/geo+json", points),
+            "subject-members": ("application/json", members),
+        })
 
     def co_occurrence_map(
         self, request_id: str, subjects: Any, question: str = "",

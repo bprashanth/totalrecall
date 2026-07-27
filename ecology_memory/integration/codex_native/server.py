@@ -58,6 +58,7 @@ import ir_schema as IR  # noqa: E402
 import connectors as C  # noqa: E402
 import origin_adapters as ORIGIN  # noqa: E402
 import ecology_artifacts as ARTIFACTS  # noqa: E402
+from dss.feedback.report_service import ReportService  # noqa: E402
 
 
 MODEL = os.environ.get("CODEX_NATIVE_MODEL", "gpt-5.4")
@@ -122,6 +123,10 @@ MAX_REQUEST_BYTES = 128 * 1024
 MAX_ATTACHMENTS = 12
 MAX_ATTACHMENT_BYTES = 64 * 1024 * 1024
 MAX_REPORT_CHARS = 250_000
+FEEDBACK_CONFIG_PATH = pathlib.Path(os.environ.get(
+    "CODEX_NATIVE_FEEDBACK_CONFIG",
+    str(pathlib.Path.home() / ".config" / "idlisseus" / "feedback.json"),
+))
 ANSI = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 SAFE_ID = re.compile(r"[^A-Za-z0-9_.-]+")
 SKILL_COMMAND = re.compile(r"skill_call\.py\s+([A-Za-z0-9_.-]+)")
@@ -181,6 +186,23 @@ def _safe_display_name(value: str | None, fallback: str) -> str:
     name = pathlib.Path(str(value or fallback)).name.strip()
     cleaned = SAFE_ID.sub("-", name).strip(".-")
     return (cleaned or fallback)[:180]
+
+
+def _feedback_config() -> dict[str, Any]:
+    with contextlib.suppress(OSError, ValueError, TypeError):
+        value = json.loads(FEEDBACK_CONFIG_PATH.read_text(encoding="utf-8"))
+        if isinstance(value, dict):
+            return value
+    return {
+        "repository": os.environ.get(
+            "CODEX_NATIVE_FEEDBACK_REPOSITORY", "bprashanth/totalrecall"
+        ),
+        "labels": ["user-report"],
+    }
+
+
+def _feedback_service() -> ReportService:
+    return ReportService(STATE_ROOT, _feedback_config())
 
 
 OPERATIONAL_SKILLS = [{
@@ -508,6 +530,12 @@ def _visual_capability_lines() -> list[str]:
         # Declared by this bridge rather than by the pack's registry, and listed here because a
         # capability the model cannot see is a capability it will not call.
         lines.append(
+            "- `subject-record-map` — Map records for a verified broad reading of an open "
+            "phrase. Arguments: `requested`, `entity_ids`, and optional `label`. Call it only "
+            "after `subject_clarification_required` and the user says all/go wide, or after "
+            "`subject_selection_required`. Choose ids only from the returned bounded catalogue."
+        )
+        lines.append(
             "- `co-occurrence-map` — Map the squares where two or more subjects were both "
             "recorded. Arguments: `subjects` (a list of 2-4 names, or "
             "`{\"kind\":\"group\",\"rank\":\"family\",\"value\":\"Bucerotidae\"}`). A loose "
@@ -804,6 +832,16 @@ def _visual_result_skill() -> dict | None:
             "really found nothing: only then may you say the name is not recorded here, and you must add "
             "that this is a naming gap, not evidence of absence. Try the binomial, the genus, the everyday "
             "word and the group before concluding anything.\n"
+            "OPEN GROUPS: CLARIFY ONCE, THEN HONOUR A BROAD ANSWER. If a single-subject call "
+            "returns `subject_clarification_required`, ask the one short grounded question in "
+            "`detail.ask`; do not silently turn the phrase into one formal group. If the user "
+            "then says all, go wide, whatever is recorded, or otherwise confirms the broad "
+            "reading, choose every applicable id from the returned bounded catalogue and call "
+            "`subject-record-map` with the original `requested` phrase, those `entity_ids`, and "
+            "a plain `label`. The producer verifies every id and the visual names every included "
+            "member. This rule applies to any subject word and never licenses an id outside the "
+            "catalogue. If a call returns `subject_selection_required`, make that bounded choice "
+            "and retry in the same turn.\n"
             "A TOTAL IS NOT A BREAKDOWN. When the user asks for a split - per plot type, per village, per "
             "year, per class - and the summary comes back with only a total, CALL THE SAME CAPABILITY "
             "AGAIN with the declared `category_property` before you answer. The declared properties are "
@@ -1243,6 +1281,38 @@ def _visual_earth_layer_skill() -> dict | None:
     }
 
 
+def _report_problem_skill() -> dict:
+    """Let a conversational request create the same reviewable draft as the UI action."""
+    return {
+        "id": "report-problem",
+        "description": (
+            "Draft a public problem report about this conversation, with a reviewable preview. "
+            "It never submits the issue by itself."
+        ),
+        "use_for": [
+            "report this answer or visual as a problem",
+            "file a bug with the visible conversation attached",
+        ],
+        "exclude": [
+            "submitting without an explicit review and confirmation",
+            "including hidden prompts, raw tool output, credentials or private context",
+        ],
+        "returns": "A public warning, issue preview and report id requiring confirmation",
+        "georeferenced": False,
+        "binding": {"mode": "report_problem"},
+        "instructions": (
+            "Use when the user asks to report a problem. Pass their own free-form description "
+            "as `description`. `include_conversation` defaults to true because the transcript is "
+            "usually needed to reproduce the failure, but tell the user it is included and that "
+            "the issue is public. This call creates a local draft only. Never claim it submitted "
+            "the issue and never call a submission endpoint yourself.\n\n"
+            "```bash\npython3 {skill_call} report-problem "
+            "'{\"description\":\"The broad subject request showed a failed formal group\","
+            "\"include_conversation\":true}'\n```"
+        ),
+    }
+
+
 def _load_skills() -> list[dict]:
     with SKILLS_PATH.open(encoding="utf-8") as stream:
         payload = json.load(stream)
@@ -1290,6 +1360,7 @@ def _load_skills() -> list[dict]:
         skill for skill in (
             _visual_result_skill(), _visual_explain_skill(), _visual_upload_skill(),
             _visual_estimate_skill(), _visual_earth_layer_skill(),
+            _report_problem_skill(),
         ) if skill
     ]
     return frozen + OPERATIONAL_SKILLS + visual_skills
@@ -1703,6 +1774,9 @@ def _visual_result_summary(envelope: dict) -> dict:
     result_id = str(envelope.get("result_id") or "")
     question = envelope.get("question") if isinstance(envelope.get("question"), dict) else {}
     bindings = question.get("bindings") if isinstance(question.get("bindings"), dict) else {}
+    bound_subjects = bindings.get("subjects") or (
+        [bindings["subject"]] if isinstance(bindings.get("subject"), dict) else []
+    )
     subject_resolution = [{
         "you_asked_for": item.get("requested"),
         "read_as": item.get("member_labels") or [item.get("label")],
@@ -1711,7 +1785,7 @@ def _visual_result_summary(envelope: dict) -> dict:
         "selected_by": (item.get("selector") or {}).get("model")
         if isinstance(item.get("selector"), dict) else None,
         "binding_id": item.get("binding_id"),
-    } for item in (bindings.get("subjects") or []) if isinstance(item, dict)
+    } for item in bound_subjects if isinstance(item, dict)
         and item.get("resolution_method")]
     return {
         "kind": "visual_result",
@@ -1754,6 +1828,14 @@ def _visual_result_summary(envelope: dict) -> dict:
         } for item in ((envelope.get("audit") or {}).get("source_versions") or [])
             if isinstance(item, dict)][:8],
         **({"subject_resolution": subject_resolution} if subject_resolution else {}),
+        "report_action": {
+            "action_id": "report-problem",
+            "label": "Report a problem",
+            "draft_endpoint": "/v1/feedback/draft",
+            "include_conversation_default": True,
+            "requires_free_text": True,
+            "public_issue": True,
+        },
         "answer_marker": _visual_result_marker(result_id),
         "instruction": (
             "Put answer_marker on its own line in your final answer, then write 1-3 sentences "
@@ -1773,7 +1855,7 @@ def _visual_result_summary(envelope: dict) -> dict:
 
 
 _COOCCURRENCE_CAPABILITY_IDS = {
-    "co-occurrence-map", "entity-activity-profile", "interaction-pairs",
+    "subject-record-map", "co-occurrence-map", "entity-activity-profile", "interaction-pairs",
     "survey-priority-squares",
 }
 
@@ -2010,6 +2092,12 @@ def _cooccurrence_envelope(
             time=arguments.get("time"),
             same_year=bool(arguments.get("same_year")),
         )
+    if capability_id == "subject-record-map":
+        return service.subject_record_map(
+            request_id,
+            arguments.get("subject") or arguments,
+            question=question,
+        )
     if capability_id == "interaction-pairs":
         return service.interaction_pairs_result(
             request_id,
@@ -2026,6 +2114,119 @@ def _cooccurrence_envelope(
         group=" ".join(str(arguments.get("group") or "").split()),
         question=question,
     )
+
+
+def _subject_choice_detail(
+    inspected: dict[str, Any], selector: dict[str, str], *, broad: bool,
+) -> dict[str, Any]:
+    """Compact one bounded catalogue for a model choice or a grounded clarification."""
+    catalogue = [
+        [item["entity_id"], item["name"]] for item in inspected["catalogue"]
+    ]
+    candidates = [{
+        "entity_id": item["entity_id"],
+        "name": item["name"],
+        "canonical_name": item["canonical_name"],
+        "records": item["records"],
+    } for item in inspected["candidates"]]
+    requested = inspected["requested"]
+    return {
+        "requests": [{
+            "requested": requested,
+            "reason": inspected["reason"],
+            "candidate_entities": candidates,
+        }],
+        "entity_catalogue_columns": ["entity_id", "recorded_name"],
+        "entity_catalogue": catalogue,
+        "selector": selector,
+        "selection_schema": {
+            "capability_id": "subject-record-map",
+            "requested": "copy the original phrase exactly",
+            "entity_ids": [
+                "choose one or more entity_id values from entity_catalogue rows only"
+            ],
+            "label": "a short reader-facing label for the selected set",
+        },
+        "scope": "broad" if broad else "ambiguous",
+        "ask": (
+            "The user explicitly asked for the broad reading. Choose every recorded name in "
+            "this bounded catalogue that the phrase denotes, then call subject-record-map "
+            "immediately with requested, entity_ids and label. Do not invent a hierarchy value."
+            if broad else
+            "Do not silently choose a broad reading. Ask one short question grounded in the "
+            "candidate recorded names. If the user replies “all”, “go wide” or equivalent, "
+            "choose the applicable ids from this same bounded catalogue and call "
+            "subject-record-map. A naming gap is not evidence of absence."
+        ),
+    }
+
+
+_BROAD_SUBJECT = re.compile(
+    r"(?i)(?:^|\b)(?:all|every|everything|any|whatever|whole|go\s+wide|widen|broad)"
+)
+
+
+def _prepare_single_subject(
+    capability_id: str, arguments: dict, question: str,
+    selector_override: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Resolve or verify a subject without teaching deterministic code what a group means."""
+    if capability_id not in {"entity-record-map", "subject-record-map"}:
+        return {"status": "ready"}
+    service = _cooccurrence_service()
+    if service is None or VISUAL_RESULTS_STATE is None:
+        return {"status": "ready"}
+    module = _visual_module("subject_resolver")
+    selector = dict(selector_override or {
+        "model": MODEL, "prompt_version": module.DEFAULT_PROMPT_VERSION,
+    })
+    if capability_id == "subject-record-map":
+        requested = arguments.get("requested")
+        entity_ids = arguments.get("entity_ids")
+        if entity_ids is None:
+            inspected = None
+            with service.connect() as connection:
+                resolver = module.SubjectResolver(connection, VISUAL_RESULTS_STATE)
+                inspected = resolver.inspect(requested, selector, use_cache=False)
+            return {
+                "status": "selection_required",
+                "reason": "subject_selection_required",
+                "detail": _subject_choice_detail(inspected, selector, broad=True),
+            }
+        with service.connect() as connection:
+            resolver = module.SubjectResolver(connection, VISUAL_RESULTS_STATE)
+            binding = resolver.verify(
+                requested, entity_ids, selector, label=arguments.get("label"),
+                replace_cache=bool(arguments.get("replace_cache", True)),
+            )
+        arguments.clear()
+        arguments["subject"] = binding
+        return {"status": "ready"}
+
+    requested = " ".join(str(arguments.get("entity") or "").split())
+    if not requested:
+        return {"status": "ready"}
+    with service.connect() as connection:
+        resolver = module.SubjectResolver(connection, VISUAL_RESULTS_STATE)
+        inspected = resolver.inspect(requested, selector)
+    if inspected["status"] == "resolved":
+        binding = inspected["binding"]
+        # A cached model selection is still an interpretation and must use the selected-subject
+        # route so its members remain visible and correctable.
+        if binding.get("resolution_method") == "cached_model_selection":
+            arguments.clear()
+            arguments["subject"] = binding
+            return {"status": "switch", "capability_id": "subject-record-map"}
+        return {"status": "ready"}
+    broad = bool(_BROAD_SUBJECT.search(f"{requested} {question}"))
+    return {
+        "status": "selection_required",
+        "reason": (
+            "subject_selection_required" if broad
+            else "subject_clarification_required"
+        ),
+        "detail": _subject_choice_detail(inspected, selector, broad=broad),
+    }
 
 
 def _prepare_cooccurrence_subjects(
@@ -2195,6 +2396,49 @@ def _visual_result_query(args: dict, session: "Session | None") -> dict:
         turn = session.turn if session is not None else 0
         session_id = session.id if session is not None else "bridge"
         request_id = f"{session_id}-t{turn}-{secrets.token_hex(4)}"
+    pending = session.pending_subject if session is not None else None
+    if (
+        isinstance(pending, dict)
+        and capability_id != "subject-record-map"
+        and _BROAD_SUBJECT.search(question)
+        and session is not None
+        and session.turn - int(pending.get("turn") or 0) <= 2
+    ):
+        requested = " ".join(str(pending.get("requested") or "").split())
+        mentions_requested = requested.casefold() in question.casefold()
+        short_acknowledgement = len(question.split()) <= 8
+        if requested and (mentions_requested or short_acknowledgement):
+            pending_args = {"entity": requested}
+            prepared_pending = _prepare_single_subject(
+                "entity-record-map", pending_args, f"all {question}"
+            )
+            if prepared_pending["status"] == "selection_required":
+                return {
+                    "status": "data_request",
+                    "reason": "subject_selection_required",
+                    "detail": prepared_pending["detail"],
+                    "provenance": [],
+                }
+    prepared_single = _prepare_single_subject(capability_id, arguments, question)
+    if prepared_single["status"] == "selection_required":
+        if session is not None:
+            requests = prepared_single["detail"].get("requests") or []
+            requested = requests[0].get("requested") if requests else None
+            session.pending_subject = {
+                "requested": requested,
+                "turn": session.turn,
+                "reason": prepared_single["reason"],
+            }
+        return {
+            "status": "data_request",
+            "reason": prepared_single["reason"],
+            "detail": prepared_single["detail"],
+            "provenance": [],
+        }
+    if prepared_single["status"] == "switch":
+        capability_id = prepared_single["capability_id"]
+    if capability_id == "subject-record-map" and session is not None:
+        session.pending_subject = None
     # Try the name before the capability can call it a non-match. This rewrites the arguments in
     # place when the word the user used is not the word the index files it under.
     resolution = _visual_resolve_arguments(capability_id, arguments)
@@ -2384,6 +2628,71 @@ def _visual_explain_summary(lineage: dict) -> dict:
         ),
         "source": "Totalrecall visual explain service",
         "label": "derived",
+    }
+
+
+def _feedback_diagnostics(session: "Session") -> dict[str, Any]:
+    """Small reproducibility facts; never the hidden prompt or raw tool trace."""
+    skills = []
+    result_ids = []
+    for call in session.turn_skill_calls:
+        skill = str(call.get("skill") or "")
+        if skill and skill not in skills:
+            skills.append(skill)
+        value = _execution_value(call)
+        if value.get("result_id"):
+            result_ids.append(str(value["result_id"]))
+    service = _result_service()
+    return {
+        "model": MODEL,
+        "public_model": PUBLIC_MODEL,
+        "site_id": (service.site.get("site_id") if service is not None else None),
+        "pack_digest": (service.pack_digest if service is not None else None),
+        "skills_this_turn": ", ".join(skills[:20]),
+        "result_ids_this_turn": ", ".join(result_ids[:20]),
+    }
+
+
+def _report_problem_query(args: dict, session: "Session | None") -> dict:
+    if session is None:
+        return {
+            "status": "data_request",
+            "reason": "report_requires_session",
+            "detail": {"ask": "Supply the conversation session before drafting a report."},
+            "provenance": [],
+        }
+    include = args.get("include_conversation", True)
+    if not isinstance(include, bool):
+        raise ValueError("include_conversation must be true or false")
+    draft = _feedback_service().draft(
+        session_id=session.id,
+        turn=session.turn,
+        description=args.get("description"),
+        include_conversation=include,
+        transcript=args.get("transcript"),
+        audit_path=session.audit_path,
+        diagnostics=_feedback_diagnostics(session),
+    )
+    return {
+        "status": "answer",
+        "label": "designed",
+        "value": {
+            "kind": "problem_report_draft",
+            "report_id": draft["report_id"],
+            "repository": draft["repository"],
+            "public_warning": draft["public_warning"],
+            "include_conversation": draft["include_conversation"],
+            "conversation_messages": draft["conversation_messages"],
+            "title": draft["title"],
+            "body_preview": draft["body"],
+            "requires_confirmation": True,
+            "submit_endpoint": "/v1/feedback/submit",
+        },
+        "provenance": [{
+            "op": "DRAFT_PROBLEM_REPORT",
+            "report_id": draft["report_id"],
+            "audit_id": f"{session.id}/{session.turn}",
+        }],
     }
 
 
@@ -5388,6 +5697,7 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
         "visual-upload",
         "visual-estimate",
         "visual-earth-layer",
+        "report-problem",
     }
     if _is_visual_site_pack(profile) and skill_id not in visual_pack_allowed:
         execution = {
@@ -5422,6 +5732,19 @@ def _execute_skill(skill_id: str, args: dict, session: "Session | None" = None) 
             "execution": execution,
         }
     mode = (SKILLS_BY_ID[skill_id].get("binding") or {}).get("mode")
+    if mode == "report_problem":
+        execution = _report_problem_query(args, session)
+        return {
+            "skill": skill_id,
+            "ir": {"op": "DRAFT_PROBLEM_REPORT"},
+            "schema": {
+                "valid": execution.get("status") == "answer",
+                "errors": [], "holes": [], "ops": ["DRAFT_PROBLEM_REPORT"],
+                "has_estimate": False, "unbound": False,
+                "note": "local immutable draft; public submission requires explicit confirmation",
+            },
+            "execution": execution,
+        }
     if mode == "visual_result":
         execution = _visual_result_query(args, session)
         return {
@@ -6169,6 +6492,7 @@ class Session:
         self.owner = ""
         self.attachments: list[dict] = []
         self.pending_guidance: dict | None = None
+        self.pending_subject: dict | None = None
         self.investigation_history: list[dict] = []
         self.turn_skill_calls: list[dict] = []
         self.guided_action: dict | None = None
@@ -6195,14 +6519,17 @@ class Session:
         self.attachments = list(state.get("attachments") or [])
         pending = state.get("pending_guidance")
         self.pending_guidance = pending if isinstance(pending, dict) else None
+        pending_subject = state.get("pending_subject")
+        self.pending_subject = pending_subject if isinstance(pending_subject, dict) else None
         self.investigation_history = list(state.get("investigation_history") or [])[-30:]
         self.turn = int(state.get("turn") or 0)
         # Gateway credentials are process-scoped. Never reload them from durable session state.
 
     def _save(self) -> None:
         _atomic_json(self.state_path, {
-            "schema": 2, "session_id": self.id, "thread_id": self.thread_id,
+            "schema": 3, "session_id": self.id, "thread_id": self.thread_id,
             "turn": self.turn, "pending_guidance": self.pending_guidance,
+            "pending_subject": self.pending_subject,
             "investigation_history": self.investigation_history[-30:],
             "owner": self.owner, "attachments": self.attachments,
             "model": MODEL, "reasoning": REASONING,
@@ -8384,6 +8711,60 @@ class Handler(http.server.BaseHTTPRequestHandler):
         except Exception as exc:
             self._send_json(400, {"error": str(exc)})
             return
+        if parsed.path in {"/v1/feedback/draft", "/v1/feedback/submit"}:
+            if not self._authorized():
+                self._send_json(401, {"error": {"message": "unauthorized"}})
+                return
+            try:
+                service = _feedback_service()
+                if parsed.path == "/v1/feedback/draft":
+                    session_id = _safe_id(str(
+                        body.get("session_id") or body.get("session") or ""
+                    ))
+                    session = get_session(session_id)
+                    include = body.get("include_conversation", True)
+                    if not isinstance(include, bool):
+                        raise ValueError("include_conversation must be true or false")
+                    draft = service.draft(
+                        session_id=session.id,
+                        turn=(
+                            int(body["turn"]) if body.get("turn") is not None
+                            else session.turn
+                        ),
+                        description=body.get("description"),
+                        include_conversation=include,
+                        transcript=body.get("transcript"),
+                        audit_path=session.audit_path,
+                        diagnostics=_feedback_diagnostics(session),
+                    )
+                    session.append_audit({
+                        "type": "problem_report_drafted",
+                        "report_id": draft["report_id"],
+                        "include_conversation": include,
+                        "repository": draft["repository"],
+                    })
+                    self._send_json(201, draft)
+                    return
+                submitted = service.submit(
+                    str(body.get("report_id") or ""),
+                    confirmed=body.get("confirmed") is True,
+                )
+                self._send_json(200, submitted)
+            except PermissionError as exc:
+                self._send_json(409, {"error": str(exc)})
+            except LookupError as exc:
+                self._send_json(404, {"error": str(exc)})
+            except ValueError as exc:
+                self._send_json(400, {"error": str(exc)})
+            except urllib.error.HTTPError as exc:
+                detail = exc.read().decode("utf-8", errors="replace")[:1000]
+                self._send_json(exc.code, {
+                    "error": "issue provider rejected the submission",
+                    "detail": detail,
+                })
+            except Exception as exc:
+                self._send_json(500, {"error": f"{type(exc).__name__}: {exc}"})
+            return
         if parsed.path == "/v1/results/query":
             if not self._authorized():
                 self._send_json(401, {"error": {"message": "unauthorized"}})
@@ -8404,6 +8785,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 question = str(body.get("question") or "")
                 # The same name lookup and the same bridge-side capabilities the skill path uses,
                 # so a direct caller and the dialogue model never see different answers.
+                prepared_single = _prepare_single_subject(
+                    capability_id, arguments, question, {
+                        "model": "direct-results-client",
+                        "prompt_version": "explicit-subject-selection/1",
+                    },
+                )
+                if prepared_single["status"] == "selection_required":
+                    self._send_json(409, {
+                        "status": "data_request",
+                        "reason": prepared_single["reason"],
+                        "detail": prepared_single["detail"],
+                    })
+                    return
+                if prepared_single["status"] == "switch":
+                    capability_id = prepared_single["capability_id"]
                 resolution = _visual_resolve_arguments(capability_id, arguments)
                 if resolution.get("switch_capability"):
                     capability_id = resolution["switch_capability"]
